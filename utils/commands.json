@@ -264,6 +264,33 @@
       "usage": "kz install <host> <user@address> [--seed] [--dry-run]"
     },
     {
+      "name": "installer",
+      "file": "installer.sh",
+      "key": "M",
+      "group": "host",
+      "order": 8,
+      "desc": "Kartoza-branded installer wizard: partition a disk, create a host + user, and install (self-driven, for someone at the machine's own keyboard)",
+      "terse": "run the bootable-USB installer wizard",
+      "deps": [
+        "chafa",
+        "mkpasswd",
+        "util-linux",
+        "curl",
+        "disko",
+        "nixos-install-tools",
+        "nix"
+      ],
+      "pythonDeps": [
+        "textual"
+      ],
+      "sequence": [
+        "welcome, network check, new host or an existing host profile",
+        "hostname/locale/boot-theme, user account, storage (ZFS-encrypted by default)",
+        "the same bundle picker kz configure uses, then confirm and install"
+      ],
+      "usage": "kz installer [--mock]"
+    },
+    {
       "name": "suspend",
       "file": "suspend.sh",
       "key": "z",

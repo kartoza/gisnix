@@ -404,53 +404,6 @@
         '';
       };
 
-      # The bootable-USB installer. GISNIX_ROOT is baked in as an absolute
-      # store path — on the ISO this checkout IS gisnix, so there is no
-      # "find it on disk" step to get wrong the way a symlink-based lookup
-      # would have. chafa renders the logo on the raw terminal before the
-      # Textual app takes it over (see installer/screens/welcome.py for why
-      # the logo is not drawn inside a widget).
-      installerPython = defaultPkgs.python3.withPackages (ps: [ ps.textual ]);
-      installerPackage = defaultPkgs.writeShellApplication {
-        name = "gisnix-installer";
-        runtimeInputs = [
-          installerPython
-          defaultPkgs.chafa
-          defaultPkgs.mkpasswd
-          defaultPkgs.util-linux # lsblk
-          defaultPkgs.curl
-          defaultPkgs.disko
-          defaultPkgs.nixos-install-tools
-        ];
-        text = ''
-          export GISNIX_ROOT="${./.}"
-          clear
-          chafa --size=48x "$GISNIX_ROOT/resources/kartoza-logo.png" 2>/dev/null || true
-          cd "$GISNIX_ROOT"
-          exec python3 -m installer "$@"
-        '';
-      };
-
-      # `nix run .#installer-mock` — zero-argument, no dev shell needed: the
-      # fastest way to just LOOK at the wizard. For actually iterating on
-      # the screens' code, `nix develop` then `python3 -m installer --mock`
-      # is faster still (no derivation rebuild between edits).
-      installerMockPackage = defaultPkgs.writeShellApplication {
-        name = "gisnix-installer-mock";
-        runtimeInputs = [
-          installerPython
-          defaultPkgs.chafa
-        ];
-        text = ''
-          export GISNIX_ROOT="${./.}"
-          export GISNIX_INSTALLER_MOCK=1
-          clear
-          chafa --size=48x "$GISNIX_ROOT/resources/kartoza-logo.png" 2>/dev/null || true
-          cd "$GISNIX_ROOT"
-          exec python3 -m installer "$@"
-        '';
-      };
-
       commandApps = builtins.listToAttrs (
         map (
           c:
@@ -558,16 +511,6 @@
             program = "${kzDispatcher}/bin/kz";
             meta.description = "Operator commands: `kz` for the list, `kz <command>` to run one";
           };
-          installer = {
-            type = "app";
-            program = "${installerPackage}/bin/gisnix-installer";
-            meta.description = "Launch the Kartoza-branded installer wizard (same tool the ISO boots into)";
-          };
-          installer-mock = {
-            type = "app";
-            program = "${installerMockPackage}/bin/gisnix-installer-mock";
-            meta.description = "Launch the installer wizard with disks/network faked and no real install step — safe to run anywhere";
-          };
         }
         // commandApps
       );
@@ -581,8 +524,13 @@
         # the version this flake locks rather than whatever is on PATH.
         nixos-anywhere = inputs.nixos-anywhere.packages.${system}.nixos-anywhere;
 
-        gisnix-installer = installerPackage;
-        gisnix-installer-mock = installerMockPackage;
+        # The installer, as a standalone package (not just a `kz` subcommand)
+        # — this is what the ISO's environment.systemPackages installs. Built
+        # from the SAME manifest row as `kz installer`/`nix run .#installer`,
+        # so there is exactly one definition of what the installer needs.
+        gisnix-installer = mkCommandDrv (
+          builtins.head (builtins.filter (c: c.name == "installer") commandManifest.commands)
+        );
       });
 
       # CHECKS
