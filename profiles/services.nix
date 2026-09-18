@@ -2,7 +2,7 @@
   config,
   pkgs,
   projectConfig,
-  hostname,
+  hostPath,
   ...
 }:
 
@@ -22,7 +22,7 @@
     # needs to reproduce what an unfiltered user sees.
     ../software/services/dns/blocky.nix
     ../software/services/dns/block-doh.nix
-    # Any host specific configuration goes in the host folders services.nix
-    ../hosts/${hostname}/services.nix
+    # Any host specific configuration goes in the host's own services.nix
+    (hostPath + "/services.nix")
   ];
 }

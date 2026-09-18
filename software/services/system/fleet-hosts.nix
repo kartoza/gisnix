@@ -21,10 +21,15 @@
 # a host that needs a private entry can still append its own; nothing here
 # forces or overrides.
 
-{ lib, ... }:
+{ lib, fleet, ... }:
 
 let
-  fleet = import ../../../hosts/fleet.nix;
+  # `fleet` arrives via specialArgs (see flake.nix's mkHost) rather than
+  # being imported from a `../../../hosts/fleet.nix` path here: this module
+  # is shared, bundle-driven infrastructure that every host takes the same
+  # copy of, but the fleet registry it describes is repo-specific — a
+  # downstream flake that pins gisnix as an input has its OWN fleet.nix, not
+  # this one.
 
   # Managed hosts and unmanaged peers are published the same way; the
   # distinction matters for deployment, not for name resolution.

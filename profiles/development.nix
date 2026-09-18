@@ -4,7 +4,7 @@
   lib,
   pkgs,
   projectConfig,
-  hostname,
+  hostPath,
   ...
 }:
 lib.throwIfNot (projectConfig.environmentName == "dev")
@@ -59,5 +59,5 @@ lib.throwIfNot (projectConfig.environmentName == "dev")
     };
 
     # Host specific configuration
-    imports = [ ../hosts/${hostname}/development.nix ];
+    imports = [ (hostPath + "/development.nix") ];
   }

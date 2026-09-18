@@ -3,6 +3,7 @@
   outputs,
   projectConfig,
   hostConfig,
+  fleet,
   lib,
   ...
 }:
@@ -35,6 +36,7 @@
             outputs
             projectConfig
             hostConfig
+            fleet
             ;
           hostname = "example";
         };

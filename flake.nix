@@ -173,8 +173,10 @@
               inputs
               outputs
               hostname
+              hostPath
               projectConfig
               hostConfig
+              fleet
               ;
             qgis-master-repo = inputs.qgis-master-repo;
             qgis-latest-repo = inputs.qgis-latest-repo;
@@ -187,6 +189,16 @@
               system = "x86_64-linux";
               config.allowUnfree = false;
             };
+            # This flake's own root, as an absolute path — so a host living
+            # in a DOWNSTREAM flake (hostPath pointing outside this repo,
+            # e.g. a machine's own tiny flake pinning gisnix as an input)
+            # can still reach shared, non-bundle profiles and locale modules
+            # with `gisnixRoot + "/profiles/cosmic-desktop.nix"` instead of a
+            # `../../` path that would resolve against the WRONG repo. Bundle
+            # modules (software/) don't need this — profiles/bundles.nix
+            # already imports those relative to gisnixRoot itself. Only
+            # things a host's own default.nix imports directly need it.
+            gisnixRoot = ./.;
           };
         };
 
@@ -392,6 +404,33 @@
         '';
       };
 
+      # The bootable-USB installer. GISNIX_ROOT is baked in as an absolute
+      # store path — on the ISO this checkout IS gisnix, so there is no
+      # "find it on disk" step to get wrong the way a symlink-based lookup
+      # would have. chafa renders the logo on the raw terminal before the
+      # Textual app takes it over (see installer/screens/welcome.py for why
+      # the logo is not drawn inside a widget).
+      installerPython = defaultPkgs.python3.withPackages (ps: [ ps.textual ]);
+      installerPackage = defaultPkgs.writeShellApplication {
+        name = "gisnix-installer";
+        runtimeInputs = [
+          installerPython
+          defaultPkgs.chafa
+          defaultPkgs.mkpasswd
+          defaultPkgs.util-linux # lsblk
+          defaultPkgs.curl
+          defaultPkgs.disko
+          defaultPkgs.nixos-install-tools
+        ];
+        text = ''
+          export GISNIX_ROOT="${./.}"
+          clear
+          chafa --size=48x "$GISNIX_ROOT/resources/kartoza-logo.png" 2>/dev/null || true
+          cd "$GISNIX_ROOT"
+          exec python3 -m installer "$@"
+        '';
+      };
+
       commandApps = builtins.listToAttrs (
         map (
           c:
@@ -444,7 +483,7 @@
         in
         defaultPkgs.testers.runNixOSTest (
           import ./tests/test-${hostname}.nix {
-            inherit inputs outputs hostConfig;
+            inherit inputs outputs hostConfig fleet;
             lib = nixpkgs.lib;
             projectConfig = prodConfig;
           }
@@ -499,6 +538,11 @@
             program = "${kzDispatcher}/bin/kz";
             meta.description = "Operator commands: `kz` for the list, `kz <command>` to run one";
           };
+          installer = {
+            type = "app";
+            program = "${installerPackage}/bin/gisnix-installer";
+            meta.description = "Launch the Kartoza-branded installer wizard (same tool the ISO boots into)";
+          };
         }
         // commandApps
       );
@@ -511,6 +555,8 @@
         # The pinned nixos-anywhere, exposed so `kz install` runs exactly
         # the version this flake locks rather than whatever is on PATH.
         nixos-anywhere = inputs.nixos-anywhere.packages.${system}.nixos-anywhere;
+
+        gisnix-installer = installerPackage;
       });
 
       # CHECKS

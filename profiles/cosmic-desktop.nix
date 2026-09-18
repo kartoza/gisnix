@@ -1,5 +1,5 @@
 {
-  hostname,
+  hostPath,
   ...
 }:
 {
@@ -16,7 +16,7 @@
   # invisibly, and no host named any of them. Now the host's list is the
   # answer.
   imports = [
-    ../hosts/${hostname}/desktop.nix
+    (hostPath + "/desktop.nix")
   ];
 
   # Enable the Kartoza COSMIC configuration (compositor settings, greeter,
