@@ -11,6 +11,7 @@ from __future__ import annotations
 from textual.app import App
 
 from . import branding
+from .repo import MOCK
 from .state import InstallState
 
 
@@ -18,7 +19,7 @@ class InstallerApp(App):
     """CSS variables aren't native Textual — colors are interpolated
     directly from the Kartoza palette (branding.textual_css_vars())."""
 
-    TITLE = "gisnix installer"
+    TITLE = "gisnix installer" + (" [MOCK]" if MOCK else "")
 
     def __init__(self) -> None:
         super().__init__()

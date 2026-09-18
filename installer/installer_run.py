@@ -14,10 +14,11 @@ from __future__ import annotations
 import shutil
 import subprocess
 import tempfile
+import time
 from collections.abc import Iterator
 from pathlib import Path
 
-from .repo import GISNIX_ROOT
+from .repo import GISNIX_ROOT, MOCK
 from .state import InstallState
 from .writer import write_existing_host, write_new_host
 
@@ -37,7 +38,46 @@ def _stream(cmd: list[str], **kwargs) -> Iterator[str]:
         raise RuntimeError(f"command failed ({code}): {' '.join(cmd)}")
 
 
+def run_install_mock(state: InstallState) -> Iterator[str]:
+    """--mock: write the real host/user/flake files to a temp dir (so
+    there's something real to eyeball), then fake every step that would
+    touch a disk, run nix, or need root. No subprocess, no network, no
+    /mnt — safe to run from any ordinary terminal, repeatedly, in seconds.
+    """
+    if GISNIX_ROOT is None:
+        raise RuntimeError("gisnix checkout not found on this system")
+
+    work_dir = Path(tempfile.mkdtemp(prefix="gisnix-install-mock-"))
+    yield f"[MOCK] Working in {work_dir}"
+
+    if state.use_existing_host:
+        write_existing_host(state, work_dir)
+    else:
+        write_new_host(state, work_dir)
+    yield "[MOCK] Host and user files written for real — inspect them at the path above."
+    for f in sorted(work_dir.rglob("*.nix")):
+        yield f"  {f.relative_to(work_dir)}"
+
+    fake_steps = [
+        "── [MOCK] Pointing the new flake at this ISO's own gisnix copy ──",
+        "── [MOCK] Partitioning and formatting (disko) ── (skipped, no disk touched)",
+        "── [MOCK] Installing NixOS (nixos-install) ── (skipped, no root/build)",
+        "── [MOCK] Re-pointing the installed flake at the public gisnix repo ──",
+        "── [MOCK] Copying the flake into the new machine ── (skipped)",
+        "── Done ──",
+        f"Reboot, remove the USB drive, and log in as {state.username}.",
+        "~/nixos-config is the single source of truth from here — kz configure, kz update.",
+    ]
+    for line in fake_steps:
+        time.sleep(0.3)
+        yield line
+
+
 def run_install(state: InstallState) -> Iterator[str]:
+    if MOCK:
+        yield from run_install_mock(state)
+        return
+
     if GISNIX_ROOT is None:
         raise RuntimeError("gisnix checkout not found on this system")
 

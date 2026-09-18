@@ -72,6 +72,11 @@ pkgs.mkShell {
         mkdocs-git-revision-date-localized-plugin
         pymdown-extensions
         pygments
+        # textual: so `GISNIX_INSTALLER_MOCK=1 python3 -m installer` (or
+        # `python3 -m installer --mock`) runs straight from the working
+        # tree — no `nix run`/rebuild between edits, the fastest loop for
+        # iterating on the installer wizard's screens.
+        textual
       ]
     ))
   ];

@@ -431,6 +431,26 @@
         '';
       };
 
+      # `nix run .#installer-mock` — zero-argument, no dev shell needed: the
+      # fastest way to just LOOK at the wizard. For actually iterating on
+      # the screens' code, `nix develop` then `python3 -m installer --mock`
+      # is faster still (no derivation rebuild between edits).
+      installerMockPackage = defaultPkgs.writeShellApplication {
+        name = "gisnix-installer-mock";
+        runtimeInputs = [
+          installerPython
+          defaultPkgs.chafa
+        ];
+        text = ''
+          export GISNIX_ROOT="${./.}"
+          export GISNIX_INSTALLER_MOCK=1
+          clear
+          chafa --size=48x "$GISNIX_ROOT/resources/kartoza-logo.png" 2>/dev/null || true
+          cd "$GISNIX_ROOT"
+          exec python3 -m installer "$@"
+        '';
+      };
+
       commandApps = builtins.listToAttrs (
         map (
           c:
@@ -543,6 +563,11 @@
             program = "${installerPackage}/bin/gisnix-installer";
             meta.description = "Launch the Kartoza-branded installer wizard (same tool the ISO boots into)";
           };
+          installer-mock = {
+            type = "app";
+            program = "${installerMockPackage}/bin/gisnix-installer-mock";
+            meta.description = "Launch the installer wizard with disks/network faked and no real install step — safe to run anywhere";
+          };
         }
         // commandApps
       );
@@ -557,6 +582,7 @@
         nixos-anywhere = inputs.nixos-anywhere.packages.${system}.nixos-anywhere;
 
         gisnix-installer = installerPackage;
+        gisnix-installer-mock = installerMockPackage;
       });
 
       # CHECKS

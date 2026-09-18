@@ -5,6 +5,7 @@ subprocess helpers shared by several steps."""
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
 from dataclasses import dataclass
@@ -13,6 +14,12 @@ from pathlib import Path
 from .branding import find_gisnix_root
 
 GISNIX_ROOT = find_gisnix_root()
+
+#: Set by `--mock` / GISNIX_INSTALLER_MOCK=1 (see __main__.py). Swaps every
+#: real-system probe and the actual disko/nixos-install run for fakes, so
+#: the wizard can be driven end-to-end in an ordinary terminal — no VM, no
+#: root, no disk at risk — for fast iteration on the screens themselves.
+MOCK = os.environ.get("GISNIX_INSTALLER_MOCK") == "1"
 
 
 @dataclass
@@ -59,9 +66,20 @@ class Disk:
     model: str
 
 
+#: Fake disks for --mock: two sizes, so single- and multi-disk storage
+#: modes both have something plausible to pick from.
+_MOCK_DISKS = [
+    Disk(device="/dev/vda", size_human="80.0GB", model="QEMU HARDDISK (mock)"),
+    Disk(device="/dev/vdb", size_human="80.0GB", model="QEMU HARDDISK (mock)"),
+    Disk(device="/dev/vdc", size_human="40.0GB", model="QEMU HARDDISK (mock)"),
+]
+
+
 def list_disks() -> list[Disk]:
     """Whole-disk block devices (no partitions, no loop/rom devices) via
     lsblk — the installer only ever offers to partition an entire disk."""
+    if MOCK:
+        return list(_MOCK_DISKS)
     try:
         out = subprocess.run(
             ["lsblk", "-J", "-b", "-o", "NAME,TYPE,SIZE,MODEL"],
@@ -98,6 +116,8 @@ def _human_size(nbytes: int) -> str:
 
 
 def network_is_up() -> bool:
+    if MOCK:
+        return True
     try:
         subprocess.run(
             ["curl", "-fsS", "--max-time", "5", "-o", "/dev/null", "https://cache.nixos.org"],
@@ -123,13 +143,24 @@ def valid_username(name: str) -> bool:
 
 def hash_password(password: str) -> str:
     """SHA-512 crypt hash via mkpasswd, for hashedPassword — a plaintext
-    password is never written to any generated file."""
-    out = subprocess.run(
-        ["mkpasswd", "-m", "sha-512", "--stdin"],
-        input=password,
-        capture_output=True,
-        text=True,
-        check=True,
-        timeout=10,
-    )
-    return out.stdout.strip()
+    password is never written to any generated file.
+
+    In --mock, a missing mkpasswd (e.g. running straight from a plain
+    devShell rather than the packaged installer) gets an obviously-fake
+    placeholder instead of a real hash — good enough to exercise the
+    wizard and inspect the generated files, never used for a real install
+    (a real MOCK never writes to /mnt or calls nixos-install)."""
+    try:
+        out = subprocess.run(
+            ["mkpasswd", "-m", "sha-512", "--stdin"],
+            input=password,
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=10,
+        )
+        return out.stdout.strip()
+    except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        if MOCK:
+            return "!MOCK-HASH-mkpasswd-not-on-PATH!"
+        raise
