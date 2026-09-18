@@ -39,6 +39,11 @@ nix run --extra-experimental-features "nix-command flakes" github:kartoza/gisnix
   minimal COSMIC, ZFS-encrypted single disk. Copy it as the starting point
   for your own host, or run `kz create-host <name>`.
 - `nix run .#example-vm` — boot the example host in QEMU.
+- `nix run .#test-install` — build the installer ISO and boot it in QEMU
+  with a persistent test disk, for trying the real (non-mock) installer
+  end-to-end without touching real hardware. VMware/VirtualBox: boot the
+  built ISO the normal way — it's a standard UEFI installation image, no
+  hypervisor-specific variant needed.
 
 ## License
 

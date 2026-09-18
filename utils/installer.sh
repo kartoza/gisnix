@@ -20,7 +20,27 @@
 # installer/screens/bundles.py for how its software-selection step reuses
 # THIS SAME repo's utils/lib/configure_tui.py rather than a second
 # implementation.
+#
+# Run two different ways, so it has to find its own repo root rather than
+# assume the caller already cd'd there:
+#   - `kz installer`      — kz already cd'd to the repo root; we're IN it.
+#   - `gisnix-installer`  — the ISO's environment.systemPackages entry,
+#                           invoked from whatever directory a login shell
+#                           happens to be in.
 set -uo pipefail
+
+root="${GISNIX_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || true)}"
+if [ -z "$root" ]; then
+  for candidate in /etc/gisnix /iso/gisnix /home/gisnix; do
+    [ -f "$candidate/brand.nix" ] && root="$candidate" && break
+  done
+fi
+if [ -z "$root" ] || [ ! -f "$root/brand.nix" ]; then
+  echo "installer: cannot find the gisnix checkout (looked for \$GISNIX_ROOT, git root, /etc/gisnix, /iso/gisnix, /home/gisnix)" >&2
+  exit 1
+fi
+export GISNIX_ROOT="$root"
+cd "$root"
 
 clear
 chafa --size=48x resources/kartoza-logo.png 2>/dev/null || true

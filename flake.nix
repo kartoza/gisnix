@@ -476,12 +476,24 @@
       };
 
       # HOSTS
-      nixosConfigurations = builtins.listToAttrs (
-        map (name: {
-          inherit name;
-          value = mkHost name { };
-        }) allHosts
-      );
+      nixosConfigurations =
+        builtins.listToAttrs (
+          map (name: {
+            inherit name;
+            value = mkHost name { };
+          }) allHosts
+        )
+        // {
+          # The installer ISO — x86_64 only for now. Not built through
+          # mkHost: it isn't a fleet host, it's the thing that CREATES one.
+          installer = nixpkgs.lib.nixosSystem {
+            system = "x86_64-linux";
+            specialArgs = {
+              gisnixInstaller = self.packages.x86_64-linux.gisnix-installer;
+            };
+            modules = [ ./installer.nix ];
+          };
+        };
 
       # APPS
       apps = forAllSystems (
@@ -510,6 +522,59 @@
             type = "app";
             program = "${kzDispatcher}/bin/kz";
             meta.description = "Operator commands: `kz` for the list, `kz <command>` to run one";
+          };
+          # Build the installer ISO and boot it in QEMU — the fastest way to
+          # try the real (non-mock) installer against a real virtual disk,
+          # UEFI, and TTY. Persists the test disk (tuinix-style) across runs
+          # so a completed install survives a reboot for inspection; delete
+          # gisnix-test.qcow2 to start over.
+          test-install = {
+            type = "app";
+            program = toString (
+              defaultPkgs.writeShellScript "test-install" ''
+                set -e
+                echo "Building installer ISO..."
+                nix build .#nixosConfigurations.installer.config.system.build.isoImage --print-build-logs
+                ISO=$(find result/iso -name "*.iso" | head -1)
+                if [ -z "$ISO" ]; then
+                  echo "ERROR: No ISO found in result/iso/" >&2
+                  exit 1
+                fi
+                echo "ISO built: $ISO"
+
+                DISK="gisnix-test.qcow2"
+                if [ ! -f "$DISK" ]; then
+                  echo "Creating 40G test disk..."
+                  ${defaultPkgs.qemu}/bin/qemu-img create -f qcow2 "$DISK" 40G
+                fi
+
+                OVMF_CODE="${defaultPkgs.OVMF.fd}/FV/OVMF_CODE.fd"
+                OVMF_VARS_SRC="${defaultPkgs.OVMF.fd}/FV/OVMF_VARS.fd"
+                OVMF_VARS="$PWD/.gisnix-test-OVMF_VARS.fd"
+                cp -f "$OVMF_VARS_SRC" "$OVMF_VARS"
+                chmod 600 "$OVMF_VARS"
+
+                echo "Launching QEMU..."
+                ${defaultPkgs.qemu}/bin/qemu-system-x86_64 \
+                  -enable-kvm \
+                  -m 8G \
+                  -smp 4 \
+                  -cpu host \
+                  -machine q35,accel=kvm \
+                  -drive if=pflash,format=raw,readonly=on,file="$OVMF_CODE" \
+                  -drive if=pflash,format=raw,file="$OVMF_VARS" \
+                  -drive file="$DISK",format=qcow2,if=none,id=disk0 \
+                  -device virtio-blk-pci,drive=disk0,serial=gisnix-root \
+                  -cdrom "$ISO" \
+                  -boot order=dc,menu=on \
+                  -netdev user,id=net0 \
+                  -device virtio-net-pci,netdev=net0 \
+                  -display sdl \
+                  -usb -device qemu-xhci -device usb-tablet \
+                  -name "gisnix installer test"
+              ''
+            );
+            meta.description = "Build the installer ISO and boot it in QEMU with a persistent 40G test disk";
           };
         }
         // commandApps
