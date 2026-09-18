@@ -1,0 +1,748 @@
+{
+  "_comment": [
+    "SINGLE SOURCE OF TRUTH for operator commands in this flake.",
+    "",
+    "One row here mints four things, so a command is declared once:",
+    "  flake.nix         -> nix run .#<name>  (writeShellApplication, deps as runtimeInputs)",
+    "  utils/<file>      -> the implementation, also runnable directly as ./utils/<file>",
+    "  .nvim.lua / .exrc -> <leader>p<key>",
+    "  utils/dev-help.sh -> the `hp` cheat-sheet, grouped and coloured",
+    "",
+    "The groups and their order mirror the personal-servers flake, so moving",
+    "between the two projects does not mean relearning the menu. Groups that",
+    "have no counterpart there (storage, hardware, vm) come last.",
+    "",
+    "Fields:",
+    "  name     the nix run attribute and the binary name",
+    "  file     the script under utils/ that implements it. SEVERAL ROWS MAY",
+    "           SHARE ONE FILE: the script dispatches on the name it was",
+    "           invoked as. dns-{status,off,on,test} are one script.",
+    "  key      the <leader>p<key> suffix in Neovim; must be unique",
+    "  group    which section of the cheat-sheet it appears under",
+    "  order    position within that group",
+    "  desc     one line, shown by nix run --help and the cheat-sheet",
+    "  terse    short form for the narrow cheat-sheet column",
+    "  deps     nixpkgs attribute names put on PATH for this command only",
+    "  pythonDeps optional; nixpkgs python libraries built into an",
+    "           interpreter for this command. `deps` cannot express these:",
+    "           a library must be inside the interpreter to be importable.",
+    "           A row using it must not also list python3.",
+    "  prelude  optional; shared libraries under utils/lib/ inlined ahead of",
+    "           the script (writeShellApplication wraps one file, so a",
+    "           relative `source` cannot work)",
+    "  sequence optional; the steps the command runs, printed as a banner",
+    "           before it starts. Omit for read-only commands, which have no",
+    "           workflow to announce and should not have their output",
+    "           polluted.",
+    "  usage    optional; the invocation including arguments, for the docs.",
+    "           Omit when the command takes none.",
+    "  excludeChecks optional; shellcheck codes tolerated for this script",
+    "",
+    "Rows whose utils/<file> does not exist yet are skipped by the flake, so",
+    "this manifest describes the intended lifecycle while it is being built",
+    "out. `hp` marks those rows rather than hiding them.",
+    "",
+    "`groups` fixes the order sections appear in. Without it the cheat-sheet",
+    "sorted them alphabetically \u2014 dns first, host fifth \u2014 which destroys the",
+    "lifecycle reading the grouping exists to give."
+  ],
+  "groups": [
+    "host",
+    "secrets",
+    "env",
+    "dns",
+    "software",
+    "qa",
+    "storage",
+    "hardware",
+    "vm"
+  ],
+  "commands": [
+    {
+      "name": "create-host",
+      "file": "create-host.sh",
+      "key": "a",
+      "group": "host",
+      "order": 0,
+      "desc": "Migrate a self-installed NixOS machine into this flake: read its hardware, write hosts/<name>/, register it and stage it",
+      "terse": "adopt this machine as a new host",
+      "deps": [
+        "coreutils",
+        "git",
+        "gnugrep",
+        "gnused",
+        "gawk",
+        "findutils",
+        "util-linux",
+        "pciutils",
+        "zfs",
+        "nix",
+        "gum",
+        "python3",
+        "nixos-install-tools"
+      ],
+      "prelude": [
+        "probe.sh"
+      ],
+      "sequence": [
+        "refuse to run anywhere that is not the real machine",
+        "read hostId, disks, CPU/GPU and encryption off the running system",
+        "write hosts/<name>/, register it in fleet.nix and stage it for git"
+      ],
+      "usage": "kz create-host <name> [--dry-run]"
+    },
+    {
+      "name": "update",
+      "file": "update.sh",
+      "key": "u",
+      "group": "host",
+      "order": 1,
+      "desc": "Push this flake's configuration to one host, several, or all of them",
+      "terse": "rebuild a host (local, ssh or rsync)",
+      "deps": [
+        "coreutils",
+        "nix",
+        "openssh",
+        "rsync",
+        "gum",
+        "nettools",
+        "home-manager",
+        "systemd",
+        "procps"
+      ],
+      "sequence": [
+        "resolve the targets and how each one deploys",
+        "build, and for remote hosts sign and copy the closure",
+        "activate, then offer to collect garbage (local only)"
+      ]
+    },
+    {
+      "name": "update-all",
+      "file": "update.sh",
+      "key": "U",
+      "group": "host",
+      "order": 2,
+      "desc": "Push this flake's configuration to every deployable host",
+      "terse": "rebuild the whole fleet",
+      "deps": [
+        "coreutils",
+        "nix",
+        "openssh",
+        "rsync",
+        "gum",
+        "nettools",
+        "home-manager",
+        "systemd",
+        "procps"
+      ]
+    },
+    {
+      "name": "inventory",
+      "file": "inventory.sh",
+      "key": "i",
+      "group": "host",
+      "order": 3,
+      "desc": "One line per host: role, owner, address, whether it answers, unit health",
+      "terse": "fleet overview, read-only",
+      "deps": [
+        "coreutils",
+        "nix",
+        "openssh",
+        "nettools",
+        "systemd",
+        "gnugrep"
+      ]
+    },
+    {
+      "name": "preflight",
+      "file": "preflight.sh",
+      "key": "f",
+      "group": "host",
+      "order": 4,
+      "desc": "Checks to run against a host before rebuilding it",
+      "terse": "pre-rebuild safety checks",
+      "deps": [
+        "coreutils",
+        "nix",
+        "openssh",
+        "zfs",
+        "nettools",
+        "gnugrep",
+        "util-linux"
+      ],
+      "prelude": [
+        "fleet.sh"
+      ]
+    },
+    {
+      "name": "generate-hardware",
+      "file": "generate-hardware.sh",
+      "key": "g",
+      "group": "host",
+      "order": 5,
+      "desc": "Generate hardware.nix for a new host from the running machine",
+      "terse": "nixos-generate-config -> hardware.nix",
+      "deps": [
+        "coreutils",
+        "nix",
+        "gawk",
+        "gnused",
+        "nettools"
+      ],
+      "sequence": [
+        "sudo nixos-generate-config --show-hardware-config",
+        "strip the parts this flake declares itself",
+        "write hosts/<hostname>/hardware.nix"
+      ]
+    },
+    {
+      "name": "deploy",
+      "file": "deploy.sh",
+      "key": "d",
+      "group": "host",
+      "order": 6,
+      "desc": "Create a Hetzner cloud server from hosts/<name>/server.nix and install onto it \u2014 the cloud path; kz install is the physical one",
+      "terse": "create a cloud server and install",
+      "deps": [
+        "coreutils",
+        "findutils",
+        "gnugrep",
+        "gnused",
+        "git",
+        "nix"
+      ],
+      "sequence": [
+        "check the host has hcloud parameters in server.nix",
+        "show the machine that would be created, and that it is billable",
+        "create it with hcloud, then install with nixos-anywhere"
+      ],
+      "prelude": [
+        "fleet.sh"
+      ],
+      "usage": "kz deploy <host> [--list] [--dry-run]"
+    },
+    {
+      "name": "check",
+      "file": "check.sh",
+      "key": "k",
+      "group": "host",
+      "order": 8,
+      "desc": "One host in depth: reachability, boot phase, pool health, failed units",
+      "terse": "deep single-host report",
+      "deps": [
+        "coreutils",
+        "nix",
+        "openssh",
+        "zfs",
+        "systemd",
+        "nettools"
+      ],
+      "prelude": [
+        "fleet.sh"
+      ]
+    },
+    {
+      "name": "install",
+      "file": "install.sh",
+      "key": "I",
+      "group": "host",
+      "order": 7,
+      "desc": "Install a host onto a machine booted from a live ISO, over SSH, with nixos-anywhere and disko",
+      "terse": "install onto a live-booted machine",
+      "deps": [
+        "coreutils",
+        "git",
+        "gnugrep",
+        "openssh",
+        "nix"
+      ],
+      "sequence": [
+        "check the host has a disko layout and that the target answers over SSH",
+        "name the machine, the address and the disk, and require the hostname typed back",
+        "partition and install with nixos-anywhere; --seed later clones the flake for its owner"
+      ],
+      "usage": "kz install <host> <user@address> [--seed] [--dry-run]"
+    },
+    {
+      "name": "suspend",
+      "file": "suspend.sh",
+      "key": "z",
+      "group": "host",
+      "order": 9,
+      "desc": "Suspend a host cleanly, leaving its pools in a resumable state",
+      "terse": "suspend a host",
+      "deps": [
+        "coreutils",
+        "openssh",
+        "systemd",
+        "zfs"
+      ],
+      "prelude": [
+        "fleet.sh"
+      ]
+    },
+    {
+      "name": "wake",
+      "file": "wake.sh",
+      "key": "w",
+      "group": "host",
+      "order": 10,
+      "desc": "Wake a host over the network and wait for it to answer",
+      "terse": "wake-on-LAN a host",
+      "deps": [
+        "coreutils",
+        "openssh",
+        "wakeonlan",
+        "nettools"
+      ],
+      "prelude": [
+        "fleet.sh"
+      ]
+    },
+    {
+      "name": "snapshot",
+      "file": "snapshot.sh",
+      "key": "n",
+      "group": "host",
+      "order": 11,
+      "desc": "Take an on-demand ZFS snapshot outside the sanoid schedule",
+      "terse": "manual ZFS snapshot",
+      "deps": [
+        "coreutils",
+        "nix",
+        "openssh",
+        "zfs",
+        "gnugrep",
+        "nettools"
+      ],
+      "sequence": [
+        "list the datasets that would be snapshotted",
+        "confirm the label and the recursion",
+        "zfs snapshot, then report the new snapshots"
+      ],
+      "prelude": [
+        "fleet.sh"
+      ]
+    },
+    {
+      "name": "backup",
+      "file": "backup.sh",
+      "key": "b",
+      "group": "host",
+      "order": 12,
+      "desc": "Run the USB offload: send new snapshots to the backup pool",
+      "terse": "offload snapshots to USB",
+      "deps": [
+        "coreutils",
+        "zfs",
+        "gum",
+        "openssh"
+      ],
+      "sequence": [
+        "import the backup pool and check its health",
+        "send each dataset incrementally from its bookmark",
+        "update the bookmarks and export the pool"
+      ],
+      "prelude": [
+        "fleet.sh"
+      ]
+    },
+    {
+      "name": "reset",
+      "file": "reset.sh",
+      "key": "X",
+      "group": "host",
+      "order": 13,
+      "desc": "Destroy a host and reinstall it from scratch \u2014 guarded, irreversible",
+      "terse": "wipe and reinstall a host",
+      "deps": [
+        "coreutils",
+        "nix",
+        "openssh",
+        "gum"
+      ],
+      "sequence": [
+        "require the hostname typed back, and --i-mean-it",
+        "show exactly which pools and disks will be destroyed",
+        "destroy, then reinstall with deploy"
+      ],
+      "prelude": [
+        "fleet.sh"
+      ]
+    },
+    {
+      "name": "secrets",
+      "file": "secrets.sh",
+      "key": "s",
+      "group": "secrets",
+      "order": 1,
+      "desc": "What secrets are declared, and which hosts and keys can decrypt them",
+      "terse": "list secrets and their readers",
+      "deps": [
+        "coreutils",
+        "nix",
+        "age",
+        "rage",
+        "gnused"
+      ]
+    },
+    {
+      "name": "provision-secrets",
+      "file": "provision-secrets.sh",
+      "key": "p",
+      "group": "secrets",
+      "order": 2,
+      "desc": "Install the age identity on a host and rekey its secrets",
+      "terse": "push the age key, rekey",
+      "deps": [
+        "coreutils",
+        "nix",
+        "openssh",
+        "age",
+        "rage",
+        "gum"
+      ],
+      "sequence": [
+        "confirm the target host and its age recipient",
+        "copy the identity to /root/.agenix/agenix.key",
+        "rekey the secrets that host is allowed to read"
+      ]
+    },
+    {
+      "name": "unlock",
+      "file": "unlock.sh",
+      "key": "y",
+      "group": "secrets",
+      "order": 3,
+      "desc": "Unlock an encrypted pool over initrd SSH so a host can finish booting",
+      "terse": "unlock a host at initrd",
+      "deps": [
+        "coreutils",
+        "openssh",
+        "gum",
+        "nettools"
+      ],
+      "prelude": [
+        "fleet.sh"
+      ]
+    },
+    {
+      "name": "add-site-deploy-key",
+      "file": "add-site-deploy-key.sh",
+      "key": "Y",
+      "group": "secrets",
+      "order": 4,
+      "desc": "Generate a deploy key and register it for a repository",
+      "terse": "mint and register a deploy key",
+      "deps": [
+        "coreutils",
+        "openssh",
+        "age",
+        "rage",
+        "gh",
+        "gum"
+      ]
+    },
+    {
+      "name": "netbird-provision",
+      "file": "netbird-provision.sh",
+      "key": "N",
+      "group": "secrets",
+      "order": 5,
+      "desc": "Join a host to the company NetBird overlay, locally or remotely",
+      "terse": "enrol a host in the overlay",
+      "deps": [
+        "coreutils",
+        "nix",
+        "openssh",
+        "netbird",
+        "gum",
+        "jq"
+      ],
+      "sequence": [
+        "obtain a setup key for the company network",
+        "install and enable netbird on the target",
+        "verify the overlay address and its resolvers"
+      ]
+    },
+    {
+      "name": "env",
+      "file": "env.sh",
+      "key": "e",
+      "group": "env",
+      "order": 1,
+      "desc": "Show or switch this checkout between development and production mode",
+      "terse": "dev / prod toggle",
+      "deps": [
+        "coreutils"
+      ]
+    },
+    {
+      "name": "dns-status",
+      "file": "dns.sh",
+      "key": "S",
+      "group": "dns",
+      "order": 1,
+      "desc": "What is actually resolving: NetBird resolvers, blocky, upstream",
+      "terse": "who is answering DNS",
+      "deps": [
+        "coreutils",
+        "systemd",
+        "netbird",
+        "nettools"
+      ]
+    },
+    {
+      "name": "dns-off",
+      "file": "dns.sh",
+      "key": "D",
+      "group": "dns",
+      "order": 2,
+      "desc": "Pause ad filtering for a while \u2014 it restores itself automatically",
+      "terse": "pause blocky, time-boxed",
+      "deps": [
+        "coreutils",
+        "systemd",
+        "netbird",
+        "nettools"
+      ],
+      "sequence": [
+        "stop blocky",
+        "schedule a transient timer to start it again",
+        "report when filtering comes back"
+      ]
+    },
+    {
+      "name": "dns-on",
+      "file": "dns.sh",
+      "key": "A",
+      "group": "dns",
+      "order": 3,
+      "desc": "Restore ad filtering now, cancelling any pending auto-restore",
+      "terse": "restore blocky",
+      "deps": [
+        "coreutils",
+        "systemd",
+        "netbird",
+        "nettools"
+      ]
+    },
+    {
+      "name": "dns-test",
+      "file": "dns.sh",
+      "key": "T",
+      "group": "dns",
+      "order": 4,
+      "desc": "Score how much advertising and tracking is being blocked",
+      "terse": "ad-block score",
+      "deps": [
+        "coreutils",
+        "systemd",
+        "netbird",
+        "nettools",
+        "xdg-utils"
+      ]
+    },
+    {
+      "name": "test",
+      "file": "test.sh",
+      "key": "t",
+      "group": "qa",
+      "order": 1,
+      "desc": "Run the flake checks: host evaluation, shellcheck, per-host VM tests",
+      "terse": "nix flake check",
+      "deps": [
+        "coreutils",
+        "nix"
+      ]
+    },
+    {
+      "name": "lint",
+      "file": "lint.sh",
+      "key": "l",
+      "group": "qa",
+      "order": 2,
+      "desc": "Static analysis across the repo: nixfmt, shellcheck, statix, deadnix, reuse, gitleaks",
+      "terse": "lint everything, read-only",
+      "deps": [
+        "coreutils",
+        "git",
+        "nixfmt-rfc-style",
+        "shellcheck",
+        "statix",
+        "deadnix",
+        "reuse",
+        "gitleaks",
+        "ruff"
+      ]
+    },
+    {
+      "name": "hooks",
+      "file": "hooks.sh",
+      "key": "H",
+      "group": "qa",
+      "order": 3,
+      "desc": "Install the pre-commit hooks into this working tree",
+      "terse": "install pre-commit hooks",
+      "deps": [
+        "coreutils",
+        "git",
+        "nix",
+        "pre-commit",
+        "nixfmt-rfc-style",
+        "gnugrep"
+      ]
+    },
+    {
+      "name": "release",
+      "file": "release.sh",
+      "key": "R",
+      "group": "qa",
+      "order": 4,
+      "desc": "Cut a release: tag the deploy point and push it",
+      "terse": "tag and push a release",
+      "deps": [
+        "coreutils",
+        "git"
+      ]
+    },
+    {
+      "name": "cleanup-orphans",
+      "file": "cleanup-orphans.sh",
+      "key": "Z",
+      "group": "storage",
+      "order": 1,
+      "desc": "Remove zfs-backup orphan snapshots from datasets outside the backup set",
+      "terse": "prune orphaned zfs-backup snapshots",
+      "deps": [
+        "coreutils",
+        "nix",
+        "zfs",
+        "gnused"
+      ],
+      "sequence": [
+        "list datasets carrying zfs-backup snapshots",
+        "identify those outside the configured backup set",
+        "confirm, then destroy only the orphaned snapshots"
+      ]
+    },
+    {
+      "name": "power",
+      "file": "power.sh",
+      "key": "F",
+      "group": "hardware",
+      "order": 0,
+      "desc": "Profile this machine's heat and power draw and say what is costing it; also sets a temporary charge limit or low-power mode for travel",
+      "terse": "why is this machine hot?",
+      "deps": [
+        "coreutils",
+        "git",
+        "python3"
+      ],
+      "usage": "kz power [--seconds N] [--watch] [--json] [--full-charge | --charge-limit PERCENT] [--low | --normal]"
+    },
+    {
+      "name": "keyboard-diagrams",
+      "file": "keyboard-diagrams.sh",
+      "key": "K",
+      "group": "hardware",
+      "order": 2,
+      "desc": "Redraw the kanata, keyd, Glove80 and Sonsei layout diagrams, then open the folder",
+      "terse": "regenerate keyboard diagrams",
+      "deps": [
+        "coreutils",
+        "nix",
+        "python3",
+        "findutils",
+        "xdg-utils"
+      ]
+    },
+    {
+      "name": "vm",
+      "file": "vm.sh",
+      "key": "Q",
+      "group": "vm",
+      "order": 0,
+      "desc": "Run any host's configuration in QEMU \u2014 quick boot by default, or --boot for the full UEFI/GRUB/Plymouth sequence",
+      "terse": "run a host in a VM",
+      "deps": [
+        "coreutils",
+        "git",
+        "findutils",
+        "gnugrep",
+        "nettools",
+        "nix"
+      ],
+      "usage": "kz vm [<host>] [--boot] [--quick] [--list]"
+    },
+    {
+      "name": "create-win11-vm",
+      "file": "create-win11-vm.sh",
+      "key": "v",
+      "group": "vm",
+      "order": 1,
+      "desc": "Create a Windows 11 VM under libvirt with sensible defaults",
+      "terse": "build a Windows 11 VM",
+      "deps": [
+        "coreutils",
+        "nix",
+        "libvirt",
+        "systemd"
+      ]
+    },
+    {
+      "name": "capture-boot",
+      "file": "capture-boot.sh",
+      "key": "C",
+      "group": "vm",
+      "order": 2,
+      "desc": "Capture a frame per second from a QEMU boot window, for boot-splash work",
+      "terse": "screenshot a QEMU boot",
+      "deps": [
+        "coreutils",
+        "git",
+        "nix",
+        "gnused"
+      ]
+    },
+    {
+      "name": "configure",
+      "file": "configure.sh",
+      "key": "E",
+      "group": "software",
+      "order": 0,
+      "desc": "Turn a host's software bundles on and off, and edit what those bundles contain, from a menu built out of the bundle registry",
+      "terse": "choose a host's software bundles",
+      "deps": [
+        "coreutils",
+        "git",
+        "gum",
+        "nix",
+        "nixfmt-rfc-style"
+      ],
+      "sequence": [
+        "read every bundle under software/, and what this host takes today",
+        "tick the bundles this machine should have; e edits what they contain",
+        "show the diff, write it if you agree, then evaluate and undo if broken"
+      ],
+      "usage": "kz configure [<host>] [--list] [--enable a,b] [--disable a,b] [--set a,b] [--locale <name>] [--no-cascade] [--no-eval] [--force] [--dry-run] [--yes]",
+      "pythonDeps": [
+        "textual"
+      ]
+    },
+    {
+      "name": "bundles",
+      "file": "bundles.sh",
+      "key": "W",
+      "group": "software",
+      "order": 1,
+      "desc": "What software bundles exist, what is in them, and what implies what",
+      "terse": "software bundles, read-only",
+      "deps": [
+        "coreutils",
+        "python3",
+        "gawk"
+      ]
+    }
+  ]
+}

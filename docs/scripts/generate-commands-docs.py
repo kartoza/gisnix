@@ -1,0 +1,262 @@
+#!/usr/bin/env python3
+"""Generate docs/references/commands.md from utils/commands.json.
+
+The manifest already mints four surfaces from one row — `nix run .#<name>`,
+the script under utils/, the Neovim binding, and the `hp` cheat-sheet. The
+documentation site was the one place a command did NOT appear, so a reader
+outside a terminal had no way to learn what the fleet's tooling does.
+
+Everything on the page is read from the manifest. Nothing is written by
+hand, so the page cannot describe a command that has been renamed or a
+dependency that has changed.
+
+Run from the repo root:  python3 docs/scripts/generate-commands-docs.py
+"""
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+MANIFEST = REPO_ROOT / "utils" / "commands.json"
+OUT = REPO_ROOT / "docs" / "references" / "commands.md"
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import diagram  # noqa: E402
+
+#: Commands that destroy something. Drawn differently, because a lifecycle
+#: picture in which `reset` looks like `check` is worse than no picture.
+DESTRUCTIVE = {"reset", "deploy", "cleanup-orphans"}
+
+# What each group is for. The manifest fixes their ORDER; these say what the
+# order means, which is the part a newcomer needs.
+# Human titles for the section headings. Not cosmetic: two groups contain a
+# command of the same name — `secrets` and `env` — so `## secrets` and
+# `### secrets` collided as duplicate headings (MD024) and broke the anchors.
+GROUP_TITLE = {
+    "host": "Host lifecycle",
+    "secrets": "Secrets management",
+    "env": "Environment mode",
+    "keycloak": "Keycloak",
+    "dns": "DNS filtering",
+    "software": "Software inventory",
+    "qa": "Quality checks",
+    "storage": "Storage and snapshots",
+    "hardware": "Hardware",
+    "vm": "Virtual machines",
+}
+
+# Matching utils/dev-help.sh, so the page and the terminal look like the same
+# menu rather than two descriptions of it.
+GROUP_ICON = {
+    "host": "\U0001f5a5",
+    "secrets": "\U0001f510",
+    "env": "\u2699",
+    "keycloak": "\U0001f511",
+    "dns": "\U0001f310",
+    "software": "\U0001f4e6",
+    "qa": "\U0001f9ea",
+    "storage": "\U0001f5c4",
+    "hardware": "\U0001f5a8",
+    "vm": "\U0001f4bb",
+}
+
+GROUP_BLURB = {
+    "host": "Bringing a machine into the fleet, and keeping it current.",
+    "secrets": "Age-encrypted secrets, and the keys that open them.",
+    "env": "Switching this checkout between development and production behaviour.",
+    "keycloak": "Enrolment and credentials against the company Keycloak.",
+    "dns": "The local DNS filter, and pausing it when it gets in the way.",
+    "software": "What each host installs, and why.",
+    "qa": "Checks that run before a change lands.",
+    "storage": "ZFS snapshots and their offload.",
+    "hardware": "Reading a machine's hardware into configuration.",
+    "vm": "Virtual machines, for testing and for Windows.",
+}
+
+
+def _lifecycle_diagram(commands: list[dict], implemented: list[dict]) -> str:
+    """The host lifecycle, as mermaid, from the manifest's own ordering.
+
+    The manifest has always carried `group` and `order` so the cheat-sheet
+    could present a lifecycle rather than an alphabetical list. Nothing ever
+    drew it. Taken from the personal-servers flake, which renders the same
+    idea with graphviz — mermaid is what this repository already renders to
+    SVG for the site and the PDF, so it arrives without a new dependency.
+    """
+    host = sorted(
+        (c for c in commands if c.get("group") == "host"),
+        key=lambda c: c.get("order", 999),
+    )
+    lines = ["graph LR"]
+    previous = None
+    for c in host:
+        ident = c["name"].replace("-", "_")
+        label = c["name"]
+        if c not in implemented:
+            label += "<br/><i>planned</i>"
+        if c["name"] in DESTRUCTIVE:
+            label += "<br/>destroys data"
+        lines.append(f'  {ident}["{label}"]')
+        if previous is not None:
+            lines.append(f"  {previous} --> {ident}")
+        previous = ident
+    for c in host:
+        if c["name"] in DESTRUCTIVE:
+            lines.append(f'  style {c["name"].replace("-", "_")} stroke-width:3px')
+    return diagram.render(
+        "\n".join(lines),
+        slug="host-lifecycle",
+        alt="The order the host commands are meant to be used in",
+        rel_prefix="../assets/diagrams",
+    )
+
+
+def main() -> int:
+    manifest = json.loads(MANIFEST.read_text())
+    commands = manifest["commands"]
+    groups = manifest["groups"]
+
+    implemented = [c for c in commands if (REPO_ROOT / "utils" / c["file"]).exists()]
+    pending = [c for c in commands if c not in implemented]
+
+    L: list[str] = [
+        "<!-- SPDX-FileCopyrightText: Tim Sutton -->",
+        "<!-- SPDX-License-Identifier: MIT -->",
+        "",
+        '<span class="kz-eyebrow">REFERENCE</span>',
+        "",
+        "# Operator commands",
+        "",
+        "<!-- Generated by docs/scripts/generate-commands-docs.py."
+        " Do not edit by hand. -->",
+        "",
+        "Every command this flake provides. One row in `utils/commands.json`"
+        " mints all of the following, so a command is declared once and cannot"
+        " drift between them:",
+        "",
+        "| Surface | How you reach it |",
+        "| --- | --- |",
+        "| The dev shell | `kz <name>` |",
+        "| Nix, from anywhere | `nix run .#<name>` |",
+        "| Directly | `./utils/<file>` |",
+        "| Neovim | `<leader>p<key>` |",
+        "| The terminal cheat-sheet | `kz` with no arguments |",
+        "",
+        "This page is the sixth, generated from the same row.",
+        "",
+        f"**{len(implemented)} implemented**, {len(pending)} declared but not yet"
+        " written. Commands still to be built are listed rather than hidden:"
+        " the manifest describes the intended lifecycle, not only the part of"
+        " it that exists.",
+        "",
+    ]
+
+    # Orientation table first.
+    L += [
+        "## The life of a host",
+        "",
+        "The `host` group in the order it is meant to be used, read straight"
+        " from `utils/commands.json`. Commands that destroy something are"
+        " outlined heavily; ones not yet written say so.",
+        "",
+        _lifecycle_diagram(commands, implemented).rstrip(),
+        "",
+        "## At a glance",
+        "",
+    ]
+
+    # One table per group, in the manifest's own order — the same grouping
+    # and the same sequence the terminal cheat-sheet uses. A single flat
+    # table of 38 rows sorted by group is the same information, but nobody
+    # reading it can see the lifecycle the grouping exists to express.
+    for g in groups:
+        members = sorted(
+            (c for c in commands if c["group"] == g),
+            key=lambda c: c.get("order", 0),
+        )
+        if not members:
+            continue
+        L += [
+            f"**{GROUP_ICON.get(g, '')} {g}** — {GROUP_BLURB.get(g, '')}".strip(),
+            "",
+            "| Command | Key | What it does |",
+            "| --- | --- | --- |",
+        ]
+        for c in members:
+            state = "" if c in implemented else " *(planned)*"
+            L.append(
+                f"| [`{c['name']}`](#{c['name']}){state} | `<leader>p{c['key']}` "
+                f"| {c['terse']} |"
+            )
+        L.append("")
+
+    for g in groups:
+        members = sorted((c for c in commands if c["group"] == g),
+                         key=lambda c: c.get("order", 0))
+        if not members:
+            continue
+        L += [f"## {GROUP_TITLE.get(g, g)}", ""]
+        if g in GROUP_BLURB:
+            L += [f"*{GROUP_BLURB[g]}*", ""]
+
+        for c in members:
+            built = c in implemented
+            L += [f"### {c['name']}", ""]
+            if not built:
+                L += [
+                    "> **Not built yet.** The manifest declares it so the"
+                    " lifecycle is visible; `utils/"
+                    f"{c['file']}` does not exist. The flake skips rows"
+                    " without a script, so this cannot be run.",
+                    "",
+                ]
+            L += [c["desc"].rstrip(".") + ".", ""]
+            L += [
+                "```bash",
+                c.get("usage", f"kz {c['name']}"),
+                "```",
+                "",
+            ]
+            if c.get("sequence"):
+                L += ["What it does, in order:", ""]
+                L += [f"{i}. {s}" for i, s in enumerate(c["sequence"], 1)]
+                L.append("")
+            rows = [
+                ("Implementation", f"`utils/{c['file']}`"),
+                ("Neovim", f"`<leader>p{c['key']}`"),
+            ]
+            if c.get("prelude"):
+                libs = ", ".join(f"`utils/lib/{p}`" for p in c["prelude"])
+                rows.append(("Shared libraries", libs))
+            if c.get("deps"):
+                rows.append(("On PATH", ", ".join(f"`{d}`" for d in c["deps"])))
+            L += ["| | |", "| --- | --- |"]
+            L += [f"| {k} | {v} |" for k, v in rows]
+            L.append("")
+
+    L += [
+        "---",
+        "",
+        "Commands sharing one `file` dispatch on the name they were invoked"
+        " as — `dns-status`, `dns-off`, `dns-on` and `dns-test` are a single"
+        " script. That is why the implementation column repeats.",
+        "",
+        "Made with love by [Kartoza](https://kartoza.com) |"
+        " [Donate](https://github.com/sponsors/timlinux) |"
+        " [GitHub](https://github.com/timlinux/nix-config)",
+        "",
+    ]
+
+    OUT.parent.mkdir(parents=True, exist_ok=True)
+    OUT.write_text("\n".join(L))
+    print(f"  wrote {OUT.relative_to(REPO_ROOT)}  "
+          f"({len(implemented)} implemented, {len(pending)} planned)")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,12 @@
+{
+  "name": "services-device-mobile",
+  "path": "services/device/mobile",
+  "description": "Phones and tablets: iOS mounting and display control.",
+  "implies": [
+    "services-device"
+  ],
+  "modules": [
+    "iphone.nix",
+    "screen-control.nix"
+  ]
+}

@@ -1,0 +1,266 @@
+#!/usr/bin/env python3
+"""Generate the fleet software catalogue: docs/references/software.md.
+
+Every host's `environment.systemPackages` is evaluated, and each package's
+nixpkgs metadata — description, homepage, version — is pulled along with it.
+The result is one page listing every piece of software the fleet provisions,
+grouped by where the flake declares them, with a link to each project's home page and the hosts that
+install it.
+
+This replaces the hand-maintained PACKAGES.md, which drifted badly: by the time
+it was retired it documented 35 modules that no longer existed and described a
+directory layout two reorganisations out of date. A generated page cannot drift.
+
+Package categorisation, the nix eval plumbing and the table formatter are
+imported from generate-host-docs.py rather than duplicated, so a package
+categorised one way on a host page is categorised the same way here.
+
+Usage:
+    python3 docs/scripts/generate-software-catalogue.py
+    nix run .#docs-generate-software
+"""
+
+from __future__ import annotations
+
+import json
+import importlib.util
+import sys
+from collections import defaultdict
+from pathlib import Path
+from typing import Any
+
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+OUT_PATH = REPO_ROOT / "docs" / "references" / "software.md"
+
+
+def _load_host_docs():
+    """Import generate-host-docs.py, whose filename is not a valid module name."""
+    path = Path(__file__).resolve().parent / "generate-host-docs.py"
+    spec = importlib.util.spec_from_file_location("generate_host_docs", path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"cannot load {path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+hostdocs = _load_host_docs()
+
+
+# Pull name, version, description and homepage in a single eval per host.
+#
+# tryEval guards each entry: systemPackages legitimately contains things that
+# are not conventional derivations (plain paths, wrapper derivations with no
+# pname), and one of those must not take down the whole list.
+#
+# meta.homepage is usually a string but is occasionally a list, so it is
+# normalised to a single string here rather than in Python.
+PACKAGE_META_APPLY = """
+ps: builtins.map (p:
+  let
+    r = builtins.tryEval (
+      if builtins.isAttrs p then
+        let
+          h = p.meta.homepage or "";
+        in {
+          name = p.pname or p.name or "unknown";
+          version = p.version or "";
+          description = p.meta.description or "";
+          homepage = if builtins.isList h then (if h == [] then "" else builtins.head h) else h;
+        }
+      else {
+        name = builtins.toString p;
+        version = "";
+        description = "";
+        homepage = "";
+      }
+    );
+  in
+    if r.success then r.value
+    else { name = "unknown"; version = ""; description = ""; homepage = ""; }
+) ps
+"""
+
+
+def collect() -> dict[str, dict[str, Any]]:
+    """Map package name -> metadata plus the hosts that install it."""
+    catalogue: dict[str, dict[str, Any]] = {}
+    hosts = hostdocs.get_hosts()
+    if not hosts:
+        print("no hosts returned by .#all-hosts", file=sys.stderr)
+        return {}
+
+    for host in hosts:
+        print(f"  evaluating {host}...", file=sys.stderr)
+        entries = (
+            hostdocs.nix_eval(
+                hostdocs.host_attr(host, "environment.systemPackages"),
+                apply=PACKAGE_META_APPLY,
+            )
+            or []
+        )
+        for entry in entries:
+            name = (entry.get("name") or "unknown").strip()
+            if not name or name == "unknown":
+                continue
+            record = catalogue.setdefault(
+                name,
+                {
+                    "version": entry.get("version") or "",
+                    "description": entry.get("description") or "",
+                    "homepage": entry.get("homepage") or "",
+                    "hosts": set(),
+                },
+            )
+            record["hosts"].add(host)
+            # Prefer the first non-empty value seen; hosts can pin different
+            # versions of the same package.
+            for field in ("version", "description", "homepage"):
+                if not record[field] and entry.get(field):
+                    record[field] = entry[field]
+    return catalogue
+
+
+# The taxonomy is shared with generate-host-docs.py so the catalogue and the
+# per-host pages group packages identically.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import bundles  # noqa: E402
+import taxonomy  # noqa: E402
+
+
+def escape_cell(text: str) -> str:
+    """Make a string safe inside a markdown table cell."""
+    return text.replace("|", "\\|").replace("\n", " ").strip()
+
+
+def render(catalogue: dict[str, dict[str, Any]], hosts: list[str]) -> str:
+    names = sorted(catalogue)
+    bucketed = taxonomy.categorise_packages(names)
+
+    lines: list[str] = [
+        "# Software catalogue",
+        "",
+        "<!-- Generated by docs/scripts/generate-software-catalogue.py."
+        " Do not edit by hand. -->",
+        "",
+        f"Every package this fleet provisions: **{len(names)} distinct packages**"
+        f" across **{len(hosts)} hosts**, grouped by where the flake declares them.",
+        "",
+        "Each entry is read straight from nixpkgs metadata at generation time, so"
+        " descriptions and homepages match the exact revision the flake is pinned"
+        " to. The *Hosts* column shows which machines install it — a package on"
+        " every host is fleet-wide; one on a single host is that machine's"
+        " speciality.",
+        "",
+        "The sections below are the flake's own taxonomy: a package appears"
+        " under the directory in `software/` that declares it — "
+        + bundles.taxonomy_sentence()
+        + ". The grouping is read out of the configuration rather than"
+        " maintained separately, so it cannot drift from what the flake"
+        " actually does. That list is itself generated from the bundles;"
+        " it named a `reading/` directory for some time after that"
+        " directory became `ebook-readers/`.",
+        "",
+        "Roughly half of what a host installs is not declared by us at all: it"
+        " arrives because a NixOS module was enabled. Those are grouped last,"
+        " under *Provisioned by NixOS modules*, rather than being guessed into"
+        " a category they do not belong to.",
+        "",
+        "See the per-host pages for what a specific machine installs.",
+        "",
+    ]
+
+    for category, pkgs in bucketed.items():
+        lines.append(f"## {category}")
+        lines.append("")
+        note = taxonomy.category_note(category)
+        if note:
+            # *x*, not _x_ — see MD049; the linter rewrites the latter.
+            lines.append(f"*{note}*")
+            lines.append("")
+        rows = []
+        for pkg in sorted(pkgs):
+            rec = catalogue[pkg]
+            homepage = rec["homepage"]
+            link = f"[home]({homepage})" if homepage.startswith(("http://", "https://")) else ""
+            pkg_hosts = sorted(rec["hosts"])
+            host_cell = "all" if len(pkg_hosts) == len(hosts) else ", ".join(pkg_hosts)
+            rows.append(
+                [
+                    f"`{pkg}`",
+                    escape_cell(rec["description"]) or "—",
+                    link or "—",
+                    escape_cell(host_cell),
+                ]
+            )
+        lines.append(hostdocs.fmt_table(["Package", "Description", "Link", "Hosts"], rows))
+        lines.append("")
+
+    lines.append("---")
+    lines.append("")
+    lines.append(
+        "Made with love by [Kartoza](https://kartoza.com) |"
+        " [Donate](https://github.com/sponsors/timlinux) |"
+        " [GitHub](https://github.com/timlinux/nix-config)"
+    )
+    lines.append("")
+    return "\n".join(lines)
+
+
+#: The same data the page renders, in a form a program can read.
+#:
+#: `kz configure`'s bottom pane shows a package's description as the cursor
+#: moves over it, which means a lookup in milliseconds. The authoritative
+#: answer is nixpkgs metadata, and getting it is the `nix eval` over every
+#: host that this script spends minutes on — so the TUI reads what this run
+#: already worked out.
+#:
+#: A JSON sidecar rather than parsing the Markdown back: the table above is
+#: prose formatted for people, `markdownlint --fix` rewrites it on commit,
+#: and this repository already has a history of the generators and the linter
+#: undoing each other. An explicit contract cannot be reformatted out from
+#: under its reader.
+INDEX_PATH = REPO_ROOT / "docs" / "references" / "software.json"
+
+
+def write_index(catalogue: dict[str, dict[str, Any]]) -> None:
+    payload = {
+        name: {
+            "version": rec["version"],
+            "description": rec["description"],
+            "homepage": rec["homepage"],
+            "hosts": sorted(rec["hosts"]),
+        }
+        for name, rec in sorted(catalogue.items())
+    }
+    INDEX_PATH.write_text(json.dumps(payload, indent=1, sort_keys=True) + "\n")
+    print(
+        f"Wrote {INDEX_PATH.relative_to(REPO_ROOT)} — {len(payload)} packages.",
+        file=sys.stderr,
+    )
+
+
+def main() -> int:
+    print("Collecting package metadata from every host...", file=sys.stderr)
+    catalogue = collect()
+    if not catalogue:
+        print("no packages collected; refusing to write an empty page", file=sys.stderr)
+        return 1
+
+    hosts = hostdocs.get_hosts()
+    OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    # lint_clean so regeneration is byte-identical to the committed page —
+    # without it the markdown hooks collapse this page's doubled section
+    # blanks at commit time and every docs run dirties git again.
+    OUT_PATH.write_text(hostdocs.lint_clean(render(catalogue, hosts)))
+    write_index(catalogue)
+    print(
+        f"Wrote {OUT_PATH.relative_to(REPO_ROOT)}"
+        f" — {len(catalogue)} packages across {len(hosts)} hosts.",
+        file=sys.stderr,
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,13 @@
+{
+  "name": "desktop-productivity",
+  "path": "desktop/productivity",
+  "description": "Getting work done: the office and creative suite, mail and calendar, and screen annotation for presentations.",
+  "implies": [
+    "desktop-environments-cosmic"
+  ],
+  "modules": [
+    "email-calendar.nix",
+    "gromit-mpx.nix",
+    "gui-apps.nix"
+  ]
+}

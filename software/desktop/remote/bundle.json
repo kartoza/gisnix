@@ -1,0 +1,13 @@
+{
+  "name": "desktop-remote",
+  "path": "desktop/remote",
+  "description": "Screens from somewhere else: remote desktop, phone mirroring, and receiving AirPlay.",
+  "implies": [
+    "desktop-environments-cosmic"
+  ],
+  "modules": [
+    "rustdesk.nix",
+    "scrcpy.nix",
+    "uxplay.nix"
+  ]
+}

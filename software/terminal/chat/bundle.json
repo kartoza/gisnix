@@ -1,0 +1,9 @@
+{
+  "name": "terminal-chat",
+  "path": "terminal/chat",
+  "description": "Terminal chat and forum clients: discourse-tui, tut, perch, siggy — Discourse, Mastodon, Bluesky and Signal. Its own bundle, a sibling to terminal-tuis rather than a file inside it, so it shows up as its own selectable group and installs all four the moment a host takes it — no host wants any of them by default, but a host that takes this bundle wants what it names. To keep only some: programs.terminal-chat.enableAll = false; plus the specific programs.terminal-chat.apps.<id>.enable = true; lines.",
+  "implies": [],
+  "modules": [
+    "chat.nix"
+  ]
+}

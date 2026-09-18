@@ -1,0 +1,13 @@
+{
+  "name": "services-system-power",
+  "path": "services/system/power",
+  "description": "Power management: battery thresholds, suspend behaviour, SSD trim. Laptop concerns.",
+  "implies": [
+    "services-system"
+  ],
+  "modules": [
+    "charge-limit.nix",
+    "power.nix",
+    "ssdtrim.nix"
+  ]
+}

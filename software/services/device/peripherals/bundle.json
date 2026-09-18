@@ -1,0 +1,16 @@
+{
+  "name": "services-device-peripherals",
+  "path": "services/device/peripherals",
+  "description": "Hardware only some machines have: fingerprint readers, scanners, graphics tablets, game controllers. Each pulls in daemons a host without the device has no use for \u2014 and biometrics can affect whether you can log in, which is why this is never taken by default.",
+  "optIn": true,
+  "optInReason": "biometrics can affect whether you can log in, and the rest are daemons for hardware most hosts do not have",
+  "implies": [
+    "services-device"
+  ],
+  "modules": [
+    "biometrics.nix",
+    "hp-scanner.nix",
+    "wacom.nix",
+    "xbox1-controller.nix"
+  ]
+}

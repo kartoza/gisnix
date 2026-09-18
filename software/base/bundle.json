@@ -1,0 +1,27 @@
+{
+  "name": "base",
+  "path": "base",
+  "description": "Everything a machine needs to be a usable machine: ZFS root and its bootloader, the memory guard a swapless host depends on, the login shell, the terminal emulator and the core command-line tools. A host taking only this is minimal but not crippled.",
+  "required": true,
+  "requiredReason": "this is the ZFS root and its bootloader. Removing it does not make the machine smaller, it makes it unbootable",
+  "requiredPackages": {
+    "fish": "the login shell. users/tim-headless.nix sets shell = pkgs.fish, and a user whose shell does not exist cannot log in",
+    "starship": "fish sources `starship init fish` on every interactive start; without it each login errors",
+    "fzf": "fish sources `fzf --fish` on every interactive start",
+    "zoxide": "fish sources `zoxide init fish --cmd cd`, which is also what provides `cd`",
+    "direnv": "fish sources `direnv hook fish` on every interactive start",
+    "atuin": "fish sources `atuin init fish` on every interactive start"
+  },
+  "implies": [],
+  "modules": [
+    "fetchers.nix",
+    "fish.nix",
+    "herdr.nix",
+    "kitty.nix",
+    "starship.nix",
+    "utilities.nix",
+    "zfs-backup.nix",
+    "zfs.nix",
+    "zram.nix"
+  ]
+}

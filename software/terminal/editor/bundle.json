@@ -1,0 +1,9 @@
+{
+  "name": "terminal-editor",
+  "path": "terminal/editor",
+  "description": "Neovim, configured through nvf, with the EDITOR and vim/vi wiring that goes with it. Its own bundle rather than part of terminal-tuis because the plugin set builds from source \u2014 a crates.io fetch that has failed on hosts whose store cannot reach this flake's inputs, and the reason atoll takes the rest of the TUIs without it.",
+  "implies": [],
+  "modules": [
+    "vim.nix"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "desktop-environments-cosmic",
+  "path": "desktop/environments/cosmic",
+  "description": "The COSMIC desktop itself: compositor, greeter, core applications, the Kartoza App Library icon, the screenshot and GIF-recording glue, and the SSH/GPG agent wiring that goes with a graphical session. The community extensions and applets are a separate bundle, because they source build.",
+  "implies": [
+    "desktop-essentials"
+  ],
+  "modules": [
+    "cosmic.nix",
+    "packages.nix",
+    "ssh-gpg.nix"
+  ]
+}

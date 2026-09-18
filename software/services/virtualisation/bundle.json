@@ -1,0 +1,12 @@
+{
+  "name": "services-virtualisation",
+  "path": "services/virtualisation",
+  "description": "Running things that are not native to this machine: containers, virtual machines, cross-architecture emulation, Windows compatibility.",
+  "implies": [],
+  "modules": [
+    "docker.nix",
+    "emulation.nix",
+    "virt.nix",
+    "wine.nix"
+  ]
+}

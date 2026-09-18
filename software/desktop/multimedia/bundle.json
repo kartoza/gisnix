@@ -1,0 +1,14 @@
+{
+  "name": "desktop-multimedia",
+  "path": "desktop/multimedia",
+  "description": "Audio and video creation: screen recording and streaming, and editors tracking nixpkgs-unstable.",
+  "implies": [
+    "desktop-environments-cosmic"
+  ],
+  "modules": [
+    "codecs.nix",
+    "creative-apps.nix",
+    "obs.nix",
+    "unstable-apps.nix"
+  ]
+}

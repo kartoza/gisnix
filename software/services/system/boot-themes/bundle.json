@@ -1,0 +1,23 @@
+{
+  "name": "services-system-boot-themes",
+  "path": "services/system/boot-themes",
+  "description": "GRUB and Plymouth branding. Alternatives — a host boots with one splash, and its GRUB menu matches it. Each member is the Plymouth/GRUB pair, because a Kartoza menu handing over to a QGIS splash reads as a fault.",
+  "implies": [],
+  "selection": "one-of",
+  "choiceKey": "bootTheme",
+  "modulePrefix": "boot-theme",
+  "choiceDefault": "kartoza",
+  "choiceNotes": {},
+  "choiceDetails": {
+    "kartoza": "Kartoza branding: the house Plymouth splash and the GRUB menu that matches it. The fleet default.",
+    "qgis": "QGIS 'Spatial without Compromise': navy cartographic artwork with a QGIS-green accent, shared by the splash and the GRUB menu so the hand-off is continuous. Used by the QGIS workstations."
+  },
+  "modules": [
+    "boot-theme-kartoza.nix",
+    "boot-theme-qgis.nix",
+    "kartoza-plymouth-theme.nix",
+    "kartoza-grub-theme.nix",
+    "qgis-plymouth-theme.nix",
+    "qgis-spatial-grub-theme.nix"
+  ]
+}

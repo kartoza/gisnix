@@ -1,0 +1,14 @@
+{
+  "name": "desktop-ebook-readers",
+  "path": "desktop/ebook-readers",
+  "description": "E-book readers and library management.",
+  "implies": [
+    "desktop-environments-cosmic"
+  ],
+  "modules": [
+    "calibre.nix",
+    "foliate.nix",
+    "koodo-reader.nix",
+    "thorium-reader.nix"
+  ]
+}

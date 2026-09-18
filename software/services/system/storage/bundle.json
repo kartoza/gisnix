@@ -1,0 +1,12 @@
+{
+  "name": "services-system-storage",
+  "path": "services/system/storage",
+  "description": "Filesystem support and snapshot scheduling: NTFS for external drives, sanoid for automatic ZFS snapshots.",
+  "implies": [
+    "services-system"
+  ],
+  "modules": [
+    "ntfs.nix",
+    "sanoid.nix"
+  ]
+}

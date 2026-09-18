@@ -1,0 +1,10 @@
+{
+  "name": "services-device",
+  "path": "services/device",
+  "description": "Hardware every machine benefits from: Bluetooth and firmware updates. Anything depending on what is actually plugged in is a sub-bundle.",
+  "implies": [],
+  "modules": [
+    "bluetooth.nix",
+    "fwupd.nix"
+  ]
+}

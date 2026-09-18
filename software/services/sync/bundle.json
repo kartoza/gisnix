@@ -1,0 +1,10 @@
+{
+  "name": "services-sync",
+  "path": "services/sync",
+  "description": "File synchronisation between machines and to cloud storage.",
+  "implies": [],
+  "modules": [
+    "owncloud.nix",
+    "syncthing.nix"
+  ]
+}

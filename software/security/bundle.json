@@ -1,0 +1,12 @@
+{
+  "name": "security",
+  "path": "security",
+  "description": "Credentials and keys: the password manager, and the hardware tokens with their udev rules and daemons. Grouped by what they are for rather than whether they are hardware.",
+  "implies": [],
+  "modules": [
+    "authenticator.nix",
+    "keepassxc.nix",
+    "trezor.nix",
+    "yubikey.nix"
+  ]
+}

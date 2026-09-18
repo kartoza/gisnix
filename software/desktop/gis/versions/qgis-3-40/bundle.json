@@ -1,0 +1,13 @@
+{
+  "name": "desktop-gis-versions-qgis-3-40",
+  "path": "desktop/gis/versions/qgis-3-40",
+  "description": "QGIS 3.40 pinned (3.40.15, the last 3.40.x that nixpkgs shipped), installed with the standard python packages from its own pinned nixpkgs \u2014 pure binary-cache hits, no source builds.",
+  "implies": [
+    "desktop-gis"
+  ],
+  "optIn": true,
+  "optInReason": "a frozen historical QGIS; take it only when a project needs this exact series",
+  "modules": [
+    "qgis-3-40.nix"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "desktop-environments-cosmic-extensions",
+  "path": "desktop/environments/cosmic/extensions",
+  "description": "COSMIC's community extensions and panel applets: calculator, tweaks, cosmic-ctl, the weather, sysinfo, caffeine, brightness and privacy-indicator applets, and the fingerprint enrolment GUI.",
+  "optIn": true,
+  "optInReason": "every one of these source builds. They are community cosmic-utils packages, in neither cache.nixos.org nor cosmic.cachix.org, and compiling them is what made bay's first upgrade appear to hang",
+  "implies": [
+    "desktop-environments-cosmic"
+  ],
+  "modules": [
+    "extensions.nix"
+  ]
+}

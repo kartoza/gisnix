@@ -1,0 +1,11 @@
+{
+  "name": "desktop-browsers",
+  "path": "desktop/browsers",
+  "description": "Web browsers.",
+  "implies": [
+    "desktop-environments-cosmic"
+  ],
+  "modules": [
+    "browsers.nix"
+  ]
+}

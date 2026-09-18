@@ -1,0 +1,23 @@
+{
+  "name": "desktop-gis",
+  "path": "desktop/gis",
+  "description": "QGIS and the geospatial desktop, on the packaged binary channels. Several QGIS versions install side by side deliberately \u2014 that is how a GIS workstation is used.",
+  "implies": [
+    "desktop-environments-cosmic"
+  ],
+  "modules": [
+    "cloudcompare.nix",
+    "google-earth-pro.nix",
+    "grass.nix",
+    "qgis-latest.nix",
+    "qgis-ltr.nix",
+    "qgis-wayland-appid.nix",
+    "saga.nix",
+    "whitebox-tools.nix"
+  ],
+  "unclaimed": [
+    "qgis-pinned.nix",
+    "qgis-python-extras.nix",
+    "wrap-qgis.nix"
+  ]
+}

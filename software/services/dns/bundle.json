@@ -1,0 +1,10 @@
+{
+  "name": "services-dns",
+  "path": "services/dns",
+  "description": "DNS filtering: blocky as the local resolver, plus the firewall rules that stop applications bypassing it over DoH. Fleet-wide policy.",
+  "implies": [],
+  "modules": [
+    "block-doh.nix",
+    "blocky.nix"
+  ]
+}

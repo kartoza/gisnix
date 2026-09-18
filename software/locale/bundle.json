@@ -1,0 +1,19 @@
+{
+  "name": "locale",
+  "path": "locale",
+  "description": "Per-country locale, keyboard layout and timezone. A host takes exactly one, named as `locale = \"pt-en\";`.",
+  "implies": [],
+  "selection": "one-of",
+  "choiceKey": "locale",
+  "modulePrefix": "locale",
+  "modules": [
+    "locale-ba-en.nix",
+    "locale-eu-en-bosnia.nix",
+    "locale-eu-en-madagascar.nix",
+    "locale-in-en.nix",
+    "locale-ke-en.nix",
+    "locale-pt-en.nix",
+    "locale-pt.nix",
+    "locale-za-en.nix"
+  ]
+}

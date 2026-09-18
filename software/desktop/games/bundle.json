@@ -1,0 +1,13 @@
+{
+  "name": "desktop-games",
+  "path": "desktop/games",
+  "description": "Games and emulators.",
+  "implies": [
+    "desktop-environments-cosmic"
+  ],
+  "modules": [
+    "games.nix",
+    "retroarch.nix",
+    "steam.nix"
+  ]
+}

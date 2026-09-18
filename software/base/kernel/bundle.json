@@ -1,0 +1,24 @@
+{
+  "name": "base-kernel",
+  "path": "base/kernel",
+  "description": "Which kernel this machine boots. Exactly one — a host takes `stable` or `latest`, never both. Every host here boots an encrypted ZFS root, so the kernel and the OpenZFS module must come from the same package set; each member below pairs them itself.",
+  "selection": "one-of",
+  "choiceKey": "kernel",
+  "modulePrefix": "kernel",
+  "choiceDefault": "stable",
+  "choiceNotes": {
+    "latest": "compiles locally — hours"
+  },
+  "choiceWarning": {
+    "latest": "7.2 comes from nixpkgs-master, which is not on Hydra: this host will compile its own kernel and ZFS module, and again on every master pin bump. Budget hours for the next rebuild."
+  },
+  "choiceDetails": {
+    "stable": "The kernel the pinned nixpkgs calls default, with the OpenZFS from that same nixpkgs. nixpkgs marks an incompatible kernel/ZFS pair broken at evaluation, so this arrangement cannot produce a machine that boots but cannot import its pool. Both halves are prebuilt on Hydra.",
+    "latest": "Kernel 7.2 with OpenZFS 2.4.4, both from nixpkgs-master — the only place that pair exists, since the pinned nixpkgs ships 2.4.3 whose ceiling is kernel 7.0. master is pre-Hydra, so this host compiles BOTH the kernel and the ZFS module itself, and again whenever the master pin moves. master is a moving branch: a flake.lock update can land a pair nobody has run yet. Rollback is the previous generation in GRUB, which carries its own matching pair."
+  },
+  "implies": [],
+  "modules": [
+    "kernel-stable.nix",
+    "kernel-latest.nix"
+  ]
+}

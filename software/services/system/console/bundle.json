@@ -1,0 +1,14 @@
+{
+  "name": "services-system-console",
+  "path": "services/system/console",
+  "description": "The text console: login banner, message of the day, and fonts that make a high-DPI TTY readable.",
+  "implies": [
+    "services-system"
+  ],
+  "modules": [
+    "issue.nix",
+    "motd.nix",
+    "tty-fonts-common.nix",
+    "tty-fonts-kmscon.nix"
+  ]
+}

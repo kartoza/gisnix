@@ -1,0 +1,186 @@
+{
+  "1.8": {
+    "attr": "qgis",
+    "channelDate": "2014-07",
+    "extras": false,
+    "rev": "ff15c31c37dc7f1b68432a9ea74b84e89d3462b3",
+    "sha256": "sha256:0krzxvx26s87s7g1p79f127ak3m6wgixchvrydfpv0rc2lws60yp",
+    "version": "1.8.0"
+  },
+  "2.10": {
+    "attr": "qgis",
+    "channelDate": "2016-07",
+    "extras": false,
+    "rev": "d8516b0fe3396f5c18f00a81108957b4a872e737",
+    "sha256": "sha256:1p863rxs90dfcb8flghz9f3rl2vl8kkiszpnx19f1d1gzh5in3cn",
+    "version": "2.10.1"
+  },
+  "2.16": {
+    "attr": "qgis",
+    "channelDate": "2017-01",
+    "extras": false,
+    "rev": "e8d3c74b499ad026e40ca77f54214444f9461e3c",
+    "sha256": "sha256:104ny48hw3yk50vp5j953m61q2af2qz5qmf7lj633dkvk29v1q26",
+    "version": "2.16.2"
+  },
+  "2.18": {
+    "attr": "qgis",
+    "channelDate": "2019-03",
+    "extras": false,
+    "rev": "f06d8e0bf4822788f93ed994c4a9e88bda3606c3",
+    "sha256": "sha256:1b88c1fgwp9qn09apm58dypaw3vv0d95d69wmzx145acwmm4r8vw",
+    "version": "2.18.28"
+  },
+  "2.4": {
+    "attr": "qgis",
+    "channelDate": "2014-12",
+    "extras": false,
+    "rev": "86744fef91ab55030c60f1fea68eaedf59773930",
+    "sha256": "sha256:10hw736d2m058g15gidkx8f54z7j0i04zvgw2pdx07ba468kdqpv",
+    "version": "2.4.0"
+  },
+  "2.6": {
+    "attr": "qgis",
+    "channelDate": "2015-04",
+    "extras": false,
+    "rev": "515b06ef2ae59b9813b3606888e1791ede8f9090",
+    "sha256": "sha256:03zv0yf53lx7xa97f36n5nm95mr22j0ynlj0axf6njymkxdfmcy7",
+    "version": "2.6.1"
+  },
+  "2.8": {
+    "attr": "qgis",
+    "channelDate": "2015-06",
+    "extras": false,
+    "rev": "4ad434e521fb27ecf9f3667a43307ee7a4346115",
+    "sha256": "sha256:0qrslsd7i17x5b3nlanyi2aqmfv2pciav9x57kw9zl8zkp5i3zs8",
+    "version": "2.8.2"
+  },
+  "3.10": {
+    "attr": "qgis",
+    "channelDate": "2021-03",
+    "extras": true,
+    "rev": "0ffaecb6f04404db2c739beb167a5942993cfd87",
+    "sha256": "sha256:1cpz6c9k8limrd84sp7rayn8ghv5v0pym8gjhg4vz9bdc9ikh4az",
+    "version": "3.10.13"
+  },
+  "3.16": {
+    "attr": "qgis",
+    "channelDate": "2022-01",
+    "extras": true,
+    "rev": "f76bef61369be38a10c7a1aa718782a60340d9ff",
+    "sha256": "sha256:01zjqwj1m7qipc4x9gakffi9k8rk5mjk159p20xh1pfil19m82p4",
+    "version": "3.16.14"
+  },
+  "3.22": {
+    "attr": "qgis-ltr",
+    "channelDate": "2023-03",
+    "extras": true,
+    "rev": "1b7a6a6e57661d7d4e0775658930059b77ce94a4",
+    "sha256": "sha256:12k1yz0z6qjl0002lsay2cbwvrwqfy23w611zkh6wyjn97nqqvjc",
+    "version": "3.22.16"
+  },
+  "3.24": {
+    "attr": "qgis",
+    "channelDate": "2022-06",
+    "extras": true,
+    "rev": "f597e7e9fcf37d8ed14a12835ede0a7d362314bd",
+    "sha256": "sha256:1l79hh7jh7m8yc5mvc8dbg6s8rf30bgm994kf07xriqbzwfn158r",
+    "version": "3.24.2"
+  },
+  "3.26": {
+    "attr": "qgis",
+    "channelDate": "2022-12",
+    "extras": true,
+    "rev": "79b3d4bcae8c7007c9fd51c279a8a67acfa73a2a",
+    "sha256": "sha256:1lsrlgx4rg2wqxrz5j7kzsckgk4ymvr1l77rbqm1zxap6hg07dxf",
+    "version": "3.26.2"
+  },
+  "3.28": {
+    "attr": "qgis-ltr",
+    "channelDate": "2024-02",
+    "extras": true,
+    "rev": "336eda0d07dc5e2be1f923990ad9fdb6bc8e28e3",
+    "sha256": "sha256:0v8vnmgw7cifsp5irib1wkc0bpxzqcarlv8mdybk6dck5m7p10lr",
+    "version": "3.28.15"
+  },
+  "3.32": {
+    "attr": "qgis",
+    "channelDate": "2023-10",
+    "extras": true,
+    "rev": "9957cd48326fe8dbd52fdc50dd2502307f188b0d",
+    "sha256": "sha256:1l2hq1n1jl2l64fdcpq3jrfphaz10sd1cpsax3xdya0xgsncgcsi",
+    "version": "3.32.3"
+  },
+  "3.34": {
+    "attr": "qgis-ltr",
+    "channelDate": "2025-02",
+    "extras": true,
+    "rev": "0bd7f95e4588643f2c2d403b38d8a2fe44b0fc73",
+    "sha256": "sha256:0vx2pw69if88nkfh74bf1a8s5497n2nv7wydmvmqh5qh00fsahvq",
+    "version": "3.34.15"
+  },
+  "3.36": {
+    "attr": "qgis",
+    "channelDate": "2024-06",
+    "extras": true,
+    "rev": "67b4bf1df4ae54d6866d78ccbd1ac7e8a8db8b73",
+    "sha256": "sha256:07gzgcgaclgand7j99w45r07gc464b5jbpaa3wmv6nzwzdb3v3q4",
+    "version": "3.36.3"
+  },
+  "3.38": {
+    "attr": "qgis",
+    "channelDate": "2024-11",
+    "extras": true,
+    "rev": "882842d2a908700540d206baa79efb922ac1c33d",
+    "sha256": "sha256:105v2h9gpaxq6b5035xb10ykw9i3b3k1rwfq4s6inblphiz5yw7q",
+    "version": "3.38.3"
+  },
+  "3.4": {
+    "attr": "qgis",
+    "channelDate": "2019-07",
+    "extras": true,
+    "rev": "bea56ef8ba568d593cd8e8ffd4962c2358732bf4",
+    "sha256": "sha256:019grvrpk3v5cb80s2gcf81s48s7c38bnlf7nas3p7j27kjxx3a6",
+    "version": "3.4.8"
+  },
+  "3.40": {
+    "attr": "qgis-ltr",
+    "channelDate": "2026-05",
+    "extras": true,
+    "rev": "9a01fad67a57e44e1b3e1d905c6881bcfb209e8a",
+    "sha256": "sha256:1s2irbfi7qklr1j7nhsbgy41cb84004bkpj3agw2s0ljgwcah96v",
+    "version": "3.40.15"
+  },
+  "3.42": {
+    "attr": "qgis",
+    "channelDate": "2025-06",
+    "extras": true,
+    "rev": "e6f23dc08d3624daab7094b701aa3954923c6bbb",
+    "sha256": "sha256:0m0xmk8sjb5gv2pq7s8w7qxf7qggqsd3rxzv3xrqkhfimy2x7bnx",
+    "version": "3.42.3"
+  },
+  "3.44": {
+    "attr": "qgis-ltr",
+    "channelDate": "2026-08",
+    "extras": true,
+    "rev": "c27cdad491a991b11ed731760aa2ef8db0cb0410",
+    "sha256": "sha256:1r58xn9xdka8bw710i431srl3dmy7dyrhd32rjv709f2mkb6m1ix",
+    "version": "3.44.12"
+  },
+  "3.8": {
+    "attr": "qgis",
+    "channelDate": "2019-10",
+    "extras": true,
+    "rev": "d93fb7b27207ae63a2e5c5b878f249a5a9fd9dd6",
+    "sha256": "sha256:0id32fgg9h1x4yq26fi6ib6h1fknziv2zm8cfv2dd41cv6w7va78",
+    "version": "3.8.0"
+  },
+  "4.0": {
+    "attr": "qgis",
+    "channelDate": "2026-08",
+    "extras": true,
+    "rev": "c27cdad491a991b11ed731760aa2ef8db0cb0410",
+    "sha256": "sha256:1r58xn9xdka8bw710i431srl3dmy7dyrhd32rjv709f2mkb6m1ix",
+    "version": "4.0.3"
+  }
+}

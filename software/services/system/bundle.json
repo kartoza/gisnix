@@ -1,0 +1,18 @@
+{
+  "name": "services-system",
+  "path": "services/system",
+  "description": "What every machine needs without exception: CA trust, the fleet's /etc/hosts, kernel hardening, sshd, the unfree allow-list, audio and Flatpak.",
+  "required": true,
+  "requiredReason": "sshd, CA trust and kernel hardening. Removing it from a machine you reach over the network is how you stop being able to reach it",
+  "implies": [],
+  "modules": [
+    "ca-certificates.nix",
+    "flatpak.nix",
+    "fleet-hosts.nix",
+    "harden.nix",
+    "sound.nix",
+    "ssh-access.nix",
+    "ssh.nix",
+    "unfree.nix"
+  ]
+}

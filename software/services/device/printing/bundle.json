@@ -1,0 +1,11 @@
+{
+  "name": "services-device-printing",
+  "path": "services/device/printing",
+  "description": "CUPS and printer drivers. Its own bundle despite holding one module: printing turned out to be the peripheral most hosts actually want, and folding it into the opt-in peripherals group silently cost five machines their printers. A singleton is the lesser problem.",
+  "implies": [
+    "services-device"
+  ],
+  "modules": [
+    "printing.nix"
+  ]
+}

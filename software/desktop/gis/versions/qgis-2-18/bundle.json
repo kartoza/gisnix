@@ -1,0 +1,13 @@
+{
+  "name": "desktop-gis-versions-qgis-2-18",
+  "path": "desktop/gis/versions/qgis-2-18",
+  "description": "QGIS 2.18 pinned (2.18.28, the last 2.18.x that nixpkgs shipped), a vintage Qt4/Python2 build with no extra python packages; may no longer evaluate or have every binary cached.",
+  "implies": [
+    "desktop-gis"
+  ],
+  "optIn": true,
+  "optInReason": "a frozen historical QGIS; take it only when a project needs this exact series",
+  "modules": [
+    "qgis-2-18.nix"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "desktop-comms",
+  "path": "desktop/comms",
+  "description": "Talking to people and moving files between machines you own.",
+  "implies": [
+    "desktop-environments-cosmic"
+  ],
+  "modules": [
+    "localsend.nix",
+    "signal.nix",
+    "social.nix"
+  ]
+}

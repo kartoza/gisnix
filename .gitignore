@@ -1,0 +1,13 @@
+result
+result-*
+.direnv/
+.envrc.local
+__pycache__/
+*.pyc
+*.qcow2
+/site/
+/pdfs/
+PROMPT.log
+claude.out
+claude.sh
+git.sh

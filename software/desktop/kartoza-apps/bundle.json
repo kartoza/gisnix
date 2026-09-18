@@ -1,0 +1,11 @@
+{
+  "name": "desktop-kartoza-apps",
+  "path": "desktop/kartoza-apps",
+  "description": "Kartoza's public desktop tools: endpoint monitoring. (Timesheets, screencaster and web-app launchers are Kartoza-internal and ship from the nix-config layer instead.)",
+  "implies": [
+    "desktop-environments-cosmic"
+  ],
+  "modules": [
+    "gatus-monitor.nix"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "desktop-gis-source-builds",
+  "path": "desktop/gis/source-builds",
+  "description": "QGIS compiled from the git heads — master (dev), the latest release branch, and the LTR branch — for testing in-progress bug fixes before they ship. Opt-in: hours of build time on top of the binary channels.",
+  "optIn": true,
+  "optInReason": "hours of build time; the binary channels already cover normal use",
+  "implies": [
+    "desktop-gis"
+  ],
+  "modules": [
+    "qgis-dev.nix",
+    "qgis-latest-git.nix",
+    "qgis-ltr-git.nix"
+  ]
+}

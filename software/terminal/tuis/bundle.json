@@ -1,0 +1,18 @@
+{
+  "name": "terminal-tuis",
+  "path": "terminal/tuis",
+  "description": "Full-screen terminal applications: yazi and Midnight Commander for files, lazygit for git, aerc for mail, btop and friends for watching the machine, khal and khard for calendars and contacts. nmtui is not here because it is not a package — it ships inside networkmanager, which services-network enables. Chat/forum TUIs (Discourse, Mastodon, Bluesky, Signal) are the terminal-chat bundle, a sibling of this one.",
+  "implies": [],
+  "modules": [
+    "calendar.nix",
+    "fastfetch.nix",
+    "files.nix",
+    "geotui.nix",
+    "lazygit.nix",
+    "mail.nix",
+    "monitors.nix",
+    "ns.nix",
+    "tools.nix",
+    "yazi.nix"
+  ]
+}

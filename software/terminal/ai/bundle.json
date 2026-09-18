@@ -1,0 +1,12 @@
+{
+  "name": "terminal-ai",
+  "path": "terminal/ai",
+  "description": "AI assistants, each bubblewrap-sandboxed so a compromised one cannot reach your SSH agent. Opt-in: local-llm alone pulls the ROCm stack into the closure.",
+  "implies": [],
+  "modules": [
+    "antigravity.nix",
+    "claude-code.nix",
+    "gemini-cli.nix",
+    "local-llm.nix"
+  ]
+}
