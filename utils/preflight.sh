@@ -3,8 +3,8 @@
 #
 # preflight — checks to run against a host BEFORE rebuilding it.
 #
-# Generalised from bay-preflight.sh, which was written for one in-place
-# takeover and hardcoded that machine's expectations. The questions it asked
+# Generalised from a preflight script written for one in-place
+# takeover, which hardcoded that machine's expectations. The questions it asked
 # are the right ones for any host, because they are the ones that turn a
 # rebuild into a machine that builds fine and then does not boot:
 #
@@ -17,7 +17,7 @@
 # Each check prints PASS, WARN or FAIL. Do not rebuild while anything is FAIL.
 #
 #   gisnix preflight              # this machine
-#   gisnix preflight bay          # over SSH
+#   gisnix preflight myhost       # over SSH
 #
 # The declared side comes from evaluating the host's configuration, so this is
 # comparing the flake against reality rather than against assumptions.

@@ -4,8 +4,7 @@
 gisnix's bundles, profiles and overlays while keeping only its own
 `hosts/<name>` and `users/<name>` — no vendored copy of `software/`,
 `profiles/`, or `overlays/`. This is how the installer's own generated
-per-machine flake works, and it's the intended shape for Kartoza's internal
-fleet (`nix-config`) too.
+per-machine flake works.
 
 ## The shape
 
@@ -52,10 +51,10 @@ machinery *and* the target host's directory in the same tree —
 `utils/lib/hostconfig.py`'s `REPO_ROOT` is computed from its own file
 location, and a host directory lookup (`hosts/<name>/config.nix`) is
 resolved relative to that same root. That's exactly true for gisnix's own
-`hosts/example/` and for nix-config (which keeps `utils/` and `hosts/`
-together on purpose), but it is **not** true for a standalone tiny flake
-like the one the installer generates: it has `hosts/<name>/` but no
-`utils/` at all.
+`hosts/example/`, and for any downstream flake that deliberately keeps
+`utils/` and `hosts/` together in one tree — but it is **not** true for a
+standalone tiny flake like the one the installer generates: it has
+`hosts/<name>/` but no `utils/` at all.
 
 Practically: editing `config.nix` by hand and rebuilding always works from
 a tiny flake. The interactive `gisnix configure` menu does not, yet — making it

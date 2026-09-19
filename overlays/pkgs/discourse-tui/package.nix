@@ -35,7 +35,7 @@ rustPlatform.buildRustPackage rec {
   # None of discourse-tui's OWN dependencies (ratatui, crossterm, tokio,
   # serde, toml, directories, regex) need this — it is discourse-api-rs's
   # HTTP client pulling in native-tls -> openssl-sys transitively
-  # (confirmed in Cargo.lock; real build failure on abyss: "Could not
+  # (confirmed in Cargo.lock; real build failure without it: "Could not
   # find directory of OpenSSL installation ... pkg-config could not be
   # found"). Standard nixpkgs recipe for an openssl-sys dependency: give
   # it pkg-config to find the system OpenSSL rather than vendoring one.

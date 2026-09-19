@@ -37,10 +37,10 @@ Every bundle is a directory under `software/` with a `bundle.json`
 (name, path, description, `implies`, `modules`) beside the NixOS modules it
 describes. `profiles/bundles.nix` reads a host's `config.nix` `bundles`
 list, resolves implications transitively, and turns the result into module
-imports. Nothing here is fleet-specific — the whole registry, and the `gisnix`
-tooling that reads it (`utils/lib/hostconfig.py`, `bundleinfo.py`,
-`configure_tui.py`), is exactly the same code used by nix-config's own
-fleet, one layer up.
+imports. Nothing here is fleet-specific — the whole registry, and the
+`gisnix` tooling that reads it (`utils/lib/hostconfig.py`, `bundleinfo.py`,
+`configure_tui.py`), works the same whether the host lives in gisnix
+itself or one layer up, in a flake that pins gisnix as an input.
 
 ## Storage templates
 

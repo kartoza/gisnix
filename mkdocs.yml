@@ -150,6 +150,7 @@ nav:
   - User guide:
       - user/index.md
       - Quickstart: user/quickstart.md
+      - Keyboard remapping: user/keyboard.md
   - Administration:
       - admin/index.md
       - Software bundles: admin/software-bundles.md

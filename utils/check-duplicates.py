@@ -23,8 +23,8 @@ because two weaker ones produce nonsense:
   * "declared in two files anywhere" flags `software/locale/*.nix`, which all
     list `aspell`. A host takes exactly ONE locale — they are alternatives,
     not duplicates
-  * it also flags abyss and porto both configuring the same keyboard. Those
-    are different machines; neither gets the package twice
+  * it also flags two different hosts configuring the same model of
+    keyboard. Those are different machines; neither gets the package twice
 
 So this resolves each host's bundles, adds its own files, and looks for a
 package arriving from more than one of them.

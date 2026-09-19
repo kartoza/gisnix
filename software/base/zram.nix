@@ -4,9 +4,9 @@
   #
   # Every host in this flake sets swapDevices = [ ], which leaves the kernel no
   # cushion at all: under pressure it can only reclaim page cache or start
-  # killing. On abyss that produced a global OOM kill that took out Firefox and
-  # Steam while the desktop session survived, presenting as "all my apps closed
-  # by themselves".
+  # killing. Without zram that produces a global OOM kill that takes out a
+  # browser and a game while the desktop session survives, presenting as "all
+  # my apps closed by themselves".
   #
   # It also disables the graceful path. systemd-oomd starts, logs "No swap;
   # memory pressure usage will be degraded", and monitors nothing — so the

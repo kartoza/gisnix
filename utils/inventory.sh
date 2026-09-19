@@ -13,7 +13,7 @@
 #
 # Usage:
 #   gisnix inventory                 # every host in hosts/fleet.nix
-#   gisnix inventory abyss waterfall # just these
+#   gisnix inventory myhost otherhost # just these
 #   gisnix inventory --help
 #
 # Requires SSH access as each host's sshUser. Hosts with no lanAddress and no

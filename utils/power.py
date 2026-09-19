@@ -615,8 +615,8 @@ def is_framework() -> bool:
 
 #: Ways to reach an embedded controller, in the order they are tried.
 #:
-#: `framework_tool` is the Rust tool from framework-system and is what
-#: hosts/abyss actually installs; `ectool` is the Framework fork of the
+#: `framework_tool` is the Rust tool from framework-system and is what one
+#: Framework host actually installs; `ectool` is the Framework fork of the
 #: ChromeOS EC tool and is what its systemd unit reaches by store path. The
 #: first version of this looked only for `ectool`, found nothing on a
 #: Framework 16 that had framework_tool right there on PATH, and reported that
@@ -684,7 +684,7 @@ def set_charge_limit(percent: int) -> int:
     print(f"  {BOLD}Charge limit → {percent}%{NC}")
 
     # On a Framework the embedded controller owns this, and on some models the
-    # sysfs threshold does not persist — which is why hosts/abyss sets its
+    # sysfs threshold does not persist — which is why such a host sets its
     # limit through the EC rather than sysfs.
     tool = ec_tool()
     if tool:

@@ -1,7 +1,7 @@
 {
   "name": "desktop-kartoza-apps",
   "path": "desktop/kartoza-apps",
-  "description": "Kartoza's public desktop tools: endpoint monitoring. (Timesheets, screencaster and web-app launchers are Kartoza-internal and ship from the nix-config layer instead.)",
+  "description": "Endpoint monitoring for the desktop. A downstream flake with private tooling — timesheets, screencasters, web-app launchers and the like — adds bundles of its own alongside this one; none of that belongs in gisnix.",
   "implies": [
     "desktop-environments-cosmic"
   ],

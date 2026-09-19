@@ -291,6 +291,23 @@
       "usage": "gisnix installer [--mock]"
     },
     {
+      "name": "add-keyboard",
+      "file": "add-keyboard.sh",
+      "key": "K",
+      "group": "hardware",
+      "order": 0,
+      "desc": "Find a connected keyboard's device path and print a ready-to-paste kanata instance for it",
+      "terse": "wire up a new keyboard for kanata",
+      "deps": [
+        "libinput",
+        "gnused",
+        "coreutils",
+        "gawk",
+        "gnugrep"
+      ],
+      "usage": "gisnix add-keyboard"
+    },
+    {
       "name": "suspend",
       "file": "suspend.sh",
       "key": "z",

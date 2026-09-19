@@ -261,7 +261,7 @@ def main() -> int:
     lines += [
         "",
         "```bash",
-        "gisnix configure atoll --enable services-device-peripherals",
+        "gisnix configure myhost --enable services-device-peripherals",
         "```",
         "",
         "### Edit mode",
@@ -374,7 +374,7 @@ def main() -> int:
         " add several, because a build that fails then names its own cause:",
         "",
         "```bash",
-        "gisnix update atoll",
+        "gisnix update myhost",
         "```",
         "",
         "The read-only half of the pair is `gisnix bundles`, which shows what each"
@@ -442,8 +442,9 @@ def main() -> int:
         " cannot take `\"latest\"`: the pin beats the bundle and only the ZFS"
         " half moves, which is the mismatch the whole arrangement exists to"
         " prevent. The bundle asserts against this and says so by name — drop"
-        " the pin, or stay on `\"stable\"`. waterfall, bay and atoll all pin"
-        " 6.12 today.",
+        " the pin, or stay on `\"stable\"`. Most fleets do exactly that: pin a"
+        " known-good series and leave `\"latest\"` for the one host tracking"
+        " master on purpose.",
         "",
         "The cost is real: master is pre-Hydra, so a host choosing `\"latest\"`"
         " compiles both the kernel and the ZFS module itself, and again"

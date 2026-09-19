@@ -8,45 +8,52 @@ hide:
 
 <span class="kz-eyebrow">KARTOZA · GISNIX</span>
 
-# A reproducible NixOS distribution for GIS workstations
+# gisnix
 
-Boot the installer, pick your software, get a ZFS-encrypted machine with a
-minimal COSMIC desktop — or a full QGIS field workstation with 23 pinned
-historical releases alongside it. One flake, declarative all the way down.
+A NixOS distribution for GIS workstations. Boot the installer, partition
+the disk, pick your software from a bundle registry, and get a machine
+whose entire configuration is one flake — reproducible, and, if you chose
+ZFS, encrypted with a passphrase prompted at boot.
 
 <div class="kz-cta" markdown>
-[:material-rocket-launch: Quickstart](user/quickstart.md){ .kz-cta__primary }
-[:material-server: Software bundles](references/bundles.md){ .kz-cta__secondary }
-[:simple-github: GitHub](https://github.com/kartoza/gisnix){ .kz-cta__secondary }
+[:material-book-open-variant: Quickstart](user/quickstart.md){ .kz-cta__primary }
+[:material-format-list-bulleted: Software bundles](references/bundles.md){ .kz-cta__secondary }
+[:simple-github: Source](https://github.com/kartoza/gisnix){ .kz-cta__secondary }
 </div>
 
 </div>
 
 ## What it is
 
-gisnix is a NixOS flake plus a Kartoza-branded, Textual-based installer you
-boot from USB. It gives you:
+A NixOS flake, an installer, and a QGIS distribution, in that order of
+what actually determines the other two:
 
-- A **bundle registry** — package sets under `software/`, each a
-  `bundle.json` plus its NixOS modules. Turn them on or off with `gisnix
-  configure`, and implications resolve automatically (asking for the QGIS
-  bundle brings in the desktop it needs to display it).
-- **ZFS encryption by default** — AES-256-GCM, passphrase prompted at boot —
-  or plain XFS, or multi-disk stripe/raidz/raidz2, all from one installer
-  screen.
-- The **`gisnix` operator CLI** — one namespaced entry point
-  (`gisnix configure`, `gisnix installer`, `gisnix create-host`, `gisnix bundles`, ...)
-  driven from a single manifest, so a command is a flake app, a `gisnix`
-  subcommand, and a dev-shell binary all at once.
-- **`lib.mkHost`**, exposed so your own flake can build a host from gisnix's
-  bundles/profiles/overlays while keeping only your own `hosts/<name>` and
-  `users/<name>` — see [Building on gisnix](developer/downstream-flakes.md).
+- **Bundles.** Software is organised into named sets under `software/`,
+  each one a `bundle.json` describing what it contains and what it
+  requires. A host lists the bundles it wants in `config.nix`; `gisnix
+  configure` gives you a menu instead of editing that list by hand.
+  Dependencies resolve on their own — asking for the QGIS bundle also
+  gets you the desktop it needs to run in.
+- **QGIS, several ways.** The current release channels, plus 23 pinned
+  historical QGIS releases going back to 1.8, each installed from its own
+  pinned nixpkgs so the old and the current don't fight over shared
+  library versions.
+- **Storage.** ZFS on a single disk with AES-256-GCM encryption is the
+  installer's default. Plain XFS and multi-disk ZFS (stripe, RAIDZ,
+  RAIDZ2) are the alternatives — see [storage modes](admin/storage-modes.md).
+- **`gisnix`, the command.** Every operational task — configuring
+  software, creating a host, running the installer itself — is one
+  command, driven from a manifest so a new one gets a flake app, a
+  subcommand, and a dev-shell binary from a single entry.
+- **`lib.mkHost`.** A separate flake can pin gisnix and build a host
+  against its bundles and profiles while keeping only its own host and
+  user files — see [Building on gisnix](developer/downstream-flakes.md).
 
-## Who this is for
+## Requirements
 
-Field GIS teams who want a reproducible, encrypted workstation without
-hand-tuning a distro from scratch, and anyone building their own NixOS fleet
-on top of a maintained base rather than starting from an empty flake.
+UEFI boot, Secure Boot off, 20GB of disk at minimum (more if you're
+taking several QGIS versions at once). See the
+[quickstart](user/quickstart.md) for the rest.
 
 ---
 

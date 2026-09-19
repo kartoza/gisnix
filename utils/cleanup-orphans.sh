@@ -5,14 +5,12 @@
 #
 # Background
 # ----------
-# zfs-backup 1.6.0 is configured on abyss with the whole pool (NIXROOT) as its
+# zfs-backup 1.6.0 is configured on some hosts with the whole pool as its
 # source. Steps 3 and 4 of a run snapshot and replicate all five datasets, but
-# step 5 ("prune local snapshots -> bookmarks") only ever processes
-# NIXROOT/home. Every other dataset therefore accumulates two snapshots per run
-# forever. On abyss that reached 19.2G on NIXROOT/root (against a 30G quota with
-# only 1.04G of live data) and 290G on NIXROOT/nix.
-#
-# See ZFS-BACKUP-RECURSIVE-SNAPSHOT-BUG.md for the full write-up.
+# step 5 ("prune local snapshots -> bookmarks") only ever processes the
+# home dataset. Every other dataset therefore accumulates two snapshots per run
+# forever. On one host that reached 19.2G on the root dataset (against a 30G
+# quota with only 1.04G of live data) and 290G on the nix dataset.
 #
 # Safety
 # ------
@@ -29,7 +27,7 @@
 #     matched set.
 #   * Holds and clones/dependents abort the run.
 #
-# This only removes LOCAL snapshots. The replicas under NIXBACKUPS/abyss/* are
+# This only removes LOCAL snapshots. The replicas on the backup target are
 # untouched; reclaiming space there is a separate decision.
 #
 # Usage:

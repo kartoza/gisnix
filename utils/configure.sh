@@ -3,12 +3,12 @@
 # configure — turn a host's software bundles on and off, from a menu.
 #
 #   gisnix configure                       # pick a host, then tick the bundles
-#   gisnix configure atoll                 # straight to atoll's bundles
-#   gisnix configure atoll --list          # show what it takes, change nothing
-#   gisnix configure atoll --enable desktop-gis
-#   gisnix configure atoll --disable terminal-ai,desktop-games
-#   gisnix configure atoll --set base,desktop-browsers --locale za-en
-#   gisnix configure atoll --enable security --dry-run
+#   gisnix configure myhost                # straight to myhost's bundles
+#   gisnix configure myhost --list         # show what it takes, change nothing
+#   gisnix configure myhost --enable desktop-gis
+#   gisnix configure myhost --disable terminal-ai,desktop-games
+#   gisnix configure myhost --set base,desktop-browsers --locale za-en
+#   gisnix configure myhost --enable security --dry-run
 #
 # The menu is built from the bundle registry — every bundle.json under
 # software/ — and not from what the host's config.nix happens to list today.

@@ -14,9 +14,9 @@
 #
 # libvirt's default network runs its own dnsmasq on the virtual NIC, which
 # can collide with a DNS resolver bound to the same interface. blocky, which
-# this fleet runs, listens on 127.0.0.1 only and does not collide — abyss
-# additionally forces that explicitly in its networking.nix because libvirt
-# claims :53 there.
+# this fleet runs, listens on 127.0.0.1 only and does not collide — a host
+# running libvirt and blocky together may still need to force that
+# explicitly in its own networking.nix if libvirt claims :53 first.
 #
 # If a collision does appear, the virtual network is what to stop:
 #

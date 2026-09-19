@@ -6,11 +6,11 @@
 # once nixpkgs ships a release with a fixed guard.
 #
 # Extracted from overlays/default.nix so it can also be applied to a kernel
-# package set from a different nixpkgs (abyss sources its kernel from
-# nixpkgs-master; see hosts/abyss/hardware.nix). openrazer is not cosmetic
-# here: hosts/abyss/kanata-keyboard.nix depends on the openrazer group and
-# openrazer-daemon.service for keyboard remapping, so an unpatched openrazer
-# fails the build rather than merely losing RGB.
+# package set from a different nixpkgs (a host may source its kernel from
+# nixpkgs-master in its own hardware.nix). openrazer is not cosmetic
+# here: a kanata-keyboard.nix that depends on the openrazer group and
+# openrazer-daemon.service for keyboard remapping means an unpatched
+# openrazer fails the build rather than merely losing RGB.
 kernelPackages:
 kernelPackages.extend (
   _kfinal: kprev: {

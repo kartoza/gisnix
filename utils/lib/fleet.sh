@@ -8,8 +8,8 @@
 #
 # Everything here reads hosts/fleet.nix. These helpers exist so that
 # suspend, wake, check and unlock stop being four scripts that each know one
-# machine's IP and MAC by heart — which is what waterfall-suspend.sh,
-# waterfall-wake.sh, waterfall-status.sh and waterfall-unlock.sh were.
+# machine's IP and MAC by heart — which is what a set of per-machine
+# suspend/wake/status/unlock scripts were, one quadruple per host.
 
 # shellcheck disable=SC2034
 f_red=$'\033[0;31m'
@@ -54,8 +54,8 @@ f_field() { # <host> <field> <default>
 #
 # concatStringsSep does not terminate the final line, and `while read` does
 # not run its body for a line without one — so f_known silently could not see
-# whichever host sorted last. `gisnix unlock waterfall` refused waterfall and then
-# listed waterfall among the known hosts, because the check read the list line
+# whichever host sorted last. `gisnix unlock myhost` refused myhost and then
+# listed myhost among the known hosts, because the check read the list line
 # by line and the message printed it whole.
 #
 # shellcheck disable=SC2329  # used only by some of the commands that inline this

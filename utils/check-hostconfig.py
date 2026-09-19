@@ -322,7 +322,7 @@ def check_menu_labels_have_no_commas() -> None:
 
     `gum choose --selected` takes ONE comma-separated string. A label with a
     comma in it is split into fragments matching no option, so the bundle
-    fails to pre-tick — and abyss, which takes 26 of 29 bundles, opened
+    fails to pre-tick — and a host taking most of the catalogue opened
     showing almost everything switched off. Nothing crashed; the tool simply
     misreported the machine, which is worse.
     """
@@ -463,15 +463,12 @@ def check_required_cannot_be_removed() -> None:
         "required: base was refused without saying why",
     )
 
-    # Not the same as "every host must have it". bay takes neither and must
-    # not be made to: it imports its software directly.
-    bay = H.parse(H.path_for("bay"))
+    # Not the same as "every host must have it". A host that imports its
+    # software directly, taking neither base nor services-system, must not
+    # be forced to: adding an ordinary bundle to it should not be refused.
+    without_base = {"desktop-browsers"}
     check(
-        "base" not in bay.enabled,
-        "required: this test assumes bay does not take base; it now does",
-    )
-    check(
-        H.removals_refused(bay.enabled, bay.enabled | {"desktop-comms"}) == {},
+        H.removals_refused(without_base, without_base | {"desktop-comms"}) == {},
         "required: adding a bundle to a host without base was refused",
     )
 
@@ -809,8 +806,8 @@ def check_module_editor() -> None:
     # And the host-reach calculation the operator is shown before agreeing.
     reach = M.hosts_using("desktop-browsers")
     check(
-        "abyss" in reach,
-        f"module editor: abyss missing from the hosts using desktop-browsers — {reach}",
+        "example" in reach,
+        f"module editor: example missing from the hosts using desktop-browsers — {reach}",
     )
     check(
         M.hosts_using("desktop-gis-source-builds") != H.hosts(),

@@ -6,6 +6,9 @@ for that).
 
 - **[Quickstart](quickstart.md)** — download the ISO, boot it, run the
   installer.
+- **[Keyboard remapping](keyboard.md)** — the home-row modifiers and
+  navigation layer the `services-device-input` bundle gives you, and what
+  to do about a second board.
 - Once installed, `~/nixos-config` on your machine is your own tiny flake —
   it pins gisnix and holds only your host and user files. Change installed
   software by editing `hosts/<name>/config.nix`'s bundle list, then

@@ -147,8 +147,8 @@ CACHE_DIR = REPO_ROOT / ".cache" / "docs-host-facts"
 CACHE_VERSION = 2
 
 #: Directories whose contents can change what a host evaluates to. A host's
-#: own directory is added per host, so editing hosts/atoll/ does not throw
-#: away the other eight entries.
+#: own directory is added per host, so editing one host's directory does not
+#: throw away every other host's cached entry.
 SHARED_INPUTS = (
     "flake.nix",
     "flake.lock",

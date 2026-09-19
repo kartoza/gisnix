@@ -23,14 +23,14 @@
 # NOT EVERY MACHINE WANTS ONE
 #
 # Default is null — no limit, which is what every host has effectively had.
-# island and mainland must NOT have one: their RTX 4060 and APU together can
-# outdraw the charger, and a machine that may not charge above 80% can end up
-# discharging while plugged in.
+# A laptop whose discrete GPU and APU together can outdraw the charger must
+# NOT have one: a machine that may not charge above 80% can end up
+# discharging while plugged in under that kind of load.
 #
 # Frameworks are a separate case again. On Ryzen AI 300 the sysfs threshold
-# does not persist, so abyss sets its limit at the embedded controller with
-# `ectool fwchargelimit` in hosts/abyss/hardware.nix. Setting both would be
-# two mechanisms disagreeing.
+# does not persist, so a Framework host sets its limit at the embedded
+# controller with `ectool fwchargelimit` in its own hardware.nix instead.
+# Setting both would be two mechanisms disagreeing.
 {
   config,
   lib,

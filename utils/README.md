@@ -6,8 +6,8 @@ modules the system builds. Docs generators live in `docs/scripts/`.
 ## The command list is not in this file
 
 It used to be, and it rotted: this README described `rebuild.sh`,
-`check.sh` and `sync-michelle.sh` long after they had been renamed or folded
-into other commands.
+`check.sh` and a machine-specific sync script long after they had been
+renamed or folded into other commands.
 
 Operator commands are declared once, in [`commands.json`](commands.json), and
 minted from there into four surfaces:

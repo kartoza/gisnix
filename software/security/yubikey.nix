@@ -20,10 +20,10 @@
   # Firefox WebAuthn/FIDO2 itself talks to the token directly via HIDRAW.
   services.pcscd.enable = true;
 
-  # Keep the YubiKey out of USB autosuspend. The host-wide rule in
-  # hosts/abyss/hardware.nix sets autosuspend=2s for all USB devices while on
-  # battery, which causes pcscd to lose the reader and makes FIDO2 prompts
-  # intermittently fail. Pin the Yubico vendor ID (1050) to "always on".
+  # Keep the YubiKey out of USB autosuspend. A host-wide rule that sets
+  # autosuspend=2s for all USB devices while on battery causes pcscd to lose
+  # the reader and makes FIDO2 prompts intermittently fail. Pin the Yubico
+  # vendor ID (1050) to "always on".
   services.udev.extraRules = ''
     ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="1050", ATTR{power/autosuspend}="-1", ATTR{power/control}="on"
   '';

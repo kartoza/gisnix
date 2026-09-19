@@ -12,9 +12,8 @@ Running a gisnix machine (or a small fleet of them) day to day.
 
 If you're managing more than one gisnix machine and want them to know about
 each other (so `ssh othermachine` works by name, for instance), see
-`hosts/fleet.nix` — the same mechanism nix-config's own fleet uses (see
-[Architecture](../developer/architecture.md)). A single standalone machine
-doesn't need this at all.
+`hosts/fleet.nix` — see [Architecture](../developer/architecture.md) for
+how it's read. A single standalone machine doesn't need this at all.
 
 ## Reinstalling
 

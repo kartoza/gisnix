@@ -45,9 +45,10 @@ let
   # A one-of group WITHOUT a `choiceKey` is not driven by a host key and is
   # skipped here. No group is in that state today — boot-themes was, chosen
   # by importing a profile, and is now `bootTheme` like any other — but
-  # assuming every group had a key is what broke abyss's rebuild with
-  # `attribute 'choiceKey' missing`, so the guard stays. check-bundles.py
-  # refuses a group declaring neither a key nor how else it is chosen.
+  # assuming every group had a key is what broke a host's rebuild with
+  # `attribute 'choiceKey' missing` the day boot-themes still worked that
+  # way, so the guard stays. check-bundles.py refuses a group declaring
+  # neither a key nor how else it is chosen.
   chosen = lib.concatMap (
     b:
     let

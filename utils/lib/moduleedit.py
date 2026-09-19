@@ -194,9 +194,10 @@ def required_package(module: Path, package: str) -> tuple[str, bool] | None:
     Returns `(reason, hard)` or `None`. `hard=True`: the package genuinely
     cannot be absent — bundle-level `required` protects a whole bundle from
     being dropped by a host, and this is the same idea one level down:
-    `base` may not be removed from abyss, and `fish` may not be removed
-    from `base`, because users/tim-headless.nix sets `shell = pkgs.fish`
-    and a user whose login shell does not exist cannot log in.
+    `base` may not be removed from a host that has it, and `fish` may not be
+    removed from `base`, because a user file sets `shell = pkgs.fish` for a
+    headless account and a user whose login shell does not exist cannot log
+    in.
 
     `hard=False`: the TEXT LINE is locked, not the package's presence.
     These are packages this repository defines itself (overlays/pkgs/, a

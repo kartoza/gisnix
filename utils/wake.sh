@@ -3,11 +3,11 @@
 #
 # wake — wake a suspended host with a Wake-on-LAN magic packet.
 #
-# Generalised from waterfall-wake.sh. The MAC comes from hosts/fleet.nix, so a
-# host without one is reported as "cannot be woken" rather than failing
-# obscurely.
+# Generalised from a machine-specific wake script. The MAC comes from
+# hosts/fleet.nix, so a host without one is reported as "cannot be woken"
+# rather than failing obscurely.
 #
-#   gisnix wake waterfall
+#   gisnix wake myhost
 #
 # Magic packets are LAN broadcasts. They cannot traverse the NetBird overlay
 # or any other tunnel, so this only works from the same network segment — the

@@ -714,13 +714,13 @@ def build_parser() -> argparse.ArgumentParser:
         epilog="""
 examples:
   gisnix configure                          this machine, then tick the bundles
-  gisnix configure atoll                    straight to atoll's bundles
-  gisnix configure atoll --list             show what it takes, change nothing
-  gisnix configure atoll --enable desktop-gis
-  gisnix configure atoll --disable terminal-ai,desktop-games
-  gisnix configure atoll --set base,desktop-browsers --locale za-en
-  gisnix configure atoll --kernel 7.2       run kernel 7.2, as abyss does
-  gisnix configure atoll --enable security --dry-run
+  gisnix configure myhost                   straight to myhost's bundles
+  gisnix configure myhost --list            show what it takes, change nothing
+  gisnix configure myhost --enable desktop-gis
+  gisnix configure myhost --disable terminal-ai,desktop-games
+  gisnix configure myhost --set base,desktop-browsers --locale za-en
+  gisnix configure myhost --kernel 7.2      run kernel 7.2 on this host
+  gisnix configure myhost --enable security --dry-run
 
 The bundle list always comes from software/**/bundle.json, so it is complete
 whatever the host's config.nix currently mentions. See `gisnix bundles` for what

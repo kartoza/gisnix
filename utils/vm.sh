@@ -3,8 +3,8 @@
 # vm — run a host's configuration in a QEMU virtual machine.
 #
 #   gisnix vm                  # this machine, quick boot
-#   gisnix vm waterfall        # another host, quick boot
-#   gisnix vm abyss --boot     # the full boot: UEFI/GRUB, then Plymouth
+#   gisnix vm myhost           # another host, quick boot
+#   gisnix vm myhost --boot    # the full boot: UEFI/GRUB, then Plymouth
 #   gisnix vm --list           # which hosts can be run
 #
 # TWO VARIANTS, AND WHY BOTH EXIST

@@ -4,13 +4,13 @@
 # Generate networking.extraHosts for every machine in the fleet, identically
 # on every machine in the fleet.
 #
-# Why: `ssh waterfall` should work from any host this flake manages, without
+# Why: `ssh anyhost` should work from any host this flake manages, without
 # depending on whether the overlay network happens to be up. Until now each
-# hosts/*/networking.nix carried its own hand-written extraHosts block. Nine
-# copies, maintained by hand, had already drifted — abyss still pointed at a
-# Tailscale address for waterfall, waterfall did not know about abyss at all,
-# and the entries for people's machines (vicky, michelle, amy, eli) appeared
-# on some hosts and not others.
+# hosts/*/networking.nix carried its own hand-written extraHosts block. A
+# dozen copies, maintained by hand, had already drifted — one host still
+# pointed at a stale Tailscale address for another, that other host did not
+# know about the first at all, and the entries for people's own laptops
+# appeared on some hosts and not others.
 #
 # hosts/fleet.nix is now the only place those facts live. A host with
 # lanAddress = null contributes nothing, which is correct: the roaming laptops

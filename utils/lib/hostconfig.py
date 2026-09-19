@@ -276,10 +276,10 @@ def required(name: str) -> str | None:
     """Why this bundle must not be taken away, if it must not.
 
     "Required" means a host that HAS it cannot be made to drop it by ticking
-    a box. It deliberately does not mean every host must have it: bay imports
-    its software directly and takes neither of the two that carry the mark,
-    and forcing them on would change what that machine installs — a tool
-    protecting you from a mistake by making a different one.
+    a box. It deliberately does not mean every host must have it: a host that
+    imports its software directly and takes neither of the two that carry
+    the mark is not forced onto them — that would change what that machine
+    installs, a tool protecting you from a mistake by making a different one.
     """
     bundle = {b["name"]: b for b in catalogue()}.get(name, {})
     if not bundle.get("required"):

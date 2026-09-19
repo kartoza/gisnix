@@ -38,7 +38,7 @@
     # goes with it. Its own bundle rather than part of terminal-tuis because
     # the plugin set builds from source — a crates.io fetch that has failed
     # on hosts whose store cannot reach this flake's inputs, and the reason
-    # atoll takes the rest of the TUIs without it.
+    # a host behind such a store takes the rest of the TUIs without it.
     # "terminal-editor"
 
     # Full-screen terminal applications: yazi and Midnight Commander for

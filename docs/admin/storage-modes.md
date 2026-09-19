@@ -24,8 +24,9 @@ NIXROOT/
 └── atuin     (/var/atuin)  shell history, XFS zvol
 ```
 
-This matches the layout real Kartoza fleet hosts use — a machine installed
-by gisnix and one migrated by hand end up with the same shape.
+This is the same shape whether a machine was installed fresh by gisnix or
+migrated onto it by hand — one dataset layout, one set of assumptions for
+anything downstream that reads it.
 
 ## Changing your mind after install
 
@@ -35,8 +36,14 @@ Changing it means reinstalling (the installer's "existing host profile"
 option, pointed at your `hosts/<name>/`, does this cleanly — it's the same
 config, freshly partitioned).
 
-What *is* changeable without reinstalling: the software on top of the
-storage (see [Software bundles](software-bundles.md)), and most ZFS dataset
-options (quotas, compression) via a normal `hosts/<name>/disks.nix` edit
-plus rebuild — those apply to an already-created pool. Repartitioning does
-not.
+That includes dataset *properties*, not just the disk layout: disko sets
+quotas, compression and the rest at partition time, once, when the pool is
+created. Editing the numbers in `disks.nix` afterwards and running
+`nixos-rebuild switch` changes nothing on disk — disko doesn't run again,
+`nixos-rebuild` never re-invokes it, and the edit becomes a lie about the
+pool's actual state the moment you make it without also touching the pool
+by hand. To actually raise a quota on a live pool: `zfs set quota=<size>
+<pool>/<dataset>` as root, then update `disks.nix` to match, purely as a
+record of what's true. What *is* genuinely changeable without reinstalling:
+the software on top of the storage — see
+[Software bundles](software-bundles.md).

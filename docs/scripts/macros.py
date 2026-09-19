@@ -165,7 +165,7 @@ def define_env(env):
 
         Read from the files rather than evaluated: this is the cheap view, and
         it is what a reader wants when the question is "which machines take
-        the GIS stack" rather than "what exactly does abyss install".
+        the GIS stack" rather than "what exactly does this one host install".
         """
         rows = []
         for host in _hostconfig.hosts():

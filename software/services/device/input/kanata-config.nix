@@ -149,8 +149,8 @@ let
       )'';
 
   # The herdr layer. hjkl are transcribed from the Sonsei's layer 2 ("Macros
-  # & Symbols") — hosts/abyss/sonsei-layout.json macros 2-5, which sit on that
-  # board's h/j/k/l. herdr's keys are tmux-shaped: Ctrl+b is the prefix, p/n
+  # & Symbols") — that board's own macro layout puts navigation on h/j/k/l,
+  # and this mirrors it. herdr's keys are tmux-shaped: Ctrl+b is the prefix, p/n
   # step tabs, and w opens the workspace picker, driven with an arrow + Enter.
   #
   #   h -> previous tab        C-b p

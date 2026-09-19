@@ -19,7 +19,7 @@ Every command this flake provides. One row in `utils/commands.json` mints all of
 
 This page is the sixth, generated from the same row.
 
-**32 implemented**, 5 declared but not yet written. Commands still to be built are listed rather than hidden: the manifest describes the intended lifecycle, not only the part of it that exists.
+**33 implemented**, 5 declared but not yet written. Commands still to be built are listed rather than hidden: the manifest describes the intended lifecycle, not only the part of it that exists.
 
 ## The life of a host
 
@@ -133,6 +133,7 @@ graph LR
 
 | Command | Key | What it does |
 | --- | --- | --- |
+| [`add-keyboard`](#add-keyboard) | `<leader>pK` | wire up a new keyboard for kanata |
 | [`power`](#power) | `<leader>pF` | why is this machine hot? |
 | [`keyboard-diagrams`](#keyboard-diagrams) | `<leader>pK` | regenerate keyboard diagrams |
 
@@ -727,6 +728,20 @@ What it does, in order:
 ## Hardware
 
 *Reading a machine's hardware into configuration.*
+
+### add-keyboard
+
+Find a connected keyboard's device path and print a ready-to-paste kanata instance for it.
+
+```bash
+gisnix add-keyboard
+```
+
+| | |
+| --- | --- |
+| Implementation | `utils/add-keyboard.sh` |
+| Neovim | `<leader>pK` |
+| On PATH | `libinput`, `gnused`, `coreutils`, `gawk`, `gnugrep` |
 
 ### power
 

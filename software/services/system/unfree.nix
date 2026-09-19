@@ -10,9 +10,9 @@
 #
 # The symptom is baffling: a module lists a package in its own predicate,
 # right there in the same file, and nix still refuses to evaluate it because
-# some other file's predicate won. abyss hit this the moment it took the
-# desktop-games bundle: retroarch.nix allows libretro-genesis-plus-gx, and
-# users/tim.nix's predicate was the one that survived.
+# some other file's predicate won. A host hits this the moment it takes the
+# desktop-games bundle: retroarch.nix allows libretro-genesis-plus-gx, but a
+# user file's predicate is the one that happens to survive instead.
 #
 # THE FIX
 #

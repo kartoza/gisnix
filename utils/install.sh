@@ -146,7 +146,7 @@ grep -q "disko.devices" "hosts/$HOST/disks.nix" 2>/dev/null \
     nixos-anywhere partitions from scratch, so it needs one. A host adopted
     with \`gisnix create-host\` describes the filesystems it already had, which
     is deliberately NOT a layout that can repartition. Copy the shape from
-    hosts/minimal/disks.nix and set the disk device."
+    hosts/example/disks.nix and set the disk device."
 
 disks=$(grep -oP 'device\s*=\s*"\K[^"]+' "hosts/$HOST/disks.nix" 2>/dev/null | sort -u | tr '\n' ' ')
 

@@ -1,8 +1,8 @@
 # QGIS Workstation Profile
 #
-# The shared shape of the QGIS field workstations (island, mainland): the
-# QGIS-branded boot experience, encrypted ZFS, the two QGIS channels that are
-# actually run, Google Earth Pro and Steam.
+# The shared shape of a fleet's QGIS field workstations: the QGIS-branded
+# boot experience, encrypted ZFS, the two QGIS channels actually run in the
+# field, Google Earth Pro and Steam.
 #
 # These hosts differ only by locale, so that stays in each host's desktop.nix
 # and everything else lives here. Import this and set the locale; do not

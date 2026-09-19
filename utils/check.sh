@@ -4,12 +4,12 @@
 # check — one host in depth: is it reachable, where is it in its boot, are its
 # pools healthy, are any units failed.
 #
-# Generalised from waterfall-status.sh. That script knew one machine's LAN and
+# Generalised from a machine-specific status script. That script knew one machine's LAN and
 # tailnet addresses, its pool names and its unlock port. All of that now comes
 # from hosts/fleet.nix, so this answers the same questions for any host.
 #
 #   gisnix check                # this machine
-#   gisnix check waterfall
+#   gisnix check myhost
 #
 # The interesting case is a host that pings but has no SSH: on a machine with
 # an encrypted root that usually means it is sitting at the initrd unlock

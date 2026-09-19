@@ -9,7 +9,7 @@
 # machine pings but has no real SSH, which is indistinguishable from "still
 # booting" unless you know to look — `check` reports the difference.
 #
-#   gisnix unlock waterfall
+#   gisnix unlock myhost
 #
 # The initrd has no overlay networking, so this only works from the same LAN
 # segment. The port and address come from hosts/fleet.nix.

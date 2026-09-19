@@ -9,7 +9,8 @@ than about the module that named it.
 
 `en_IN` is the trap: glibc spells it `en_IN/UTF-8`, with no charset suffix on
 the name, while `en_ZA` and `en_GB` do carry one. Writing `en_IN.UTF-8` by
-analogy looks right, passes every syntax check, and breaks bay.
+analogy looks right, passes every syntax check, and breaks the build of any
+host that takes it.
 
 Run from the repo root:  python3 utils/check-locales.py
 """

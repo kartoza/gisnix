@@ -2,15 +2,15 @@
 #
 # keyboard-diagrams — redraw every keyboard layout diagram from its source.
 #
-# abyss has four keyboards, each configured a different way, and each with its
-# own generator:
+# A host can have several keyboards, each configured a different way, and
+# each with its own generator:
 #
-#   Razer Ornata, Framework built-in  kanata, hosts/abyss/kanata-keyboard.nix
-#   Krom Kernel Pro                   keyd,   hosts/abyss/krom-keyboard.nix
-#   MoErgo Glove80                    its own firmware (stock binds; kanata
-#                                     does the remapping on the host)
-#   Dygma Sonsei                      the keyboard's own memory, exported to
-#                                     hosts/abyss/sonsei-layout.json
+#   Standard boards (built-in, most USB)  kanata, hosts/<host>/kanata-keyboard.nix
+#   Krom Kernel Pro                       keyd,   hosts/<host>/krom-keyboard.nix
+#   MoErgo Glove80                        its own firmware (stock binds; kanata
+#                                         does the remapping on the host)
+#   Dygma Sonsei                          the keyboard's own memory, exported to
+#                                         hosts/<host>/sonsei-layout.json
 #
 # Every diagram is derived from those sources rather than drawn by hand, so
 # changing a layout and re-running this keeps the docs in step. Nothing here
@@ -47,7 +47,7 @@ esac
   exit 1
 }
 
-OUT_DIR=docs/assets/abyss
+OUT_DIR=docs/assets/keyboards
 
 fail=0
 run() { # <label> <script>
@@ -65,7 +65,7 @@ run() { # <label> <script>
   fi
 }
 
-run "kanata hosts (every host with a kanata-keyboard.nix — abyss, porto, atoll)" docs/scripts/generate-keyboard-diagrams.py
+run "kanata hosts (every host with a kanata-keyboard.nix)" docs/scripts/generate-keyboard-diagrams.py
 run "MoErgo Glove80" docs/scripts/generate-glove80-diagrams.py
 run "Dygma Sonsei" docs/scripts/generate-sonsei-diagrams.py
 

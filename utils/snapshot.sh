@@ -8,7 +8,7 @@
 # undo, and you want a snapshot you named and can find.
 #
 #   gisnix snapshot                        # this machine, all sanoid-managed datasets
-#   gisnix snapshot waterfall              # a remote host
+#   gisnix snapshot myhost                 # a remote host
 #   gisnix snapshot -- --label before-upgrade
 #   gisnix snapshot -- --dataset rpool/home
 #

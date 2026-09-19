@@ -2,8 +2,8 @@
 """Derive a host-scoped mkdocs config for `gisnix docs-pdf`.
 
 Writes a copy of mkdocs.yml whose nav holds only ONE host's pages — the
-host page plus its companions (hosts/<host>-*.md: keyboard maps, the
-Sonsei page, waterfall's storage page) — and whose PDF lands in
+host page plus its companions (hosts/<host>-*.md: keyboard maps, storage
+notes, and the like) — and whose PDF lands in
 site/pdf/kartoza-nixos-<host>.pdf. Everything above `nav:` is carried
 over verbatim (theme, plugins, markdown extensions), so the pages render
 exactly as they do in the full handbook; only the page set and the

@@ -4,7 +4,7 @@
 #
 # This replaces three scripts that had grown apart: rebuild.sh (this machine),
 # rebuild-remote-host.sh (build here, copy, activate there) and
-# sync-michelle.sh (rsync the tree, then build on the target). They were three
+# sync-onehost.sh (rsync the tree, then build on the target). They were three
 # because each host needed a different mechanism — but which mechanism a host
 # needs is a fact about the host, so it now lives in hosts/fleet.nix as the
 # `deploy` field and this one command dispatches on it:
@@ -19,7 +19,7 @@
 #
 # Usage:
 #   gisnix update                  # this machine
-#   gisnix update abyss waterfall  # named hosts
+#   gisnix update myhost otherhost  # named hosts
 #   gisnix update --all         # every deployable host
 #   gisnix update --check       # dry-activate; changes nothing
 #   gisnix update --boot        # apply on next boot, not now
@@ -222,9 +222,9 @@ deploy_ssh() { # $1=host
   # by default, the check runs against the target's trusted-public-keys, our
   # build key is not there until the target has been deployed to once, and the
   # copy fails with "lacks a signature by a trusted key" — the deadlock that
-  # stopped waterfall being deployed to at all.
+  # stopped a brand-new host being deployed to at all.
   #
-  # Measured on waterfall, copying one small path four ways: plain FAILED,
+  # Measured on a fresh host, copying one small path four ways: plain FAILED,
   # plain --no-check-sigs SUCCEEDED, with `Trusted: 1` reported either way.
   #
   # We are not lowering a defence: this closure was built on this machine
@@ -315,12 +315,12 @@ for host in "${TARGETS[@]}"; do
   method="$(host_field "$host" deploy ssh)"
 
   # Being ON the machine beats whatever fleet.nix says about reaching it.
-  # atoll is registered as deploy = "rsync", so running `gisnix update` while
-  # sitting at atoll rsync'd the tree to atoll over the VPN and then built it
-  # there over SSH — the machine copying to itself, as timlinux, needing a
-  # host key for its own address. `deploy` describes how to reach a host from
-  # somewhere else; it says nothing about what to do when you are already
-  # there.
+  # A host registered as deploy = "rsync" that runs `gisnix update` while
+  # sitting at itself would otherwise rsync the tree to itself over the VPN
+  # and then build it there over SSH — the machine copying to itself, needing
+  # a host key for its own address. `deploy` describes how to reach a host
+  # from somewhere else; it says nothing about what to do when you are
+  # already there.
   if [[ "$host" == "$(hostname -s 2>/dev/null)" ]]; then
     [[ "$method" == "local" ]] || info "this is ${BOLD}${host}${NC} — rebuilding in place rather than over ${method}"
     method=local

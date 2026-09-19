@@ -4,8 +4,7 @@
 The page itself is generated from the registry by
 docs/scripts/generate-host-docs.py, but mkdocs.yml lists its nav entries by
 hand — so without this step a host gets a page that nothing ever links to.
-Three hosts (atoll, bay, minimal) had exactly that: a generated page, absent
-from the nav.
+Three hosts once had exactly that: a generated page, absent from the nav.
 
 Idempotent: running it twice is a no-op.
 
@@ -22,7 +21,7 @@ MKDOCS = Path(__file__).resolve().parent.parent / "mkdocs.yml"
 
 
 def sort_key(line: str) -> str:
-    # "      - abyss keyboard: hosts/abyss-keyboard.md" -> "abyss keyboard"
+    # "      - myhost keyboard: hosts/myhost-keyboard.md" -> "myhost keyboard"
     label = line.strip().lstrip("- ")
     return label.split(":")[0].strip().lower()
 

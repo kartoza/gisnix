@@ -72,7 +72,8 @@ sudo nixos-rebuild switch --flake .#<name>
 ```
 
 !!! note "The `gisnix configure` menu"
-    On a full gisnix (or nix-config-on-gisnix) checkout, `gisnix configure`
+    On a full checkout that keeps `utils/` alongside `hosts/` — gisnix
+    itself, or a downstream flake built the same way — `gisnix configure`
     gives you an interactive bundle picker instead of hand-editing. Running
     it usefully against a *standalone* tiny flake like the one the
     installer generates isn't wired up yet — see

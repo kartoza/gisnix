@@ -133,6 +133,5 @@
   # and silently kill ad-blocking. If a deployment adds one, scope its
   # routing domain down to just that VPN's internal suffix with a
   # NetworkManager dispatcher script (fires after NM finishes setting up DNS
-  # for the connection, so there's no race) — see nix-config's blocky.nix for
-  # a worked example against a real corporate WireGuard link.
+  # for the connection, so there's no race).
 }

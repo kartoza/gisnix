@@ -3,12 +3,12 @@
 #
 # suspend — park a host in suspend-to-RAM.
 #
-# Generalised from waterfall-suspend.sh, which knew one machine's addresses by
+# Generalised from a machine-specific suspend script, which knew one machine's addresses by
 # heart. The host is now looked up in hosts/fleet.nix, so this works for any
 # host in the registry.
 #
 #   gisnix suspend             # this machine, if it is in the registry
-#   gisnix suspend waterfall
+#   gisnix suspend myhost
 #
 # ZFS keys and the session survive in RAM, so resuming needs no unlock. Waking
 # needs `gisnix wake` from the same LAN segment — see that command for why.

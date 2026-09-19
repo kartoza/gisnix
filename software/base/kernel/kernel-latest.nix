@@ -40,11 +40,11 @@ let
   wanted = masterPkgs.linuxPackages_7_2;
 in
 {
-  # mkDefault so a host may refine the choice without contradicting it. abyss
-  # does: it takes this bundle like anyone else, then swaps in the same kernel
-  # set with openrazer patched into it, because openrazer is an out-of-tree
-  # module that does not compile against 7.2 unpatched. A plain definition
-  # there beats these.
+  # mkDefault so a host may refine the choice without contradicting it. A host
+  # with an out-of-tree module that needs patching for this kernel — openrazer
+  # against 7.2, say — takes this bundle like anyone else, then swaps in the
+  # same kernel set with the patch applied. A plain definition there beats
+  # this default.
   boot.kernelPackages = lib.mkDefault wanted;
   boot.zfs.package = lib.mkDefault masterPkgs.zfs_2_4;
 
@@ -58,12 +58,12 @@ in
   #
   #   The kernel module and the userspace tooling versions are not matching
   #
-  # which says nothing about the host's own pin being the cause. waterfall hit
-  # exactly that: hardware.nix pins linuxPackages_6_12, so `kernel = "latest"`
-  # produced a 6.12 module against 2.4.4 tooling.
+  # which says nothing about the host's own pin being the cause. A host whose
+  # hardware.nix pins linuxPackages_6_12 hits exactly that: `kernel = "latest"`
+  # produces a 6.12 module against 2.4.4 tooling.
   #
-  # Comparing kernel VERSIONS rather than the package set is deliberate: abyss
-  # legitimately substitutes the same 7.2 set with openrazer patched into it,
+  # Comparing kernel VERSIONS rather than the package set is deliberate: a
+  # host may legitimately substitute the same 7.2 set with a patched module,
   # and that must keep working. A refinement of this kernel is fine; a
   # different kernel is not.
   assertions = [

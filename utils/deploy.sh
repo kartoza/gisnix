@@ -2,8 +2,8 @@
 #
 # deploy — create a Hetzner cloud server and install a host onto it.
 #
-#   gisnix deploy island            # create the machine, then install
-#   gisnix deploy island --dry-run  # show what would be created
+#   gisnix deploy myhost            # create the machine, then install
+#   gisnix deploy myhost --dry-run  # show what would be created
 #   gisnix deploy --list            # hosts that have Hetzner parameters
 #
 # THIS IS THE CLOUD PATH, AND IT COSTS MONEY. `hcloud server create` makes a

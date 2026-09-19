@@ -33,13 +33,13 @@ A bundle's name is its path with slashes turned into hyphens, so the name always
 
 ```bash
 gisnix configure                      # this machine, then tick the bundles
-gisnix configure atoll                # straight to atoll's bundles
-gisnix configure atoll --list         # what it takes today; changes nothing
-gisnix configure atoll --enable desktop-gis
-gisnix configure atoll --disable terminal-ai,desktop-games
-gisnix configure atoll --set base,desktop-browsers --locale za-en
-gisnix configure atoll --kernel latest  # kernel 7.2, as abyss runs
-gisnix configure atoll --enable security --dry-run
+gisnix configure myhost               # straight to myhost's bundles
+gisnix configure myhost --list        # what it takes today; changes nothing
+gisnix configure myhost --enable desktop-gis
+gisnix configure myhost --disable terminal-ai,desktop-games
+gisnix configure myhost --set base,desktop-browsers --locale za-en
+gisnix configure myhost --kernel latest
+gisnix configure myhost --enable security --dry-run
 ```
 
 ### The chooser
@@ -81,7 +81,7 @@ A bundle marked `"required": true` is one `gisnix configure` will not take away 
 | [`base`](#base) | this is the ZFS root and its bootloader. Removing it does not make the machine smaller, it makes it unbootable |
 | [`services-system`](#services-system) | sshd, CA trust and kernel hardening. Removing it from a machine you reach over the network is how you stop being able to reach it |
 
-This is **not** the same as "every host must have it". `bay` and `pinnacle` import their software directly and take neither, and forcing the bundles onto them would change what those machines install — a tool protecting you from one mistake by making a different one. The rule only bites on a host that already has the bundle. `--force` overrides it.
+This is **not** the same as "every host must have it". A host that imports its software directly, bypassing the bundle list entirely, takes neither — forcing the bundle onto it would change what that machine installs, a tool protecting you from one mistake by making a different one. The rule only bites on a host that already has the bundle. `--force` overrides it.
 
 ### Groups bring their sub-bundles
 
@@ -105,7 +105,7 @@ A bundle marked `"optIn": true` is **never** selected on a host's behalf. It has
 | Bundle | Why |
 | --- | --- |
 | [`desktop-gis-source-builds`](#desktop-gis-source-builds) | hours of build time; the binary channels already cover normal use |
-| [`desktop-environments-cosmic-extensions`](#desktop-environments-cosmic-extensions) | every one of these source builds. They are community cosmic-utils packages, in neither cache.nixos.org nor cosmic.cachix.org, and compiling them is what made bay's first upgrade appear to hang |
+| [`desktop-environments-cosmic-extensions`](#desktop-environments-cosmic-extensions) | every one of these source builds. They are community cosmic-utils packages, in neither cache.nixos.org nor cosmic.cachix.org — expect a slow rebuild the first time you enable this bundle, not a hang |
 | [`desktop-gis-versions-qgis-1-8`](#desktop-gis-versions-qgis-1-8) | a frozen historical QGIS; take it only when a project needs this exact series |
 | [`desktop-gis-versions-qgis-2-10`](#desktop-gis-versions-qgis-2-10) | a frozen historical QGIS; take it only when a project needs this exact series |
 | [`desktop-gis-versions-qgis-2-16`](#desktop-gis-versions-qgis-2-16) | a frozen historical QGIS; take it only when a project needs this exact series |
@@ -132,7 +132,7 @@ A bundle marked `"optIn": true` is **never** selected on a host's behalf. It has
 | [`services-device-peripherals`](#services-device-peripherals) | biometrics can affect whether you can log in, and the rest are daemons for hardware most hosts do not have |
 
 ```bash
-gisnix configure atoll --enable services-device-peripherals
+gisnix configure myhost --enable services-device-peripherals
 ```
 
 ### Edit mode
@@ -187,7 +187,7 @@ That gap was not hypothetical: `services-device-peripherals` could not be enable
 After editing, apply it — one bundle per rebuild is the safe way to add several, because a build that fails then names its own cause:
 
 ```bash
-gisnix update atoll
+gisnix update myhost
 ```
 
 The read-only half of the pair is `gisnix bundles`, which shows what each one contains without offering to change anything.
@@ -219,7 +219,7 @@ Every host here boots from an encrypted ZFS root, so the kernel and the ZFS pack
 
 `"latest"` needs OpenZFS 2.4.4, which is the first release supporting the 7.x series and is still master-only; the pinned nixpkgs ships 2.4.3, whose ceiling is kernel 7.0. Taking the kernel from master without also taking master's ZFS reintroduces exactly the pair that does not build.
 
-A host that pins `boot.kernelPackages` in its own `hardware.nix` cannot take `"latest"`: the pin beats the bundle and only the ZFS half moves, which is the mismatch the whole arrangement exists to prevent. The bundle asserts against this and says so by name — drop the pin, or stay on `"stable"`. waterfall, bay and atoll all pin 6.12 today.
+A host that pins `boot.kernelPackages` in its own `hardware.nix` cannot take `"latest"`: the pin beats the bundle and only the ZFS half moves, which is the mismatch the whole arrangement exists to prevent. The bundle asserts against this and says so by name — drop the pin, or stay on `"stable"`. Most fleets do exactly that: pin a known-good series and leave `"latest"` for the one host tracking master on purpose.
 
 The cost is real: master is pre-Hydra, so a host choosing `"latest"` compiles both the kernel and the ZFS module itself, and again whenever the master pin moves. Rollback is the previous generation in GRUB, which carries its own matching pair.
 
@@ -327,7 +327,7 @@ graph LR
 | [`terminal-ai`](#terminal-ai)  | 4 | — | — |
 | [`terminal-chat`](#terminal-chat)  | 1 | — | — |
 | [`terminal-editor`](#terminal-editor)  | 1 | — | — |
-| [`terminal-tuis`](#terminal-tuis)  | 10 | — | — |
+| [`terminal-tuis`](#terminal-tuis)  | 9 | — | — |
 | [`desktop-browsers`](#desktop-browsers)  | 1 | `desktop-environments-cosmic` | — |
 | [`desktop-comms`](#desktop-comms)  | 3 | `desktop-environments-cosmic` | — |
 | [`desktop-ebook-readers`](#desktop-ebook-readers)  | 4 | `desktop-environments-cosmic` | — |
@@ -435,7 +435,7 @@ graph LR
 
 ### terminal-editor
 
-*Neovim, configured through nvf, with the EDITOR and vim/vi wiring that goes with it. Its own bundle rather than part of terminal-tuis because the plugin set builds from source — a crates.io fetch that has failed on hosts whose store cannot reach this flake's inputs, and the reason atoll takes the rest of the TUIs without it.*
+*Neovim, configured through nvf, with the EDITOR and vim/vi wiring that goes with it. Its own bundle rather than part of terminal-tuis because the plugin set builds from source — a crates.io fetch that has failed on hosts whose store cannot reach this flake's inputs, and the reason a host behind such a store takes the rest of the TUIs without it.*
 
 `software/terminal/editor/`
 
@@ -454,7 +454,6 @@ graph LR
 | `calendar.nix` | Calendar and scheduling applications |
 | `fastfetch.nix` | — |
 | `files.nix` | File and disk browsers |
-| `geotui.nix` | — |
 | `lazygit.nix` | — |
 | `mail.nix` | Terminal mail |
 | `monitors.nix` | System monitors |
@@ -549,7 +548,7 @@ Present in the directory but deliberately not installed: `qgis-pinned.nix`, `qgi
 
 ### desktop-kartoza-apps
 
-*Kartoza's public desktop tools: endpoint monitoring. (Timesheets, screencaster and web-app launchers are Kartoza-internal and ship from the nix-config layer instead.)*
+*Endpoint monitoring for the desktop. A downstream flake with private tooling — timesheets, screencasters, web-app launchers and the like — adds bundles of its own alongside this one; none of that belongs in gisnix.*
 
 `software/desktop/kartoza-apps/`
 
@@ -994,7 +993,7 @@ Taking this also brings in `services-device`.
 | --- | --- |
 | `bazecor.nix` | — |
 | `console-mouse.nix` | — |
-| `kanata-keyboard.nix` | Kanata Keyboard Configuration |
+| `kanata-keyboard.nix` | Kanata keyboard remapping — the layer/mod/nav mechanism gisnix ships, generated by ./kanata-config.nix |
 | `openrazer.nix` | — |
 | `piper.nix` | Gaming-mouse configuration: DPI, polling rate, button mapping, LEDs |
 
@@ -1125,6 +1124,6 @@ Taking this also brings in `services-system`.
 
 ---
 
-58 bundles, 148 modules.
+58 bundles, 147 modules.
 
 Made with love by [Kartoza](https://kartoza.com) | [Donate](https://github.com/sponsors/timlinux) | [GitHub](https://github.com/kartoza/gisnix)

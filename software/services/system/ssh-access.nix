@@ -20,22 +20,22 @@
 # WHY IT IS OPT-IN
 #
 # Because getting it wrong on a machine in another country is unrecoverable.
-# Five hosts here are colleagues' laptops with no fixed address and no console
-# we can reach; if the overlay is not up on one of them when this lands, that
-# host is gone for good. So each host opts in, and only after we have
-# confirmed how we actually reach it.
+# Several hosts in a fleet are typically colleagues' laptops with no fixed
+# address and no console you can reach; if the overlay is not up on one of
+# them when this lands, that host is gone for good. So each host opts in,
+# and only after you have confirmed how you actually reach it.
 #
-#   abyss      on, developed on locally — worst case is a walk to the desk
-#   waterfall  on, same LAN, physically reachable
-#   the rest   off, pending a working NetBird enrolment on each
+#   the machine you develop on   on, worst case is a walk to the desk
+#   anything on the same LAN     on, physically reachable
+#   the rest                     off, pending a working overlay enrolment
 #
 # THE ONE THAT MATTERS
 #
-# pinnacle has no overlay at all: no tailscale, no NetBird, no LAN address in
-# hosts/fleet.nix, and networking.nix opens port 22 to the world. Whatever
-# reaches it today reaches it across the internet. That host needs NetBird
-# before it can take this, and it is the strongest argument for finishing that
-# migration.
+# A host with no overlay at all — no tailscale, no NetBird, no LAN address in
+# hosts/fleet.nix — and a networking.nix that opens port 22 to the world is
+# reached, today, across the open internet by whatever finds it. That host
+# needs an overlay before it can take this, and it is the strongest argument
+# for finishing that migration.
 
 { config, lib, ... }:
 

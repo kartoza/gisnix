@@ -27,7 +27,7 @@ p_hostid() {
   # NixOS wants an 8-hex-digit hostId, and ZFS uses it to decide whether a
   # pool belongs to this machine. It MUST match what the pool was created
   # with or the import is refused at boot — which is why this is read rather
-  # than generated. hosts/atoll/networking.nix carries the same warning.
+  # than generated. A host's own networking.nix carries the same warning.
   [ -r /etc/machine-id ] || return 1
   head -c 8 /etc/machine-id
 }

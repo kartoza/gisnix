@@ -300,7 +300,7 @@ gen_disks() {
 # disko layout: nothing here can repartition or erase the machine, because
 # this host was installed by hand and its data predates the flake.
 #
-# hosts/atoll/disks.nix takes the same approach for the same reason. A disko
+# hosts/example/disks.nix takes the same approach for the same reason. A disko
 # layout is a FORMATTING instruction; adding one to a machine with data on it
 # is how a rebuild becomes a wipe.
 
