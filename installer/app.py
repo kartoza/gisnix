@@ -21,13 +21,42 @@ class InstallerApp(App):
 
     TITLE = "gisnix installer" + (" [MOCK]" if MOCK else "")
 
-    # App-level CSS applies across every screen. `:focus` alone is not
-    # enough here: the installer runs on a raw Linux virtual console, not a
-    # terminal emulator, where colour rendering is far less reliable than
-    # reverse video — so the focus indicator is reverse+bold, which reads
-    # clearly regardless of how much of the Kartoza palette actually makes
-    # it to the screen.
+    # App-level CSS applies across every screen.
+    #
+    # Button's built-in border style is "tall" — a 3D-embossed look built
+    # from eighth-block characters (▔▁▊▎), a different Unicode range from
+    # box-drawing. The console font has box-drawing coverage but not that
+    # one, which is exactly the garbage that showed up under every button.
+    # Every rule below re-borders with "solid" (┌─┐│└┘ — the basic
+    # box-drawing set the font does carry) with !important, because
+    # Button's own DEFAULT_CSS nests variant/hover/focus rules deeply
+    # enough that a plain override loses to it otherwise.
+    #
+    # The built-in focus style is a 5% background tint — meant for a real
+    # terminal with full colour depth, invisible on a virtual console.
+    # `!important` bold-reverse is unmissable regardless of colour support.
     CSS = """
+    Button {
+        border: solid $surface-lighten-2 !important;
+        min-width: 16;
+    }
+    Button:hover {
+        border: solid $secondary !important;
+    }
+    Button.-primary, Button.-success {
+        border: solid $primary !important;
+    }
+    Button.-warning {
+        border: solid $warning !important;
+    }
+    Button.-error {
+        border: solid $error !important;
+    }
+    Button:focus {
+        border: solid $accent !important;
+        background: $accent 35% !important;
+        text-style: bold reverse !important;
+    }
     *:focus {
         text-style: bold reverse;
     }

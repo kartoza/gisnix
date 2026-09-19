@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from textual.containers import Container, Horizontal, VerticalScroll
 from textual.screen import Screen
-from textual.widgets import Button, Footer, Static
+from textual.widgets import Button, Footer, Header, Static
 
 
 class WizardScreen(Screen):
@@ -33,23 +33,26 @@ class WizardScreen(Screen):
     #wizard-card {
         width: 100%;
         height: 100%;
-        border: round $primary;
-        padding: 1 2;
+        border: solid $primary;
+        padding: 0 1 1 1;
     }
     #wizard-title {
+        background: $primary;
+        color: $text;
         text-style: bold;
-        color: $primary;
-        height: auto;
-        padding-bottom: 1;
+        text-align: center;
+        height: 1;
+        margin: 0 0 1 0;
     }
     #wizard-error {
         color: $error;
+        text-style: bold;
         height: auto;
         padding: 0 0 1 0;
     }
     #wizard-body {
         height: 1fr;
-        padding: 0 0 1 0;
+        padding: 0 1 1 0;
     }
     #wizard-buttons {
         dock: bottom;
@@ -65,12 +68,14 @@ class WizardScreen(Screen):
     }
     """
 
-    def __init__(self, title: str, next_label: str = "Next") -> None:
+    def __init__(self, title: str, next_label: str = "Next", next_variant: str = "primary") -> None:
         super().__init__()
         self._title = title
         self._next_label = next_label
+        self._next_variant = next_variant
 
     def compose(self):
+        yield Header(show_clock=True)
         with Container(id="wizard-card"):
             yield Static(self._title, id="wizard-title")
             yield Static("", id="wizard-error")
@@ -78,7 +83,7 @@ class WizardScreen(Screen):
                 yield from self.body()
             with Horizontal(id="wizard-buttons"):
                 yield Button("Back", id="wizard-back")
-                yield Button(self._next_label, id="wizard-next", variant="primary")
+                yield Button(self._next_label, id="wizard-next", variant=self._next_variant)
         yield Footer()
 
     def body(self):

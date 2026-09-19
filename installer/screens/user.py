@@ -8,16 +8,6 @@ from .base import WizardScreen
 
 
 class UserScreen(WizardScreen):
-    # TextArea has no small default height of its own — left unset it grows
-    # to fill whatever space is offered, which is exactly what the wizard
-    # body's scroll region offers plenty of. Capped so the SSH-key field
-    # doesn't dominate the whole step; it scrolls internally past this.
-    CSS = """
-    #sshkeys-input {
-        height: 5;
-    }
-    """
-
     def __init__(self) -> None:
         super().__init__("Create your account", next_label="Continue")
 
@@ -32,7 +22,15 @@ class UserScreen(WizardScreen):
             yield Label("Confirm password")
             yield Input(password=True, id="password-confirm-input")
             yield Label("SSH public key(s) — optional, one per line")
-            yield TextArea(id="sshkeys-input")
+            # A class-level CSS override here would REPLACE WizardScreen's
+            # CSS rather than merge with it (Screen.CSS is a plain class
+            # attribute, not something Textual combines across a subclass
+            # chain) — confirmed the hard way: it silently dropped the
+            # card's border and the docked button bar on this screen only.
+            # Styling the instance directly avoids the whole question.
+            sshkeys = TextArea(id="sshkeys-input")
+            sshkeys.styles.height = 5
+            yield sshkeys
 
     def on_next(self) -> bool | None:
         username = self.query_one("#username-input", Input).value.strip().lower()

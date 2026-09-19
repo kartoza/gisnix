@@ -8,7 +8,11 @@ from .base import WizardScreen
 
 class ConfirmScreen(WizardScreen):
     def __init__(self) -> None:
-        super().__init__("Confirm — this erases the selected disk(s)", next_label="Install!")
+        super().__init__(
+            "Confirm — this erases the selected disk(s)",
+            next_label="Install!",
+            next_variant="error",
+        )
 
     def body(self):
         state = self.app.state

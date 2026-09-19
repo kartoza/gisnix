@@ -2,19 +2,27 @@ from __future__ import annotations
 
 from textual.containers import Container
 from textual.screen import Screen
-from textual.widgets import Button, Static
+from textual.widgets import Button, Header, Static
 
 
 class DoneScreen(Screen):
     CSS = """
     DoneScreen { align: center middle; }
-    #done-card { width: 100%; height: 100%; border: round $primary; padding: 1 2; }
-    #done-title { text-style: bold; color: $primary; height: auto; padding-bottom: 1; }
+    #done-card { width: 100%; height: 100%; border: solid $primary; padding: 0 1 1 1; }
+    #done-title {
+        background: $primary;
+        color: $text;
+        text-style: bold;
+        text-align: center;
+        height: 1;
+        margin: 0 0 1 0;
+    }
     #done-buttons { dock: bottom; height: 3; align: right middle; background: $surface; }
     """
 
     def compose(self):
         state = self.app.state
+        yield Header(show_clock=True)
         with Container(id="done-card"):
             yield Static("gisnix is installed", id="done-title")
             yield Static(

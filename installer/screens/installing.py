@@ -3,7 +3,7 @@ from __future__ import annotations
 from textual import work
 from textual.containers import Container
 from textual.screen import Screen
-from textual.widgets import Button, Footer, RichLog, Static
+from textual.widgets import Button, Footer, Header, RichLog, Static
 
 from ..installer_run import run_install
 
@@ -14,13 +14,21 @@ class InstallingScreen(Screen):
 
     CSS = """
     InstallingScreen { align: center middle; }
-    #install-card { width: 100%; height: 100%; border: round $primary; padding: 1 2; }
-    #install-title { text-style: bold; color: $primary; height: auto; padding-bottom: 1; }
+    #install-card { width: 100%; height: 100%; border: solid $primary; padding: 0 1 1 1; }
+    #install-title {
+        background: $primary;
+        color: $text;
+        text-style: bold;
+        text-align: center;
+        height: 1;
+        margin: 0 0 1 0;
+    }
     #install-log { height: 1fr; border: solid $secondary; }
     #install-buttons { dock: bottom; height: 3; align: right middle; background: $surface; }
     """
 
     def compose(self):
+        yield Header(show_clock=True)
         with Container(id="install-card"):
             yield Static("Installing gisnix", id="install-title")
             yield RichLog(id="install-log", wrap=True, highlight=False, markup=False)
