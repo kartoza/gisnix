@@ -23,7 +23,6 @@ set -uo pipefail
 GREEN=$'\033[38;2;88;150;50m'
 RED=$'\033[0;31m'
 DIM=$'\033[2m'
-BOLD=$'\033[1m'
 NC=$'\033[0m'
 
 OPEN=1

@@ -40,7 +40,7 @@ if [ -z "$root" ] || [ ! -f "$root/brand.nix" ]; then
   exit 1
 fi
 export GISNIX_ROOT="$root"
-cd "$root"
+cd "$root" || exit 1
 
 clear
 chafa --size=48x resources/kartoza-logo.png 2>/dev/null || true
