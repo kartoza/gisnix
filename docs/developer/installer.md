@@ -93,13 +93,11 @@ already-installed one all still pull COSMIC from `nixpkgs-unstable`, same
 as before this existed. Only the installer's own `-install` output sets
 it, and only for the one `nixos-install` run that needs to finish fast.
 
-The practical effect: first boot is on stable COSMIC 1.2.0, already built.
-The first `gisnix update` from `~/nixos-config` afterward is what actually
-moves the machine to bleeding-edge COSMIC (and whatever else
-`nixpkgs-unstable` carries) — which may compile something nixos-unstable's
-Hydra hasn't gotten to yet, same as it always has. That trade — a fast,
-fully-cached first boot, one deliberate `gisnix update` away from
-bleeding-edge — is the point, not a compromise to fix later.
+First boot is on stable COSMIC 1.2.0, already built. The first `gisnix
+update` from `~/nixos-config` afterward moves the machine to bleeding-edge
+COSMIC (and whatever else `nixpkgs-unstable` carries), which may compile
+something Hydra hasn't gotten to yet — same as any `gisnix update` always
+could, on any host.
 
 ## `--mock` mode
 

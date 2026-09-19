@@ -81,9 +81,9 @@ sudo nixos-rebuild switch --flake .#<name>
 ```
 
 The desktop you just booted into is running stable COSMIC (see step 8
-above) — a deliberate trade for a fast, fully-cached first install, not
-the end state. Run this once you're online to move to the same
-bleeding-edge COSMIC every other gisnix host tracks:
+above), so it installed fast and didn't need to compile anything. Once
+you're online, run this to move onto the same bleeding-edge COSMIC every
+other gisnix host tracks:
 
 ```bash
 gisnix update
