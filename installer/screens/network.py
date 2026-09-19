@@ -14,6 +14,7 @@ class NetworkScreen(WizardScreen):
         yield Static("Checking connectivity to cache.nixos.org...", id="net-status")
 
     def on_mount(self) -> None:
+        super().on_mount()
         up = network_is_up()
         status = self.query_one("#net-status", Static)
         if up:

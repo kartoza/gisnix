@@ -91,6 +91,20 @@ class WizardScreen(Screen):
         return []
         yield  # pragma: no cover - makes this a generator
 
+    def on_mount(self) -> None:
+        """Land the cursor on the step's own first field rather than
+        making the user Tab to it. A subclass that overrides on_mount
+        (network.py's connectivity check, for instance) must call
+        super().on_mount() itself to keep this."""
+        self._focus_first_field()
+
+    def _focus_first_field(self) -> None:
+        for widget in self.query_one("#wizard-body").query("*"):
+            if widget.can_focus:
+                widget.focus()
+                return
+        self.query_one("#wizard-next").focus()
+
     def set_error(self, message: str, focus: str | None = None) -> None:
         """Show a validation error. Pass the CSS selector of the field it's
         actually about via `focus` — the console's scrollbar renders using
