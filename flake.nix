@@ -148,6 +148,10 @@
         {
           hostPath ? ./hosts + "/${hostname}",
           extraModules ? [ ],
+          # See overlays/default.nix's own comment — this exists for the
+          # installer's first-boot flake only. Everything else should leave
+          # it alone and get COSMIC from nixpkgs-unstable as usual.
+          stableCosmic ? false,
         }:
         let
           hostConfig = import (hostPath + "/config.nix");
@@ -162,7 +166,7 @@
             # Software bundles: turns hostConfig.bundles into imports. Inert
             # for a host that declares none.
             ./profiles/bundles.nix
-            { nixpkgs.overlays = import ./overlays { inherit inputs; }; }
+            { nixpkgs.overlays = import ./overlays { inherit inputs stableCosmic; }; }
           ]
           ++ extraModules
           ++ nixpkgs.lib.optional (projectConfig.environmentName == "dev") (

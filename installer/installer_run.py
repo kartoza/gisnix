@@ -20,7 +20,7 @@ from pathlib import Path
 
 from .repo import GISNIX_ROOT, MOCK
 from .state import InstallState
-from .writer import write_existing_host, write_new_host
+from .writer import render_flake_nix, write_existing_host, write_new_host
 
 MOUNT_ROOT = Path("/mnt")
 
@@ -130,13 +130,18 @@ def run_install(state: InstallState) -> Iterator[str]:
     # destroy this disk" gate; by the time this runs that has already
     # happened, so disko's own copy of the same question is redundant, not
     # a safety net being skipped.
+    # #{hostname}-install, not #{hostname}: writer.render_flake_nix's
+    # install-only output, which pulls COSMIC from stable nixpkgs instead of
+    # nixpkgs-unstable so this doesn't compile a desktop from source just to
+    # get one running. Stripped back out of flake.nix before it's copied to
+    # ~/nixos-config — see the "re-pointing" step below.
     disko_cmd = [
         "disko",
         "--mode",
         "destroy,format,mount",
         "--yes-wipe-all-disks",
         "--flake",
-        f"{work_dir}#{state.hostname}",
+        f"{work_dir}#{state.hostname}-install",
     ]
     # ZFS encryption prompts for a passphrase on the pool's own stdin; disko
     # inherits the wizard's TTY for that one interactive moment. If the mode
@@ -171,7 +176,7 @@ def run_install(state: InstallState) -> Iterator[str]:
             "--root",
             str(MOUNT_ROOT),
             "--flake",
-            f"{work_dir}#{state.hostname}",
+            f"{work_dir}#{state.hostname}-install",
             "--no-root-passwd",
         ]
     )
@@ -202,6 +207,14 @@ def run_install(state: InstallState) -> Iterator[str]:
         )
     except RuntimeError as exc:
         yield f"(skipped — {exc}; run `nix flake update` once online)"
+
+    # Strip the install-only stableCosmic output before it reaches the new
+    # owner's home — it did its job (a fast first install off a fully
+    # cached stable desktop) and has no further use; `gisnix update` should
+    # rebuild from the plain config, unstable-pinned, same as any other
+    # gisnix host. Doesn't touch flake.lock, which only tracks input
+    # resolution and has no opinion on which outputs exist.
+    (work_dir / "flake.nix").write_text(render_flake_nix(state))
 
     yield "── Copying the flake into the new machine ──"
     dest = MOUNT_ROOT / "home" / state.username / "nixos-config"

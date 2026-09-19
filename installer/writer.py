@@ -244,7 +244,35 @@ def render_user_nix(state: InstallState) -> str:
 """
 
 
-def render_flake_nix(state: InstallState, gisnix_flake_ref: str = "github:kartoza/gisnix") -> str:
+def render_flake_nix(
+    state: InstallState,
+    gisnix_flake_ref: str = "github:kartoza/gisnix",
+    *,
+    install: bool = False,
+) -> str:
+    """`install=True` adds a second, install-only nixosConfiguration that
+    pulls COSMIC from stable nixpkgs instead of nixpkgs-unstable (see
+    overlays/default.nix's stableCosmic) — nixos-26.05 already carries
+    cosmic-comp 1.2.0, fully built on cache.nixos.org, so the very first
+    install doesn't compile a desktop from source just to get one running.
+    installer_run.py builds against THAT output, then overwrites this file
+    with the plain (install=False) version before copying it to
+    ~/nixos-config — `gisnix update` from then on rebuilds from the config
+    above, unstable-pinned as always, which is deliberately where
+    bleeding-edge COSMIC actually lands."""
+    install_config = (
+        f"""
+
+    # Install-only — see render_flake_nix's own docstring in
+    # installer/writer.py. Not present in the copy that ends up in
+    # ~/nixos-config; safe to ignore if you're reading this after boot.
+    nixosConfigurations."{state.hostname}-install" = gisnix.lib.mkHost "{state.hostname}" {{
+      hostPath = ./hosts/{state.hostname};
+      stableCosmic = true;
+    }};"""
+        if install
+        else ""
+    )
     return f"""{{
   description = "{state.hostname} — a gisnix machine";
 
@@ -253,7 +281,7 @@ def render_flake_nix(state: InstallState, gisnix_flake_ref: str = "github:kartoz
   outputs = {{ self, gisnix, ... }}: {{
     nixosConfigurations.{state.hostname} = gisnix.lib.mkHost "{state.hostname}" {{
       hostPath = ./hosts/{state.hostname};
-    }};
+    }};{install_config}
   }};
 }}
 """
@@ -281,7 +309,7 @@ def write_existing_host(state: InstallState, target_root: Path) -> None:
         (target_root / "users" / f"{state.username}.nix").write_text(render_user_nix(state))
 
     state.hostname = state.existing_host_name
-    (target_root / "flake.nix").write_text(render_flake_nix(state))
+    (target_root / "flake.nix").write_text(render_flake_nix(state, install=True))
 
 
 def write_new_host(state: InstallState, target_root: Path) -> None:
@@ -299,4 +327,4 @@ def write_new_host(state: InstallState, target_root: Path) -> None:
     (host_dir / "hardware.nix").write_text(render_hardware_nix(state))
     (host_dir / "disks.nix").write_text(render_disks_nix(state))
     (target_root / "users" / f"{state.username}.nix").write_text(render_user_nix(state))
-    (target_root / "flake.nix").write_text(render_flake_nix(state))
+    (target_root / "flake.nix").write_text(render_flake_nix(state, install=True))

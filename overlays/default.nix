@@ -1,5 +1,17 @@
 # Custom overlays for additional packages
-{ inputs, ... }:
+{
+  inputs,
+  # Used only by the installer's own first-install flake (see
+  # installer/writer.py) to pull COSMIC from the SAME stable nixpkgs as
+  # everything else instead of nixpkgs-unstable: nixos-26.05 already
+  # carries cosmic-comp 1.2.0, fully built on cache.nixos.org, so the very
+  # first install doesn't compile anything to get a working desktop. The
+  # persistent flake `gisnix update` runs from later never sets this — that
+  # rebuild is deliberately where bleeding-edge COSMIC (and whatever else
+  # nixpkgs-unstable carries) actually lands, same as before this existed.
+  stableCosmic ? false,
+  ...
+}:
 let
   # See overlays/patch-openrazer.nix for why this exists.
   patchOpenrazer = import ./patch-openrazer.nix;
@@ -104,12 +116,21 @@ in
       }).satty;
 
     # Use latest COSMIC desktop packages from nixpkgs-unstable, so
-    # services.desktopManager.cosmic uses the latest versions.
+    # services.desktopManager.cosmic uses the latest versions — except when
+    # stableCosmic is set, where `prev` (stable nixpkgs itself) already
+    # provides all of these and inheriting from it is a no-op override, on
+    # purpose: it keeps this one list of names as the single place that
+    # says what COSMIC needs, for either source.
     inherit
-      (import inputs.nixpkgs-unstable {
-        system = final.stdenv.hostPlatform.system;
-        config.allowUnfree = false;
-      })
+      (
+        if stableCosmic then
+          prev
+        else
+          import inputs.nixpkgs-unstable {
+            system = final.stdenv.hostPlatform.system;
+            config.allowUnfree = false;
+          }
+      )
       cosmic-applets
       cosmic-app-library
       cosmic-bg
