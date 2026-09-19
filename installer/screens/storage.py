@@ -7,6 +7,13 @@ from ..repo import list_disks
 from ..state import STORAGE_XFS_SINGLE, STORAGE_ZFS_ENCRYPTED_SINGLE, STORAGE_ZFS_MULTI
 from .base import WizardScreen
 
+#: zfs-load-key(8): passphrase-format key material must be 8-512 bytes —
+#: `zpool create` rejects anything outside that range. Checked here so a
+#: bad passphrase fails at data-entry, not mid-install after disko has
+#: already started partitioning the disk.
+ZFS_PASSPHRASE_MIN = 8
+ZFS_PASSPHRASE_MAX = 512
+
 #: Select() options are (label, value) pairs.
 RAID_MODES = [
     ("Stripe (no redundancy, min 2 disks)", "stripe"),
@@ -42,7 +49,10 @@ class StorageScreen(WizardScreen):
             yield Select(RAID_MODES, value="raidz", id="raid-mode-select")
             yield Checkbox("Encrypt multi-disk pool too", value=True, id="multi-encrypt")
 
-            yield Label("ZFS encryption passphrase (used for either ZFS option above)")
+            yield Label(
+                "ZFS encryption passphrase (used for either ZFS option above, "
+                "8-512 characters)"
+            )
             yield Input(password=True, id="passphrase-input")
             yield Label("Confirm passphrase")
             yield Input(password=True, id="passphrase-confirm-input")
@@ -81,6 +91,19 @@ class StorageScreen(WizardScreen):
             if not passphrase:
                 self.set_error(
                     "A ZFS encryption passphrase is required for an encrypted pool.",
+                    focus="#passphrase-input",
+                )
+                return False
+            if len(passphrase) < ZFS_PASSPHRASE_MIN:
+                self.set_error(
+                    f"ZFS requires a passphrase of at least {ZFS_PASSPHRASE_MIN} "
+                    "characters — shorter ones are rejected when the pool is created.",
+                    focus="#passphrase-input",
+                )
+                return False
+            if len(passphrase) > ZFS_PASSPHRASE_MAX:
+                self.set_error(
+                    f"ZFS accepts at most {ZFS_PASSPHRASE_MAX} characters for a passphrase.",
                     focus="#passphrase-input",
                 )
                 return False
