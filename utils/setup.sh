@@ -63,5 +63,12 @@ export GISNIX_ROOT="$root"
 cd "$root" || exit 1
 
 clear
-chafa --size=48x resources/kartoza-logo.png 2>/dev/null || true
+# --format=symbols stops chafa auto-detecting Kitty/Sixel graphics support
+# and emitting a binary protocol payload instead of text; --symbols ascii
+# -c none avoids the Unicode block-element glyphs (U+2580-259F) that
+# Terminus, the console font the live ISO boots with, has no bitmaps for —
+# this runs on that bare console as often as it runs in a real terminal
+# emulator (`gisnix setup` from `nix develop`), so it has to be safe on
+# both rather than tuned for the nicer one.
+chafa --size=48x resources/kartoza-logo.png --format=symbols --symbols ascii -c none 2>/dev/null || true
 exec python3 -m installer "$@"
