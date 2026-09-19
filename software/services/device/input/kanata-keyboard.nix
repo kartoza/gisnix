@@ -78,6 +78,12 @@ in
 
         config = import ./kanata-config.nix {
           inherit tapTimeout holdTimeout layout chordsFile;
+          # herdr ships in the `base` bundle, so its keybinds ship here too —
+          # hold Caps Lock (a tap still toggles caps; nobody holds it on
+          # purpose, so this costs nothing) for tab/workspace nav and the
+          # agent list. aercLayer stays off: gisnix does not install aerc,
+          # so a mail-client macro layer has no business shipping by default.
+          herdrKey = "caps";
         };
       };
     };

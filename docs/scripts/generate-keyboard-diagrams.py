@@ -10,13 +10,17 @@ host:
 
   docs/assets/keyboards/<layout>-keyboard-base-layer.svg
   docs/assets/keyboards/<layout>-keyboard-nav-layer.svg
+  docs/assets/keyboards/<layout>-keyboard-herdr-layer.svg
 
 Run from the repo root:
   python3 docs/scripts/generate-keyboard-diagrams.py
 
 A downstream flake with its own per-host extras (a second kanata instance,
-a different chord set, a herdr/aerc macro layer) draws its own diagrams for
-those — this script only covers the mechanism gisnix itself ships.
+a different chord set, the opt-in aerc mail-client layer) draws its own
+diagrams for those — this script only covers the mechanism gisnix itself
+ships, which is why the herdr layer is here (the `base` bundle installs
+herdr, so kanata-keyboard.nix turns its layer on by default) and aerc is
+not (gisnix does not install aerc).
 """
 
 import colorsys
@@ -67,7 +71,7 @@ PT_ISO_ROWS = [
         ("+", 1, None), ("Enter", 1.5, None),
     ],
     [
-        ("Caps", 1.75, None), ("A", 1, "a"), ("S", 1, "s"), ("D", 1, "d"),
+        ("Caps", 1.75, "caps"), ("A", 1, "a"), ("S", 1, "s"), ("D", 1, "d"),
         ("F", 1, "f"), ("G", 1, "g"), ("H", 1, "h"), ("J", 1, "j"),
         ("K", 1, "k"), ("L", 1, "l"), ("Ç", 1, ";"), ("º", 1, None),
         ("~", 1, None), ("", 0.75, None),
@@ -105,7 +109,7 @@ US_ANSI_ROWS = [
         ("]", 1, None), ("\\", 1.5, None),
     ],
     [
-        ("Caps", 1.75, None), ("A", 1, "a"), ("S", 1, "s"), ("D", 1, "d"),
+        ("Caps", 1.75, "caps"), ("A", 1, "a"), ("S", 1, "s"), ("D", 1, "d"),
         ("F", 1, "f"), ("G", 1, "g"), ("H", 1, "h"), ("J", 1, "j"),
         ("K", 1, "k"), ("L", 1, "l"), (";", 1, ";"), ("'", 1, None),
         ("Enter", 2.25, None),
@@ -131,15 +135,15 @@ def board_has(rows, key):
 
 
 # ---------------------------------------------------------------------------
-# Views — match gisnix's shipped defaults exactly: herdrKey/emailScript/
-# clipboardHolds are all off (null/false) unless a caller opts in, so this
-# script draws only what actually ships: the base layer (home-row mods +
-# the default bracket chords) and the navigation layer.
+# Views — match gisnix's shipped defaults exactly: emailScript/clipboardHolds/
+# aercLayer are all off unless a caller opts in, but herdrKey ships ON (see
+# kanata-keyboard.nix), so this script draws the base layer (home-row mods +
+# the default bracket chords), the navigation layer, and the herdr layer.
 
 
 def base_view(rows):
-    activators = [k for k in ("spc", "menu") if board_has(rows, k)]
-    names = {"spc": "Space", "menu": "Menu"}
+    activators = [k for k in ("spc", "menu", "caps") if board_has(rows, k)]
+    names = {"spc": "Space", "menu": "Menu", "caps": "Caps"}
     return {
         "title": "Base layer — home-row mods and the default bracket chords",
         "background_key": TEAL,
@@ -161,14 +165,14 @@ def base_view(rows):
             "lalt": "Alt", "altgr": "Alt", "lsft": "Shift", "rsft": "Shift",
             "q": "{", "w": "{", "o": "}", "p": "}",
             "x": "<", "z": "<", "m": ">", ",": ">",
-            "spc": "hold: nav", "menu": "hold: nav",
+            "spc": "hold: nav", "menu": "hold: nav", "caps": "hold: herdr",
         },
         "legend": [
             (GREEN, "Super (a ; + Super key)"),
             (BLUE, "Alt (s l + Alt/AltGr)"),
             (RED, "Ctrl (d k + Ctrl keys)"),
             (AMBER, "Shift (f j + Shift keys)"),
-            (PINK, "navigation layer, held (" + ", ".join(names[k] for k in activators) + ")"),
+            (PINK, "layer activators, held (" + ", ".join(names[k] for k in activators) + ")"),
             (GRAY, "bracket chords (also on a s / l k — see the key labels above)"),
             (TEAL, "plain key"),
         ],
@@ -200,6 +204,33 @@ def nav_view(rows):
             (AMBER, "left click (w)"),
             (CYAN, "right click (r)"),
             (VIOLET, "scroll (t g)"),
+            (PINK, "activator (held)"),
+            (DARK, "inactive"),
+        ],
+    }
+
+
+def herdr_view(rows):
+    held = [k for k in ("caps",) if board_has(rows, k)]
+    return {
+        "title": "herdr layer — while Caps Lock is held",
+        "background_key": DARK,
+        "colours": {
+            "h": BLUE, "j": BLUE, "k": BLUE, "l": BLUE,
+            "u": GREEN, "i": GREEN,
+            "n": AMBER,
+            **{k: PINK for k in held},
+        },
+        "sublabels": {
+            "h": "tab ←", "l": "tab →", "j": "ws ↓", "k": "ws ↑",
+            "u": "agent ↓", "i": "agent ↑",
+            "n": "new tab",
+            **{k: "(held)" for k in held},
+        },
+        "legend": [
+            (BLUE, "tabs / workspaces (h l / j k)"),
+            (GREEN, "agent list (u i)"),
+            (AMBER, "new tab (n)"),
             (PINK, "activator (held)"),
             (DARK, "inactive"),
         ],
@@ -282,6 +313,7 @@ def generate_layout(layout):
     prefix = f"{layout}-keyboard"
     render(base_view(rows), rows, out_dir / f"{prefix}-base-layer.svg")
     render(nav_view(rows), rows, out_dir / f"{prefix}-nav-layer.svg")
+    render(herdr_view(rows), rows, out_dir / f"{prefix}-herdr-layer.svg")
 
 
 def main():

@@ -93,6 +93,33 @@ Release Space or Menu and the layer disappears; every key underneath
 reverts to typing normally. This is a hold, not a toggle — there is
 nothing to switch back.
 
+## herdr layer
+
+Hold Caps Lock and hjkl drive `herdr` — the `base` bundle installs it, so
+this is on for everyone, not something you opt into. A tap still toggles
+caps; nobody holds Caps Lock on purpose, so the layer costs nothing.
+
+| Key | Action |
+|---|---|
+| `h` | previous tab |
+| `l` | next tab |
+| `j` | next workspace |
+| `k` | previous workspace |
+| `u` | down the agent list |
+| `i` | up the agent list |
+| `n` | new tab |
+
+herdr's own `previous agent`/`next agent` binds ship unbound; the `base`
+bundle's `dotfiles/herdr/config.toml` binds them to prefix+u and prefix+i
+so `u`/`i` above have something to send. Leave that file alone if you
+touch this layer — it is herdr's contract, read once at startup.
+
+What is **not** here: an aerc (mail client) layer on Tab hold. gisnix does
+not install aerc, so that macro set — compose, reply, file to folders,
+contacts — stays a separate opt-in (`aercLayer` in `kanata-config.nix`) for
+a host that actually runs it, rather than shipping mail-client keybinds to
+everyone by default.
+
 ## Layout diagrams
 
 The tables above, drawn out. One diagram set per `kanataLayout` value —
@@ -103,11 +130,13 @@ key tables `kanata-config.nix` uses, with `gisnix keyboard-diagrams`.
 
     ![US base layer](../assets/keyboards/us-keyboard-base-layer.svg)
     ![US navigation layer](../assets/keyboards/us-keyboard-nav-layer.svg)
+    ![US herdr layer](../assets/keyboards/us-keyboard-herdr-layer.svg)
 
 === "pt-PT"
 
     ![pt-PT base layer](../assets/keyboards/pt-keyboard-base-layer.svg)
     ![pt-PT navigation layer](../assets/keyboards/pt-keyboard-nav-layer.svg)
+    ![pt-PT herdr layer](../assets/keyboards/pt-keyboard-herdr-layer.svg)
 
 ## Toggling it off
 

@@ -24,13 +24,20 @@
   # Optional bigram -> n-gram expansion chord lines, spliced into the same
   # defchordsv2 block (kanata allows exactly one per config). null = none.
   expansionsFile ? null,
-  # Opt-in third layer: hold this key, and hjkl drive herdr. null = off.
-  # The key is the caller's choice because the right one differs by board —
-  # the Glove80 uses `bspc` to match the Sonsei's own superkey 22, while a
-  # keyboard with a Caps Lock uses `caps`, which costs nothing anyone wants.
+  # Third layer: hold this key, and hjkl drive herdr. kanata-keyboard.nix
+  # sets this to "caps" by default — herdr itself ships in the `base`
+  # bundle, so its keybinds are meant to reach everyone, not just callers
+  # who opt in. null = off, for an instance where the trigger key doesn't
+  # exist or is wanted for something else (a Glove80 second instance uses
+  # `bspc` instead — see kanata-keyboard.nix's per-host overrides).
   # Whatever is named here keeps its normal action on TAP; only the hold is
   # taken. See the layer comment below.
   herdrKey ? null,
+  # Opt-in fourth layer: hold Tab, and the board becomes aerc (a mail
+  # client) commands. Independent of herdrKey — aerc is not something
+  # gisnix installs by default, so unlike herdr this stays off unless a
+  # caller both runs aerc and asks for it.
+  aercLayer ? false,
   # Opt-in clipboard holds on x/c/v, transcribed from the Sonsei's superkeys
   # 9/20/21: tap the letter, hold it for the clipboard action. Note the
   # asymmetry is the Sonsei's own — copy is Ctrl+C (not Ctrl+Shift+C) while
@@ -128,13 +135,13 @@ let
   herdrDefault = if herdrLayer then " @herdr-nav" else "";
   herdrPass = if herdrLayer then " _" else "";
 
-  # Tab rides the same gate: holding it opens the aerc layer, which only
-  # exists when the macro layers do. Same three-way split as the trigger
-  # key — a defsrc column, its action on the base layer, and a transparent
-  # slot on every other layer.
-  tabSrc = if herdrLayer then " tab" else "";
-  tabDefault = if herdrLayer then " @tab-aerc" else "";
-  tabPass = if herdrLayer then " _" else "";
+  # Tab has its OWN gate — aercLayer, independent of herdrLayer — so a host
+  # can take herdr's keybinds without also taking a mail client's. Same
+  # three-way split as the trigger key above: a defsrc column, its action
+  # on the base layer, and a transparent slot on every other layer.
+  tabSrc = if aercLayer then " tab" else "";
+  tabDefault = if aercLayer then " @tab-aerc" else "";
+  tabPass = if aercLayer then " _" else "";
 
   # The main typing layer. There used to be a second stamped copy of it
   # (`default-aerc`, the polymorphic-base era — see the herdr comment
@@ -177,13 +184,14 @@ let
   # honest description of what it now is: the place a held key reaches a
   # macro. Adding more of them here is expected.
   #
-  # THE AERC LAYER IS ON TAB, NOT ON THIS TRIGGER — and every aerc verb
-  # lives ONLY there, including the s/a mail-filing pair (they sat on this
-  # layer too at first, but filing mail is meaningless outside aerc and a
-  # herdr-layer key that types `:move Spam` into a terminal is a hazard,
-  # not a shortcut). Holding Tab opens the aerc layer from anywhere — see
-  # the aerc deflayer below for the full key table (it has grown past
-  # what fits in one sentence here). This
+  # THE AERC LAYER IS ON TAB, NOT ON THIS TRIGGER, AND IS A SEPARATE OPT-IN
+  # (aercLayer) — every aerc verb lives ONLY there, including the s/a
+  # mail-filing pair (they sat on this layer too at first, but filing mail
+  # is meaningless outside aerc and a herdr-layer key that types `:move
+  # Spam` into a terminal is a hazard, not a shortcut). Holding Tab opens
+  # the aerc layer from anywhere a caller has enabled it — see the aerc
+  # deflayer below for the full key table (it has grown past what fits in
+  # one sentence here). This
   # REPLACES the polymorphic-base era, where a kitty focus watcher flipped
   # the base layer over TCP so the herdr trigger meant "drive aerc" while
   # aerc was focused — the detection never fired reliably (the macros
@@ -246,6 +254,13 @@ let
           _ _ _ _ _    @herdr-new-tab _ _ _ _
           _ _ _ _ _
         )
+      '';
+
+  aercDeflayer =
+    if !aercLayer then
+      ""
+    else
+      ''
 
         ;; aerc layer — held via Tab (see @tab-aerc). Every key here is a
         ;; typed aerc command (colon-chord + word + Enter), the same
@@ -337,6 +352,14 @@ let
         ;; New tab. C-b c is a herdr default, so nothing binds it here — the
         ;; rule in config.toml is to send the defaults, never rebind them.
         herdr-new-tab    (macro C-b c)
+      '';
+
+  aercAliases =
+    if !aercLayer then
+      ""
+    else
+      ''
+
         ;; aerc mail filing — named for the destination folder, which is
         ;; also the trigger letter's mnemonic. Keycodes, so the `:` and the
         ;; capital letters are layout/shift chords; the trailing ret runs
@@ -408,14 +431,15 @@ let
         ;; which lists every contact for interactive selection, then edits
         ;; the one you pick. Verified zero-arg-safe against khard 0.20.1
         ;; --help (empty search terms is the documented "show all" case).
-        aerc-contact-edit (macro ${colonChord} t e r m spc k h a r d spc e d i t ret)${emailAlias}
+        aerc-contact-edit (macro ${colonChord} t e r m spc k h a r d spc e d i t ret)
       '';
 in
 ''
   ;; Define the source keys we want to intercept
   ;; menu = the context-menu key (left of right Ctrl)
   ;; lmet = the physical Super key (for the meta lighting layer)
-  ;; tab (macro-layer instances only) = tap Tab / hold for the aerc layer
+  ;; herdrKey (herdr instances only) = tap normal / hold for the herdr layer
+  ;; tab (aercLayer instances only) = tap Tab / hold for the aerc layer
   (defsrc
     q w e r t    y u i o p
     a s d f g    h j k l ;
@@ -451,7 +475,7 @@ in
     _ _ _ _ _    _ _ _ _ _
     _ _ _ _ _    _ _ _ _ _
     _ _ _${herdrPass}${tabPass}
-  )${herdrDeflayer}
+  )${herdrDeflayer}${aercDeflayer}
 
   ;; Alias definitions
   (defalias
@@ -504,7 +528,7 @@ in
 
     ;; Mouse scroll - interval(ms) distance
     scroll-up (mwheel-up 50 120)
-    scroll-down (mwheel-down 50 120)${clipboardAliases}${herdrAliases}
+    scroll-down (mwheel-down 50 120)${clipboardAliases}${herdrAliases}${aercAliases}${emailAlias}
   )
 
   ${chordsBlock}
