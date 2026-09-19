@@ -14,10 +14,10 @@ class InstallingScreen(Screen):
 
     CSS = """
     InstallingScreen { align: center middle; }
-    #install-card { width: 90%; max-width: 100; height: 90%; border: round $primary; padding: 1 2; }
-    #install-title { text-style: bold; color: $primary; padding-bottom: 1; }
+    #install-card { width: 100%; height: 100%; border: round $primary; padding: 1 2; }
+    #install-title { text-style: bold; color: $primary; height: auto; padding-bottom: 1; }
     #install-log { height: 1fr; border: solid $secondary; }
-    #install-buttons { height: 3; align: right middle; padding-top: 1; }
+    #install-buttons { dock: bottom; height: 3; align: right middle; background: $surface; }
     """
 
     def compose(self):

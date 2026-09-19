@@ -8,7 +8,7 @@ reinvented.
 
 from __future__ import annotations
 
-from textual.containers import Container, Horizontal
+from textual.containers import Container, Horizontal, VerticalScroll
 from textual.screen import Screen
 from textual.widgets import Button, Footer, Static
 
@@ -17,7 +17,12 @@ class WizardScreen(Screen):
     """Subclass, override `body()` for the step's own widgets and
     `on_next()`/`on_back()` for what Continue/Back should do. Return False
     from `on_next()` to stay on the screen (e.g. validation failed — show
-    the error via `self.set_error(...)` first)."""
+    the error via `self.set_error(...)` first).
+
+    The card fills the whole terminal. The button bar is docked to its
+    bottom edge, so Back/Continue stay on screen and reachable no matter
+    how much a step's own body() grows — the body scrolls independently
+    of them rather than pushing them past the visible frame."""
 
     BINDINGS = [("escape", "back", "Back")]
 
@@ -26,30 +31,31 @@ class WizardScreen(Screen):
         align: center middle;
     }
     #wizard-card {
-        width: 90%;
-        max-width: 76;
-        height: auto;
-        max-height: 90%;
+        width: 100%;
+        height: 100%;
         border: round $primary;
         padding: 1 2;
     }
     #wizard-title {
         text-style: bold;
         color: $primary;
-        padding-bottom: 1;
-    }
-    #wizard-body {
         height: auto;
-        padding: 1 0;
+        padding-bottom: 1;
     }
     #wizard-error {
         color: $error;
         height: auto;
         padding: 0 0 1 0;
     }
+    #wizard-body {
+        height: 1fr;
+        padding: 0 0 1 0;
+    }
     #wizard-buttons {
+        dock: bottom;
         height: 3;
         align: right middle;
+        background: $surface;
     }
     #wizard-buttons Button {
         margin-left: 1;
@@ -68,7 +74,7 @@ class WizardScreen(Screen):
         with Container(id="wizard-card"):
             yield Static(self._title, id="wizard-title")
             yield Static("", id="wizard-error")
-            with Container(id="wizard-body"):
+            with VerticalScroll(id="wizard-body"):
                 yield from self.body()
             with Horizontal(id="wizard-buttons"):
                 yield Button("Back", id="wizard-back")

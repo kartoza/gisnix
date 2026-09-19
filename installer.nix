@@ -13,6 +13,19 @@
 
   image.baseName = lib.mkForce "gisnix-installer-x86_64";
 
+  # The default Linux virtual console font has no glyphs for the box-drawing
+  # characters Textual's UI draws its borders with — the kernel substitutes
+  # a placeholder for anything missing, which is why the installer's frames
+  # render as `#`/garbage instead of clean lines. Terminus is a bitmap
+  # console font built for exactly this: full box-drawing coverage, legible
+  # at a distance. Applied at initrd stage too, so it's active before the
+  # installer's own getty even starts.
+  console = {
+    font = "ter-v32n";
+    packages = [ pkgs.terminus_font ];
+    earlySetup = true;
+  };
+
   isoImage.storeContents = [ ];
   isoImage.squashfsCompression = "zstd -Xcompression-level 19";
   system.includeBuildDependencies = false;

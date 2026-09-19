@@ -8,9 +8,9 @@ from textual.widgets import Button, Static
 class DoneScreen(Screen):
     CSS = """
     DoneScreen { align: center middle; }
-    #done-card { width: 90%; max-width: 70; height: auto; border: round $primary; padding: 1 2; }
-    #done-title { text-style: bold; color: $primary; padding-bottom: 1; }
-    #done-buttons { height: 3; align: right middle; padding-top: 1; }
+    #done-card { width: 100%; height: 100%; border: round $primary; padding: 1 2; }
+    #done-title { text-style: bold; color: $primary; height: auto; padding-bottom: 1; }
+    #done-buttons { dock: bottom; height: 3; align: right middle; background: $surface; }
     """
 
     def compose(self):

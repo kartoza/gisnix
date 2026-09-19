@@ -8,6 +8,16 @@ from .base import WizardScreen
 
 
 class UserScreen(WizardScreen):
+    # TextArea has no small default height of its own — left unset it grows
+    # to fill whatever space is offered, which is exactly what the wizard
+    # body's scroll region offers plenty of. Capped so the SSH-key field
+    # doesn't dominate the whole step; it scrolls internally past this.
+    CSS = """
+    #sshkeys-input {
+        height: 5;
+    }
+    """
+
     def __init__(self) -> None:
         super().__init__("Create your account", next_label="Continue")
 

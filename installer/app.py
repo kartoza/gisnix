@@ -21,6 +21,18 @@ class InstallerApp(App):
 
     TITLE = "gisnix installer" + (" [MOCK]" if MOCK else "")
 
+    # App-level CSS applies across every screen. `:focus` alone is not
+    # enough here: the installer runs on a raw Linux virtual console, not a
+    # terminal emulator, where colour rendering is far less reliable than
+    # reverse video — so the focus indicator is reverse+bold, which reads
+    # clearly regardless of how much of the Kartoza palette actually makes
+    # it to the screen.
+    CSS = """
+    *:focus {
+        text-style: bold reverse;
+    }
+    """
+
     def __init__(self) -> None:
         super().__init__()
         self.state = InstallState()
