@@ -38,6 +38,10 @@ let
       pt = ./chords-pt.kbd;
     }
     .${layout};
+
+  # Set by kanata-email.nix from whichever users have declared their own
+  # `kartoza.userEmails.<name>` — null until at least one has.
+  emailScript = config.kartoza.kanataEmailScript;
 in
 {
   hardware.uinput.enable = true;
@@ -70,20 +74,27 @@ in
         devices = [ ]; # match every keyboard
 
         # concurrent-tap-hold is required by defchordsv2 whenever a chord
-        # file is in use; harmless when none is.
+        # file is in use; harmless when none is. danger-enable-cmd is
+        # needed only for the email macro's cmd-output-keys — added only
+        # once a user has actually declared an email, so a fresh install
+        # with nobody opted in carries no extra capability.
         extraDefCfg = ''
           process-unmapped-keys yes
           concurrent-tap-hold yes
-        '';
+        '' + lib.optionalString (emailScript != null) "danger-enable-cmd yes\n";
 
         config = import ./kanata-config.nix {
-          inherit tapTimeout holdTimeout layout chordsFile;
+          inherit tapTimeout holdTimeout layout chordsFile emailScript;
           # herdr ships in the `base` bundle, so its keybinds ship here too —
           # hold Caps Lock (a tap still toggles caps; nobody holds it on
           # purpose, so this costs nothing) for tab/workspace nav and the
           # agent list. aercLayer stays off: gisnix does not install aerc,
           # so a mail-client macro layer has no business shipping by default.
           herdrKey = "caps";
+          # Hold x/c/v for cut/copy/paste. A generic mechanism (no per-user
+          # data involved, unlike emailScript above), so it ships on by
+          # default along with everything else here.
+          clipboardHolds = true;
         };
       };
     };

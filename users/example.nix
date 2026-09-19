@@ -13,4 +13,9 @@
     # login, which is fine for a first boot but should not stay that way.
     openssh.authorizedKeys.keys = [ ];
   };
+
+  # Uncomment to have the kanata herdr layer's `e` key (hold Caps Lock —
+  # see docs/user/keyboard.md) type this address for you. Leave it out and
+  # the key stays silent; nothing else about the account changes either way.
+  # kartoza.userEmails.example = "you@example.com";
 }

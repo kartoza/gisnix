@@ -66,6 +66,24 @@ is exactly the kind of surprise a shared default should not spring on
 someone. Pass your own `expansionsFile` to `kanata-config.nix` if you want
 that; nothing here builds it for you.
 
+## Clipboard holds
+
+Hold `x`, `c`, or `v` instead of tapping it and you get cut, copy, or
+paste. This ships on by default. Tap the letter as normal and nothing
+changes; the hold is the whole feature.
+
+| Key | Tap | Hold |
+|---|---|---|
+| `x` | x | Ctrl+X (cut) |
+| `c` | c | Ctrl+C (copy) |
+| `v` | v | Ctrl+Shift+V (paste) |
+
+Paste is Ctrl+Shift+V rather than the more usual Ctrl+V on purpose — it
+works in a terminal, where plain Ctrl+V does not. Cut and copy stay at
+their ordinary bindings, so holding `c` in a terminal sends SIGINT via
+Ctrl+C exactly as tapping Ctrl+C always did; the asymmetry is deliberate,
+not a bug.
+
 ## Navigation layer
 
 Hold Space or the Menu key (to the left of the right Ctrl key on most
@@ -108,11 +126,36 @@ caps; nobody holds Caps Lock on purpose, so the layer costs nothing.
 | `u` | down the agent list |
 | `i` | up the agent list |
 | `n` | new tab |
+| `e` | types your email address, if you've set one (see below) |
 
 herdr's own `previous agent`/`next agent` binds ship unbound; the `base`
 bundle's `dotfiles/herdr/config.toml` binds them to prefix+u and prefix+i
 so `u`/`i` above have something to send. Leave that file alone if you
 touch this layer — it is herdr's contract, read once at startup.
+
+### The email key
+
+`e` is silent until you tell it whose keyboard this is. Add a line to your
+own user file:
+
+```nix
+# users/tim.nix
+kartoza.userEmails.tim = "tim@example.com";
+```
+
+Rebuild, and holding Caps and pressing `e` types that address. Nothing is
+hardcoded per machine: the key resolves the *active login session* to a
+username at press time, then looks that username up in
+`kartoza.userEmails` — so on a shared machine, `tim`'s hold types
+`tim@example.com` and `alice`'s hold types whatever *she* set in
+`users/alice.nix`, from the same physical key. A username with no entry
+just gets silence; nothing else about their account is affected.
+
+Unmapped characters refuse rather than guess: the generated script only
+emits keycodes for `a-z`, `0-9`, `.`, `@`, and `-`, so an email address
+using anything else won't type at all rather than typing something close
+but wrong. `@` and `-` sit on different physical keys depending on
+`kanataLayout` (`us` vs `pt`), and the script accounts for that.
 
 What is **not** here: an aerc (mail client) layer on Tab hold. gisnix does
 not install aerc, so that macro set — compose, reply, file to folders,

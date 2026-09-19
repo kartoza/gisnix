@@ -8,6 +8,7 @@
   "modules": [
     "bazecor.nix",
     "console-mouse.nix",
+    "kanata-email.nix",
     "kanata-keyboard.nix",
     "openrazer.nix",
     "piper.nix"
