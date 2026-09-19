@@ -201,7 +201,7 @@ def render(catalogue: dict[str, dict[str, Any]], hosts: list[str]) -> str:
     lines.append(
         "Made with love by [Kartoza](https://kartoza.com) |"
         " [Donate](https://github.com/sponsors/timlinux) |"
-        " [GitHub](https://github.com/timlinux/nix-config)"
+        " [GitHub](https://github.com/kartoza/gisnix)"
     )
     lines.append("")
     return "\n".join(lines)

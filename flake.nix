@@ -295,11 +295,70 @@
       liveCommands = builtins.filter commandPresent commandManifest.commands;
       commandPackages = map mkCommandDrv liveCommands;
 
-      extraAppNames = builtins.concatMap (h: [
+      extraAppNames = [
+        "docs-serve"
+        "docs-build"
+        "docs-generate-bundles"
+        "docs-generate-commands"
+      ]
+      ++ builtins.concatMap (h: [
         "${h}-vm"
         "${h}-bootvm"
       ]) allHosts
       ++ builtins.concatMap (h: [ "${h}-deploy" ]) deployableHosts;
+
+      # Docs site: mkdocs-material and the interpreter used by
+      # docs/scripts/generate-*.py. Not part of the commands.json manifest
+      # (same as nix-config's own docs apps) — these interpolate a python
+      # environment and store paths that don't fit the manifest's plain
+      # deps/pythonDeps shape as cleanly; `kz docs-serve` etc. still reach
+      # them, via extraAppNames rather than a commandApps row.
+      docsPython = defaultPkgs.python3.withPackages (
+        ps: with ps; [
+          mkdocs
+          mkdocs-material
+          mkdocs-glightbox
+          mkdocs-git-revision-date-localized-plugin
+          pymdown-extensions
+          pygments
+        ]
+      );
+
+      # Both generated reference pages, refreshed before anything renders
+      # the site — without this, docs-serve/docs-build show whatever was
+      # last committed.
+      regenerateDocs = ''
+        echo "Regenerating bundle reference..."
+        python3 docs/scripts/generate-bundle-docs.py
+        echo "Regenerating command reference..."
+        python3 docs/scripts/generate-commands-docs.py
+      '';
+
+      mkDocsApp =
+        {
+          name,
+          description,
+          body,
+          extraInputs ? [ ],
+        }:
+        {
+          type = "app";
+          program = "${
+            defaultPkgs.writeShellApplication {
+              inherit name;
+              runtimeInputs = [
+                docsPython
+                defaultPkgs.git
+              ]
+              ++ extraInputs;
+              text = ''
+                cd "$(git rev-parse --show-toplevel)"
+                ${body}
+              '';
+            }
+          }/bin/${name}";
+          meta.description = description;
+        };
 
       pendingCommands = builtins.filter (c: !(commandPresent c)) commandManifest.commands;
 
@@ -575,6 +634,46 @@
               ''
             );
             meta.description = "Build the installer ISO and boot it in QEMU with a persistent 40G test disk";
+          };
+          docs-serve = mkDocsApp {
+            name = "docs-serve";
+            description = "Serve the docs site locally with live reload (opens a browser)";
+            extraInputs = [
+              defaultPkgs.xdg-utils
+              defaultPkgs.coreutils
+            ];
+            body = ''
+              ${regenerateDocs}
+              (
+                for _ in $(seq 1 30); do
+                  if (exec 3<>/dev/tcp/127.0.0.1/8000) 2>/dev/null; then
+                    exec 3>&- 3<&-
+                    xdg-open http://127.0.0.1:8000/ >/dev/null 2>&1 || true
+                    break
+                  fi
+                  sleep 0.5
+                done
+              ) &
+              exec mkdocs serve "$@"
+            '';
+          };
+          docs-build = mkDocsApp {
+            name = "docs-build";
+            description = "Build the static docs site (mkdocs build --strict)";
+            body = ''
+              ${regenerateDocs}
+              exec mkdocs build --strict "$@"
+            '';
+          };
+          docs-generate-bundles = mkDocsApp {
+            name = "docs-generate-bundles";
+            description = "Regenerate docs/references/bundles.md from the bundle definitions";
+            body = "exec python3 docs/scripts/generate-bundle-docs.py";
+          };
+          docs-generate-commands = mkDocsApp {
+            name = "docs-generate-commands";
+            description = "Regenerate docs/references/commands.md from utils/commands.json";
+            body = "exec python3 docs/scripts/generate-commands-docs.py";
           };
         }
         // commandApps

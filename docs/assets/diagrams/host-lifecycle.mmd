@@ -1,0 +1,32 @@
+graph LR
+  create_host["create-host"]
+  update["update"]
+  create_host --> update
+  update_all["update-all"]
+  update --> update_all
+  inventory["inventory"]
+  update_all --> inventory
+  preflight["preflight"]
+  inventory --> preflight
+  generate_hardware["generate-hardware"]
+  preflight --> generate_hardware
+  deploy["deploy<br/>destroys data"]
+  generate_hardware --> deploy
+  install["install"]
+  deploy --> install
+  check["check"]
+  install --> check
+  installer["installer"]
+  check --> installer
+  suspend["suspend"]
+  installer --> suspend
+  wake["wake"]
+  suspend --> wake
+  snapshot["snapshot"]
+  wake --> snapshot
+  backup["backup<br/><i>planned</i>"]
+  snapshot --> backup
+  reset["reset<br/><i>planned</i><br/>destroys data"]
+  backup --> reset
+  style deploy stroke-width:3px
+  style reset stroke-width:3px

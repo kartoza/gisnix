@@ -247,7 +247,7 @@ def main() -> int:
         "",
         "Made with love by [Kartoza](https://kartoza.com) |"
         " [Donate](https://github.com/sponsors/timlinux) |"
-        " [GitHub](https://github.com/timlinux/nix-config)",
+        " [GitHub](https://github.com/kartoza/gisnix)",
         "",
     ]
 

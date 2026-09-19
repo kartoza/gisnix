@@ -1,0 +1,41 @@
+/* SPDX-FileCopyrightText: Tim Sutton */
+/* SPDX-License-Identifier: MIT */
+/*
+   Canonical Kartoza palette — values follow the Kartoza Brand Pack v1.0.1
+   (Appendix A, "one palette, everywhere"): Kartoza Blue #54A2CC, Kartoza
+   Amber #EEB348, with the drifted illustration amber (#E19E33-family, and
+   the fleet UI's #DF9E2F) explicitly corrected to canonical.
+
+   DELIBERATELY not mirroring `profiles/kartoza.nix` any more: that attrset
+   is the fleet's UI/RGB accent palette (amber #DF9E2F, blue #569FC6, teal
+   #06969A) and repainting every host is a separate decision. DOCUMENT
+   surfaces — this site and the PDF handbooks — follow the Brand Pack.
+*/
+:root {
+  --kartoza-amber: #EEB348;
+  --kartoza-blue:  #54A2CC;
+  --kartoza-grey:  #8A8B8B;
+  /* Fleet UI accent, kept for any legacy references; not a Brand Pack
+     colour — do not introduce new uses in the docs. */
+  --kartoza-teal:  #06969A;
+  --kartoza-alert: #CC0403;
+
+  --text-default:  #383939;
+  --text-muted:    #676869;
+  --rule-line:     #D1D1D1;
+  --surface-cloud: #F5F5F2;
+  --surface-white: #FFFFFF;
+
+  /* Lato per Brand Pack FR-020 (Kartoza's established brand font). */
+  --font-sans: 'Lato', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Status colours per Brand Pack Appendix A — status only, always paired
+     with an icon or label, never colour alone. */
+  --status-success:      #3C7D54;
+  --status-success-tint: #EAF3EC;
+  --status-warn:         #EEB348; /* = brand amber */
+  --status-warn-tint:    #FCF3E0;
+  --status-error:        #B0473C;
+  --status-error-tint:   #FBEFEF;
+}

@@ -1,0 +1,68 @@
+# Build and deploy the mkdocs site to GitHub Pages.
+#
+# Built with `nix run .#docs-build`, which regenerates the two generated
+# reference pages (bundles.md, commands.md) before running `mkdocs build
+# --strict`, so the published site always reflects the current bundle
+# registry and command manifest.
+#
+# Requires GitHub Pages to be enabled for this repo under
+# Settings -> Pages -> Build and deployment -> Source: GitHub Actions.
+
+name: Docs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "mkdocs.yml"
+      - "utils/commands.json"
+      - "software/**"
+      - ".github/workflows/docs.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    name: Build site
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v27
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            allow-import-from-derivation = true
+            accept-flake-config = true
+
+      - name: Build mkdocs site (strict)
+        run: nix run .#docs-build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    name: Deploy to Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

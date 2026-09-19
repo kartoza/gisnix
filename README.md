@@ -4,6 +4,8 @@ A reproducible NixOS distribution for GIS workstations — ZFS-encryption-ready,
 bundle-based software selection, and a Kartoza-branded installer you boot
 from USB.
 
+📖 **[Full documentation](https://kartoza.github.io/gisnix/)**
+
 ```bash
 nix run --extra-experimental-features "nix-command flakes" github:kartoza/gisnix
 ```

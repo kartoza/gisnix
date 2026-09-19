@@ -1,0 +1,88 @@
+graph LR
+  desktop_browsers["desktop-browsers"]
+  desktop_environments_cosmic["desktop-environments-cosmic"]
+  desktop_comms["desktop-comms"]
+  desktop_ebook_readers["desktop-ebook-readers"]
+  desktop_games["desktop-games"]
+  desktop_gis["desktop-gis"]
+  desktop_kartoza_apps["desktop-kartoza-apps"]
+  desktop_multimedia["desktop-multimedia"]
+  desktop_productivity["desktop-productivity"]
+  desktop_remote["desktop-remote"]
+  desktop_essentials["desktop-essentials"]
+  desktop_gis_source_builds["desktop-gis-source-builds<br/><i>opt-in</i>"]
+  desktop_environments_cosmic_extensions["desktop-environments-cosmic-extensions<br/><i>opt-in</i>"]
+  desktop_gis_versions_qgis_1_8["desktop-gis-versions-qgis-1-8<br/><i>opt-in</i>"]
+  desktop_gis_versions_qgis_2_10["desktop-gis-versions-qgis-2-10<br/><i>opt-in</i>"]
+  desktop_gis_versions_qgis_2_16["desktop-gis-versions-qgis-2-16<br/><i>opt-in</i>"]
+  desktop_gis_versions_qgis_2_18["desktop-gis-versions-qgis-2-18<br/><i>opt-in</i>"]
+  desktop_gis_versions_qgis_2_4["desktop-gis-versions-qgis-2-4<br/><i>opt-in</i>"]
+  desktop_gis_versions_qgis_2_6["desktop-gis-versions-qgis-2-6<br/><i>opt-in</i>"]
+  desktop_gis_versions_qgis_2_8["desktop-gis-versions-qgis-2-8<br/><i>opt-in</i>"]
+  desktop_gis_versions_qgis_3_10["desktop-gis-versions-qgis-3-10<br/><i>opt-in</i>"]
+  desktop_gis_versions_qgis_3_16["desktop-gis-versions-qgis-3-16<br/><i>opt-in</i>"]
+  desktop_gis_versions_qgis_3_22["desktop-gis-versions-qgis-3-22<br/><i>opt-in</i>"]
+  desktop_gis_versions_qgis_3_24["desktop-gis-versions-qgis-3-24<br/><i>opt-in</i>"]
+  desktop_gis_versions_qgis_3_26["desktop-gis-versions-qgis-3-26<br/><i>opt-in</i>"]
+  desktop_gis_versions_qgis_3_28["desktop-gis-versions-qgis-3-28<br/><i>opt-in</i>"]
+  desktop_gis_versions_qgis_3_32["desktop-gis-versions-qgis-3-32<br/><i>opt-in</i>"]
+  desktop_gis_versions_qgis_3_34["desktop-gis-versions-qgis-3-34<br/><i>opt-in</i>"]
+  desktop_gis_versions_qgis_3_36["desktop-gis-versions-qgis-3-36<br/><i>opt-in</i>"]
+  desktop_gis_versions_qgis_3_38["desktop-gis-versions-qgis-3-38<br/><i>opt-in</i>"]
+  desktop_gis_versions_qgis_3_4["desktop-gis-versions-qgis-3-4<br/><i>opt-in</i>"]
+  desktop_gis_versions_qgis_3_40["desktop-gis-versions-qgis-3-40<br/><i>opt-in</i>"]
+  desktop_gis_versions_qgis_3_42["desktop-gis-versions-qgis-3-42<br/><i>opt-in</i>"]
+  desktop_gis_versions_qgis_3_44["desktop-gis-versions-qgis-3-44<br/><i>opt-in</i>"]
+  desktop_gis_versions_qgis_3_8["desktop-gis-versions-qgis-3-8<br/><i>opt-in</i>"]
+  desktop_gis_versions_qgis_4_0["desktop-gis-versions-qgis-4-0<br/><i>opt-in</i>"]
+  services_device_input["services-device-input"]
+  services_device["services-device"]
+  services_device_mobile["services-device-mobile"]
+  services_device_peripherals["services-device-peripherals<br/><i>opt-in</i>"]
+  services_device_printing["services-device-printing"]
+  services_system_console["services-system-console"]
+  services_system["services-system<br/><i>required</i>"]
+  services_system_power["services-system-power"]
+  services_system_storage["services-system-storage"]
+  desktop_browsers --> desktop_environments_cosmic
+  desktop_comms --> desktop_environments_cosmic
+  desktop_ebook_readers --> desktop_environments_cosmic
+  desktop_games --> desktop_environments_cosmic
+  desktop_gis --> desktop_environments_cosmic
+  desktop_kartoza_apps --> desktop_environments_cosmic
+  desktop_multimedia --> desktop_environments_cosmic
+  desktop_productivity --> desktop_environments_cosmic
+  desktop_remote --> desktop_environments_cosmic
+  desktop_environments_cosmic --> desktop_essentials
+  desktop_gis_source_builds --> desktop_gis
+  desktop_environments_cosmic_extensions --> desktop_environments_cosmic
+  desktop_gis_versions_qgis_1_8 --> desktop_gis
+  desktop_gis_versions_qgis_2_10 --> desktop_gis
+  desktop_gis_versions_qgis_2_16 --> desktop_gis
+  desktop_gis_versions_qgis_2_18 --> desktop_gis
+  desktop_gis_versions_qgis_2_4 --> desktop_gis
+  desktop_gis_versions_qgis_2_6 --> desktop_gis
+  desktop_gis_versions_qgis_2_8 --> desktop_gis
+  desktop_gis_versions_qgis_3_10 --> desktop_gis
+  desktop_gis_versions_qgis_3_16 --> desktop_gis
+  desktop_gis_versions_qgis_3_22 --> desktop_gis
+  desktop_gis_versions_qgis_3_24 --> desktop_gis
+  desktop_gis_versions_qgis_3_26 --> desktop_gis
+  desktop_gis_versions_qgis_3_28 --> desktop_gis
+  desktop_gis_versions_qgis_3_32 --> desktop_gis
+  desktop_gis_versions_qgis_3_34 --> desktop_gis
+  desktop_gis_versions_qgis_3_36 --> desktop_gis
+  desktop_gis_versions_qgis_3_38 --> desktop_gis
+  desktop_gis_versions_qgis_3_4 --> desktop_gis
+  desktop_gis_versions_qgis_3_40 --> desktop_gis
+  desktop_gis_versions_qgis_3_42 --> desktop_gis
+  desktop_gis_versions_qgis_3_44 --> desktop_gis
+  desktop_gis_versions_qgis_3_8 --> desktop_gis
+  desktop_gis_versions_qgis_4_0 --> desktop_gis
+  services_device_input --> services_device
+  services_device_mobile --> services_device
+  services_device_peripherals --> services_device
+  services_device_printing --> services_device
+  services_system_console --> services_system
+  services_system_power --> services_system
+  services_system_storage --> services_system
