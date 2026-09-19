@@ -549,7 +549,7 @@
           installer = nixpkgs.lib.nixosSystem {
             system = "x86_64-linux";
             specialArgs = {
-              gisnixInstaller = self.packages.x86_64-linux.gisnix-installer;
+              gisnixSetup = self.packages.x86_64-linux.gisnix-setup;
             };
             modules = [ ./installer.nix ];
           };
@@ -584,7 +584,7 @@
             meta.description = "Operator commands: `gisnix` for the list, `gisnix <command>` to run one";
           };
           # Build the installer ISO and boot it in QEMU — the fastest way to
-          # try the real (non-mock) installer against a real virtual disk,
+          # try the real (non-mock) `setup` wizard against a real virtual disk,
           # UEFI, and TTY. Persists the test disk (tuinix-style) across runs
           # so a completed install survives a reboot for inspection; delete
           # gisnix-test.qcow2 to start over.
@@ -689,12 +689,13 @@
         # the version this flake locks rather than whatever is on PATH.
         nixos-anywhere = inputs.nixos-anywhere.packages.${system}.nixos-anywhere;
 
-        # The installer, as a standalone package (not just a `gisnix` subcommand)
-        # — this is what the ISO's environment.systemPackages installs. Built
-        # from the SAME manifest row as `gisnix installer`/`nix run .#installer`,
-        # so there is exactly one definition of what the installer needs.
-        gisnix-installer = mkCommandDrv (
-          builtins.head (builtins.filter (c: c.name == "installer") commandManifest.commands)
+        # The setup wizard, as a standalone package (not just a `gisnix`
+        # subcommand) — this is what the ISO's environment.systemPackages
+        # installs. Built from the SAME manifest row as `gisnix setup`/
+        # `nix run .#setup`, so there is exactly one definition of what the
+        # wizard needs.
+        gisnix-setup = mkCommandDrv (
+          builtins.head (builtins.filter (c: c.name == "setup") commandManifest.commands)
         );
       });
 

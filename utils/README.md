@@ -57,4 +57,4 @@ These are not operator commands, so they are not in `commands.json`:
 | `develop.nix` | the dev shell: packages, PATH and the entry banner |
 | `dev-help.sh` | renders the cheat-sheet; invoked by `gisnix` and on shell entry |
 | `nvidia-launch.sh` | launch an application on the NVIDIA GPU |
-| `installer.sh` | the bootable-USB installer wizard (`gisnix installer [--mock]`) |
+| `setup.sh` | the bootable-USB setup wizard (`gisnix setup [--mock]`) |

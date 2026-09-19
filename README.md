@@ -13,13 +13,13 @@ nix run --extra-experimental-features "nix-command flakes" github:kartoza/gisnix
 ## What this is
 
 - **`gisnix` operator CLI** — one namespaced entry point (`gisnix configure`, `gisnix
-  create-host`, `gisnix install`, `gisnix installer`, `gisnix bundles`, ...) driven from
+  create-host`, `gisnix install`, `gisnix setup`, `gisnix bundles`, ...) driven from
   `utils/commands.json`, so a command is a flake app, a `gisnix` subcommand, and
   a dev-shell binary all from one script.
-- **`gisnix installer`** — the self-driven, Kartoza-branded bootable-USB wizard
+- **`gisnix setup`** — the self-driven, Kartoza-branded bootable-USB wizard
   (partition, create a host + user, install). `gisnix install` is the different,
   admin-driven path: nixos-anywhere over SSH into an already-booted live
-  system. `gisnix installer --mock` fakes disks/network and the destructive
+  system. `gisnix setup --mock` fakes disks/network and the destructive
   steps, for fast iteration on the wizard itself.
 - **Software bundles** — package sets under `software/`, each a
   `bundle.json` plus its NixOS modules. Turn them on/off with `gisnix configure`

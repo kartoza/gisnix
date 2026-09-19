@@ -8,7 +8,8 @@ For working on gisnix itself, or building your own fleet on top of it.
 - **[Adding a host](adding-a-host.md)** — the manual path (writing
   `hosts/<name>/` by hand) alongside the installer.
 - **[The installer](installer.md)** — the Textual wizard's own structure,
-  `--mock` mode, and how its software step reuses `gisnix configure`'s picker.
+  `--mock` mode, and why its software step installs a fixed bundle set
+  instead of nesting `gisnix configure`'s picker.
 - **[Building on gisnix](downstream-flakes.md)** — what `lib.mkHost` gives a
   downstream flake, and what's still rough around that edge.
 
@@ -16,7 +17,7 @@ For working on gisnix itself, or building your own fleet on top of it.
 
 ```bash
 nix develop        # gisnix for the command list
-gisnix installer --mock   # or: python3 -m installer --mock, fastest loop
+gisnix setup --mock   # or: python3 -m installer --mock, fastest loop
 nix flake check
 ```
 

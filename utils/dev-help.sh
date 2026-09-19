@@ -109,7 +109,7 @@ group_header() {
 # therefore true in plenty of places where `gisnix` is not on PATH.
 if command -v gisnix > /dev/null 2>&1; then
   echo "🚀 ${BOLD}Run any command below as${NC} ${BOLD}gisnix <command>${NC}"
-  echo "   ${DIM}e.g.  gisnix installer --mock   ·   gisnix update example   ·   gisnix docs-serve${NC}"
+  echo "   ${DIM}e.g.  gisnix setup --mock   ·   gisnix update example   ·   gisnix docs-serve${NC}"
   echo "   ${DIM}outside this shell:  nix run .#gisnix -- <command>${NC}"
 else
   echo "🚀 ${BOLD}Operator commands${NC}"

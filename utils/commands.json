@@ -264,13 +264,13 @@
       "usage": "gisnix install <host> <user@address> [--seed] [--dry-run]"
     },
     {
-      "name": "installer",
-      "file": "installer.sh",
+      "name": "setup",
+      "file": "setup.sh",
       "key": "M",
       "group": "host",
       "order": 8,
-      "desc": "Kartoza-branded installer wizard: partition a disk, create a host + user, and install (self-driven, for someone at the machine's own keyboard)",
-      "terse": "run the bootable-USB installer wizard",
+      "desc": "Kartoza-branded setup wizard: partition a disk, create a host + user, and install (self-driven, for someone at the machine's own keyboard)",
+      "terse": "run the bootable-USB setup wizard",
       "deps": [
         "chafa",
         "mkpasswd",
@@ -286,9 +286,9 @@
       "sequence": [
         "welcome, network check, new host or an existing host profile",
         "hostname/locale/boot-theme, user account, storage (ZFS-encrypted by default)",
-        "the same bundle picker gisnix configure uses, then confirm and install"
+        "confirm the default bundles, then confirm and install"
       ],
-      "usage": "gisnix installer [--mock]"
+      "usage": "gisnix setup [--mock]"
     },
     {
       "name": "add-keyboard",

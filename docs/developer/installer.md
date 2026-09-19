@@ -1,10 +1,14 @@
 # The installer
 
-A Textual wizard living at `installer/` (Python), wired as the `installer`
-row in `utils/commands.json` — `gisnix installer`, `nix run .#installer`, and
-the standalone `installer` binary on the ISO's PATH are the same code, same
+A Textual wizard living at `installer/` (Python), wired as the `setup`
+row in `utils/commands.json` — `gisnix setup`, `nix run .#setup`, and
+the standalone `setup` binary on the ISO's PATH are the same code, same
 as every other operator command (see
-[the gisnix command pattern](#why-a-gisnix-command) below).
+[the gisnix command pattern](#why-a-gisnix-command) below). The `installer/`
+directory name predates the command's rename to `setup` and refers to what
+the wizard IS, not what you type — renaming a Python package tree is a much
+bigger diff than renaming a manifest row, and nothing forces the two to
+match.
 
 ## Screens
 
@@ -67,7 +71,7 @@ rather than blocking silently:
 ## `--mock` mode
 
 `installer/repo.py`'s `MOCK` flag (set by `GISNIX_INSTALLER_MOCK=1`,
-`--mock`, or `nix run .#installer -- --mock`) fakes disk listing and the
+`--mock`, or `nix run .#setup -- --mock`) fakes disk listing and the
 network check, and swaps the real install for
 `installer_run.run_install_mock` — which still writes real host/user/flake
 files to a temp dir (so you can inspect the actual generated Nix) but never
@@ -80,8 +84,8 @@ straight from the working tree, no derivation rebuild between edits
 
 Every operator-facing tool in this repo goes through the `gisnix` dispatcher —
 one manifest row, one wrapper script, three surfaces generated from it (see
-[Architecture](architecture.md#the-gisnix-command-manifest)). The installer is
-built the same way rather than as a hand-rolled `writeShellApplication`
-pair: `packages.gisnix-installer` (what the ISO installs) is built from the
-*same* `commands.json` row via `mkCommandDrv`, so there's exactly one
-definition of what the installer needs, not two.
+[Architecture](architecture.md#the-gisnix-command-manifest)). The setup
+wizard is built the same way rather than as a hand-rolled
+`writeShellApplication` pair: `packages.gisnix-setup` (what the ISO installs)
+is built from the *same* `commands.json` row via `mkCommandDrv`, so there's
+exactly one definition of what the wizard needs, not two.

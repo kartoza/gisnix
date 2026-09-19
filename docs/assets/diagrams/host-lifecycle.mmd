@@ -16,10 +16,10 @@ graph LR
   deploy --> install
   check["check"]
   install --> check
-  installer["installer"]
-  check --> installer
+  setup["setup"]
+  check --> setup
   suspend["suspend"]
-  installer --> suspend
+  setup --> suspend
   wake["wake"]
   suspend --> wake
   snapshot["snapshot"]

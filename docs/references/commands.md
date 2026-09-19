@@ -44,10 +44,10 @@ graph LR
   deploy --> install
   check["check"]
   install --> check
-  installer["installer"]
-  check --> installer
+  setup["setup"]
+  check --> setup
   suspend["suspend"]
-  installer --> suspend
+  setup --> suspend
   wake["wake"]
   suspend --> wake
   snapshot["snapshot"]
@@ -75,7 +75,7 @@ graph LR
 | [`deploy`](#deploy) | `<leader>pd` | create a cloud server and install |
 | [`install`](#install) | `<leader>pI` | install onto a live-booted machine |
 | [`check`](#check) | `<leader>pk` | deep single-host report |
-| [`installer`](#installer) | `<leader>pM` | run the bootable-USB installer wizard |
+| [`setup`](#setup) | `<leader>pM` | run the bootable-USB setup wizard |
 | [`suspend`](#suspend) | `<leader>pz` | suspend a host |
 | [`wake`](#wake) | `<leader>pw` | wake-on-LAN a host |
 | [`snapshot`](#snapshot) | `<leader>pn` | manual ZFS snapshot |
@@ -309,23 +309,23 @@ gisnix check
 | Shared libraries | `utils/lib/fleet.sh` |
 | On PATH | `coreutils`, `nix`, `openssh`, `zfs`, `systemd`, `nettools` |
 
-### installer
+### setup
 
-Kartoza-branded installer wizard: partition a disk, create a host + user, and install (self-driven, for someone at the machine's own keyboard).
+Kartoza-branded setup wizard: partition a disk, create a host + user, and install (self-driven, for someone at the machine's own keyboard).
 
 ```bash
-gisnix installer [--mock]
+gisnix setup [--mock]
 ```
 
 What it does, in order:
 
 1. welcome, network check, new host or an existing host profile
 2. hostname/locale/boot-theme, user account, storage (ZFS-encrypted by default)
-3. the same bundle picker gisnix configure uses, then confirm and install
+3. confirm the default bundles, then confirm and install
 
 | | |
 | --- | --- |
-| Implementation | `utils/installer.sh` |
+| Implementation | `utils/setup.sh` |
 | Neovim | `<leader>pM` |
 | On PATH | `chafa`, `mkpasswd`, `util-linux`, `curl`, `disko`, `nixos-install-tools`, `nix` |
 

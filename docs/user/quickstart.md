@@ -20,13 +20,14 @@ builds the ISO and boots it in QEMU with a persistent test disk. A plain
 UEFI ISO also boots fine in VirtualBox or VMware without any hypervisor-
 specific variant.
 
-## 3. Run the installer
+## 3. Run setup
 
-You land in a root shell in `~/gisnix` (the checkout baked onto the ISO).
-Run:
+You land in `~/gisnix` (the checkout baked onto the ISO), logged in as
+`nixos` — not root. The banner tells you what to type; disk and network
+changes need sudo:
 
 ```bash
-installer
+sudo setup
 ```
 
 and follow the wizard:
@@ -52,9 +53,10 @@ and follow the wizard:
    system, and a tiny flake pinning gisnix is written to
    `~/nixos-config` on the new machine.
 
-Want to see the wizard first without touching a real disk? `installer
---mock` (or `gisnix installer --mock` from a gisnix checkout) fakes disks and
-network and skips every destructive step.
+Want to see the wizard first without touching a real disk? `setup
+--mock` (or `gisnix setup --mock` from a gisnix checkout) fakes disks and
+network and skips every destructive step — no sudo needed either, since
+`--mock` touches nothing privileged.
 
 ## 4. First boot
 

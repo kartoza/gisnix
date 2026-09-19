@@ -5,7 +5,7 @@
   lib,
   pkgs,
   modulesPath,
-  gisnixInstaller,
+  gisnixSetup,
   ...
 }:
 {
@@ -119,7 +119,7 @@
   ];
 
   environment.systemPackages = [
-    gisnixInstaller
+    gisnixSetup
     pkgs.git
     pkgs.vim
     pkgs.curl
@@ -197,8 +197,8 @@
       echo "  ─────────────────────────────────────────────────────────────"
       echo
       echo "  No network yet?      sudo nmtui"
-      echo "  Ready to install?    sudo installer"
-      echo "  Just want to look?   sudo installer --mock"
+      echo "  Ready to install?    sudo setup"
+      echo "  Just want to look?   sudo setup --mock"
       echo
       echo "  Everything above needs sudo — you're logged in as nixos, not root."
       echo
