@@ -40,9 +40,9 @@ and follow the wizard:
 5. **Storage** — ZFS single-disk encrypted (recommended, AES-256-GCM
    passphrase), plain XFS single-disk, or multi-disk ZFS
    stripe/raidz/raidz2.
-6. **Software** — the same bundle picker `gisnix configure` uses on an
-   installed machine. Defaults to a minimal base system plus a minimal
-   COSMIC desktop; add more now or later.
+6. **Software** — installs the default bundles: a minimal base system
+   plus a minimal COSMIC desktop. Add anything else afterwards with
+   `gisnix configure`, the same picker used on any installed machine.
 7. **Confirm** — type the hostname back to proceed. This is the point of
    no return: the selected disk(s) are erased.
 8. **Install** — disko partitions and formats, `nixos-install` builds the

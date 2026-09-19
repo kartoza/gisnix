@@ -21,12 +21,20 @@ Each screen validates its own answers into `self.app.state`
 (`installer/state.py`, one `InstallState` dataclass threaded through the
 whole wizard) before advancing.
 
-## Reusing `gisnix configure`'s picker
+## Software selection
 
-The `bundles` screen doesn't reimplement a software picker. It suspends the
-wizard (`with self.app.suspend():`) and calls `configure_tui.choose(...)` —
-the exact same function `gisnix configure` uses on an installed machine — then
-resumes with whatever was selected. One picker, two contexts.
+The `bundles` screen doesn't open a picker — it installs the fixed
+`DEFAULT_BUNDLES` set (`base` + minimal COSMIC, `installer/state.py`) and
+moves on. It used to suspend the wizard (`with self.app.suspend():`) and
+call `configure_tui.choose(...)`, the same picker `gisnix configure` uses
+on an installed machine, but that picker is itself a Textual `App`, and
+`App.run()` calls `asyncio.run()` — which cannot nest inside the
+installer's own already-running event loop. `suspend()` releases the
+terminal for a subprocess; it doesn't exit the installer's asyncio loop,
+so the inner `asyncio.run()` still fires into a loop that's already
+running and crashes. The same picker is one `gisnix configure` away once
+the machine is up — running standalone there, with no outer loop to
+collide with.
 
 ## Writing the new machine's files
 
