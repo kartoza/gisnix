@@ -1,0 +1,15 @@
+{
+  "name": "services-device-input-kanata",
+  "path": "services/device/input-kanata",
+  "description": "Kanata keyboard remapping: home-row mods, a navigation layer, and layout-aware chords (see docs/user/keyboard.md). Generic — matches every keyboard, needs no vendor hardware. On by default; a sibling of services-device-input rather than a child of it, so this stays on when the vendor-specific tools there (Bazecor, OpenRazer, Piper) are turned off.",
+  "implies": [
+    "services-device"
+  ],
+  "modules": [
+    "kanata-email.nix",
+    "kanata-keyboard.nix"
+  ],
+  "unclaimed": [
+    "kanata-config.nix"
+  ]
+}
