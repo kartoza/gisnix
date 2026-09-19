@@ -38,6 +38,7 @@ ACTIVE = [
     "desktop-environments-cosmic",
     "desktop-browsers",
     "services-system",
+    "services-device-input-kanata",
 ]
 
 # Bundles that are load-bearing rather than optional, with the reason. These
@@ -53,6 +54,10 @@ LOAD_BEARING = {
     "services-system": "Load-bearing: audio, certificates, hardening.",
     "desktop-environments-cosmic": "Load-bearing: the desktop itself.",
     "desktop-browsers": "Load-bearing: a usable machine needs a browser.",
+    "services-device-input-kanata": (
+        "On by default: gisnix's keyboard remapping (home-row mods, nav layer). "
+        "Needs no vendor hardware; remove the line if you'd rather type raw."
+    ),
     "services-system-power": "This is a laptop; battery monitoring and suspend.",
 }
 

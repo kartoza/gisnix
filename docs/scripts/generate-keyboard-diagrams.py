@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate keyboard-layout SVG diagrams for the default kanata layer.
 
-gisnix ships one kanata mechanism (software/services/device/input/
+gisnix ships one kanata mechanism (software/services/device/input-kanata/
 kanata-config.nix), applied to whichever physical board a host has. What
 differs between hosts is only the `kanataLayout` knob (see kanata-
 keyboard.nix) — "us" or "pt" — which picks the board geometry and the

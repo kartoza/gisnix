@@ -29,6 +29,10 @@ LOAD_BEARING = {
     "services-system": "Load-bearing: audio, certificates, hardening.",
     "desktop-environments-cosmic": "Load-bearing: the desktop itself.",
     "desktop-browsers": "Load-bearing: a usable machine needs a browser.",
+    "services-device-input-kanata": (
+        "On by default: gisnix's keyboard remapping (home-row mods, nav layer). "
+        "Needs no vendor hardware; remove the line if you'd rather type raw."
+    ),
 }
 
 
@@ -231,6 +235,11 @@ def render_user_nix(state: InstallState) -> str:
     hashedPassword = "{state.password_hash}";
     openssh.authorizedKeys.keys = {keys_block};
   }};
+
+  # kanata (services-device-input-kanata, on by default) writes remapped
+  # keystrokes through /dev/uinput — see software/services/device/
+  # input-kanata/kanata-keyboard.nix's own header for the group this needs.
+  users.groups.uinput.members = [ "{state.username}" ];
 }}
 """
 

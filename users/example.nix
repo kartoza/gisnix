@@ -14,6 +14,11 @@
     openssh.authorizedKeys.keys = [ ];
   };
 
+  # kanata (services-device-input-kanata, on by default) writes remapped
+  # keystrokes through /dev/uinput — every user needs this group membership
+  # for it to work, not just the account it happens to be declared next to.
+  users.groups.uinput.members = [ "example" ];
+
   # Uncomment to have the kanata herdr layer's `e` key (hold Caps Lock —
   # see docs/user/keyboard.md) type this address for you. Leave it out and
   # the key stays silent; nothing else about the account changes either way.

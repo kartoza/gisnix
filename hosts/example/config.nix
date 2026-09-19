@@ -1,7 +1,8 @@
 {
   # Example host — installed by default with the minimal base system plus a
-  # minimal COSMIC desktop (base, desktop-environments-cosmic,
-  # desktop-browsers, services-system). Copy this directory as the starting
+  # minimal COSMIC desktop and kanata keyboard remapping (base,
+  # desktop-environments-cosmic, desktop-browsers, services-system,
+  # services-device-input-kanata). Copy this directory as the starting
   # point for your own host: `gisnix create-host <name>` does this for you.
   #
   # Per-host settings consumed via the `hostConfig` specialArg (see mkHost in
@@ -329,11 +330,23 @@
     # ── Services ──────────────────────────────────────────────────────────
     # Hardware every machine benefits from: Bluetooth and firmware updates.
     # Anything depending on what is actually plugged in is a sub-bundle.
-    # "services-device"
+    "services-device"
 
     # ── Services · Device ─────────────────────────────────────────────────
-    # Keyboards and mice: remapping daemons, vendor configurators, RGB.
+    # Vendor input hardware: Dygma/Bazecor configurator, Razer RGB/DPI,
+    # generic mouse configurators. Kanata's own keyboard remapping is the
+    # services-device-input-kanata bundle instead — it needs no vendor
+    # hardware and ships on by default, unlike the daemons and kernel
+    # modules here.
     # "services-device-input"
+
+    # Kanata keyboard remapping: home-row mods, a navigation layer, and
+    # layout-aware chords (see docs/user/keyboard.md). Generic — matches
+    # every keyboard, needs no vendor hardware. On by default; a sibling of
+    # services-device-input rather than a child of it, so this stays on
+    # when the vendor-specific tools there (Bazecor, OpenRazer, Piper) are
+    # turned off.
+    "services-device-input-kanata"
 
     # Phones and tablets: iOS mounting and display control.
     # "services-device-mobile"

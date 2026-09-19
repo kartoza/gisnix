@@ -7,7 +7,7 @@
 #
 # THE DEFAULT KANATA INSTANCE ALREADY COVERS EVERY KEYBOARD.
 #
-# services/device/input/kanata-keyboard.nix matches `devices = [ ]`, which
+# services/device/input-kanata/kanata-keyboard.nix matches `devices = [ ]`, which
 # kanata treats as "every keyboard on the system" — plug in a second
 # board and it gets the same home-row mods and navigation layer as the
 # first, with no configuration at all. Run this command only when a board
@@ -89,7 +89,7 @@ instance_name=$(echo "$picked_name" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a
 cat <<NIX
 
 Paste this into your host's kanata override (or a new
-software/services/device/input/ module if you keep several), then rebuild:
+software/services/device/input-kanata/ module if you keep several), then rebuild:
 
   # ${picked_name}
   # Detected at ${device_path}. If this board ever needs a DIFFERENT
@@ -103,9 +103,9 @@ software/services/device/input/ module if you keep several), then rebuild:
     '';
     # The import path below is relative to wherever you paste this — from
     # a host file (hosts/<name>/*.nix) it's "gisnixRoot +
-    # /software/services/device/input/kanata-config.nix" (this module
+    # /software/services/device/input-kanata/kanata-config.nix" (this module
     # needs to receive gisnixRoot, same as hosts/example/disks.nix does);
-    # from inside services/device/input/ itself it's just
+    # from inside services/device/input-kanata/ itself it's just
     # "./kanata-config.nix". Fix the path to match where this landed.
     config = import ./kanata-config.nix {
       layout = "us"; # match hostConfig.kanataLayout if you set one

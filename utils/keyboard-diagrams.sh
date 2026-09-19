@@ -2,7 +2,7 @@
 #
 # keyboard-diagrams — redraw the keyboard layout diagrams from their source.
 #
-# gisnix ships one kanata mechanism (software/services/device/input/
+# gisnix ships one kanata mechanism (software/services/device/input-kanata/
 # kanata-config.nix) applied to whichever board a host has; only the
 # `kanataLayout` knob ("us" or "pt") changes the geometry and chord output.
 # docs/scripts/generate-keyboard-diagrams.py draws the base and navigation

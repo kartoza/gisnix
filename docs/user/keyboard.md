@@ -7,8 +7,11 @@ there is nothing to configure per board unless you plug in something with
 a genuinely different physical layout (see [Adding a second keyboard](#adding-a-second-keyboard)
 below).
 
-Enable it with the `services-device-input` bundle. It is not on by
-default; add the line to `hosts/<name>/config.nix` and rebuild.
+It ships in the `services-device-input-kanata` bundle, which is on by
+default — every gisnix install gets it unless you remove the line from
+`hosts/<name>/config.nix`. It needs no vendor hardware and is a separate
+bundle from `services-device-input` (Bazecor, OpenRazer, Piper), which
+stays opt-in.
 
 ## Home-row modifiers
 

@@ -15,6 +15,7 @@ DEFAULT_BUNDLES = {
     "desktop-environments-cosmic",
     "desktop-browsers",
     "services-system",
+    "services-device-input-kanata",
 }
 
 STORAGE_ZFS_ENCRYPTED_SINGLE = "zfs-encrypted-single"
