@@ -24,9 +24,8 @@ NIXROOT/
 └── atuin     (/var/atuin)  shell history, XFS zvol
 ```
 
-This is the same shape whether a machine was installed fresh by gisnix or
-migrated onto it by hand — one dataset layout, one set of assumptions for
-anything downstream that reads it.
+The shape is the same whether a machine was installed fresh by gisnix or
+migrated onto it by hand.
 
 ## Changing your mind after install
 

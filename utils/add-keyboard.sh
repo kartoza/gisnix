@@ -23,7 +23,7 @@
 #      ready to paste into your host's own kanata override file
 #
 # It does not write anything — you decide where the block belongs, the
-# same way `kz configure`'s "edit mode" hands you a diff rather than
+# same way `gisnix configure`'s "edit mode" hands you a diff rather than
 # guessing which file to change.
 set -uo pipefail
 

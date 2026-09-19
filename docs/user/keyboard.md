@@ -39,9 +39,8 @@ trip it — or slow enough that a real hold feels sluggish — the timeout is
 
 ## Bracket chords
 
-Press two adjacent keys together — not a roll, an honest press-together
-within 40ms — and you get a bracket instead of two letters. This ships on
-by default; there is nothing to enable.
+Press two adjacent keys together — a genuine press-together within 40ms,
+not a fast roll — and you get a bracket instead of two letters.
 
 | Chord | Types |
 |---|---|
@@ -64,13 +63,12 @@ supports — bigram-to-word expansion, where typing `io` fires a macro that
 finishes it as `ion` — because that fires mid-word, on ordinary typing, and
 is exactly the kind of surprise a shared default should not spring on
 someone. Pass your own `expansionsFile` to `kanata-config.nix` if you want
-that; nothing here builds it for you.
+it — there's no built-in set to turn on.
 
 ## Clipboard holds
 
-Hold `x`, `c`, or `v` instead of tapping it and you get cut, copy, or
-paste. This ships on by default. Tap the letter as normal and nothing
-changes; the hold is the whole feature.
+Hold `x`, `c`, or `v` instead of tapping it, and you get cut, copy, or
+paste. Tap normally and you still get the letter.
 
 | Key | Tap | Hold |
 |---|---|---|
@@ -78,11 +76,10 @@ changes; the hold is the whole feature.
 | `c` | c | Ctrl+C (copy) |
 | `v` | v | Ctrl+Shift+V (paste) |
 
-Paste is Ctrl+Shift+V rather than the more usual Ctrl+V on purpose — it
-works in a terminal, where plain Ctrl+V does not. Cut and copy stay at
-their ordinary bindings, so holding `c` in a terminal sends SIGINT via
-Ctrl+C exactly as tapping Ctrl+C always did; the asymmetry is deliberate,
-not a bug.
+Paste is Ctrl+Shift+V, not the more common Ctrl+V, because Ctrl+Shift+V
+works in a terminal and plain Ctrl+V doesn't. Cut and copy keep their
+ordinary bindings, so holding `c` in a terminal still sends SIGINT via
+Ctrl+C, same as tapping it always has.
 
 ## Navigation layer
 
@@ -107,15 +104,14 @@ right hand becomes arrow keys and paging.
 | `o` | End |
 | `m`, `,`, `.` | mouse speed: half, quarter, tenth |
 
-Release Space or Menu and the layer disappears; every key underneath
-reverts to typing normally. This is a hold, not a toggle — there is
-nothing to switch back.
+Release Space or Menu and the layer disappears; every key underneath goes
+back to typing normally.
 
 ## herdr layer
 
-Hold Caps Lock and hjkl drive `herdr` — the `base` bundle installs it, so
-this is on for everyone, not something you opt into. A tap still toggles
-caps; nobody holds Caps Lock on purpose, so the layer costs nothing.
+Hold Caps Lock and hjkl drive `herdr`. The `base` bundle installs herdr on
+every machine, so this layer is there with nothing to turn on. A tap still
+toggles Caps Lock as normal.
 
 | Key | Action |
 |---|---|
@@ -148,14 +144,14 @@ hardcoded per machine: the key resolves the *active login session* to a
 username at press time, then looks that username up in
 `kartoza.userEmails` — so on a shared machine, `tim`'s hold types
 `tim@example.com` and `alice`'s hold types whatever *she* set in
-`users/alice.nix`, from the same physical key. A username with no entry
-just gets silence; nothing else about their account is affected.
+`users/alice.nix`, from the same physical key. An account with no entry
+here gets silence when `e` is pressed.
 
 Unmapped characters refuse rather than guess: the generated script only
 emits keycodes for `a-z`, `0-9`, `.`, `@`, and `-`, so an email address
 using anything else won't type at all rather than typing something close
-but wrong. `@` and `-` sit on different physical keys depending on
-`kanataLayout` (`us` vs `pt`), and the script accounts for that.
+but wrong. `@` and `-` sit on different physical keys under `us` vs `pt`,
+and the script picks the right one from `kanataLayout`.
 
 What is **not** here: an aerc (mail client) layer on Tab hold. gisnix does
 not install aerc, so that macro set — compose, reply, file to folders,
@@ -197,10 +193,9 @@ turns it back on.
 
 ## Adding a second keyboard
 
-The default instance matches every keyboard on the system — plug in a
-second, ordinary, row-staggered board and it gets the same home-row mods
-and navigation layer as the first automatically. You do not need to do
-anything.
+The default instance matches every keyboard on the system, so a second
+ordinary, row-staggered board picks up the same home-row mods and
+navigation layer as the first the moment you plug it in.
 
 Write a *separate* kanata instance only when a board's physical layout
 doesn't match a standard keyboard closely enough for the shared layer to

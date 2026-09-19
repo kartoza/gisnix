@@ -61,7 +61,7 @@ even though its body is just an `import` call — see
 Every operator-facing tool is a row in `utils/commands.json` plus a
 `utils/<name>.sh` wrapper. `mkCommandDrv` in `flake.nix` turns one row into
 three surfaces: a `nix run .#<name>` app, a `gisnix <name>` subcommand (via
-`kzDispatcher`), and a dev-shell binary — one script, one dependency list,
+`gisnixDispatcher`), and a dev-shell binary — one script, one dependency list,
 no duplication. See the [command reference](../references/commands.md) for
 every command that exists today, and
 [the gisnix command pattern](../developer/installer.md#why-a-gisnix-command) for
