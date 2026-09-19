@@ -13,22 +13,17 @@
 #
 # The box-drawing and arrow glyphs below are safe on THIS console specifically
 # because installer.nix sets console.font to a Terminus "v"-charset PSF — the
-# broad-Unicode-coverage variant. No color, and no Unicode block art for the
-# logo: this session already found that Terminus (even the "v" charset) has
-# no glyphs for the block-element range (U+2580-259F) chafa's default symbol
-# renderer draws images with — that showed up first as garbled Textual
-# widget borders, and chafa's own logo would have hit the exact same gap.
-# `--symbols ascii -c none` is chafa's own documented recipe for
-# guaranteed-safe old-school ASCII art; `--format=symbols` on top of that
-# stops chafa auto-detecting Kitty/Sixel graphics support and emitting a
-# binary protocol payload instead of text (see utils/shell-banner.sh's own
-# comment on that — same tool, same gotcha).
+# broad-Unicode-coverage variant. The real console already renders the logo
+# in full colour (chafa correctly detects it can't do Kitty/Sixel graphics
+# there and falls back to symbols on its own) — --format=symbols just pins
+# that choice explicitly rather than trusting auto-detection everywhere this
+# might run.
 #
 # Safe to run any time: it only prints.
 set -uo pipefail
 
 clear
-chafa --size=28x resources/kartoza-logo.png --format=symbols --symbols ascii -c none 2>/dev/null || true
+chafa --size=28x resources/kartoza-logo.png --format=symbols 2>/dev/null || true
 
 cat <<'EOF'
 
