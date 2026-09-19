@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from textual.containers import Vertical
+from textual.containers import VerticalGroup
 from textual.widgets import Input, Label, TextArea
 
 from ..repo import hash_password, valid_username
@@ -12,7 +12,7 @@ class UserScreen(WizardScreen):
         super().__init__("Create your account", next_label="Continue")
 
     def body(self):
-        with Vertical():
+        with VerticalGroup():
             yield Label("Username")
             yield Input(placeholder="e.g. alice", id="username-input")
             yield Label("Full name (optional)")
@@ -37,17 +37,18 @@ class UserScreen(WizardScreen):
         if not valid_username(username):
             self.set_error(
                 "Username must start with a letter or underscore and contain only "
-                "lowercase letters, digits, hyphens, and underscores."
+                "lowercase letters, digits, hyphens, and underscores.",
+                focus="#username-input",
             )
             return False
 
         password = self.query_one("#password-input", Input).value
         confirm = self.query_one("#password-confirm-input", Input).value
         if not password:
-            self.set_error("A password is required.")
+            self.set_error("A password is required.", focus="#password-input")
             return False
         if password != confirm:
-            self.set_error("Passwords do not match.")
+            self.set_error("Passwords do not match.", focus="#password-confirm-input")
             return False
 
         keys_text = self.query_one("#sshkeys-input", TextArea).text

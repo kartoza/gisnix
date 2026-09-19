@@ -22,7 +22,7 @@ class ExistingHostScreen(WizardScreen):
     def on_next(self) -> bool | None:
         option_list = self.query_one("#existing-list", OptionList)
         if option_list.highlighted is None:
-            self.set_error("Pick a host profile to continue.")
+            self.set_error("Pick a host profile to continue.", focus="#existing-list")
             return False
         option = option_list.get_option_at_index(option_list.highlighted)
         self.app.state.existing_host_name = option.id

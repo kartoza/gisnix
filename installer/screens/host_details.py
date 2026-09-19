@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from textual.containers import Vertical
+from textual.containers import VerticalGroup
 from textual.widgets import Input, Label, RadioButton, RadioSet, Select
 
 from ..repo import valid_hostname
@@ -24,7 +24,7 @@ class HostDetailsScreen(WizardScreen):
         super().__init__("Name this machine", next_label="Continue")
 
     def body(self):
-        with Vertical():
+        with VerticalGroup():
             yield Label("Hostname")
             yield Input(
                 placeholder="e.g. fieldbook",
@@ -43,7 +43,8 @@ class HostDetailsScreen(WizardScreen):
         if not valid_hostname(hostname):
             self.set_error(
                 "Hostname must start with a letter and contain only lowercase "
-                "letters, digits, and hyphens."
+                "letters, digits, and hyphens.",
+                focus="#hostname-input",
             )
             return False
         self.app.state.hostname = hostname

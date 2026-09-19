@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from textual.containers import Vertical
+from textual.containers import VerticalGroup
 from textual.widgets import Checkbox, Input, Label, RadioButton, RadioSet, Select, SelectionList
 
 from ..repo import list_disks
@@ -21,7 +21,7 @@ class StorageScreen(WizardScreen):
         self._disks = list_disks()
 
     def body(self):
-        with Vertical():
+        with VerticalGroup():
             yield Label("Storage mode")
             with RadioSet(id="storage-mode"):
                 yield RadioButton(
@@ -62,10 +62,14 @@ class StorageScreen(WizardScreen):
             self.query_one("#raid-mode-select", Select).value
         ]
         if not needs_multi and len(selected_disks) != 1:
-            self.set_error("Select exactly one disk for a single-disk storage mode.")
+            self.set_error(
+                "Select exactly one disk for a single-disk storage mode.", focus="#disk-list"
+            )
             return False
         if needs_multi and len(selected_disks) < min_disks:
-            self.set_error(f"That RAID mode needs at least {min_disks} disks selected.")
+            self.set_error(
+                f"That RAID mode needs at least {min_disks} disks selected.", focus="#disk-list"
+            )
             return False
 
         encrypted = mode == STORAGE_ZFS_ENCRYPTED_SINGLE or (
@@ -75,10 +79,13 @@ class StorageScreen(WizardScreen):
             passphrase = self.query_one("#passphrase-input", Input).value
             confirm = self.query_one("#passphrase-confirm-input", Input).value
             if not passphrase:
-                self.set_error("A ZFS encryption passphrase is required for an encrypted pool.")
+                self.set_error(
+                    "A ZFS encryption passphrase is required for an encrypted pool.",
+                    focus="#passphrase-input",
+                )
                 return False
             if passphrase != confirm:
-                self.set_error("Passphrases do not match.")
+                self.set_error("Passphrases do not match.", focus="#passphrase-confirm-input")
                 return False
         else:
             passphrase = ""

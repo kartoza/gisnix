@@ -91,8 +91,19 @@ class WizardScreen(Screen):
         return []
         yield  # pragma: no cover - makes this a generator
 
-    def set_error(self, message: str) -> None:
+    def set_error(self, message: str, focus: str | None = None) -> None:
+        """Show a validation error. Pass the CSS selector of the field it's
+        actually about via `focus` — the console's scrollbar renders using
+        block-element glyphs the console font doesn't have, so a step
+        taller than the screen gives no visible cue that there's more to
+        scroll to. Bringing the actual problem field into view and focusing
+        it means the user is never stuck looking at a screen that hides
+        the thing they need to fix."""
         self.query_one("#wizard-error", Static).update(message)
+        if focus is not None:
+            widget = self.query_one(focus)
+            widget.scroll_visible(animate=False)
+            widget.focus()
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "wizard-next":

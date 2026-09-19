@@ -9,10 +9,22 @@ branch differently), so it is decided one step at a time by
 from __future__ import annotations
 
 from textual.app import App
+from textual.widgets._toggle_button import ToggleButton  # noqa: PLC2701 — see comment below
 
 from . import branding
 from .repo import MOCK
 from .state import InstallState
+
+# RadioButton, Checkbox, AND SelectionList (which reads these directly off
+# ToggleButton rather than off its own class — checked its source) all draw
+# their on/off marker as BUTTON_LEFT + (inner glyph) + BUTTON_RIGHT. The
+# inner glyphs themselves are fine (RadioButton's "●" and Checkbox's "X"
+# are both ordinary, widely-supported characters) — it's the shared
+# wrapper, "▐"/"▌" (block elements, not box-drawing), that the console
+# font doesn't have. Reaching the private module is unavoidable: it's the
+# one place all three widgets actually read this from.
+ToggleButton.BUTTON_LEFT = "("
+ToggleButton.BUTTON_RIGHT = ")"
 
 
 class InstallerApp(App):
@@ -23,21 +35,27 @@ class InstallerApp(App):
 
     # App-level CSS applies across every screen.
     #
-    # Button's built-in border style is "tall" — a 3D-embossed look built
-    # from eighth-block characters (▔▁▊▎), a different Unicode range from
-    # box-drawing. The console font has box-drawing coverage but not that
-    # one, which is exactly the garbage that showed up under every button.
+    # Button, Input, ToggleButton (the base class behind RadioButton and
+    # Checkbox), OptionList (the base class behind SelectionList), and
+    # Select's own closed-state display ALL default to a "tall" border —
+    # a 3D-embossed look built from eighth-block characters (▔▁▊▎), a
+    # different Unicode range from box-drawing. The console font has
+    # box-drawing coverage but not that one, which is exactly the garbage
+    # that showed up under buttons, around the focused password field,
+    # around every radio button, and around the disk list and dropdowns.
     # Every rule below re-borders with "solid" (┌─┐│└┘ — the basic
-    # box-drawing set the font does carry) with !important, because
-    # Button's own DEFAULT_CSS nests variant/hover/focus rules deeply
+    # box-drawing set the font does carry) with !important, because each
+    # widget's own DEFAULT_CSS nests variant/hover/focus rules deeply
     # enough that a plain override loses to it otherwise.
     #
     # The built-in focus style is a 5% background tint — meant for a real
     # terminal with full colour depth, invisible on a virtual console.
     # `!important` bold-reverse is unmissable regardless of colour support.
     CSS = """
-    Button {
+    Button, Input, ToggleButton, OptionList, SelectCurrent, RadioSet, TextArea {
         border: solid $surface-lighten-2 !important;
+    }
+    Button {
         min-width: 16;
     }
     Button:hover {
@@ -52,10 +70,18 @@ class InstallerApp(App):
     Button.-error {
         border: solid $error !important;
     }
-    Button:focus {
+    Input.-invalid {
+        border: solid $error !important;
+    }
+    Button:focus, Input:focus, ToggleButton:focus, OptionList:focus, SelectCurrent:focus,
+    RadioSet:focus, TextArea:focus {
         border: solid $accent !important;
         background: $accent 35% !important;
         text-style: bold reverse !important;
+    }
+    Input.-invalid:focus {
+        border: solid $error !important;
+        background: $error 35% !important;
     }
     *:focus {
         text-style: bold reverse;
