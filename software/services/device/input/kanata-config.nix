@@ -16,10 +16,10 @@
   # double-tap then hold a mod key within it to autorepeat its LETTER.
   modTapTimeout ? 200,
   modHoldTimeout ? 500,
-  # Optional per-layout BRACKET chord file (no defchordsv2 wrapper — just
-  # the bracket lines themselves). null = no chords at all, the default:
-  # gisnix ships the layer/mod/nav mechanism but no opinionated chord set —
-  # write your own and point this at it.
+  # Per-layout BRACKET chord file (no defchordsv2 wrapper — just the
+  # bracket lines themselves). kanata-keyboard.nix picks one by default,
+  # keyed off the host's `kanataLayout` (chords-us.kbd / chords-pt.kbd) —
+  # null only if a caller deliberately wants no chords at all.
   chordsFile ? null,
   # Optional bigram -> n-gram expansion chord lines, spliced into the same
   # defchordsv2 block (kanata allows exactly one per config). null = none.

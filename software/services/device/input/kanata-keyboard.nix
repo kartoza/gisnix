@@ -24,6 +24,20 @@ let
   # value, because it changes which physical key `@` and `-` live under —
   # see kanata-config.nix's own `layout` parameter for why.
   layout = hostConfig.kanataLayout or "us";
+
+  # Bracket chords ship on by default — layout and chord file are two
+  # statements of one fact (the chord outputs are keycodes for that
+  # layout), so they are selected together here. An unlisted layout fails
+  # evaluation rather than pairing a guessed chord file with it. Bigram/word
+  # expansion chords do NOT ship by default (no `expansionsFile` below) —
+  # those fire mid-word on ordinary typing and are opt-in for exactly that
+  # reason; a host wanting them supplies its own file.
+  chordsFile =
+    {
+      us = ./chords-us.kbd;
+      pt = ./chords-pt.kbd;
+    }
+    .${layout};
 in
 {
   hardware.uinput.enable = true;
@@ -63,7 +77,7 @@ in
         '';
 
         config = import ./kanata-config.nix {
-          inherit tapTimeout holdTimeout layout;
+          inherit tapTimeout holdTimeout layout chordsFile;
         };
       };
     };

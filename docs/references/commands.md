@@ -135,7 +135,7 @@ graph LR
 | --- | --- | --- |
 | [`add-keyboard`](#add-keyboard) | `<leader>pK` | wire up a new keyboard for kanata |
 | [`power`](#power) | `<leader>pF` | why is this machine hot? |
-| [`keyboard-diagrams`](#keyboard-diagrams) | `<leader>pK` | regenerate keyboard diagrams |
+| [`keyboard-diagrams`](#keyboard-diagrams) | `<leader>pD` | regenerate keyboard diagrams |
 
 **💻 vm** — Virtual machines, for testing and for Windows.
 
@@ -759,7 +759,7 @@ gisnix power [--seconds N] [--watch] [--json] [--full-charge | --charge-limit PE
 
 ### keyboard-diagrams
 
-Redraw the kanata, keyd, Glove80 and Sonsei layout diagrams, then open the folder.
+Redraw the default kanata layout diagrams (base + navigation, one set per kanataLayout), then open the folder.
 
 ```bash
 gisnix keyboard-diagrams
@@ -768,7 +768,7 @@ gisnix keyboard-diagrams
 | | |
 | --- | --- |
 | Implementation | `utils/keyboard-diagrams.sh` |
-| Neovim | `<leader>pK` |
+| Neovim | `<leader>pD` |
 | On PATH | `coreutils`, `nix`, `python3`, `findutils`, `xdg-utils` |
 
 ## Virtual machines

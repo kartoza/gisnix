@@ -688,10 +688,10 @@
     {
       "name": "keyboard-diagrams",
       "file": "keyboard-diagrams.sh",
-      "key": "K",
+      "key": "D",
       "group": "hardware",
       "order": 2,
-      "desc": "Redraw the kanata, keyd, Glove80 and Sonsei layout diagrams, then open the folder",
+      "desc": "Redraw the default kanata layout diagrams (base + navigation, one set per kanataLayout), then open the folder",
       "terse": "regenerate keyboard diagrams",
       "deps": [
         "coreutils",

@@ -37,6 +37,35 @@ gets mistaken for a modifier. If you find yourself typing fast enough to
 trip it — or slow enough that a real hold feels sluggish — the timeout is
 `modHoldTimeout` in `kanata-config.nix`.
 
+## Bracket chords
+
+Press two adjacent keys together — not a roll, an honest press-together
+within 40ms — and you get a bracket instead of two letters. This ships on
+by default; there is nothing to enable.
+
+| Chord | Types |
+|---|---|
+| `q`+`w` | `{` |
+| `o`+`p` | `}` |
+| `a`+`s` | `[` |
+| `l`+`k` | `]` |
+| `x`+`z` | `<` |
+| `m`+`,` | `>` |
+
+`a`+`s` and `l`+`k` double as home-row mods (Super/Alt, Shift/Ctrl) — press
+them more than 40ms apart, which is how you'd normally hold a modifier
+anyway, and they behave exactly as the mod table above describes. Only a
+genuine press-together inside the window fires the bracket.
+
+The chord *lines* live in `chords-us.kbd` / `chords-pt.kbd` next to
+`kanata-keyboard.nix`, which picks between them by the host's
+`kanataLayout`. What does **not** ship is the other kind of chord kanata
+supports — bigram-to-word expansion, where typing `io` fires a macro that
+finishes it as `ion` — because that fires mid-word, on ordinary typing, and
+is exactly the kind of surprise a shared default should not spring on
+someone. Pass your own `expansionsFile` to `kanata-config.nix` if you want
+that; nothing here builds it for you.
+
 ## Navigation layer
 
 Hold Space or the Menu key (to the left of the right Ctrl key on most
@@ -64,14 +93,21 @@ Release Space or Menu and the layer disappears; every key underneath
 reverts to typing normally. This is a hold, not a toggle — there is
 nothing to switch back.
 
-## What is NOT included
+## Layout diagrams
 
-The chord system — pressing two keys together to fire a macro, used
-elsewhere for bracket typing (`{`, `}`, `[`, `]`) — ships disabled. Write
-your own chord file and pass it to `kanata-config.nix`'s `chordsFile`
-argument if you want one; there is no default set. Two files, `chordsFile`
-and `expansionsFile`, exist for exactly this — see the comments in
-`software/services/device/input/kanata-config.nix` for the format.
+The tables above, drawn out. One diagram set per `kanataLayout` value —
+US ANSI (the default) and pt-PT ISO — regenerated straight from the same
+key tables `kanata-config.nix` uses, with `gisnix keyboard-diagrams`.
+
+=== "US (default)"
+
+    ![US base layer](../assets/keyboards/us-keyboard-base-layer.svg)
+    ![US navigation layer](../assets/keyboards/us-keyboard-nav-layer.svg)
+
+=== "pt-PT"
+
+    ![pt-PT base layer](../assets/keyboards/pt-keyboard-base-layer.svg)
+    ![pt-PT navigation layer](../assets/keyboards/pt-keyboard-nav-layer.svg)
 
 ## Toggling it off
 

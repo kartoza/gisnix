@@ -1,24 +1,22 @@
 #!/usr/bin/env bash
 #
-# keyboard-diagrams — redraw every keyboard layout diagram from its source.
+# keyboard-diagrams — redraw the keyboard layout diagrams from their source.
 #
-# A host can have several keyboards, each configured a different way, and
-# each with its own generator:
+# gisnix ships one kanata mechanism (software/services/device/input/
+# kanata-config.nix) applied to whichever board a host has; only the
+# `kanataLayout` knob ("us" or "pt") changes the geometry and chord output.
+# docs/scripts/generate-keyboard-diagrams.py draws the base and navigation
+# layers for both, straight from the same key tables the module uses, so
+# changing a layout and re-running this keeps the docs in step. Nothing
+# here touches a keyboard — it only reads configuration and writes SVGs.
 #
-#   Standard boards (built-in, most USB)  kanata, hosts/<host>/kanata-keyboard.nix
-#   Krom Kernel Pro                       keyd,   hosts/<host>/krom-keyboard.nix
-#   MoErgo Glove80                        its own firmware (stock binds; kanata
-#                                         does the remapping on the host)
-#   Dygma Sonsei                          the keyboard's own memory, exported to
-#                                         hosts/<host>/sonsei-layout.json
+# A downstream flake with its own per-host extras — a second kanata
+# instance, a different chord set, a firmware-driven board — draws its own
+# diagrams for those; this only covers the mechanism gisnix itself ships.
 #
-# Every diagram is derived from those sources rather than drawn by hand, so
-# changing a layout and re-running this keeps the docs in step. Nothing here
-# touches a keyboard — it only reads configuration and writes SVGs.
+#   gisnix keyboard-diagrams
 #
-#   gisnix keyboard-diagrams      (or: gisnix keyboard-diagrams)
-#
-# The docs build runs these too; this is for when you have just changed a
+# The docs build runs this too; this is for when you have just changed the
 # layout and want to see the picture without building the whole site.
 set -uo pipefail
 
@@ -49,34 +47,13 @@ esac
 
 OUT_DIR=docs/assets/keyboards
 
-fail=0
-run() { # <label> <script>
-  local label="$1" script="$2"
-  if [ ! -f "$script" ]; then
-    echo "  ${DIM}· ${label} — ${script} not present, skipped${NC}"
-    return 0
-  fi
-  echo "${BOLD}▶ ${label}${NC}"
-  if python3 "$script"; then
-    echo "  ${GREEN}✓${NC} ${label}"
-  else
-    echo "  ${RED}✗${NC} ${label}"
-    fail=1
-  fi
-}
-
-run "kanata hosts (every host with a kanata-keyboard.nix)" docs/scripts/generate-keyboard-diagrams.py
-run "MoErgo Glove80" docs/scripts/generate-glove80-diagrams.py
-run "Dygma Sonsei" docs/scripts/generate-sonsei-diagrams.py
-
-echo
-if [ "$fail" -ne 0 ]; then
-  echo "${RED}✗ some generators failed — see above${NC}"
-  exit "$fail"
+if ! python3 docs/scripts/generate-keyboard-diagrams.py; then
+  echo "${RED}✗ generator failed — see above${NC}"
+  exit 1
 fi
 
-COUNT="$(find docs/assets -maxdepth 2 -name '*keyboard*.svg' 2> /dev/null | wc -l)"
-echo "${GREEN}✓ all keyboard diagrams regenerated${NC}  ${DIM}${COUNT} keyboard SVGs under docs/assets/${NC}"
+COUNT="$(find "$OUT_DIR" -maxdepth 1 -name '*.svg' 2> /dev/null | wc -l)"
+echo "${GREEN}✓ keyboard diagrams regenerated${NC}  ${DIM}${COUNT} SVGs under ${OUT_DIR}/${NC}"
 
 # Opening the folder is the point of running this by hand: you changed a
 # layout and want to look at the result. Skipped with --no-open so the docs
