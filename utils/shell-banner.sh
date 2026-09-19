@@ -29,7 +29,7 @@ RESET=$'\033[0m'
 BANNER="$ROOT/resources/kartoza-nixos-configuration.png"
 
 # Cache directory, used for the fleet dashboard below.
-CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/kartoza-nix-config"
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/gisnix"
 
 # Width follows the terminal, capped at 96 columns so the banner does not
 # become a mural on a wide monitor, and floored at 40 so a narrow split still
@@ -61,13 +61,13 @@ elif ! command -v chafa > /dev/null 2>&1; then
   echo "  ${GRAY}(chafa not on PATH — no banner)${RESET}"
 fi
 
-# Who is up, right now. Reachability only — `kz inventory` is the version that
+# Who is up, right now. Reachability only — `gisnix inventory` is the version that
 # waits on SSH for unit health.
 #
 # Cached for a minute. The probe already runs concurrently with a one-second
 # timeout, but that is still about a second, and this fires on every entry
 # into the project: a `cd` in and out costs it twice. A minute-old answer to
-# "is waterfall up" is fine for a banner, and `kz fleet` always re-probes.
+# "is example up" is fine for a banner, and `gisnix fleet` always re-probes.
 FLEET_CACHE="$CACHE_DIR/fleet-status.txt"
 if [ -f utils/fleet-status.sh ]; then
   mkdir -p "$CACHE_DIR"
@@ -80,16 +80,16 @@ fi
 
 cat <<EOF
 
-  ${BOLD}All operator commands are namespaced under ${CYAN}kz${RESET}${BOLD}.${RESET}
+  ${BOLD}All operator commands are namespaced under ${CYAN}gisnix${RESET}${BOLD}.${RESET}
 
-  ${GRAY}▶${RESET}  ${CYAN}kz${RESET}                  the full command list, grouped by lifecycle
-  ${GRAY}▶${RESET}  ${CYAN}kz fleet${RESET}            refresh the dashboard above
-  ${GRAY}▶${RESET}  ${CYAN}kz inventory${RESET}        unit health and generations, over SSH (slower)
-  ${GRAY}▶${RESET}  ${CYAN}kz update${RESET}           rebuild this machine
-  ${GRAY}▶${RESET}  ${CYAN}kz check waterfall${RESET}  one host, in depth
+  ${GRAY}▶${RESET}  ${CYAN}gisnix${RESET}                  the full command list, grouped by lifecycle
+  ${GRAY}▶${RESET}  ${CYAN}gisnix fleet${RESET}            refresh the dashboard above
+  ${GRAY}▶${RESET}  ${CYAN}gisnix inventory${RESET}        unit health and generations, over SSH (slower)
+  ${GRAY}▶${RESET}  ${CYAN}gisnix update${RESET}           rebuild this machine
+  ${GRAY}▶${RESET}  ${CYAN}gisnix check example${RESET}  one host, in depth
 
-  ${GRAY}docs${RESET}   ${CYAN}kz docs-serve${RESET} (localhost:8000)   ${CYAN}kz docs-build${RESET}   ${CYAN}kz docs-pdf${RESET}
-  ${GRAY}qa${RESET}     ${CYAN}kz lint${RESET}   ${CYAN}kz test${RESET}   ${CYAN}kz hooks${RESET}
+  ${GRAY}docs${RESET}   ${CYAN}gisnix docs-serve${RESET} (localhost:8000)   ${CYAN}gisnix docs-build${RESET}
+  ${GRAY}qa${RESET}     ${CYAN}gisnix lint${RESET}   ${CYAN}gisnix test${RESET}   ${CYAN}gisnix hooks${RESET}
 
-  ${GRAY}Outside this shell:${RESET} ${CYAN}nix run .#kz -- <command>${RESET}
+  ${GRAY}Outside this shell:${RESET} ${CYAN}nix run .#gisnix -- <command>${RESET}
 EOF

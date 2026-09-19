@@ -1,5 +1,5 @@
 # Example user — the installer writes one of these per machine, named for
-# the account it creates. Copy this file for a hand-rolled host (`kz
+# the account it creates. Copy this file for a hand-rolled host (`gisnix
 # create-host` does it for you), rename it, and fill in a real SSH key.
 { pkgs, ... }:
 {

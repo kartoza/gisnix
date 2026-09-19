@@ -46,7 +46,7 @@ gisnix.lib.mkHost "myhost" {
 
 ## What isn't wired up yet
 
-`kz configure`'s interactive picker (and the rest of the `utils/` tooling)
+`gisnix configure`'s interactive picker (and the rest of the `utils/` tooling)
 assumes it's running from a checkout that has *both* the `utils/`
 machinery *and* the target host's directory in the same tree —
 `utils/lib/hostconfig.py`'s `REPO_ROOT` is computed from its own file
@@ -58,7 +58,7 @@ like the one the installer generates: it has `hosts/<name>/` but no
 `utils/` at all.
 
 Practically: editing `config.nix` by hand and rebuilding always works from
-a tiny flake. The interactive `kz configure` menu does not, yet — making it
+a tiny flake. The interactive `gisnix configure` menu does not, yet — making it
 work would mean teaching `hostconfig.py` to resolve the bundle *catalogue*
 from gisnix (wherever the script lives) but the *target host* from the
 caller's own working directory, which are currently conflated under one

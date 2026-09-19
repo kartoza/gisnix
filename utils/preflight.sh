@@ -16,8 +16,8 @@
 #
 # Each check prints PASS, WARN or FAIL. Do not rebuild while anything is FAIL.
 #
-#   kz preflight              # this machine
-#   kz preflight bay          # over SSH
+#   gisnix preflight              # this machine
+#   gisnix preflight bay          # over SSH
 #
 # The declared side comes from evaluating the host's configuration, so this is
 # comparing the flake against reality rather than against assumptions.

@@ -140,11 +140,11 @@ def main() -> int:
         "",
         "| Surface | How you reach it |",
         "| --- | --- |",
-        "| The dev shell | `kz <name>` |",
+        "| The dev shell | `gisnix <name>` |",
         "| Nix, from anywhere | `nix run .#<name>` |",
         "| Directly | `./utils/<file>` |",
         "| Neovim | `<leader>p<key>` |",
-        "| The terminal cheat-sheet | `kz` with no arguments |",
+        "| The terminal cheat-sheet | `gisnix` with no arguments |",
         "",
         "This page is the sixth, generated from the same row.",
         "",
@@ -217,7 +217,7 @@ def main() -> int:
             L += [c["desc"].rstrip(".") + ".", ""]
             L += [
                 "```bash",
-                c.get("usage", f"kz {c['name']}"),
+                c.get("usage", f"gisnix {c['name']}"),
                 "```",
                 "",
             ]

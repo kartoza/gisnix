@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # dev-help — render the operator-command cheat-sheet from utils/commands.json
-# as a grid-lined table. Called by the dev shell's shellHook and by `kz`.
+# as a grid-lined table. Called by the dev shell's shellHook and by `gisnix`.
 #
 # Self-minting: add a row to commands.json and it appears here, in `nix run`,
 # and in the Neovim menu, with no edit to any of the three.
@@ -19,16 +19,15 @@ set -uo pipefail
 # Exiting quietly here would make the dev shell's banner silently lose a
 # section, which reads as a bug in the shellHook rather than a missing tool.
 command -v jq > /dev/null 2>&1 || {
-  echo "kz: jq is not on PATH — enter the dev shell first:  nix develop" >&2
+  echo "gisnix: jq is not on PATH — enter the dev shell first:  nix develop" >&2
   exit 0
 }
 [ -f utils/commands.json ] || {
-  echo "kz: run from the repo root (utils/commands.json missing)" >&2
+  echo "gisnix: run from the repo root (utils/commands.json missing)" >&2
   exit 0
 }
 
-# Brand palette (24-bit truecolor), matching the personal-servers flake so the
-# two projects read the same way.
+# Brand palette (24-bit truecolor).
 GREEN=$'\033[38;2;88;150;50m'   # env
 YELLOW=$'\033[38;2;240;230;74m' # dns
 BLUE=$'\033[38;2;147;176;35m'   # host
@@ -105,17 +104,17 @@ group_header() {
 # How to actually run these was the first thing a reader needed and the last
 # thing the header said. Inside `nix develop` the commands are on PATH, so the
 # name in the table IS the command; outside it they are flake apps.
-# All commands are namespaced under `kz`. Probing for the dispatcher rather
+# All commands are namespaced under `gisnix`. Probing for the dispatcher rather
 # than IN_NIX_SHELL, because that variable is set by ANY nix shell and is
-# therefore true in plenty of places where `kz` is not on PATH.
-if command -v kz > /dev/null 2>&1; then
-  echo "🚀 ${BOLD}Run any command below as${NC} ${BOLD}kz <command>${NC}"
-  echo "   ${DIM}e.g.  kz inventory   ·   kz update waterfall   ·   kz docs-pdf${NC}"
-  echo "   ${DIM}outside this shell:  nix run .#kz -- <command>   ·   in nvim:  <leader>p${NC}"
+# therefore true in plenty of places where `gisnix` is not on PATH.
+if command -v gisnix > /dev/null 2>&1; then
+  echo "🚀 ${BOLD}Run any command below as${NC} ${BOLD}gisnix <command>${NC}"
+  echo "   ${DIM}e.g.  gisnix installer --mock   ·   gisnix update example   ·   gisnix docs-serve${NC}"
+  echo "   ${DIM}outside this shell:  nix run .#gisnix -- <command>${NC}"
 else
   echo "🚀 ${BOLD}Operator commands${NC}"
-  echo "   ${DIM}run one with:  nix run .#kz -- <command>${NC}"
-  echo "   ${DIM}or enter the dev shell (nix develop), where it is just:  kz <command>${NC}"
+  echo "   ${DIM}run one with:  nix run .#gisnix -- <command>${NC}"
+  echo "   ${DIM}or enter the dev shell (nix develop), where it is just:  gisnix <command>${NC}"
 fi
 echo
 rule ┌ ┬ ┐
@@ -199,12 +198,14 @@ if [ -z "$ROWS" ]; then printf ''; else printf '%s\n' "$ROWS"; fi |
     group_header docs
     rule ├ ┬ ┤
     row 1 "docs-serve" "live preview on http://localhost:8000"
-    row 2 "docs-build" "regenerate host pages, catalogue and diagrams"
-    row 3 "docs-pdf" "branded host handbook PDFs into ./pdfs/ (--host NAME|all · --all fleet book)"
+    row 2 "docs-build" "build the static site (mkdocs build --strict)"
+    row 3 "docs-generate-bundles" "regenerate docs/references/bundles.md"
+    row 4 "docs-generate-commands" "regenerate docs/references/commands.md"
+    row 5 "test-install" "build the installer ISO and boot it in QEMU"
     rule └ ┴ ┘
 
     echo
-    printf '  %sper-host VMs are generated, not listed:%s  kz <host>-vm\n' "$DIM" "$NC"
+    printf '  %sper-host VMs are generated, not listed:%s  gisnix <host>-vm\n' "$DIM" "$NC"
     if [ "$ready" -lt "$total" ]; then
       printf '  %s%d of %d commands implemented; the rest are declared and marked above.%s\n' \
         "$DIM" "$ready" "$total" "$NC"

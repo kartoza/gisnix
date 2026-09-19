@@ -82,7 +82,7 @@
       "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
       "cosmic.cachix.org-1:Dya9IyXD4xdBehWjrkPv6rtxpmMdRel02smYzA85dPE="
 
-      # Operator build keys go here. `kz update <host>` builds a closure
+      # Operator build keys go here. `gisnix update <host>` builds a closure
       # locally and signs it (utils/update.sh) before copying it over;
       # without the signing key listed here, that signature satisfies nobody
       # and the copy can only work because the deploying user happens to be

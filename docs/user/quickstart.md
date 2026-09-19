@@ -40,7 +40,7 @@ and follow the wizard:
 5. **Storage** — ZFS single-disk encrypted (recommended, AES-256-GCM
    passphrase), plain XFS single-disk, or multi-disk ZFS
    stripe/raidz/raidz2.
-6. **Software** — the same bundle picker `kz configure` uses on an
+6. **Software** — the same bundle picker `gisnix configure` uses on an
    installed machine. Defaults to a minimal base system plus a minimal
    COSMIC desktop; add more now or later.
 7. **Confirm** — type the hostname back to proceed. This is the point of
@@ -50,7 +50,7 @@ and follow the wizard:
    `~/nixos-config` on the new machine.
 
 Want to see the wizard first without touching a real disk? `installer
---mock` (or `kz installer --mock` from a gisnix checkout) fakes disks and
+--mock` (or `gisnix installer --mock` from a gisnix checkout) fakes disks and
 network and skips every destructive step.
 
 ## 4. First boot
@@ -71,8 +71,8 @@ cd ~/nixos-config
 sudo nixos-rebuild switch --flake .#<name>
 ```
 
-!!! note "The `kz configure` menu"
-    On a full gisnix (or nix-config-on-gisnix) checkout, `kz configure`
+!!! note "The `gisnix configure` menu"
+    On a full gisnix (or nix-config-on-gisnix) checkout, `gisnix configure`
     gives you an interactive bundle picker instead of hand-editing. Running
     it usefully against a *standalone* tiny flake like the one the
     installer generates isn't wired up yet — see

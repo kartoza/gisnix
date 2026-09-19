@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Derive a host-scoped mkdocs config for `kz docs-pdf`.
+"""Derive a host-scoped mkdocs config for `gisnix docs-pdf`.
 
 Writes a copy of mkdocs.yml whose nav holds only ONE host's pages — the
 host page plus its companions (hosts/<host>-*.md: keyboard maps, the

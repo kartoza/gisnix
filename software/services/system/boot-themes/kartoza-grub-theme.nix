@@ -22,7 +22,7 @@
   # order until one succeeds against the current firmware GOP.
   # mkDefault so nixpkgs' qemu-vm.nix — which pins gfxmodeBios to the
   # emulated display's 1024x768 — can win inside a VM without a conflict.
-  # Without it, `kz vm <host>` on any host importing this theme failed to
+  # Without it, `gisnix vm <host>` on any host importing this theme failed to
   # evaluate at all: two normal-priority definitions of the same option.
   # On real hardware nothing else sets these, so the full-res cascade
   # applies. qgis-spatial-grub-theme.nix has carried this since the boot-vm

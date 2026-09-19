@@ -1,4 +1,4 @@
-"""What a bundle actually installs, for the `kz configure` preview pane.
+"""What a bundle actually installs, for the `gisnix configure` preview pane.
 
 `bundle.json` lists MODULES. An operator choosing between bundles wants to
 know what lands on the machine — the packages — and a filename does not say.

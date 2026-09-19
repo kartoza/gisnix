@@ -1,5 +1,5 @@
 {
-  description = "gisnix — a reproducible, ZFS-encryption-ready NixOS distribution for GIS workstations, built with Kartoza's kz operator tooling";
+  description = "gisnix — a reproducible, ZFS-encryption-ready NixOS distribution for GIS workstations, built with Kartoza's gisnix operator tooling";
 
   nixConfig = {
     # IFD is required for the QGIS repo inputs.
@@ -239,9 +239,9 @@
         };
       };
 
-      # `kz` — the command-manifest-driven operator CLI. See
+      # `gisnix` — the command-manifest-driven operator CLI. See
       # utils/commands.json and utils/README.md for how a row becomes a
-      # flake app, a `kz` subcommand, and a dev-shell binary all at once.
+      # flake app, a `gisnix` subcommand, and a dev-shell binary all at once.
       commandManifest = builtins.fromJSON (builtins.readFile ./utils/commands.json);
 
       commandPresent =
@@ -300,6 +300,7 @@
         "docs-build"
         "docs-generate-bundles"
         "docs-generate-commands"
+        "test-install"
       ]
       ++ builtins.concatMap (h: [
         "${h}-vm"
@@ -311,7 +312,7 @@
       # docs/scripts/generate-*.py. Not part of the commands.json manifest
       # (same as nix-config's own docs apps) — these interpolate a python
       # environment and store paths that don't fit the manifest's plain
-      # deps/pythonDeps shape as cleanly; `kz docs-serve` etc. still reach
+      # deps/pythonDeps shape as cleanly; `gisnix docs-serve` etc. still reach
       # them, via extraAppNames rather than a commandApps row.
       docsPython = defaultPkgs.python3.withPackages (
         ps: with ps; [
@@ -373,8 +374,8 @@
         nixpkgs.lib.concatMapStrings (f: builtins.readFile (./. + "/${f}")) kzScriptFiles
       );
 
-      kzDispatcher = defaultPkgs.writeShellApplication {
-        name = "kz";
+      gisnixDispatcher = defaultPkgs.writeShellApplication {
+        name = "gisnix";
         runtimeInputs = [
           defaultPkgs.jq
           defaultPkgs.git
@@ -391,7 +392,7 @@
           cmd="''${1:-}"
           [ $# -gt 0 ] && shift
 
-          kz_is_stale() {
+          gisnix_is_stale() {
             [ -n "$root" ] || return 1
             local live
             live=$(cat ${nixpkgs.lib.concatStringsSep " " kzScriptFiles} 2>/dev/null \
@@ -407,17 +408,17 @@
               exec bash utils/fleet-status.sh "$@"
               ;;
             --list)
-              cat <<'KZ_LIST'
+              cat <<'GISNIX_LIST'
           ${nixpkgs.lib.concatStringsSep "\n" (
             (map (c: c.name) liveCommands) ++ [ "fleet" ] ++ extraAppNames
           )}
-          KZ_LIST
+          GISNIX_LIST
               exit 0
               ;;
           ${nixpkgs.lib.concatMapStrings (c: ''
             ${c.name})
-                if kz_is_stale; then
-                  printf '\033[38;2;240;230;74mkz: utils/ has changed since this shell was entered\033[0m\n' >&2
+                if gisnix_is_stale; then
+                  printf '\033[38;2;240;230;74mgisnix: utils/ has changed since this shell was entered\033[0m\n' >&2
                   printf '\033[2m  running %s from the working tree instead of the older build\033[0m\n' ${nixpkgs.lib.escapeShellArg c.name} >&2
                   printf '\033[2m  re-enter the dev shell to stop paying for this\033[0m\n' >&2
                   exec nix --extra-experimental-features "nix-command flakes" \
@@ -433,7 +434,7 @@
           '') extraAppNames}
           ${nixpkgs.lib.concatMapStrings (c: ''
             ${c.name})
-                printf '\033[38;2;240;230;74mkz: %s is declared but not implemented yet\033[0m\n' ${nixpkgs.lib.escapeShellArg c.name} >&2
+                printf '\033[38;2;240;230;74mgisnix: %s is declared but not implemented yet\033[0m\n' ${nixpkgs.lib.escapeShellArg c.name} >&2
                 printf '\033[2m  %s\033[0m\n' ${nixpkgs.lib.escapeShellArg c.desc} >&2
                 printf '\033[2m  write utils/%s to bring it to life\033[0m\n' ${nixpkgs.lib.escapeShellArg c.file} >&2
                 exit 1
@@ -446,17 +447,17 @@
                 file=$(jq -r --arg c "$cmd" \
                   '.commands[] | select(.name == $c) | .file' utils/commands.json)
                 if [ -f "utils/$file" ]; then
-                  printf '\033[2mkz: %s is newer than this shell — building it\033[0m\n' "$cmd" >&2
+                  printf '\033[2mgisnix: %s is newer than this shell — building it\033[0m\n' "$cmd" >&2
                   printf '\033[2m  re-enter the dev shell to stop paying for this\033[0m\n' >&2
                   exec nix --extra-experimental-features "nix-command flakes" \
                     run ".#$cmd" -- "$@"
                 fi
-                printf '\033[38;2;240;230;74mkz: %s is declared but utils/%s does not exist\033[0m\n' \
+                printf '\033[38;2;240;230;74mgisnix: %s is declared but utils/%s does not exist\033[0m\n' \
                   "$cmd" "$file" >&2
                 exit 1
               fi
-              printf '\033[0;31mkz: unknown command %s\033[0m\n' "$cmd" >&2
-              printf '\033[2mrun kz with no arguments for the list\033[0m\n' >&2
+              printf '\033[0;31mgisnix: unknown command %s\033[0m\n' "$cmd" >&2
+              printf '\033[2mrun gisnix with no arguments for the list\033[0m\n' >&2
               exit 1
               ;;
           esac
@@ -569,18 +570,18 @@
             nixpkgs.lib.genAttrs deployableHosts (h: mkHostDeploy h)
           )
         // {
-          # `nix run .#` and `nix run .#kz` are the same dispatcher: with no
-          # arguments it prints the cheat-sheet, with a command name it runs
-          # that command.
+          # `nix run .#` and `nix run .#gisnix` are the same dispatcher: with
+          # no arguments it prints the cheat-sheet, with a command name it
+          # runs that command.
           default = {
             type = "app";
-            program = "${kzDispatcher}/bin/kz";
-            meta.description = "Operator commands: `kz` for the list, `kz <command>` to run one";
+            program = "${gisnixDispatcher}/bin/gisnix";
+            meta.description = "Operator commands: `gisnix` for the list, `gisnix <command>` to run one";
           };
-          kz = {
+          gisnix = {
             type = "app";
-            program = "${kzDispatcher}/bin/kz";
-            meta.description = "Operator commands: `kz` for the list, `kz <command>` to run one";
+            program = "${gisnixDispatcher}/bin/gisnix";
+            meta.description = "Operator commands: `gisnix` for the list, `gisnix <command>` to run one";
           };
           # Build the installer ISO and boot it in QEMU — the fastest way to
           # try the real (non-mock) installer against a real virtual disk,
@@ -684,13 +685,13 @@
         zfs-backup = inputs.zfs-backup.packages.${system}.default;
         default = self.packages.${system}.zfs-backup;
 
-        # The pinned nixos-anywhere, exposed so `kz install` runs exactly
+        # The pinned nixos-anywhere, exposed so `gisnix install` runs exactly
         # the version this flake locks rather than whatever is on PATH.
         nixos-anywhere = inputs.nixos-anywhere.packages.${system}.nixos-anywhere;
 
-        # The installer, as a standalone package (not just a `kz` subcommand)
+        # The installer, as a standalone package (not just a `gisnix` subcommand)
         # — this is what the ISO's environment.systemPackages installs. Built
-        # from the SAME manifest row as `kz installer`/`nix run .#installer`,
+        # from the SAME manifest row as `gisnix installer`/`nix run .#installer`,
         # so there is exactly one definition of what the installer needs.
         gisnix-installer = mkCommandDrv (
           builtins.head (builtins.filter (c: c.name == "installer") commandManifest.commands)
@@ -717,8 +718,7 @@
         in
         {
           default = import ./utils/develop.nix {
-            inherit inputs system pkgs;
-            inherit commandPackages kzDispatcher;
+            inherit inputs system pkgs commandPackages gisnixDispatcher;
           };
         }
       );

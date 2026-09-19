@@ -7,7 +7,7 @@
 # host without one is reported as "cannot be woken" rather than failing
 # obscurely.
 #
-#   kz wake waterfall
+#   gisnix wake waterfall
 #
 # Magic packets are LAN broadcasts. They cannot traverse the NetBird overlay
 # or any other tunnel, so this only works from the same network segment — the
@@ -57,6 +57,6 @@ echo "${f_dim}  'Resume by PCI-E/LAN' enabled and ErP disabled.${f_nc}"
 PORT="$(f_field "$HOST" initrdSshPort '')"
 if [ -n "$PORT" ]; then
   echo "${f_dim}  If it was powered off rather than suspended, booting stops at the${f_nc}"
-  echo "${f_dim}  pool unlock prompt:  kz unlock ${HOST}${f_nc}"
+  echo "${f_dim}  pool unlock prompt:  gisnix unlock ${HOST}${f_nc}"
 fi
 exit 1

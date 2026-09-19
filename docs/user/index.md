@@ -11,4 +11,4 @@ for that).
   software by editing `hosts/<name>/config.nix`'s bundle list, then
   `sudo nixos-rebuild switch --flake .#<name>` (see the
   [quickstart](quickstart.md) for the full loop, and its note on the
-  interactive `kz configure` menu).
+  interactive `gisnix configure` menu).

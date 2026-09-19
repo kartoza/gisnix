@@ -15,7 +15,7 @@
     ../software/base/zfs.nix
 
     # QGIS channels. Pinned historical series (2.18 and friends) and the dev
-    # channel are opt-in bundles in `kz configure` under desktop-gis; only
+    # channel are opt-in bundles in `gisnix configure` under desktop-gis; only
     # the two rolling channels are defaults.
     ../software/desktop/gis/qgis-latest.nix
     ../software/desktop/gis/qgis-ltr.nix

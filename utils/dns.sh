@@ -19,9 +19,9 @@
 # therefore schedules its own restore with a transient systemd timer, so the
 # default outcome of walking away is that filtering comes back.
 #
-#   kz dns-off              # pause for 30 minutes
-#   kz dns-off 5m        # pause for 5 minutes
-#   kz dns-on               # restore now
+#   gisnix dns-off              # pause for 30 minutes
+#   gisnix dns-off 5m        # pause for 5 minutes
+#   gisnix dns-on               # restore now
 #
 # This changes RUNTIME state only. Nothing here edits the NixOS configuration:
 # a rebuild, or a reboot, restores the declared state regardless.
@@ -144,7 +144,7 @@ do_off() {
   }
 
   echo "${GREEN}✓ filtering paused${NC}  ${DIM}restores automatically in ${pause}${NC}"
-  echo "${DIM}  bring it back sooner:  kz dns-on${NC}"
+  echo "${DIM}  bring it back sooner:  gisnix dns-on${NC}"
 }
 
 do_on() {
@@ -188,7 +188,7 @@ do_test() {
     echo "  ${YELLOW}${BOLD}${blocked}/${total} blocked  (${pct}%)${NC}"
   else
     echo "  ${RED}${BOLD}${blocked}/${total} blocked  (${pct}%)${NC}"
-    blocky_active || echo "  ${DIM}blocky is stopped — run: kz dns-on${NC}"
+    blocky_active || echo "  ${DIM}blocky is stopped — run: gisnix dns-on${NC}"
   fi
 
   echo

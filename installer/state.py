@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 
 #: The installer's default package selection: minimal base system plus a
 #: minimal COSMIC desktop. Matches gen-host-config.py's ACTIVE list, so a
-#: host created by the installer and one created by `kz create-host` start
+#: host created by the installer and one created by `gisnix create-host` start
 #: from the same shape.
 DEFAULT_BUNDLES = {
     "base",

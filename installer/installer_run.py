@@ -1,6 +1,6 @@
 """Runs the actual install: disko partitions/formats/mounts the disk(s),
 nixos-install builds and installs the system, and the tiny per-machine flake
-is copied into the new user's home so `kz configure`/`kz update` work there
+is copied into the new user's home so `gisnix configure`/`gisnix update` work there
 exactly as they do on any other gisnix machine.
 
 Each step is a generator yielding progress lines, so the Textual screen
@@ -66,7 +66,7 @@ def run_install_mock(state: InstallState) -> Iterator[str]:
         "── [MOCK] Copying the flake into the new machine ── (skipped)",
         "── Done ──",
         f"Reboot, remove the USB drive, and log in as {state.username}.",
-        "~/nixos-config is the single source of truth from here — kz configure, kz update.",
+        "~/nixos-config is the single source of truth from here — gisnix configure, gisnix update.",
     ]
     for line in fake_steps:
         time.sleep(0.3)
@@ -168,7 +168,7 @@ def run_install(state: InstallState) -> Iterator[str]:
     # The lock above was pinned to THIS ISO's local copy so the install
     # itself needed no network. That local store path won't be a meaningful
     # reference once the machine is running its own life — swap it back to
-    # the real github: URL before it's copied into the new home, so `kz
+    # the real github: URL before it's copied into the new home, so `gisnix
     # update`/`nix flake update` behave normally from first boot on. Best
     # effort: this needs network, and the system is already fully installed
     # and bootable at this point either way — a failure here just means the
@@ -206,4 +206,4 @@ def run_install(state: InstallState) -> Iterator[str]:
 
     yield "── Done ──"
     yield f"Reboot, remove the USB drive, and log in as {state.username}."
-    yield "~/nixos-config is the single source of truth from here — kz configure, kz update."
+    yield "~/nixos-config is the single source of truth from here — gisnix configure, gisnix update."

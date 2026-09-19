@@ -31,7 +31,7 @@ OUT = REPO_ROOT / "docs" / "references" / "bundles.md"
 def _implication_diagram(all_bundles: list[dict]) -> str:
     """The `implies` graph as mermaid.
 
-    `kz bundles --tree` has printed this in the terminal since the bundle
+    `gisnix bundles --tree` has printed this in the terminal since the bundle
     system landed, and the reference page — the thing somebody reads when they
     are NOT at a terminal — had no picture of it at all. Derived from the same
     `implies` lists the resolver uses, so it cannot show a relationship the
@@ -122,21 +122,21 @@ def main() -> int:
         "",
         "## Turning bundles on and off",
         "",
-        "`kz configure` is the menu. It reads the registry — every"
+        "`gisnix configure` is the menu. It reads the registry — every"
         " `bundle.json` under `software/` — and *not* the host's current"
         " `config.nix`, so the list you tick is always complete. A bundle"
         " added this morning is on the menu this afternoon, whether or not"
         " any host has heard of it.",
         "",
         "```bash",
-        "kz configure                      # this machine, then tick the bundles",
-        "kz configure atoll                # straight to atoll's bundles",
-        "kz configure atoll --list         # what it takes today; changes nothing",
-        "kz configure atoll --enable desktop-gis",
-        "kz configure atoll --disable terminal-ai,desktop-games",
-        "kz configure atoll --set base,desktop-browsers --locale za-en",
-        "kz configure atoll --kernel latest  # kernel 7.2, as abyss runs",
-        "kz configure atoll --enable security --dry-run",
+        "gisnix configure                      # this machine, then tick the bundles",
+        "gisnix configure atoll                # straight to atoll's bundles",
+        "gisnix configure atoll --list         # what it takes today; changes nothing",
+        "gisnix configure atoll --enable desktop-gis",
+        "gisnix configure atoll --disable terminal-ai,desktop-games",
+        "gisnix configure atoll --set base,desktop-browsers --locale za-en",
+        "gisnix configure atoll --kernel latest  # kernel 7.2, as abyss runs",
+        "gisnix configure atoll --enable security --dry-run",
         "```",
         "",
         "### The chooser",
@@ -180,7 +180,7 @@ def main() -> int:
         "",
         "The package lists themselves are read from the module source, which"
         " is a heuristic and says so: a package arriving by a route the reader"
-        " does not follow is **missing** rather than wrong. `kz bundles"
+        " does not follow is **missing** rather than wrong. `gisnix bundles"
         " <name>` is the authoritative view.",
         "",
         "Nothing is written until the diff has been shown and confirmed — and"
@@ -188,7 +188,7 @@ def main() -> int:
         "",
         "### Bundles that cannot be removed",
         "",
-        "A bundle marked `\"required\": true` is one `kz configure` will not"
+        "A bundle marked `\"required\": true` is one `gisnix configure` will not"
         " take away from a host that has it. Unticking it is one keystroke,"
         " the result builds perfectly well, and then the machine does not"
         " come back — which you find out at a console it no longer runs an"
@@ -247,7 +247,7 @@ def main() -> int:
         "",
         "A bundle marked `\"optIn\": true` is **never** selected on a host's"
         " behalf. It has to be asked for by name. Two carry the mark, and"
-        " `kz configure` says so rather than staying quiet about what it"
+        " `gisnix configure` says so rather than staying quiet about what it"
         " declined to add:",
         "",
         "| Bundle | Why |",
@@ -261,7 +261,7 @@ def main() -> int:
     lines += [
         "",
         "```bash",
-        "kz configure atoll --enable services-device-peripherals",
+        "gisnix configure atoll --enable services-device-peripherals",
         "```",
         "",
         "### Edit mode",
@@ -328,7 +328,7 @@ def main() -> int:
         "",
         "### It evaluates before it lets you leave",
         "",
-        "After writing, `kz configure` evaluates the host:",
+        "After writing, `gisnix configure` evaluates the host:",
         "",
         "```bash",
         "nix eval .#nixosConfigurations.<host>.config.system.build.toplevel.drvPath",
@@ -374,10 +374,10 @@ def main() -> int:
         " add several, because a build that fails then names its own cause:",
         "",
         "```bash",
-        "kz update atoll",
+        "gisnix update atoll",
         "```",
         "",
-        "The read-only half of the pair is `kz bundles`, which shows what each"
+        "The read-only half of the pair is `gisnix bundles`, which shows what each"
         " one contains without offering to change anything.",
         "",
         "## Why membership is listed rather than implied",
@@ -406,7 +406,7 @@ def main() -> int:
         " group — `software/locale/` is the clear case, since a machine has one"
         " locale and not eight.",
         "",
-        "Each group appears in the `kz configure` tree as radio rows nested"
+        "Each group appears in the `gisnix configure` tree as radio rows nested"
         " under the bundle whose directory contains them — the two kernel rows"
         " sit under `base`, because `software/base/kernel/` is inside"
         " `software/base/`. Picking one unpicks its sibling. What gets written"
@@ -455,7 +455,7 @@ def main() -> int:
         "Every arrow is an `implies` edge read from `bundle.json`: the bundle"
         " at the tail brings the one at the head with it, so a host naming"
         " only the tail gets both. Nothing here is drawn by hand — this is the"
-        " same graph `kz bundles --tree` prints in the terminal.",
+        " same graph `gisnix bundles --tree` prints in the terminal.",
         "",
         _implication_diagram(all_bundles).rstrip(),
         "",
@@ -544,7 +544,7 @@ def _first_comment(module: Path) -> str:
     """The module's one-line description, escaped for a Markdown table.
 
     The reading itself lives in `utils/lib/bundleinfo.py`, because the
-    `kz configure` preview pane shows the same sentence for a module whose
+    `gisnix configure` preview pane shows the same sentence for a module whose
     package list cannot be read from source. Two copies would mean the docs
     and the tool describing the same file differently; only the escaping
     below is specific to this page.

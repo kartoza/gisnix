@@ -24,7 +24,7 @@
 # kernel/ZFS pair nobody has run yet. Rollback is the previous generation in
 # GRUB, which carries its own matching pair.
 #
-# `kz configure` says all of this before the choice is made, not after.
+# `gisnix configure` says all of this before the choice is made, not after.
 {
   config,
   lib,

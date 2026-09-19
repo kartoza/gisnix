@@ -2,19 +2,19 @@
 #
 # installer — the Kartoza-branded bootable-USB installer wizard.
 #
-#   kz installer            # partition a disk, create a host + user, install
-#   kz installer --mock     # same wizard, disks/network faked, no real
+#   gisnix installer            # partition a disk, create a host + user, install
+#   gisnix installer --mock     # same wizard, disks/network faked, no real
 #                            # install step — safe to run anywhere, for
 #                            # iterating on the screens themselves
 #
 # This is the SELF-driven installer: someone sitting at the machine's own
-# keyboard, booted from the ISO. It is a different tool from `kz install`,
+# keyboard, booted from the ISO. It is a different tool from `gisnix install`,
 # which is the ADMIN-driven path — nixos-anywhere over SSH into an
 # already-booted live system. Both exist; they solve different problems.
 #
 # The wizard's own code lives in installer/ at the repo root (Textual), not
 # under utils/ — this file is just the same one-line wrapper shape every
-# other `kz` command uses, so `installer` gets a flake app, a `kz`
+# other `gisnix` command uses, so `installer` gets a flake app, a `gisnix`
 # subcommand and a dev-shell binary for free, same as everything else in
 # this manifest. See installer/app.py for the wizard itself, and
 # installer/screens/bundles.py for how its software-selection step reuses
@@ -23,7 +23,7 @@
 #
 # Run two different ways, so it has to find its own repo root rather than
 # assume the caller already cd'd there:
-#   - `kz installer`      — kz already cd'd to the repo root; we're IN it.
+#   - `gisnix installer`      — gisnix already cd'd to the repo root; we're IN it.
 #   - `gisnix-installer`  — the ISO's environment.systemPackages entry,
 #                           invoked from whatever directory a login shell
 #                           happens to be in.

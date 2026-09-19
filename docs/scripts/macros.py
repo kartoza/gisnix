@@ -104,7 +104,7 @@ def define_env(env):
             for c in members:
                 pending = "" if _implemented(c) else " *(planned)*"
                 rows.append([
-                    f"`kz {c['name']}`{pending}",
+                    f"`gisnix {c['name']}`{pending}",
                     f"`<leader>p{c['key']}`",
                     c.get("terse", c["desc"]),
                 ])
@@ -126,7 +126,7 @@ def define_env(env):
         steps = command.get("sequence") or []
         if not steps:
             return (
-                f"`kz {name}` is read-only — it declares no sequence, because "
+                f"`gisnix {name}` is read-only — it declares no sequence, because "
                 "it has no workflow to announce."
             )
         return "\n".join(f"{i}. {s}" for i, s in enumerate(steps, 1))
@@ -148,7 +148,7 @@ def define_env(env):
             out.append(f"### {g}")
             out.append("")
             for c in members:
-                out.append(f"**`{c.get('usage', 'kz ' + c['name'])}`**")
+                out.append(f"**`{c.get('usage', 'gisnix ' + c['name'])}`**")
                 out.append("")
                 out.append(c["desc"] + ".")
                 out.append("")

@@ -89,7 +89,7 @@
         "read hostId, disks, CPU/GPU and encryption off the running system",
         "write hosts/<name>/, register it in fleet.nix and stage it for git"
       ],
-      "usage": "kz create-host <name> [--dry-run]"
+      "usage": "gisnix create-host <name> [--dry-run]"
     },
     {
       "name": "update",
@@ -201,7 +201,7 @@
       "key": "d",
       "group": "host",
       "order": 6,
-      "desc": "Create a Hetzner cloud server from hosts/<name>/server.nix and install onto it \u2014 the cloud path; kz install is the physical one",
+      "desc": "Create a Hetzner cloud server from hosts/<name>/server.nix and install onto it \u2014 the cloud path; gisnix install is the physical one",
       "terse": "create a cloud server and install",
       "deps": [
         "coreutils",
@@ -219,7 +219,7 @@
       "prelude": [
         "fleet.sh"
       ],
-      "usage": "kz deploy <host> [--list] [--dry-run]"
+      "usage": "gisnix deploy <host> [--list] [--dry-run]"
     },
     {
       "name": "check",
@@ -261,7 +261,7 @@
         "name the machine, the address and the disk, and require the hostname typed back",
         "partition and install with nixos-anywhere; --seed later clones the flake for its owner"
       ],
-      "usage": "kz install <host> <user@address> [--seed] [--dry-run]"
+      "usage": "gisnix install <host> <user@address> [--seed] [--dry-run]"
     },
     {
       "name": "installer",
@@ -286,9 +286,9 @@
       "sequence": [
         "welcome, network check, new host or an existing host profile",
         "hostname/locale/boot-theme, user account, storage (ZFS-encrypted by default)",
-        "the same bundle picker kz configure uses, then confirm and install"
+        "the same bundle picker gisnix configure uses, then confirm and install"
       ],
-      "usage": "kz installer [--mock]"
+      "usage": "gisnix installer [--mock]"
     },
     {
       "name": "suspend",
@@ -666,7 +666,7 @@
         "git",
         "python3"
       ],
-      "usage": "kz power [--seconds N] [--watch] [--json] [--full-charge | --charge-limit PERCENT] [--low | --normal]"
+      "usage": "gisnix power [--seconds N] [--watch] [--json] [--full-charge | --charge-limit PERCENT] [--low | --normal]"
     },
     {
       "name": "keyboard-diagrams",
@@ -700,7 +700,7 @@
         "nettools",
         "nix"
       ],
-      "usage": "kz vm [<host>] [--boot] [--quick] [--list]"
+      "usage": "gisnix vm [<host>] [--boot] [--quick] [--list]"
     },
     {
       "name": "create-win11-vm",
@@ -752,7 +752,7 @@
         "tick the bundles this machine should have; e edits what they contain",
         "show the diff, write it if you agree, then evaluate and undo if broken"
       ],
-      "usage": "kz configure [<host>] [--list] [--enable a,b] [--disable a,b] [--set a,b] [--locale <name>] [--no-cascade] [--no-eval] [--force] [--dry-run] [--yes]",
+      "usage": "gisnix configure [<host>] [--list] [--enable a,b] [--disable a,b] [--set a,b] [--locale <name>] [--no-cascade] [--no-eval] [--force] [--dry-run] [--yes]",
       "pythonDeps": [
         "textual"
       ]

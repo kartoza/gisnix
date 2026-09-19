@@ -5,9 +5,9 @@ This is the editing half of the bundle system. `software/bundles.nix` and
 ones a host has switched on*, and rewrites that answer back into the file
 without disturbing anything else in it.
 
-`utils/configure.sh` (`kz configure`) is the interactive front end, and
+`utils/configure.sh` (`gisnix configure`) is the interactive front end, and
 `utils/gen-host-config.py` uses the same renderer so a host created by
-`kz create-host` and a host edited by `kz configure` produce byte-identical
+`gisnix create-host` and a host edited by `gisnix configure` produce byte-identical
 shapes. One renderer, so the two cannot drift.
 
 WHY THE FILE IS REWRITTEN RATHER THAN PATCHED
@@ -540,12 +540,12 @@ def generated_notes(bundle: dict) -> list[str]:
     out = [bundle.get("description", "")]
     if bundle.get("required"):
         out.append(
-            "Required: `kz configure` will not remove this from a host that "
+            "Required: `gisnix configure` will not remove this from a host that "
             "has it — " + bundle.get("requiredReason", "it is load-bearing") + "."
         )
     if bundle.get("optIn"):
         out.append(
-            "Opt-in: never added by `kz configure` when you take the group "
+            "Opt-in: never added by `gisnix configure` when you take the group "
             "above — " + bundle.get("optInReason", "ask for it by name") + "."
         )
     return [p for p in out if p]
@@ -697,7 +697,7 @@ def parse(path: Path) -> HostConfig:
 def _wrap(text: str, prefix: str) -> list[str]:
     """Wrap prose to the file's width, keeping `code spans` on one line.
 
-    Without the guard, "`kz bundles`" wraps between the two words and the
+    Without the guard, "`gisnix bundles`" wraps between the two words and the
     backticks end up on different lines, which reads as a typo in a file whose
     whole job is to be read.
     """
@@ -803,7 +803,7 @@ def _header(indent: str) -> list[str]:
     return _wrap(
         "Software bundles — the package sets this machine installs. A bundle "
         "is a directory under software/; see docs/references/bundles.md, or "
-        "`kz bundles`, for what each one holds. Implications resolve "
+        "`gisnix bundles`, for what each one holds. Implications resolve "
         "automatically, so asking for desktop-gis brings in the COSMIC "
         "desktop it needs to display QGIS.",
         f"{indent}# ",
@@ -811,7 +811,7 @@ def _header(indent: str) -> list[str]:
         f"{indent}#",
         *_wrap(
             "Every bundle is listed. Uncomment a line to take it, comment it "
-            "out to drop it, or run `kz configure` and tick the boxes.",
+            "out to drop it, or run `gisnix configure` and tick the boxes.",
             f"{indent}# ",
         ),
     ]
@@ -931,7 +931,7 @@ def verify(
     """Read the rendered text back and check it says what was asked.
 
     Rendering Nix that looks plausible is not evidence that it is correct —
-    `kz create-host` learned that the expensive way. Parsing our own output
+    `gisnix create-host` learned that the expensive way. Parsing our own output
     and comparing it to the request costs nothing and catches a renderer that
     has quietly stopped emitting something.
     """
@@ -979,6 +979,6 @@ def verify(
 
 def write(path: Path, text: str) -> None:
     """Replace the file atomically, so an interrupted write cannot truncate it."""
-    tmp = path.with_suffix(path.suffix + ".kz-new")
+    tmp = path.with_suffix(path.suffix + ".gisnix-new")
     tmp.write_text(text)
     os.replace(tmp, path)

@@ -11,11 +11,11 @@ Every command this flake provides. One row in `utils/commands.json` mints all of
 
 | Surface | How you reach it |
 | --- | --- |
-| The dev shell | `kz <name>` |
+| The dev shell | `gisnix <name>` |
 | Nix, from anywhere | `nix run .#<name>` |
 | Directly | `./utils/<file>` |
 | Neovim | `<leader>p<key>` |
-| The terminal cheat-sheet | `kz` with no arguments |
+| The terminal cheat-sheet | `gisnix` with no arguments |
 
 This page is the sixth, generated from the same row.
 
@@ -153,7 +153,7 @@ graph LR
 Migrate a self-installed NixOS machine into this flake: read its hardware, write hosts/<name>/, register it and stage it.
 
 ```bash
-kz create-host <name> [--dry-run]
+gisnix create-host <name> [--dry-run]
 ```
 
 What it does, in order:
@@ -174,7 +174,7 @@ What it does, in order:
 Push this flake's configuration to one host, several, or all of them.
 
 ```bash
-kz update
+gisnix update
 ```
 
 What it does, in order:
@@ -194,7 +194,7 @@ What it does, in order:
 Push this flake's configuration to every deployable host.
 
 ```bash
-kz update-all
+gisnix update-all
 ```
 
 | | |
@@ -208,7 +208,7 @@ kz update-all
 One line per host: role, owner, address, whether it answers, unit health.
 
 ```bash
-kz inventory
+gisnix inventory
 ```
 
 | | |
@@ -222,7 +222,7 @@ kz inventory
 Checks to run against a host before rebuilding it.
 
 ```bash
-kz preflight
+gisnix preflight
 ```
 
 | | |
@@ -237,7 +237,7 @@ kz preflight
 Generate hardware.nix for a new host from the running machine.
 
 ```bash
-kz generate-hardware
+gisnix generate-hardware
 ```
 
 What it does, in order:
@@ -254,10 +254,10 @@ What it does, in order:
 
 ### deploy
 
-Create a Hetzner cloud server from hosts/<name>/server.nix and install onto it — the cloud path; kz install is the physical one.
+Create a Hetzner cloud server from hosts/<name>/server.nix and install onto it — the cloud path; gisnix install is the physical one.
 
 ```bash
-kz deploy <host> [--list] [--dry-run]
+gisnix deploy <host> [--list] [--dry-run]
 ```
 
 What it does, in order:
@@ -278,7 +278,7 @@ What it does, in order:
 Install a host onto a machine booted from a live ISO, over SSH, with nixos-anywhere and disko.
 
 ```bash
-kz install <host> <user@address> [--seed] [--dry-run]
+gisnix install <host> <user@address> [--seed] [--dry-run]
 ```
 
 What it does, in order:
@@ -298,7 +298,7 @@ What it does, in order:
 One host in depth: reachability, boot phase, pool health, failed units.
 
 ```bash
-kz check
+gisnix check
 ```
 
 | | |
@@ -313,14 +313,14 @@ kz check
 Kartoza-branded installer wizard: partition a disk, create a host + user, and install (self-driven, for someone at the machine's own keyboard).
 
 ```bash
-kz installer [--mock]
+gisnix installer [--mock]
 ```
 
 What it does, in order:
 
 1. welcome, network check, new host or an existing host profile
 2. hostname/locale/boot-theme, user account, storage (ZFS-encrypted by default)
-3. the same bundle picker kz configure uses, then confirm and install
+3. the same bundle picker gisnix configure uses, then confirm and install
 
 | | |
 | --- | --- |
@@ -333,7 +333,7 @@ What it does, in order:
 Suspend a host cleanly, leaving its pools in a resumable state.
 
 ```bash
-kz suspend
+gisnix suspend
 ```
 
 | | |
@@ -348,7 +348,7 @@ kz suspend
 Wake a host over the network and wait for it to answer.
 
 ```bash
-kz wake
+gisnix wake
 ```
 
 | | |
@@ -363,7 +363,7 @@ kz wake
 Take an on-demand ZFS snapshot outside the sanoid schedule.
 
 ```bash
-kz snapshot
+gisnix snapshot
 ```
 
 What it does, in order:
@@ -386,7 +386,7 @@ What it does, in order:
 Run the USB offload: send new snapshots to the backup pool.
 
 ```bash
-kz backup
+gisnix backup
 ```
 
 What it does, in order:
@@ -409,7 +409,7 @@ What it does, in order:
 Destroy a host and reinstall it from scratch — guarded, irreversible.
 
 ```bash
-kz reset
+gisnix reset
 ```
 
 What it does, in order:
@@ -434,7 +434,7 @@ What it does, in order:
 What secrets are declared, and which hosts and keys can decrypt them.
 
 ```bash
-kz secrets
+gisnix secrets
 ```
 
 | | |
@@ -450,7 +450,7 @@ kz secrets
 Install the age identity on a host and rekey its secrets.
 
 ```bash
-kz provision-secrets
+gisnix provision-secrets
 ```
 
 What it does, in order:
@@ -470,7 +470,7 @@ What it does, in order:
 Unlock an encrypted pool over initrd SSH so a host can finish booting.
 
 ```bash
-kz unlock
+gisnix unlock
 ```
 
 | | |
@@ -487,7 +487,7 @@ kz unlock
 Generate a deploy key and register it for a repository.
 
 ```bash
-kz add-site-deploy-key
+gisnix add-site-deploy-key
 ```
 
 | | |
@@ -503,7 +503,7 @@ kz add-site-deploy-key
 Join a host to the company NetBird overlay, locally or remotely.
 
 ```bash
-kz netbird-provision
+gisnix netbird-provision
 ```
 
 What it does, in order:
@@ -527,7 +527,7 @@ What it does, in order:
 Show or switch this checkout between development and production mode.
 
 ```bash
-kz env
+gisnix env
 ```
 
 | | |
@@ -545,7 +545,7 @@ kz env
 What is actually resolving: NetBird resolvers, blocky, upstream.
 
 ```bash
-kz dns-status
+gisnix dns-status
 ```
 
 | | |
@@ -559,7 +559,7 @@ kz dns-status
 Pause ad filtering for a while — it restores itself automatically.
 
 ```bash
-kz dns-off
+gisnix dns-off
 ```
 
 What it does, in order:
@@ -579,7 +579,7 @@ What it does, in order:
 Restore ad filtering now, cancelling any pending auto-restore.
 
 ```bash
-kz dns-on
+gisnix dns-on
 ```
 
 | | |
@@ -593,7 +593,7 @@ kz dns-on
 Score how much advertising and tracking is being blocked.
 
 ```bash
-kz dns-test
+gisnix dns-test
 ```
 
 | | |
@@ -611,7 +611,7 @@ kz dns-test
 Turn a host's software bundles on and off, and edit what those bundles contain, from a menu built out of the bundle registry.
 
 ```bash
-kz configure [<host>] [--list] [--enable a,b] [--disable a,b] [--set a,b] [--locale <name>] [--no-cascade] [--no-eval] [--force] [--dry-run] [--yes]
+gisnix configure [<host>] [--list] [--enable a,b] [--disable a,b] [--set a,b] [--locale <name>] [--no-cascade] [--no-eval] [--force] [--dry-run] [--yes]
 ```
 
 What it does, in order:
@@ -631,7 +631,7 @@ What it does, in order:
 What software bundles exist, what is in them, and what implies what.
 
 ```bash
-kz bundles
+gisnix bundles
 ```
 
 | | |
@@ -649,7 +649,7 @@ kz bundles
 Run the flake checks: host evaluation, shellcheck, per-host VM tests.
 
 ```bash
-kz test
+gisnix test
 ```
 
 | | |
@@ -663,7 +663,7 @@ kz test
 Static analysis across the repo: nixfmt, shellcheck, statix, deadnix, reuse, gitleaks.
 
 ```bash
-kz lint
+gisnix lint
 ```
 
 | | |
@@ -677,7 +677,7 @@ kz lint
 Install the pre-commit hooks into this working tree.
 
 ```bash
-kz hooks
+gisnix hooks
 ```
 
 | | |
@@ -691,7 +691,7 @@ kz hooks
 Cut a release: tag the deploy point and push it.
 
 ```bash
-kz release
+gisnix release
 ```
 
 | | |
@@ -709,7 +709,7 @@ kz release
 Remove zfs-backup orphan snapshots from datasets outside the backup set.
 
 ```bash
-kz cleanup-orphans
+gisnix cleanup-orphans
 ```
 
 What it does, in order:
@@ -733,7 +733,7 @@ What it does, in order:
 Profile this machine's heat and power draw and say what is costing it; also sets a temporary charge limit or low-power mode for travel.
 
 ```bash
-kz power [--seconds N] [--watch] [--json] [--full-charge | --charge-limit PERCENT] [--low | --normal]
+gisnix power [--seconds N] [--watch] [--json] [--full-charge | --charge-limit PERCENT] [--low | --normal]
 ```
 
 | | |
@@ -747,7 +747,7 @@ kz power [--seconds N] [--watch] [--json] [--full-charge | --charge-limit PERCEN
 Redraw the kanata, keyd, Glove80 and Sonsei layout diagrams, then open the folder.
 
 ```bash
-kz keyboard-diagrams
+gisnix keyboard-diagrams
 ```
 
 | | |
@@ -765,7 +765,7 @@ kz keyboard-diagrams
 Run any host's configuration in QEMU — quick boot by default, or --boot for the full UEFI/GRUB/Plymouth sequence.
 
 ```bash
-kz vm [<host>] [--boot] [--quick] [--list]
+gisnix vm [<host>] [--boot] [--quick] [--list]
 ```
 
 | | |
@@ -779,7 +779,7 @@ kz vm [<host>] [--boot] [--quick] [--list]
 Create a Windows 11 VM under libvirt with sensible defaults.
 
 ```bash
-kz create-win11-vm
+gisnix create-win11-vm
 ```
 
 | | |
@@ -793,7 +793,7 @@ kz create-win11-vm
 Capture a frame per second from a QEMU boot window, for boot-splash work.
 
 ```bash
-kz capture-boot
+gisnix capture-boot
 ```
 
 | | |

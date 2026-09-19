@@ -6,10 +6,10 @@
 # names it, describes it, says what it implies and lists the modules in it, so
 # the taxonomy and the package sets are one system rather than two.
 #
-#   kz bundles                    # every bundle, one line each
-#   kz bundles desktop-gis        # one bundle in detail
-#   kz bundles --unclaimed        # modules no bundle installs
-#   kz bundles --tree             # the implication graph
+#   gisnix bundles                    # every bundle, one line each
+#   gisnix bundles desktop-gis        # one bundle in detail
+#   gisnix bundles --unclaimed        # modules no bundle installs
+#   gisnix bundles --tree             # the implication graph
 #
 # Read-only. The full reference, generated from the same files, is
 # docs/references/bundles.md.
@@ -140,8 +140,8 @@ for b in all_bundles:
 print(f"  {D}{'─' * 72}{NC}")
 print(f"  {len(all_bundles)} bundles, {total} modules")
 print()
-print(f"  {B}💁{NC}  one in detail: {BOLD}kz bundles <name>{NC}   ·   "
-      f"graph: {BOLD}kz bundles --tree{NC}")
+print(f"  {B}💁{NC}  one in detail: {BOLD}gisnix bundles <name>{NC}   ·   "
+      f"graph: {BOLD}gisnix bundles --tree{NC}")
 print(f"  {D}    full reference: docs/references/bundles.md{NC}")
 print()
 PYEOF

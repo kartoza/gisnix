@@ -8,7 +8,7 @@ the closure — so a duplicate is invisible at build time and forever after.
 It is still a defect, and an expensive one:
 
   * removing the package from the module you found does nothing, because the
-    other declaration still installs it. `kz configure`'s delete does exactly
+    other declaration still installs it. `gisnix configure`'s delete does exactly
     this, and would report success while the package stayed
   * the two copies drift. `software/base/fetchers.nix` and `utilities.nix`
     both listed `btop`; either could have been pinned, overridden or dropped

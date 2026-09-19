@@ -2,10 +2,10 @@
 #
 # vm — run a host's configuration in a QEMU virtual machine.
 #
-#   kz vm                  # this machine, quick boot
-#   kz vm waterfall        # another host, quick boot
-#   kz vm abyss --boot     # the full boot: UEFI/GRUB, then Plymouth
-#   kz vm --list           # which hosts can be run
+#   gisnix vm                  # this machine, quick boot
+#   gisnix vm waterfall        # another host, quick boot
+#   gisnix vm abyss --boot     # the full boot: UEFI/GRUB, then Plymouth
+#   gisnix vm --list           # which hosts can be run
 #
 # TWO VARIANTS, AND WHY BOTH EXIST
 #
@@ -73,7 +73,7 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-# No host means this machine, the way `kz update` and `kz configure` resolve it.
+# No host means this machine, the way `gisnix update` and `gisnix configure` resolve it.
 if [ -z "$HOST" ]; then
   self="$(hostname -s 2>/dev/null || true)"
   if hosts | grep -qx "$self"; then
@@ -96,7 +96,7 @@ if [ "$VARIANT" = bootvm ]; then
   printf '  %sfull boot — UEFI/GRUB, then Plymouth. Graphical window.%s\n' "$DIM" "$NC"
 else
   printf '  %squick boot — kernel loaded directly, no GRUB or Plymouth.%s\n' "$DIM" "$NC"
-  printf '  %s%s for the full boot sequence.%s\n' "$DIM" "kz vm $HOST --boot" "$NC"
+  printf '  %s%s for the full boot sequence.%s\n' "$DIM" "gisnix vm $HOST --boot" "$NC"
 fi
 echo
 

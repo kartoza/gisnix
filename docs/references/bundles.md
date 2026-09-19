@@ -29,17 +29,17 @@ A bundle's name is its path with slashes turned into hyphens, so the name always
 
 ## Turning bundles on and off
 
-`kz configure` is the menu. It reads the registry — every `bundle.json` under `software/` — and *not* the host's current `config.nix`, so the list you tick is always complete. A bundle added this morning is on the menu this afternoon, whether or not any host has heard of it.
+`gisnix configure` is the menu. It reads the registry — every `bundle.json` under `software/` — and *not* the host's current `config.nix`, so the list you tick is always complete. A bundle added this morning is on the menu this afternoon, whether or not any host has heard of it.
 
 ```bash
-kz configure                      # this machine, then tick the bundles
-kz configure atoll                # straight to atoll's bundles
-kz configure atoll --list         # what it takes today; changes nothing
-kz configure atoll --enable desktop-gis
-kz configure atoll --disable terminal-ai,desktop-games
-kz configure atoll --set base,desktop-browsers --locale za-en
-kz configure atoll --kernel latest  # kernel 7.2, as abyss runs
-kz configure atoll --enable security --dry-run
+gisnix configure                      # this machine, then tick the bundles
+gisnix configure atoll                # straight to atoll's bundles
+gisnix configure atoll --list         # what it takes today; changes nothing
+gisnix configure atoll --enable desktop-gis
+gisnix configure atoll --disable terminal-ai,desktop-games
+gisnix configure atoll --set base,desktop-browsers --locale za-en
+gisnix configure atoll --kernel latest  # kernel 7.2, as abyss runs
+gisnix configure atoll --enable security --dry-run
 ```
 
 ### The chooser
@@ -68,13 +68,13 @@ Three panes. Bundles on the left, what the highlighted bundle installs on the ri
 
 Package descriptions in the bottom pane come from `docs/references/software.json`, which `docs/scripts/generate-software-catalogue.py` writes out of nixpkgs metadata. That generator runs a `nix eval` over every host and takes minutes; a pane redrawing on every keypress has milliseconds, so it reads the answer that run already worked out. A package no host installs is not in the index and is labelled as such rather than shown blank.
 
-The package lists themselves are read from the module source, which is a heuristic and says so: a package arriving by a route the reader does not follow is **missing** rather than wrong. `kz bundles <name>` is the authoritative view.
+The package lists themselves are read from the module source, which is a heuristic and says so: a package arriving by a route the reader does not follow is **missing** rather than wrong. `gisnix bundles <name>` is the authoritative view.
 
 Nothing is written until the diff has been shown and confirmed — and never at all if the result fails `nix-instantiate --parse`.
 
 ### Bundles that cannot be removed
 
-A bundle marked `"required": true` is one `kz configure` will not take away from a host that has it. Unticking it is one keystroke, the result builds perfectly well, and then the machine does not come back — which you find out at a console it no longer runs an ssh daemon on.
+A bundle marked `"required": true` is one `gisnix configure` will not take away from a host that has it. Unticking it is one keystroke, the result builds perfectly well, and then the machine does not come back — which you find out at a console it no longer runs an ssh daemon on.
 
 | Bundle | Why |
 | --- | --- |
@@ -100,7 +100,7 @@ The chooser shows a third state for this: a bundle you did not pick but which ar
 
 #### Bundles that refuse to be taken this way
 
-A bundle marked `"optIn": true` is **never** selected on a host's behalf. It has to be asked for by name. Two carry the mark, and `kz configure` says so rather than staying quiet about what it declined to add:
+A bundle marked `"optIn": true` is **never** selected on a host's behalf. It has to be asked for by name. Two carry the mark, and `gisnix configure` says so rather than staying quiet about what it declined to add:
 
 | Bundle | Why |
 | --- | --- |
@@ -132,7 +132,7 @@ A bundle marked `"optIn": true` is **never** selected on a host's behalf. It has
 | [`services-device-peripherals`](#services-device-peripherals) | biometrics can affect whether you can log in, and the rest are daemons for hardware most hosts do not have |
 
 ```bash
-kz configure atoll --enable services-device-peripherals
+gisnix configure atoll --enable services-device-peripherals
 ```
 
 ### Edit mode
@@ -162,7 +162,7 @@ The rules the editor works to:
 
 ### It evaluates before it lets you leave
 
-After writing, `kz configure` evaluates the host:
+After writing, `gisnix configure` evaluates the host:
 
 ```bash
 nix eval .#nixosConfigurations.<host>.config.system.build.toplevel.drvPath
@@ -187,10 +187,10 @@ That gap was not hypothetical: `services-device-peripherals` could not be enable
 After editing, apply it — one bundle per rebuild is the safe way to add several, because a build that fails then names its own cause:
 
 ```bash
-kz update atoll
+gisnix update atoll
 ```
 
-The read-only half of the pair is `kz bundles`, which shows what each one contains without offering to change anything.
+The read-only half of the pair is `gisnix bundles`, which shows what each one contains without offering to change anything.
 
 ## Why membership is listed rather than implied
 
@@ -204,7 +204,7 @@ That check earns its keep. Adopting two long-unclaimed modules during this work 
 
 A bundle marked `"selection": "one-of"` holds alternatives, not a set. A host names the single member it wants instead of taking the group — `software/locale/` is the clear case, since a machine has one locale and not eight.
 
-Each group appears in the `kz configure` tree as radio rows nested under the bundle whose directory contains them — the two kernel rows sit under `base`, because `software/base/kernel/` is inside `software/base/`. Picking one unpicks its sibling. What gets written is the scalar key, not an entry in `bundles`.
+Each group appears in the `gisnix configure` tree as radio rows nested under the bundle whose directory contains them — the two kernel rows sit under `base`, because `software/base/kernel/` is inside `software/base/`. Picking one unpicks its sibling. What gets written is the scalar key, not an entry in `bundles`.
 
 ### Kernel
 
@@ -225,7 +225,7 @@ The cost is real: master is pre-Hydra, so a host choosing `"latest"` compiles bo
 
 ## How they fit together
 
-Every arrow is an `implies` edge read from `bundle.json`: the bundle at the tail brings the one at the head with it, so a host naming only the tail gets both. Nothing here is drawn by hand — this is the same graph `kz bundles --tree` prints in the terminal.
+Every arrow is an `implies` edge read from `bundle.json`: the bundle at the tail brings the one at the head with it, so a host naming only the tail gets both. Nothing here is drawn by hand — this is the same graph `gisnix bundles --tree` prints in the terminal.
 
 ```mermaid
 graph LR

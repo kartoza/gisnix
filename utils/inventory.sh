@@ -12,9 +12,9 @@
 # `preflight <host>`.
 #
 # Usage:
-#   kz inventory                 # every host in hosts/fleet.nix
-#   kz inventory abyss waterfall # just these
-#   kz inventory --help
+#   gisnix inventory                 # every host in hosts/fleet.nix
+#   gisnix inventory abyss waterfall # just these
+#   gisnix inventory --help
 #
 # Requires SSH access as each host's sshUser. Hosts with no lanAddress and no
 # overlay entry simply show as unreachable — that is information, not an error.
@@ -124,7 +124,7 @@ for host in "${HOSTS[@]}"; do
   if [[ -z "$state" ]]; then
     svc="${DIM}unreachable${NC}"
   elif [[ "$state" == "vm-only" ]]; then
-    svc="${DIM}not deployed — kz ${host}-vm${NC}"
+    svc="${DIM}not deployed — gisnix ${host}-vm${NC}"
   elif [[ "$state" == "running" && "$failed" -eq 0 ]]; then
     svc="${GREEN}all healthy${NC}"
   elif [[ "$failed" -gt 0 ]]; then

@@ -7,7 +7,7 @@
 ## zero-cost operation for everyone after the person who computed it.
 ##
 ## Nothing here evaluates unless the corresponding version bundle is
-## enabled in `kz configure`, so disabled versions cost nothing at all.
+## enabled in `gisnix configure`, so disabled versions cost nothing at all.
 ##
 ## 3.x/4.x entries (extras = true) take the standard python packages from
 ## their own pinned nixpkgs — pure binary-cache hits, no source builds.

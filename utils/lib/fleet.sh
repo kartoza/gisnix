@@ -54,7 +54,7 @@ f_field() { # <host> <field> <default>
 #
 # concatStringsSep does not terminate the final line, and `while read` does
 # not run its body for a line without one — so f_known silently could not see
-# whichever host sorted last. `kz unlock waterfall` refused waterfall and then
+# whichever host sorted last. `gisnix unlock waterfall` refused waterfall and then
 # listed waterfall among the known hosts, because the check read the list line
 # by line and the message printed it whole.
 #
@@ -143,7 +143,7 @@ f_ssh() { # <host> <command…>
 f_require_deployable() { # <host>
   if [ "$(f_field "$1" deploy ssh)" = "none" ]; then
     echo "${f_yellow}$1 is not deployed to hardware (deploy = \"none\").${f_nc}" >&2
-    echo "${f_dim}Run it as a VM instead:${f_nc}  ${f_bold}kz $1-vm${f_nc}" >&2
+    echo "${f_dim}Run it as a VM instead:${f_nc}  ${f_bold}gisnix $1-vm${f_nc}" >&2
     exit 0
   fi
 }
@@ -155,7 +155,7 @@ f_require_deployable() { # <host>
 f_require_reachable() { # <host>
   f_reach "$1" > /dev/null 2>&1 && return 0
   f_die "cannot reach $1 over SSH.
-  Where is it?  kz check $1
+  Where is it?  gisnix check $1
   A host with no lanAddress in hosts/fleet.nix is only reachable once it is on
   the overlay network."
 }

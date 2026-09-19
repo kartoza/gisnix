@@ -1,6 +1,6 @@
 """Add and remove packages in a `software/**/*.nix` module, and make bundles.
 
-This is the dangerous half of `kz configure`. Editing `hosts/<name>/config.nix`
+This is the dangerous half of `gisnix configure`. Editing `hosts/<name>/config.nix`
 changes one machine; editing a module under `software/` changes **every host
 whose bundles include it**, which today can be nine at once. So the rules are
 stricter than they are for a host file:
@@ -207,7 +207,7 @@ def required_package(module: Path, package: str) -> tuple[str, bool] | None:
     (`programs.<x>.enable`, `programs.<x>.apps.<id>.enable`) or, absent
     one, the bundle itself. Callers must not render this the same as
     `hard=True` — a package a host's config already keeps off by default
-    is not "required" merely because kz configure cannot delete its
+    is not "required" merely because gisnix configure cannot delete its
     source line.
     """
     bundle = bundle_for(module)
@@ -382,7 +382,7 @@ def apply(module: Path, text: str, expected: set[str]) -> None:
     problems = verify(module, text, expected)
     if problems:
         raise Refused("the result does not say what was asked: " + "; ".join(problems))
-    tmp = module.with_suffix(module.suffix + ".kz-new")
+    tmp = module.with_suffix(module.suffix + ".gisnix-new")
     tmp.write_text(text)
     tmp.replace(module)
     I.packages_in.cache_clear()

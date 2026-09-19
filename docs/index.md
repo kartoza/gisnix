@@ -28,15 +28,15 @@ gisnix is a NixOS flake plus a Kartoza-branded, Textual-based installer you
 boot from USB. It gives you:
 
 - A **bundle registry** — package sets under `software/`, each a
-  `bundle.json` plus its NixOS modules. Turn them on or off with `kz
+  `bundle.json` plus its NixOS modules. Turn them on or off with `gisnix
   configure`, and implications resolve automatically (asking for the QGIS
   bundle brings in the desktop it needs to display it).
 - **ZFS encryption by default** — AES-256-GCM, passphrase prompted at boot —
   or plain XFS, or multi-disk stripe/raidz/raidz2, all from one installer
   screen.
-- The **`kz` operator CLI** — one namespaced entry point
-  (`kz configure`, `kz installer`, `kz create-host`, `kz bundles`, ...)
-  driven from a single manifest, so a command is a flake app, a `kz`
+- The **`gisnix` operator CLI** — one namespaced entry point
+  (`gisnix configure`, `gisnix installer`, `gisnix create-host`, `gisnix bundles`, ...)
+  driven from a single manifest, so a command is a flake app, a `gisnix`
   subcommand, and a dev-shell binary all at once.
 - **`lib.mkHost`**, exposed so your own flake can build a host from gisnix's
   bundles/profiles/overlays while keeping only your own `hosts/<name>` and

@@ -10,8 +10,8 @@
 # Idempotent — re-run any time, and after changing .pre-commit-config.yaml.
 #
 # Usage:
-#   kz hooks            # install
-#   kz hooks --all   # install, then sweep every file in the repo
+#   gisnix hooks            # install
+#   gisnix hooks --all   # install, then sweep every file in the repo
 set -uo pipefail
 
 CYAN=$'\033[38;2;74;170;160m'
@@ -49,8 +49,8 @@ fi
 
 echo "${BOLD}Next:${NC}"
 echo "  ${GREEN}•${NC} hooks now run on every ${BOLD}git commit${NC}"
-echo "  ${GREEN}•${NC} sweep the whole repo:      ${BOLD}kz hooks --all${NC}"
+echo "  ${GREEN}•${NC} sweep the whole repo:      ${BOLD}gisnix hooks --all${NC}"
 echo "  ${GREEN}•${NC} one hook only:             ${BOLD}pre-commit run <id>${NC}"
-echo "  ${GREEN}•${NC} full static analysis:      ${BOLD}kz lint${NC}"
+echo "  ${GREEN}•${NC} full static analysis:      ${BOLD}gisnix lint${NC}"
 echo
 echo "${YELLOW}  Do not use --no-verify: the hooks include the secret scan.${NC}"

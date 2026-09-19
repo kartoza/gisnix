@@ -5,7 +5,7 @@
 # kernel/ZFS pair broken at evaluation, so this arrangement cannot produce a
 # machine that boots but cannot import its pool.
 #
-# The file exists so the choice has two visible sides in `kz configure`.
+# The file exists so the choice has two visible sides in `gisnix configure`.
 # "Leave the option unset" is not something anyone can see in a menu.
 { ... }:
 {

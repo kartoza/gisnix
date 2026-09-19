@@ -2,10 +2,10 @@
 #
 # power — why is this machine hot, and what is it spending watts on?
 #
-#   kz power              # profile now
-#   kz power --seconds 5  # sample the processor for longer
-#   kz power --watch      # refresh until interrupted
-#   kz power --json       # machine-readable, for graphing over time
+#   gisnix power              # profile now
+#   gisnix power --seconds 5  # sample the processor for longer
+#   gisnix power --watch      # refresh until interrupted
+#   gisnix power --json       # machine-readable, for graphing over time
 #
 # Read-only. It reads sysfs and /proc, samples briefly, and reports
 # temperatures, clocks, power draw and what is running — then says which of

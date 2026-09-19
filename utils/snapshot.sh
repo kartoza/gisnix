@@ -7,13 +7,13 @@
 # This is for the other case: you are about to do something you might want to
 # undo, and you want a snapshot you named and can find.
 #
-#   kz snapshot                        # this machine, all sanoid-managed datasets
-#   kz snapshot waterfall              # a remote host
-#   kz snapshot -- --label before-upgrade
-#   kz snapshot -- --dataset rpool/home
+#   gisnix snapshot                        # this machine, all sanoid-managed datasets
+#   gisnix snapshot waterfall              # a remote host
+#   gisnix snapshot -- --label before-upgrade
+#   gisnix snapshot -- --dataset rpool/home
 #
 # Snapshots are cheap and additive; nothing is destroyed here. They do consume
-# space as the live data diverges, so `kz cleanup-orphans` exists for the
+# space as the live data diverges, so `gisnix cleanup-orphans` exists for the
 # tidying-up side.
 set -uo pipefail
 

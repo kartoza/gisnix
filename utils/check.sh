@@ -8,8 +8,8 @@
 # tailnet addresses, its pool names and its unlock port. All of that now comes
 # from hosts/fleet.nix, so this answers the same questions for any host.
 #
-#   kz check                # this machine
-#   kz check waterfall
+#   gisnix check                # this machine
+#   gisnix check waterfall
 #
 # The interesting case is a host that pings but has no SSH: on a machine with
 # an encrypted root that usually means it is sitting at the initrd unlock
@@ -50,7 +50,7 @@ if [ "$HOST" = "$SELF" ]; then
   # Same payload either way — locally it is just fed to a local bash.
   probe() { bash -s; }
 elif [ "$DEPLOY" = "none" ]; then
-  echo "  ${f_dim}not deployed — run it as a VM:  kz ${HOST}-vm${f_nc}"
+  echo "  ${f_dim}not deployed — run it as a VM:  gisnix ${HOST}-vm${f_nc}"
   exit 0
 else
   TARGET="$(f_reach "$HOST" 2> /dev/null)" || TARGET=""
@@ -62,7 +62,7 @@ else
     # each is completely different.
     if [ -n "$PORT" ] && [ -n "$ADDR" ] && f_port_open "$ADDR" "$PORT"; then
       echo "  ${f_yellow}AT THE UNLOCK PROMPT${f_nc}  ${f_dim}cold boot, waiting for the pool passphrase${f_nc}"
-      echo "    ${f_bold}kz unlock ${HOST}${f_nc}"
+      echo "    ${f_bold}gisnix unlock ${HOST}${f_nc}"
       exit 0
     fi
     if [ -n "$ADDR" ] && ping -c1 -W2 "$ADDR" > /dev/null 2>&1; then
@@ -71,7 +71,7 @@ else
     fi
     echo "  ${f_red}DOWN${f_nc}  ${f_dim}no answer — suspended, powered off, or you are off its network${f_nc}"
     if [ -n "$(f_field "$HOST" macAddress '')" ]; then
-      echo "    ${f_bold}kz wake ${HOST}${f_nc}   ${f_dim}(from the same LAN)${f_nc}"
+      echo "    ${f_bold}gisnix wake ${HOST}${f_nc}   ${f_dim}(from the same LAN)${f_nc}"
     fi
     exit 1
   fi
@@ -109,4 +109,4 @@ df -h --output=target,pcent,avail / /home 2>/dev/null | sed 's/^/    /'
 REMOTE
 
 echo "${f_dim}──────────────────────────────────────────────────────────────${f_nc}"
-echo "${f_dim}  whole fleet:  kz inventory   ·   push config:  kz update ${HOST}${f_nc}"
+echo "${f_dim}  whole fleet:  gisnix inventory   ·   push config:  gisnix update ${HOST}${f_nc}"

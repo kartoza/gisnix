@@ -6,12 +6,12 @@
 # secrets/secrets.nix and the age recipients on each file, so you can answer
 # "can this host read that secret?" without reaching for a passphrase.
 #
-#   kz secrets            (or: kz secrets)
-#   kz secrets --recipients      show every recipient key in full
+#   gisnix secrets            (or: gisnix secrets)
+#   gisnix secrets --recipients      show every recipient key in full
 #
 # agenix encrypts each .age file to a list of public keys declared in
 # secrets/secrets.nix. Adding a host or a person means adding their key there
-# and re-encrypting — `kz provision-secrets` does that part.
+# and re-encrypting — `gisnix provision-secrets` does that part.
 set -uo pipefail
 
 GREEN=$'\033[38;2;88;150;50m'
@@ -120,6 +120,6 @@ fi
 
 echo
 echo "${DIM}──────────────────────────────────────────────────────────────────────${NC}"
-echo "${BLUE}💁${NC}  full recipient keys: ${BOLD}kz secrets --recipients${NC}"
+echo "${BLUE}💁${NC}  full recipient keys: ${BOLD}gisnix secrets --recipients${NC}"
 echo "${DIM}    edit a secret:       agenix -e secrets/<name>.age${NC}"
 echo "${DIM}    re-key after a change to secrets.nix:  agenix -r${NC}"

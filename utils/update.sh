@@ -15,18 +15,18 @@
 #           flake's inputs themselves.
 #   rsync   copy the working tree over, then build there with --target-host.
 #           For hosts whose nix store cannot reach our inputs at all.
-#   none    not deployed — use `kz <host>-vm` instead.
+#   none    not deployed — use `gisnix <host>-vm` instead.
 #
 # Usage:
-#   kz update                  # this machine
-#   kz update abyss waterfall  # named hosts
-#   kz update --all         # every deployable host
-#   kz update --check       # dry-activate; changes nothing
-#   kz update --boot        # apply on next boot, not now
-#   kz update --no-gc       # skip the cleanup prompt (local only)
+#   gisnix update                  # this machine
+#   gisnix update abyss waterfall  # named hosts
+#   gisnix update --all         # every deployable host
+#   gisnix update --check       # dry-activate; changes nothing
+#   gisnix update --boot        # apply on next boot, not now
+#   gisnix update --no-gc       # skip the cleanup prompt (local only)
 #
 # The remote paths need your key in ssh-agent and the target reachable —
-# `kz inventory` will tell you which hosts are answering.
+# `gisnix inventory` will tell you which hosts are answering.
 set -uo pipefail
 
 RED=$'\033[0;31m'
@@ -276,7 +276,7 @@ deploy_rsync() { # $1=host
   # NOT derived from BASH_SOURCE. This script is baked into a
   # writeShellApplication, so at runtime BASH_SOURCE[0] is
   # /nix/store/...-update/bin/update and its parent is the DERIVATION — which
-  # is what got rsync'd over a target's checkout. `kz` cds to the repo root
+  # is what got rsync'd over a target's checkout. `gisnix` cds to the repo root
   # before dispatching, so the working tree is simply where we are.
   repo="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 
@@ -315,7 +315,7 @@ for host in "${TARGETS[@]}"; do
   method="$(host_field "$host" deploy ssh)"
 
   # Being ON the machine beats whatever fleet.nix says about reaching it.
-  # atoll is registered as deploy = "rsync", so running `kz update` while
+  # atoll is registered as deploy = "rsync", so running `gisnix update` while
   # sitting at atoll rsync'd the tree to atoll over the VPN and then built it
   # there over SSH — the machine copying to itself, as timlinux, needing a
   # host key for its own address. `deploy` describes how to reach a host from
@@ -331,7 +331,7 @@ for host in "${TARGETS[@]}"; do
     rsync) deploy_rsync "$host" || failed+=("$host") ;;
     none)
       warn "$host is not deployed (deploy = \"none\") — run it as a VM instead:"
-      cmd "kz ${host}-vm"
+      cmd "gisnix ${host}-vm"
       ;;
     *)
       err "$host has an unknown deploy method '${method}' in hosts/fleet.nix"

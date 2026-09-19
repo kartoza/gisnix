@@ -209,7 +209,7 @@ def render(catalogue: dict[str, dict[str, Any]], hosts: list[str]) -> str:
 
 #: The same data the page renders, in a form a program can read.
 #:
-#: `kz configure`'s bottom pane shows a package's description as the cursor
+#: `gisnix configure`'s bottom pane shows a package's description as the cursor
 #: moves over it, which means a lookup in milliseconds. The authoritative
 #: answer is nixpkgs metadata, and getting it is the `nix eval` over every
 #: host that this script spends minutes on — so the TUI reads what this run

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""`kz configure` — turn a host's software bundles on and off.
+"""`gisnix configure` — turn a host's software bundles on and off.
 
 The list you tick comes from the bundle registry (`software/**/bundle.json`),
 not from whatever the host's `config.nix` happens to mention today. That is
@@ -160,7 +160,7 @@ def label_for(bundle: dict, width: int) -> str:
 
     So the summary is cut at its first comma, marked with an ellipsis like
     any other truncation. The full description is a line away in the state
-    listing printed just above, and in `kz bundles <name>`.
+    listing printed just above, and in `gisnix bundles <name>`.
     """
     name = _name_cell(bundle)
     column = name_column()
@@ -193,7 +193,7 @@ def name_from_label(label: str, known: set[str]) -> str | None:
 def this_machine() -> str | None:
     """This host's name, if it is one of the fleet's.
 
-    `hostname -s`, the way `kz update` resolves it — the short name, because
+    `hostname -s`, the way `gisnix update` resolves it — the short name, because
     a machine reporting an FQDN would otherwise never match a directory under
     hosts/.
     """
@@ -230,7 +230,7 @@ def two_pane_chooser(host: str, current: set[str], choices: dict[str, str]):
     """The Textual chooser: bundles on the left, what they install on the right.
 
     Returns the new selection, None if cancelled, or UNAVAILABLE if Textual is
-    not importable or refuses to start. `kz configure` declares Textual through
+    not importable or refuses to start. `gisnix configure` declares Textual through
     the flake so it is always there, but running this file straight out of a
     checkout on a machine without it should degrade to the single-column gum
     picker rather than fail — the guarantees about what gets written live in
@@ -465,7 +465,7 @@ def report_opt_ins(after: set[str], brought: dict[str, str]) -> None:
         say(f"    {YELLOW}○{NC} {child} {DIM}(inside {parent}){NC}")
         for line in textwrap.wrap(reason, width=min(66, max(40, columns() - 12))):
             say(f"      {DIM}{line}{NC}")
-    say(f"    {DIM}add one by name: kz configure <host> --enable <bundle>{NC}")
+    say(f"    {DIM}add one by name: gisnix configure <host> --enable <bundle>{NC}")
 
 
 def report_implications(after: set[str]) -> None:
@@ -531,7 +531,7 @@ def parses(text: str) -> tuple[bool, str]:
     """Does this actually evaluate as Nix?
 
     Printing Nix that looks plausible is not evidence that it is valid —
-    `kz create-host` learned that on its first real run. `nix-instantiate
+    `gisnix create-host` learned that on its first real run. `nix-instantiate
     --parse` is a syntax check only: it reads the file and builds no store
     paths, so it is cheap and cannot touch the system.
     """
@@ -708,29 +708,29 @@ def parse_names(value: str | None) -> set[str]:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="kz configure",
+        prog="gisnix configure",
         description="Turn a host's software bundles on and off.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 examples:
-  kz configure                          this machine, then tick the bundles
-  kz configure atoll                    straight to atoll's bundles
-  kz configure atoll --list             show what it takes, change nothing
-  kz configure atoll --enable desktop-gis
-  kz configure atoll --disable terminal-ai,desktop-games
-  kz configure atoll --set base,desktop-browsers --locale za-en
-  kz configure atoll --kernel 7.2       run kernel 7.2, as abyss does
-  kz configure atoll --enable security --dry-run
+  gisnix configure                          this machine, then tick the bundles
+  gisnix configure atoll                    straight to atoll's bundles
+  gisnix configure atoll --list             show what it takes, change nothing
+  gisnix configure atoll --enable desktop-gis
+  gisnix configure atoll --disable terminal-ai,desktop-games
+  gisnix configure atoll --set base,desktop-browsers --locale za-en
+  gisnix configure atoll --kernel 7.2       run kernel 7.2, as abyss does
+  gisnix configure atoll --enable security --dry-run
 
 The bundle list always comes from software/**/bundle.json, so it is complete
-whatever the host's config.nix currently mentions. See `kz bundles` for what
+whatever the host's config.nix currently mentions. See `gisnix bundles` for what
 each one holds.
 """,
     )
     parser.add_argument(
         "host",
         nargs="?",
-        help="which host. Defaults to this machine, as `kz update` does; "
+        help="which host. Defaults to this machine, as `gisnix update` does; "
         "asked for only when this machine is not one of them",
     )
     parser.add_argument("-l", "--list", action="store_true", help="show state and exit")
@@ -791,7 +791,7 @@ def main(argv: list[str]) -> int:
 
     host = args.host
     if host is None:
-        # Same rule as `kz update`: no host means this machine. Picking your
+        # Same rule as `gisnix update`: no host means this machine. Picking your
         # own laptop out of a list of nine, every time, is a question with a
         # known answer.
         host = this_machine()
@@ -804,7 +804,7 @@ def main(argv: list[str]) -> int:
             )
         else:
             # Not a fleet machine, but there is a terminal — ask rather than
-            # refuse, which is the one place this differs from `kz update`.
+            # refuse, which is the one place this differs from `gisnix update`.
             host = choose_host(None)
     if host not in H.hosts():
         die(f"no hosts/{host}/config.nix — known hosts: {', '.join(H.hosts())}")
@@ -1087,7 +1087,7 @@ def main(argv: list[str]) -> int:
     say(f"  {DIM}the previous version is in git — `git diff` to review, "
         f"`git checkout` to undo{NC}")
     say()
-    say(f"  {BLUE}💁{NC}  apply it: {BOLD}kz update {host}{NC}")
+    say(f"  {BLUE}💁{NC}  apply it: {BOLD}gisnix update {host}{NC}")
     say(f"  {DIM}    one bundle at a time is the safe way to add several: a build "
         f"that fails then names its own cause.{NC}")
     say()

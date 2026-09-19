@@ -2,7 +2,7 @@
 # recommended default. Passphrase-encrypted (aes-256-gcm, prompted at
 # boot), so the disk is unreadable without it. Mirrors the dataset
 # layout every ZFS host in the wild already uses: root/nix/home/overflow
-# datasets plus an XFS zvol for shell history, so `kz configure`/`kz
+# datasets plus an XFS zvol for shell history, so `gisnix configure`/`gisnix
 # update` behave identically to a hand-installed host.
 #
 #   disk = mkZfsEncryptedSingle { device = "/dev/sda"; }

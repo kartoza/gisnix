@@ -22,7 +22,7 @@ class DoneScreen(Screen):
                 f"2. If you chose ZFS encryption, enter the passphrase at the prompt.\n"
                 f"3. Log in as {state.username}.\n\n"
                 f"~/nixos-config is the single source of truth from here — "
-                f"kz configure, kz update, kz bundles all work exactly as on any "
+                f"gisnix configure, gisnix update, gisnix bundles all work exactly as on any "
                 f"other gisnix machine."
             )
             with Container(id="done-buttons"):

@@ -37,7 +37,7 @@ Every bundle is a directory under `software/` with a `bundle.json`
 (name, path, description, `implies`, `modules`) beside the NixOS modules it
 describes. `profiles/bundles.nix` reads a host's `config.nix` `bundles`
 list, resolves implications transitively, and turns the result into module
-imports. Nothing here is fleet-specific — the whole registry, and the `kz`
+imports. Nothing here is fleet-specific — the whole registry, and the `gisnix`
 tooling that reads it (`utils/lib/hostconfig.py`, `bundleinfo.py`,
 `configure_tui.py`), is exactly the same code used by nix-config's own
 fleet, one layer up.
@@ -56,14 +56,14 @@ import (gisnixRoot + "/templates/disko/zfs-encrypted-single.nix") { device = "/d
 even though its body is just an `import` call — see
 `hosts/example/disks.nix` for the exact shape.
 
-## The `kz` command manifest
+## The `gisnix` command manifest
 
 Every operator-facing tool is a row in `utils/commands.json` plus a
 `utils/<name>.sh` wrapper. `mkCommandDrv` in `flake.nix` turns one row into
-three surfaces: a `nix run .#<name>` app, a `kz <name>` subcommand (via
+three surfaces: a `nix run .#<name>` app, a `gisnix <name>` subcommand (via
 `kzDispatcher`), and a dev-shell binary — one script, one dependency list,
 no duplication. See the [command reference](../references/commands.md) for
 every command that exists today, and
-[the kz command pattern](../developer/installer.md#why-a-kz-command) for
+[the gisnix command pattern](../developer/installer.md#why-a-gisnix-command) for
 why the installer itself is wired this way rather than as a bespoke flake
 app.

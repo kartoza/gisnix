@@ -1,21 +1,22 @@
 {
   inputs,
   pkgs,
-  # The `kz` dispatcher, built from utils/commands.json by flake.nix. Only
-  # this goes on PATH — not the individual commands.
+  # The `gisnix` dispatcher, built from utils/commands.json by flake.nix.
+  # Only this goes on PATH — not the individual commands.
   #
-  # An earlier version put all 25 on PATH directly, which was worse than it
-  # looked: `update`, `check`, `test`, `env` and `release` are names the base
-  # system already claims, so a bare `update` either shadowed something else
-  # or was shadowed by it, silently. `kz update` can only mean ours.
-  kzDispatcher ? null,
+  # An earlier version put all commands on PATH directly, which was worse
+  # than it looked: `update`, `check`, `test` and `env` are names the base
+  # system already claims, so a bare `update` either shadowed something
+  # else or was shadowed by it, silently. `gisnix update` can only mean
+  # ours.
+  gisnixDispatcher ? null,
   # Kept so `nix build` and friends can still reach the individual command
   # derivations; not placed on PATH.
   commandPackages ? [ ],
   ...
 }:
 pkgs.mkShell {
-  packages = pkgs.lib.optional (kzDispatcher != null) kzDispatcher ++ [
+  packages = pkgs.lib.optional (gisnixDispatcher != null) gisnixDispatcher ++ [
     # bashInteractive shadows the stdenv's minimal (readline-less) bash on
     # PATH. Without this, typing `bash` inside `nix develop` gives a shell
     # with no line editing, which renders starship's \[ \] prompt markers
@@ -82,7 +83,7 @@ pkgs.mkShell {
   ];
 
   shellHook = ''
-    # Repo root, so `kz` and the banner find utils/ from any subdirectory.
+    # Repo root, so `gisnix` and the banner find utils/ from any subdirectory.
     export NIX_CONFIG_ROOT="$PWD"
 
     # Point glibc at a locale archive so en_GB.UTF-8 (and friends) resolve

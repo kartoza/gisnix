@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Prove that `kz configure` cannot damage a host's config.nix.
+"""Prove that `gisnix configure` cannot damage a host's config.nix.
 
 This tool rewrites files that decide whether a machine boots. "It looked
-right when I ran it" is not evidence — `kz create-host` shipped a generator
+right when I ran it" is not evidence — `gisnix create-host` shipped a generator
 that produced perfectly readable Nix with an unbalanced brace, and nobody saw
 it by eye. So the editor is checked the same way: against every real host in
 the repo, plus the awkward shapes that do not exist here yet but will.
@@ -54,7 +54,7 @@ def check(condition: bool, message: str) -> bool:
 
 
 def scratch(text: str) -> Path:
-    path = Path(tempfile.mkdtemp(prefix="kz-hostconfig-")) / "config.nix"
+    path = Path(tempfile.mkdtemp(prefix="gisnix-hostconfig-")) / "config.nix"
     path.write_text(text)
     return path
 
@@ -286,9 +286,9 @@ def check_kernel_round_trip() -> None:
 
 
 def check_generated_host_is_already_canonical() -> None:
-    """`kz create-host` and `kz configure` must agree on the shape of a file.
+    """`gisnix create-host` and `gisnix configure` must agree on the shape of a file.
 
-    They share a renderer precisely so that the first `kz configure` on a
+    They share a renderer precisely so that the first `gisnix configure` on a
     freshly created host is a one-line diff rather than a wholesale reformat.
     If that ever stops being true, the two have grown separate opinions.
     """
@@ -311,7 +311,7 @@ def check_generated_host_is_already_canonical() -> None:
     again = H.render(config, config.enabled, locale=config.locale)
     check(
         again == generated.stdout,
-        "generated host: kz configure would reformat a file kz create-host just wrote",
+        "generated host: gisnix configure would reformat a file gisnix create-host just wrote",
     )
     valid, error = parses(generated.stdout)
     check(valid, f"generated host: does not parse — {error}")
@@ -774,8 +774,8 @@ def check_module_editor() -> None:
     # to mean "insert the first one" rather than a refusal.
     made = None
     try:
-        made = M.create_bundle("desktop/kz-selftest", "Scratch bundle for the test suite.")
-        module = made / "kz-selftest.nix"
+        made = M.create_bundle("desktop/gisnix-selftest", "Scratch bundle for the test suite.")
+        module = made / "gisnix-selftest.nix"
         text = M.add(module, "ardour")
         module.write_text(text)
         text = M.add(module, "carla")
@@ -784,16 +784,16 @@ def check_module_editor() -> None:
             M.verify(module, text, {"ardour", "carla"}) == [],
             "module editor: adding to an empty list did not read back",
         )
-        nested = M.create_bundle("desktop/kz-selftest/deep", "Nested scratch bundle.")
+        nested = M.create_bundle("desktop/gisnix-selftest/deep", "Nested scratch bundle.")
         import json as _json
 
         implies = _json.loads((nested / "bundle.json").read_text())["implies"]
         check(
-            "desktop-kz-selftest" in implies,
+            "desktop-gisnix-selftest" in implies,
             f"module editor: a nested bundle does not imply its parent — {implies}",
         )
         try:
-            M.create_bundle("desktop/kz-selftest", "again")
+            M.create_bundle("desktop/gisnix-selftest", "again")
             check(False, "module editor: re-created a bundle that already exists")
         except M.Refused:
             pass
@@ -930,7 +930,7 @@ def check_evaluation_guard() -> None:
 
 
 def check_default_host() -> None:
-    """No host named means this machine, the way `kz update` resolves it."""
+    """No host named means this machine, the way `gisnix update` resolves it."""
     sys.path.insert(0, str(ROOT / "utils"))
     import configure as C
 

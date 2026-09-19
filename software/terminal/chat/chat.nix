@@ -13,8 +13,8 @@
 # version of this file used. That version installed all four
 # unconditionally regardless of any option (fixed by gating on options
 # at all), then defaulted enableAll to false too (fixed here): the
-# result was a bundle that, taken through kz configure exactly as
-# intended, installed nothing — kz configure adds bundles, it does not
+# result was a bundle that, taken through gisnix configure exactly as
+# intended, installed nothing — gisnix configure adds bundles, it does not
 # reach into a module's own options, so there was no second step it
 # could have walked anyone through. Once terminal-chat became its own
 # deliberately-selectable bundle (a host has to name it on purpose),
@@ -31,7 +31,7 @@
 # `config` below spells out one `lib.optionals cond [ pkgs.foo ]` per app,
 # each package written as its own bracketed literal, rather than the
 # shorter `lib.concatMap (appDef: appDef.packages) (lib.attrValues
-# enabledApps)` an attrset-driven version would use. `kz configure`'s
+# enabledApps)` an attrset-driven version would use. `gisnix configure`'s
 # package pane (utils/lib/bundleinfo.py:packages_in) reads modules by
 # TEXT, not evaluation — it looks for a literal `[ … ]` sitting directly
 # in an `environment.systemPackages = …` statement, so a dynamically
@@ -51,7 +51,7 @@ let
   # Descriptions only, for the mkEnableOption text — the packages
   # themselves are NOT looked up through this attrset (see the config
   # block: each app's bracket is written out literally there instead,
-  # for kz configure's sake).
+  # for gisnix configure's sake).
   apps = {
     discourse-tui.description = "Browse/reply to Discourse forums";
     tut.description = "Mastodon TUI, vim-style keys";

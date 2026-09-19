@@ -8,7 +8,7 @@
 #
 # WHY PROBE AT ALL
 #
-# `kz create-host` migrates a machine someone installed themselves into this
+# `gisnix create-host` migrates a machine someone installed themselves into this
 # flake. The facts that make a host bootable — the ZFS hostId, which pool the
 # root lives on, the ESP's UUID, whether the pool is encrypted — exist only on
 # that machine. Getting one wrong does not produce a build error; it produces

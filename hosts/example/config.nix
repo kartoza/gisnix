@@ -2,7 +2,7 @@
   # Example host — installed by default with the minimal base system plus a
   # minimal COSMIC desktop (base, desktop-environments-cosmic,
   # desktop-browsers, services-system). Copy this directory as the starting
-  # point for your own host: `kz create-host <name>` does this for you.
+  # point for your own host: `gisnix create-host <name>` does this for you.
   #
   # Per-host settings consumed via the `hostConfig` specialArg (see mkHost in
   # flake.nix). Nothing host-specific is needed here yet — the FQDN comes from
@@ -10,12 +10,12 @@
 
   # Software bundles — the package sets this machine installs. A bundle is a
   # directory under software/; see docs/references/bundles.md, or
-  # `kz bundles`, for what each one holds. Implications resolve
+  # `gisnix bundles`, for what each one holds. Implications resolve
   # automatically, so asking for desktop-gis brings in the COSMIC desktop it
   # needs to display QGIS.
   #
   # Every bundle is listed. Uncomment a line to take it, comment it out to
-  # drop it, or run `kz configure` and tick the boxes.
+  # drop it, or run `gisnix configure` and tick the boxes.
   bundles = [
     # ── Base ──────────────────────────────────────────────────────────────
     # Everything a machine needs to be a usable machine: ZFS root and its
@@ -23,7 +23,7 @@
     # shell, the terminal emulator and the core command-line tools. A host
     # taking only this is minimal but not crippled.
     #
-    # Required: `kz configure` will not remove this from a host that has it
+    # Required: `gisnix configure` will not remove this from a host that has it
     # — this is the ZFS root and its bootloader. Removing it does not make
     # the machine smaller, it makes it unbootable.
     "base"
@@ -76,10 +76,10 @@
     # branch, and the LTR branch — for testing in-progress bug fixes before
     # they ship. Opt-in: hours of build time on top of the binary channels.
     #
-    # Opt-in: never added by `kz configure` when you take the group above —
+    # Opt-in: never added by `gisnix configure` when you take the group above —
     # hours of build time; the binary channels already cover normal use.
     #
-    # Opt-in: never added by `kz configure` when you take the group above —
+    # Opt-in: never added by `gisnix configure` when you take the group above —
     # hours of build time; the binary channels already cover normal use.
     # QGIS compiled from source or git. Opt-in: hours of build time for the
     # same application, when the binary channels are preferred.
@@ -89,7 +89,7 @@
     # vintage Qt4/Python2 build with no extra python packages; may no longer
     # evaluate or have every binary cached.
     #
-    # Opt-in: never added by `kz configure` when you take the group above —
+    # Opt-in: never added by `gisnix configure` when you take the group above —
     # a frozen historical QGIS; take it only when a project needs this exact
     # series.
     # "desktop-gis-versions-qgis-1-8"
@@ -98,7 +98,7 @@
     # vintage Qt4/Python2 build with no extra python packages; may no longer
     # evaluate or have every binary cached.
     #
-    # Opt-in: never added by `kz configure` when you take the group above —
+    # Opt-in: never added by `gisnix configure` when you take the group above —
     # a frozen historical QGIS; take it only when a project needs this exact
     # series.
     # "desktop-gis-versions-qgis-2-10"
@@ -107,7 +107,7 @@
     # vintage Qt4/Python2 build with no extra python packages; may no longer
     # evaluate or have every binary cached.
     #
-    # Opt-in: never added by `kz configure` when you take the group above —
+    # Opt-in: never added by `gisnix configure` when you take the group above —
     # a frozen historical QGIS; take it only when a project needs this exact
     # series.
     # "desktop-gis-versions-qgis-2-16"
@@ -116,7 +116,7 @@
     # vintage Qt4/Python2 build with no extra python packages; may no longer
     # evaluate or have every binary cached.
     #
-    # Opt-in: never added by `kz configure` when you take the group above —
+    # Opt-in: never added by `gisnix configure` when you take the group above —
     # a frozen historical QGIS; take it only when a project needs this exact
     # series.
     # "desktop-gis-versions-qgis-2-18"
@@ -125,7 +125,7 @@
     # vintage Qt4/Python2 build with no extra python packages; may no longer
     # evaluate or have every binary cached.
     #
-    # Opt-in: never added by `kz configure` when you take the group above —
+    # Opt-in: never added by `gisnix configure` when you take the group above —
     # a frozen historical QGIS; take it only when a project needs this exact
     # series.
     # "desktop-gis-versions-qgis-2-4"
@@ -134,7 +134,7 @@
     # vintage Qt4/Python2 build with no extra python packages; may no longer
     # evaluate or have every binary cached.
     #
-    # Opt-in: never added by `kz configure` when you take the group above —
+    # Opt-in: never added by `gisnix configure` when you take the group above —
     # a frozen historical QGIS; take it only when a project needs this exact
     # series.
     # "desktop-gis-versions-qgis-2-6"
@@ -143,7 +143,7 @@
     # vintage Qt4/Python2 build with no extra python packages; may no longer
     # evaluate or have every binary cached.
     #
-    # Opt-in: never added by `kz configure` when you take the group above —
+    # Opt-in: never added by `gisnix configure` when you take the group above —
     # a frozen historical QGIS; take it only when a project needs this exact
     # series.
     # "desktop-gis-versions-qgis-2-8"
@@ -152,7 +152,7 @@
     # installed with the standard python packages from its own pinned
     # nixpkgs — pure binary-cache hits, no source builds.
     #
-    # Opt-in: never added by `kz configure` when you take the group above —
+    # Opt-in: never added by `gisnix configure` when you take the group above —
     # a frozen historical QGIS; take it only when a project needs this exact
     # series.
     # "desktop-gis-versions-qgis-3-10"
@@ -161,7 +161,7 @@
     # installed with the standard python packages from its own pinned
     # nixpkgs — pure binary-cache hits, no source builds.
     #
-    # Opt-in: never added by `kz configure` when you take the group above —
+    # Opt-in: never added by `gisnix configure` when you take the group above —
     # a frozen historical QGIS; take it only when a project needs this exact
     # series.
     # "desktop-gis-versions-qgis-3-16"
@@ -170,7 +170,7 @@
     # installed with the standard python packages from its own pinned
     # nixpkgs — pure binary-cache hits, no source builds.
     #
-    # Opt-in: never added by `kz configure` when you take the group above —
+    # Opt-in: never added by `gisnix configure` when you take the group above —
     # a frozen historical QGIS; take it only when a project needs this exact
     # series.
     # "desktop-gis-versions-qgis-3-22"
@@ -179,7 +179,7 @@
     # installed with the standard python packages from its own pinned
     # nixpkgs — pure binary-cache hits, no source builds.
     #
-    # Opt-in: never added by `kz configure` when you take the group above —
+    # Opt-in: never added by `gisnix configure` when you take the group above —
     # a frozen historical QGIS; take it only when a project needs this exact
     # series.
     # "desktop-gis-versions-qgis-3-24"
@@ -188,7 +188,7 @@
     # installed with the standard python packages from its own pinned
     # nixpkgs — pure binary-cache hits, no source builds.
     #
-    # Opt-in: never added by `kz configure` when you take the group above —
+    # Opt-in: never added by `gisnix configure` when you take the group above —
     # a frozen historical QGIS; take it only when a project needs this exact
     # series.
     # "desktop-gis-versions-qgis-3-26"
@@ -197,7 +197,7 @@
     # installed with the standard python packages from its own pinned
     # nixpkgs — pure binary-cache hits, no source builds.
     #
-    # Opt-in: never added by `kz configure` when you take the group above —
+    # Opt-in: never added by `gisnix configure` when you take the group above —
     # a frozen historical QGIS; take it only when a project needs this exact
     # series.
     # "desktop-gis-versions-qgis-3-28"
@@ -206,7 +206,7 @@
     # installed with the standard python packages from its own pinned
     # nixpkgs — pure binary-cache hits, no source builds.
     #
-    # Opt-in: never added by `kz configure` when you take the group above —
+    # Opt-in: never added by `gisnix configure` when you take the group above —
     # a frozen historical QGIS; take it only when a project needs this exact
     # series.
     # "desktop-gis-versions-qgis-3-32"
@@ -215,7 +215,7 @@
     # installed with the standard python packages from its own pinned
     # nixpkgs — pure binary-cache hits, no source builds.
     #
-    # Opt-in: never added by `kz configure` when you take the group above —
+    # Opt-in: never added by `gisnix configure` when you take the group above —
     # a frozen historical QGIS; take it only when a project needs this exact
     # series.
     # "desktop-gis-versions-qgis-3-34"
@@ -224,7 +224,7 @@
     # installed with the standard python packages from its own pinned
     # nixpkgs — pure binary-cache hits, no source builds.
     #
-    # Opt-in: never added by `kz configure` when you take the group above —
+    # Opt-in: never added by `gisnix configure` when you take the group above —
     # a frozen historical QGIS; take it only when a project needs this exact
     # series.
     # "desktop-gis-versions-qgis-3-36"
@@ -233,7 +233,7 @@
     # installed with the standard python packages from its own pinned
     # nixpkgs — pure binary-cache hits, no source builds.
     #
-    # Opt-in: never added by `kz configure` when you take the group above —
+    # Opt-in: never added by `gisnix configure` when you take the group above —
     # a frozen historical QGIS; take it only when a project needs this exact
     # series.
     # "desktop-gis-versions-qgis-3-38"
@@ -242,7 +242,7 @@
     # installed with the standard python packages from its own pinned
     # nixpkgs — pure binary-cache hits, no source builds.
     #
-    # Opt-in: never added by `kz configure` when you take the group above —
+    # Opt-in: never added by `gisnix configure` when you take the group above —
     # a frozen historical QGIS; take it only when a project needs this exact
     # series.
     # "desktop-gis-versions-qgis-3-4"
@@ -251,7 +251,7 @@
     # installed with the standard python packages from its own pinned
     # nixpkgs — pure binary-cache hits, no source builds.
     #
-    # Opt-in: never added by `kz configure` when you take the group above —
+    # Opt-in: never added by `gisnix configure` when you take the group above —
     # a frozen historical QGIS; take it only when a project needs this exact
     # series.
     # "desktop-gis-versions-qgis-3-40"
@@ -260,7 +260,7 @@
     # installed with the standard python packages from its own pinned
     # nixpkgs — pure binary-cache hits, no source builds.
     #
-    # Opt-in: never added by `kz configure` when you take the group above —
+    # Opt-in: never added by `gisnix configure` when you take the group above —
     # a frozen historical QGIS; take it only when a project needs this exact
     # series.
     # "desktop-gis-versions-qgis-3-42"
@@ -269,7 +269,7 @@
     # installed with the standard python packages from its own pinned
     # nixpkgs — pure binary-cache hits, no source builds.
     #
-    # Opt-in: never added by `kz configure` when you take the group above —
+    # Opt-in: never added by `gisnix configure` when you take the group above —
     # a frozen historical QGIS; take it only when a project needs this exact
     # series.
     # "desktop-gis-versions-qgis-3-44"
@@ -278,7 +278,7 @@
     # installed with the standard python packages from its own pinned
     # nixpkgs — pure binary-cache hits, no source builds.
     #
-    # Opt-in: never added by `kz configure` when you take the group above —
+    # Opt-in: never added by `gisnix configure` when you take the group above —
     # a frozen historical QGIS; take it only when a project needs this exact
     # series.
     # "desktop-gis-versions-qgis-3-8"
@@ -287,7 +287,7 @@
     # installed with the standard python packages from its own pinned
     # nixpkgs — pure binary-cache hits, no source builds.
     #
-    # Opt-in: never added by `kz configure` when you take the group above —
+    # Opt-in: never added by `gisnix configure` when you take the group above —
     # a frozen historical QGIS; take it only when a project needs this exact
     # series.
     # "desktop-gis-versions-qgis-4-0"
@@ -320,7 +320,7 @@
     # cosmic-ctl, the weather, sysinfo, caffeine, brightness and privacy-
     # indicator applets, and the fingerprint enrolment GUI.
     #
-    # Opt-in: never added by `kz configure` when you take the group above —
+    # Opt-in: never added by `gisnix configure` when you take the group above —
     # every one of these source builds. They are community cosmic-utils
     # packages, in neither cache.nixos.org nor cosmic.cachix.org, and
     # compiling them is what made bay's first upgrade appear to hang.
@@ -343,7 +343,7 @@
     # without the device has no use for — and biometrics can affect whether
     # you can log in, which is why this is never taken by default.
     #
-    # Opt-in: never added by `kz configure` when you take the group above —
+    # Opt-in: never added by `gisnix configure` when you take the group above —
     # biometrics can affect whether you can log in, and the rest are daemons
     # for hardware most hosts do not have.
     # "services-device-peripherals"
@@ -370,7 +370,7 @@
     # /etc/hosts, kernel hardening, sshd, the unfree allow-list, audio and
     # Flatpak.
     #
-    # Required: `kz configure` will not remove this from a host that has it
+    # Required: `gisnix configure` will not remove this from a host that has it
     # — sshd, CA trust and kernel hardening. Removing it from a machine you
     # reach over the network is how you stop being able to reach it.
     "services-system"

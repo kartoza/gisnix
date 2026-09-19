@@ -11,10 +11,10 @@
 # credentials. This repo has none — every secret is in agenix — so the only
 # thing to manage here is the mode.
 #
-#   kz env            # show the current mode and what it changes
-#   kz env dev     # switch to development
-#   kz env prod    # switch to production
-#   kz env toggle  # flip to the other one
+#   gisnix env            # show the current mode and what it changes
+#   gisnix env dev     # switch to development
+#   gisnix env prod    # switch to production
+#   gisnix env toggle  # flip to the other one
 #
 # WATCH OUT: an interactive TUI menu used to write `dev` here merely for being
 # opened. That menu has been removed, but if a host has unexpectedly relaxed
@@ -67,7 +67,7 @@ case "$WANT" in
     echo
     describe "$NOW"
     echo
-    echo "${DIM}  switch with:  kz env ${NOW/dev/prod}${NC}"
+    echo "${DIM}  switch with:  gisnix env ${NOW/dev/prod}${NC}"
     exit 0
     ;;
   -h | --help)
@@ -93,4 +93,4 @@ echo
 describe "$WANT"
 echo
 echo "${DIM}  environment.txt is tracked — commit the change if it is deliberate.${NC}"
-echo "${DIM}  apply it with:  kz update${NC}"
+echo "${DIM}  apply it with:  gisnix update${NC}"

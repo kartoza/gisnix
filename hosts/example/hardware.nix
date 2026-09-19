@@ -11,7 +11,7 @@
   # pool and every mountpoint are declared in ./disks.nix. Do NOT add
   # `fileSystems.*` entries here — disko generates them.
   #
-  # For real hardware, replace this file with the one `kz create-host`
+  # For real hardware, replace this file with the one `gisnix create-host`
   # generates from the running system (or with the module list `nixos-
   # generate-config` produces on the target machine).
   imports = [

@@ -1,10 +1,10 @@
 # The installer
 
 A Textual wizard living at `installer/` (Python), wired as the `installer`
-row in `utils/commands.json` — `kz installer`, `nix run .#installer`, and
+row in `utils/commands.json` — `gisnix installer`, `nix run .#installer`, and
 the standalone `installer` binary on the ISO's PATH are the same code, same
 as every other operator command (see
-[the kz command pattern](#why-a-kz-command) below).
+[the gisnix command pattern](#why-a-gisnix-command) below).
 
 ## Screens
 
@@ -21,11 +21,11 @@ Each screen validates its own answers into `self.app.state`
 (`installer/state.py`, one `InstallState` dataclass threaded through the
 whole wizard) before advancing.
 
-## Reusing `kz configure`'s picker
+## Reusing `gisnix configure`'s picker
 
 The `bundles` screen doesn't reimplement a software picker. It suspends the
 wizard (`with self.app.suspend():`) and calls `configure_tui.choose(...)` —
-the exact same function `kz configure` uses on an installed machine — then
+the exact same function `gisnix configure` uses on an installed machine — then
 resumes with whatever was selected. One picker, two contexts.
 
 ## Writing the new machine's files
@@ -34,7 +34,7 @@ resumes with whatever was selected. One picker, two contexts.
 hardware.nix,disks.nix,desktop.nix,services.nix}`, `users/<name>.nix`, and
 the tiny per-machine `flake.nix`. The bundle list in `config.nix` is
 rendered with `utils/lib/hostconfig.py`'s `render_block` — the same
-renderer `kz create-host` uses, so a host the installer creates and one
+renderer `gisnix create-host` uses, so a host the installer creates and one
 created by hand are byte-identical in shape.
 
 ## Running the install
@@ -68,11 +68,11 @@ screens themselves: `nix develop` then `python3 -m installer --mock` runs
 straight from the working tree, no derivation rebuild between edits
 (`textual` is in the dev shell's python for exactly this).
 
-## Why a `kz` command {#why-a-kz-command}
+## Why a `gisnix` command {#why-a-gisnix-command}
 
-Every operator-facing tool in this repo goes through the `kz` dispatcher —
+Every operator-facing tool in this repo goes through the `gisnix` dispatcher —
 one manifest row, one wrapper script, three surfaces generated from it (see
-[Architecture](architecture.md#the-kz-command-manifest)). The installer is
+[Architecture](architecture.md#the-gisnix-command-manifest)). The installer is
 built the same way rather than as a hand-rolled `writeShellApplication`
 pair: `packages.gisnix-installer` (what the ISO installs) is built from the
 *same* `commands.json` row via `mkCommandDrv`, so there's exactly one

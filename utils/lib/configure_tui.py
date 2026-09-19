@@ -1,4 +1,4 @@
-"""The three-pane bundle chooser behind `kz configure`.
+"""The three-pane bundle chooser behind `gisnix configure`.
 
     ┌──────────────────┬────────────────────────────────┐
     │ bundles          │ what this bundle installs      │
@@ -193,7 +193,7 @@ class BundleChooser(App):
         self.removed: dict[Path, set[str]] = {}
         #: What the one input box is currently for: "filter", "add", "group".
         self.mode = "filter"
-        self.title = f"kz configure — {host}"
+        self.title = f"gisnix configure — {host}"
 
     # ── layout ────────────────────────────────────────────────────────────
 
@@ -744,7 +744,7 @@ class BundleChooser(App):
             return
         try:
             directory = M.create_bundle(
-                path, description=f"TODO: describe {path}. Written by kz configure."
+                path, description=f"TODO: describe {path}. Written by gisnix configure."
             )
         except M.Refused as refused:
             self.notify(str(refused), severity="error", timeout=12)

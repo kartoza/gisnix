@@ -26,7 +26,7 @@ root, no daemon to be running. A machine missing a sensor simply reports one
 fewer line rather than failing, which is what makes this usable on a host you
 have never seen.
 
-Run from anywhere:  kz power
+Run from anywhere:  gisnix power
 """
 
 from __future__ import annotations
@@ -341,12 +341,12 @@ def _ec_advice() -> str:
         return (
             "ask the embedded controller instead of the kernel:\n"
             "    framework_tool --charge-limit          # read it\n"
-            "    kz power --full-charge                 # lift it for a trip"
+            "    gisnix power --full-charge                 # lift it for a trip"
         )
     return (
         "ask the embedded controller instead of the kernel:\n"
         f"    {name} chargecontrol\n"
-        "    kz power --full-charge                 # lift it for a trip"
+        "    gisnix power --full-charge                 # lift it for a trip"
     )
 
 
@@ -750,7 +750,7 @@ PLAUSIBLE_CEILING = (40.0, 130.0)
 #: Where the pre-low-power values are parked. /run is tmpfs BY DESIGN: a
 #: reboot loses the file, and a reboot has also already undone every write
 #: below, so the two facts stay true together. There is no state to go stale.
-RESTORE = Path("/run/kz-power-restore.json")
+RESTORE = Path("/run/gisnix-power-restore.json")
 
 
 def _write_sysfs(path: str | Path, value: str) -> bool:
@@ -833,7 +833,7 @@ def low_power(on: bool) -> int:
     """
     if on:
         if RESTORE.exists():
-            print(f"  {YELLOW}!{NC} already in low-power mode — `kz power --normal` to come back")
+            print(f"  {YELLOW}!{NC} already in low-power mode — `gisnix power --normal` to come back")
             return 0
         before = _snapshot()
         print()
@@ -891,7 +891,7 @@ def low_power(on: bool) -> int:
         print()
         print(f"  {DIM}Not touched, because only you know what is disposable:{NC}")
         print(f"  {DIM}screen brightness (the biggest single draw on a 16in panel),{NC}")
-        print(f"  {DIM}Wi-Fi/Bluetooth, and anything you have running. `kz power`{NC}")
+        print(f"  {DIM}Wi-Fi/Bluetooth, and anything you have running. `gisnix power`{NC}")
         print(f"  {DIM}lists what is costing watts.{NC}")
         return 0
 
@@ -1071,7 +1071,7 @@ def collect(seconds: float) -> dict:
 
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
-        prog="kz power",
+        prog="gisnix power",
         description="Profile this machine's heat and power, and suggest what to change.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
@@ -1085,13 +1085,13 @@ Neither stops a service, a container or a VM - what is disposable is yours
 to decide, and the report tells you what is costing watts.
 
 examples:
-  kz power                 # profile now
-  kz power --low           # travelling: turn the machine's knobs down
-  kz power --normal        # put them back
-  kz power --full-charge   # travelling tomorrow: charge to 100% this once
-  kz power --seconds 5     # sample the processor for longer
-  kz power --json          # machine-readable, for graphing over time
-  kz power --watch         # refresh until interrupted
+  gisnix power                 # profile now
+  gisnix power --low           # travelling: turn the machine's knobs down
+  gisnix power --normal        # put them back
+  gisnix power --full-charge   # travelling tomorrow: charge to 100% this once
+  gisnix power --seconds 5     # sample the processor for longer
+  gisnix power --json          # machine-readable, for graphing over time
+  gisnix power --watch         # refresh until interrupted
 """,
     )
     parser.add_argument(

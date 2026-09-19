@@ -1,4 +1,4 @@
-"""The package-selection step — the SAME bundle chooser `kz configure` uses
+"""The package-selection step — the SAME bundle chooser `gisnix configure` uses
 on an already-installed machine (utils/lib/configure_tui.py), suspended out
 of the wizard's own Textual app and back into it when the picker exits.
 One implementation, used before and after install.
@@ -26,7 +26,7 @@ class BundlesScreen(WizardScreen):
         yield Static(
             "Default selection: minimal base system + minimal COSMIC desktop.\n\n"
             "Press the button below to open the full bundle picker (same tool as "
-            "`kz configure`) — tick anything else you want, or leave the default "
+            "`gisnix configure`) — tick anything else you want, or leave the default "
             "and add more later.",
             id="bundles-summary",
         )

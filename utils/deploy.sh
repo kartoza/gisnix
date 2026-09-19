@@ -2,18 +2,18 @@
 #
 # deploy — create a Hetzner cloud server and install a host onto it.
 #
-#   kz deploy island            # create the machine, then install
-#   kz deploy island --dry-run  # show what would be created
-#   kz deploy --list            # hosts that have Hetzner parameters
+#   gisnix deploy island            # create the machine, then install
+#   gisnix deploy island --dry-run  # show what would be created
+#   gisnix deploy --list            # hosts that have Hetzner parameters
 #
 # THIS IS THE CLOUD PATH, AND IT COSTS MONEY. `hcloud server create` makes a
 # billable machine before nixos-anywhere installs onto it, using the flags in
 # hosts/<name>/server.nix.
 #
-# NOT TO BE CONFUSED WITH `kz install`
+# NOT TO BE CONFUSED WITH `gisnix install`
 #
-#   kz deploy   creates a machine that does not exist yet, at Hetzner
-#   kz install  takes over a machine that DOES exist and is booted from a
+#   gisnix deploy   creates a machine that does not exist yet, at Hetzner
+#   gisnix install  takes over a machine that DOES exist and is booted from a
 #               live USB — a laptop on the VPN, say. No cloud provider is
 #               involved and nothing is billed
 #
@@ -22,7 +22,7 @@
 #
 # This is a front door for `nix run .#<host>-deploy`, which is generated per
 # host from allHosts and so cannot be a manifest row of its own — the same
-# reason `kz vm` exists.
+# reason `gisnix vm` exists.
 set -uo pipefail
 
 REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || true)
@@ -83,7 +83,7 @@ done
 [ -f "hosts/$HOST/server.nix" ] || die "hosts/$HOST/server.nix does not exist.
     That file holds the \`hcloud server create\` flags, so a host without one
     cannot be created at Hetzner. If this is a physical machine you are
-    taking over, you want \`kz install\` instead — see
+    taking over, you want \`gisnix install\` instead — see
     docs/developer/remote-install.md.
     Hosts that can be deployed: $(deployable | tr '\n' ' ')"
 

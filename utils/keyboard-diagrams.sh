@@ -16,7 +16,7 @@
 # changing a layout and re-running this keeps the docs in step. Nothing here
 # touches a keyboard — it only reads configuration and writes SVGs.
 #
-#   kz keyboard-diagrams      (or: kz keyboard-diagrams)
+#   gisnix keyboard-diagrams      (or: gisnix keyboard-diagrams)
 #
 # The docs build runs these too; this is for when you have just changed a
 # layout and want to see the picture without building the whole site.

@@ -9,7 +9,7 @@
 # machine pings but has no real SSH, which is indistinguishable from "still
 # booting" unless you know to look — `check` reports the difference.
 #
-#   kz unlock waterfall
+#   gisnix unlock waterfall
 #
 # The initrd has no overlay networking, so this only works from the same LAN
 # segment. The port and address come from hosts/fleet.nix.
@@ -46,7 +46,7 @@ fi
 
 f_port_open "$ADDR" "$PORT" || f_die "${HOST} is not at the unlock prompt (nothing on ${ADDR}:${PORT}).
   It may be powered off, or still in early boot. Check with:
-    kz check ${HOST}"
+    gisnix check ${HOST}"
 
 echo "${f_bold}Unlocking ${HOST}${f_nc}  ${f_dim}${ADDR}:${PORT}${f_nc}"
 echo "${f_dim}The passphrase prompt comes from the host's initrd, not from here.${f_nc}"
@@ -86,4 +86,4 @@ ssh -t -p "$PORT" \
   '
 
 echo
-echo "${f_dim}Watch it finish booting with:  kz check ${HOST}${f_nc}"
+echo "${f_dim}Watch it finish booting with:  gisnix check ${HOST}${f_nc}"

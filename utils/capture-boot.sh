@@ -4,7 +4,7 @@
 #
 # Usage:
 #   1. Launch the QEMU window in another terminal:
-#        kz minimal-bootvm
+#        gisnix minimal-bootvm
 #   2. As soon as the QEMU window appears, run:
 #        bash utils/capture-boot.sh
 #      You'll be prompted (via slurp) to drag-select the QEMU window

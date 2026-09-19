@@ -21,7 +21,7 @@
   # own installer.nix did) rather than `source = ./.` for the whole
   # directory — a directory copy that isn't careful about it can drag in
   # .git/ and other cruft; naming exactly what a running install needs
-  # keeps the ISO's content deliberate. This IS gisnix on the ISO — `kz
+  # keeps the ISO's content deliberate. This IS gisnix on the ISO — `gisnix
   # installer`/`installer` (the package below, on PATH) run straight out of
   # it, and the generated per-machine flake starts by pointing its `gisnix`
   # input here (see installer/installer_run.py) rather than fetching over

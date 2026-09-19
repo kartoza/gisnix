@@ -7,11 +7,11 @@
 # heart. The host is now looked up in hosts/fleet.nix, so this works for any
 # host in the registry.
 #
-#   kz suspend             # this machine, if it is in the registry
-#   kz suspend waterfall
+#   gisnix suspend             # this machine, if it is in the registry
+#   gisnix suspend waterfall
 #
 # ZFS keys and the session survive in RAM, so resuming needs no unlock. Waking
-# needs `kz wake` from the same LAN segment — see that command for why.
+# needs `gisnix wake` from the same LAN segment — see that command for why.
 set -uo pipefail
 
 # The SC2154 disable at the top of this file is because the colour palette
@@ -31,7 +31,7 @@ f_require_deployable "$HOST"
 
 TARGET="$(f_reach "$HOST")" || f_die "cannot reach ${HOST} on SSH.
   It may already be asleep, powered off, or you may be off its network.
-  Check with:  kz check ${HOST}"
+  Check with:  gisnix check ${HOST}"
 
 echo "${f_bold}Suspending ${HOST}${f_nc}  ${f_dim}(via ${TARGET})${f_nc}"
 
@@ -49,7 +49,7 @@ fi
 MAC="$(f_field "$HOST" macAddress '')"
 echo "${f_green}✓ ${HOST} is asleep${f_nc}"
 if [ -n "$MAC" ]; then
-  echo "${f_dim}  wake it with:  kz wake ${HOST}   (same LAN only)${f_nc}"
+  echo "${f_dim}  wake it with:  gisnix wake ${HOST}   (same LAN only)${f_nc}"
 else
   echo "${f_yellow}  no macAddress in hosts/fleet.nix — this host cannot be woken remotely.${f_nc}"
 fi

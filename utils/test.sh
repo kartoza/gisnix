@@ -12,8 +12,8 @@
 #   nix build .#checks.x86_64-linux.<hostname>
 #
 # Usage:
-#   kz test              # everything
-#   kz test -L        # stream build logs, useful when one hangs
+#   gisnix test              # everything
+#   gisnix test -L        # stream build logs, useful when one hangs
 set -uo pipefail
 
 echo "▶ nix flake check   (host evals + per-app shellcheck + NixOS VM tests)"

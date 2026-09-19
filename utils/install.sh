@@ -2,9 +2,9 @@
 #
 # install — put a host's configuration onto a machine booted from a live ISO.
 #
-#   kz install foobar root@10.100.0.42     # install, WIPING that machine's disk
-#   kz install foobar root@10.100.0.42 --dry-run
-#   kz install foobar tim@foobar --seed    # after reboot: clone the flake there
+#   gisnix install foobar root@10.100.0.42     # install, WIPING that machine's disk
+#   gisnix install foobar root@10.100.0.42 --dry-run
+#   gisnix install foobar tim@foobar --seed    # after reboot: clone the flake there
 #
 # THE WORKFLOW THIS SERVES
 #
@@ -12,13 +12,13 @@
 #   2. the owner joins the VPN, so it is reachable on the virtual LAN
 #   3. the owner adds the admin's public key to the LIVE system's
 #      ~/.ssh/authorized_keys, and tells the admin the address
-#   4. the admin writes hosts/<name>/ — by running `kz create-host` ON the
+#   4. the admin writes hosts/<name>/ — by running `gisnix create-host` ON the
 #      target if the live image has nix, or by hand from the closest
 #      existing host if it does not
 #   5. the admin runs THIS, which installs NixOS over SSH with
 #      nixos-anywhere + disko
 #   6. the owner reboots, types the ZFS passphrase and logs in
-#   7. the owner runs `kz configure` and `kz update` to add software
+#   7. the owner runs `gisnix configure` and `gisnix update` to add software
 #
 # Steps 1-3 are the owner's and are not automated: VPN credentials and key
 # exchange are deliberately outside this toolset.
@@ -135,7 +135,7 @@ fi
 EOF
   ok "seeded"
   say ""
-  say "${DIM}Tell the owner: cd ~/dev/nix-config && nix develop, then kz configure${NC}"
+  say "${DIM}Tell the owner: cd ~/dev/nix-config && nix develop, then gisnix configure${NC}"
   exit 0
 fi
 
@@ -144,7 +144,7 @@ fi
 grep -q "disko.devices" "hosts/$HOST/disks.nix" 2>/dev/null \
   || die "hosts/$HOST/disks.nix is not a disko layout.
     nixos-anywhere partitions from scratch, so it needs one. A host adopted
-    with \`kz create-host\` describes the filesystems it already had, which
+    with \`gisnix create-host\` describes the filesystems it already had, which
     is deliberately NOT a layout that can repartition. Copy the shape from
     hosts/minimal/disks.nix and set the disk device."
 
@@ -202,6 +202,6 @@ say "  2. type the ZFS passphrase at the prompt"
 say "  3. log in"
 say ""
 say "${BOLD}Then, once it is up:${NC}"
-say "  kz install $HOST <user>@$HOST --seed"
-say "  ${DIM}clones this flake into their home so they can run kz configure${NC}"
+say "  gisnix install $HOST <user>@$HOST --seed"
+say "  ${DIM}clones this flake into their home so they can run gisnix configure${NC}"
 say ""

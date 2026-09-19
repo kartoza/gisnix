@@ -4,12 +4,12 @@
 #
 # Ported from the personal-servers flake so both projects lint the same way.
 # Runs every tool that is on PATH (inside `nix develop` they all are; via
-# `kz lint` they come from the command's declared deps), reports ALL
+# `gisnix lint` they come from the command's declared deps), reports ALL
 # findings rather than stopping at the first, and exits non-zero if any tool
 # fails.
 #
-# This is the repo-wide sweep. The pre-commit hooks (`kz hooks`) run a
-# fast staged-only subset on every commit; `kz test` runs the flake
+# This is the repo-wide sweep. The pre-commit hooks (`gisnix hooks`) run a
+# fast staged-only subset on every commit; `gisnix test` runs the flake
 # checks, which additionally build NixOS test VMs.
 set -uo pipefail
 

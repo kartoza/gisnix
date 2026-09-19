@@ -42,7 +42,7 @@ resolves the full closure of implications at eval time. The
 ## Where the picker fits in
 
 On a full gisnix checkout (not the tiny per-machine flake the installer
-generates), `kz configure` gives you the same bundle selection as an
+generates), `gisnix configure` gives you the same bundle selection as an
 interactive menu — search, tick boxes, see what each thing installs before
 committing. It's the exact same picker the installer's own software step
 opens. See [the installer](../developer/installer.md) for how that's wired.
