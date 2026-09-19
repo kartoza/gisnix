@@ -29,6 +29,23 @@
 #                           happens to be in.
 set -uo pipefail
 
+# disko and nixos-install need root; --mock fakes both and touches neither,
+# so it's the one invocation that genuinely doesn't need this. Re-execs
+# the same script under sudo rather than relying on the caller to
+# remember it themselves — the live ISO's `nixos` user has passwordless
+# sudo (wheelNeedsPassword = false), so this never actually prompts there.
+# A developer running `--mock` from their own `nix develop` shell is
+# unaffected either way: --mock always skips the re-exec, sudo or not.
+if [ "$(id -u)" -ne 0 ]; then
+  mock=false
+  for arg in "$@"; do
+    [ "$arg" = "--mock" ] && mock=true
+  done
+  if [ "$mock" = false ]; then
+    exec sudo "$0" "$@"
+  fi
+fi
+
 root="${GISNIX_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || true)}"
 if [ -z "$root" ]; then
   for candidate in /etc/gisnix /iso/gisnix /home/gisnix; do

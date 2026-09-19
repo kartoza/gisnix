@@ -178,12 +178,30 @@
     ln -sfn /iso/gisnix /home/gisnix
   '';
 
+  # This ISO autologins as `nixos` (installation-device.nix's own default),
+  # not root — sudo is required for everything here that touches a disk or
+  # network state, and wheelNeedsPassword is false, so it never prompts.
+  # The box-drawing below is safe on this console specifically because
+  # console.font above is a font that actually has those glyphs; the
+  # standard Linux console font mostly doesn't, which is the whole reason
+  # that setting exists.
   programs.bash.loginShellInit = ''
     if [ -d /home/gisnix ]; then
       cd /home/gisnix
-      echo ""
-      echo "Welcome to gisnix. Run 'installer' to begin, or 'installer --mock' to preview it safely."
-      echo ""
+
+      clear
+      chafa --size=48x resources/kartoza-logo.png 2>/dev/null || true
+
+      echo
+      echo "  gisnix — a reproducible NixOS distribution for GIS workstations"
+      echo "  ─────────────────────────────────────────────────────────────"
+      echo
+      echo "  No network yet?      sudo nmtui"
+      echo "  Ready to install?    sudo installer"
+      echo "  Just want to look?   sudo installer --mock"
+      echo
+      echo "  Everything above needs sudo — you're logged in as nixos, not root."
+      echo
     fi
   '';
 
