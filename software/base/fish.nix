@@ -2,6 +2,20 @@
 {
   programs.fish = {
     enable = true;
+
+    # nixpkgs defaults this to true: a separate *_fish-completions.drv per
+    # package in the closure, run-command-local so none of them are ever
+    # substituted from a binary cache — every COSMIC component, cups, dbus,
+    # curl, all of it, built one at a time. That's most of what "installing
+    # gisnix" sits at for on a from-scratch install with a real desktop
+    # closure. Turning it off costs nothing functional: packages that ship
+    # their own fish completions still install them via vendor_completions.d
+    # (programs.fish.vendor.completions.enable, on by default), and fish
+    # itself generates per-command completions from man pages lazily, on
+    # first use, client-side — the same result, just not paid for up front
+    # on every single package whether anyone ever tab-completes it or not.
+    generateCompletions = false;
+
     interactiveShellInit = ''
       # Fish shell configuration
       # This replaces the home-manager generated config
