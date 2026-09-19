@@ -119,10 +119,22 @@ def run_install(state: InstallState) -> Iterator[str]:
     # evaluating the file standalone would fail with a missing argument.
     # Uses the `disko` CLI already on PATH (from installerPackage's
     # runtimeInputs) rather than re-fetching over the network.
+    #
+    # --yes-wipe-all-disks: disko has its OWN "are you sure you want to wipe
+    # <device>?" y/n prompt before it touches anything, on top of the
+    # wizard's own confirm screen. That prompt reads from stdin, which is
+    # never wired up for interactive input here — Textual owns the
+    # keyboard for its own event loop, so disko's `input()` call never
+    # sees a keystroke and the process just aborts instantly. The wizard's
+    # confirm screen (type the hostname back) is the actual "I understand,
+    # destroy this disk" gate; by the time this runs that has already
+    # happened, so disko's own copy of the same question is redundant, not
+    # a safety net being skipped.
     disko_cmd = [
         "disko",
         "--mode",
         "destroy,format,mount",
+        "--yes-wipe-all-disks",
         "--flake",
         f"{work_dir}#{state.hostname}",
     ]
