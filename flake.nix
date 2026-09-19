@@ -46,9 +46,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    qgis-master-repo.url = "github:qgis/QGIS/master";
-    qgis-latest-repo.url = "github:qgis/QGIS/release-3_44";
-    qgis-ltr-repo.url = "github:qgis/QGIS/release-3_40";
+    # QGIS's own repo (for the opt-in desktop-gis-source-builds bundle) is
+    # deliberately NOT a flake input here — every input in this block gets
+    # fetched (recursively, including ITS OWN sub-inputs) on any flake
+    # evaluation, including a bare `nix develop` that never touches that
+    # bundle. software/desktop/gis/source-builds/*.nix fetch it lazily via
+    # `builtins.getFlake` on a pinned rev instead — see qgis-dev.nix.
 
     geodiff = {
       url = "github:kartoza/nix-geodiff";
@@ -178,9 +181,6 @@
               hostConfig
               fleet
               ;
-            qgis-master-repo = inputs.qgis-master-repo;
-            qgis-latest-repo = inputs.qgis-latest-repo;
-            qgis-ltr-repo = inputs.qgis-ltr-repo;
             geodiff = inputs.geodiff;
             kartoza-plymouth-theme = inputs.kartoza-plymouth-theme;
             kartoza-grub-themes = inputs.kartoza-grub-themes;

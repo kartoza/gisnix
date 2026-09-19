@@ -9,21 +9,25 @@
 {
   pkgs,
   lib,
-  qgis-latest-repo,
   geodiff,
   ...
 }:
 
 let
+  # Deliberately NOT a flake input — see qgis-dev.nix for why. Bump this to
+  # track the release-3_44 branch: `git ls-remote
+  # https://github.com/qgis/QGIS release-3_44`.
+  qgisLatestRev = "411a0f22d90b6ced0097cc069784a5a5054e0b71";
+  qgisLatestFlake = builtins.getFlake "github:qgis/QGIS/${qgisLatestRev}";
+
   wrapQgis = import ../wrap-qgis.nix { inherit pkgs lib; };
 
   # PCRaster + Whitebox Workflows, built against this QGIS's own python
   qgisPythonExtras = import ../qgis-python-extras.nix;
 
-  # Access the flake input directly - this is the most common pattern
   qgisLatestGitBase =
-    qgis-latest-repo.packages.${pkgs.stdenv.hostPlatform.system}.default
-      or qgis-latest-repo.defaultPackage.${pkgs.stdenv.hostPlatform.system};
+    qgisLatestFlake.packages.${pkgs.stdenv.hostPlatform.system}.default
+      or qgisLatestFlake.defaultPackage.${pkgs.stdenv.hostPlatform.system};
 
   # Version in the launcher name so a dock full of QGIS icons is tellable apart.
   appName =
