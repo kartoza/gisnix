@@ -1,0 +1,19 @@
+# Extends gitleaks' own default ruleset rather than replacing it — this
+# file exists only to keep a scan from crawling generated/binary artifacts
+# that sit in the working tree during development (a multi-gigabyte VM
+# test disk is what prompted this: gitleaks --no-git scans the literal
+# working tree rather than `git ls-files`, so .gitignore alone doesn't
+# keep it out of a scan the way it keeps it out of git).
+title = "gisnix gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+paths = [
+  '''\.qcow2$''',
+  '''\.iso$''',
+  '''^result(-.*)?$''',
+  '''^site/''',
+  '''\.OVMF_VARS\.fd$''',
+]
