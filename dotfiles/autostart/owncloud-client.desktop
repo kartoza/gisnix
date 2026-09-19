@@ -1,0 +1,28 @@
+[Desktop Entry]
+Type=Application
+Name=ownCloud
+GenericName=File Synchronizer
+Comment=ownCloud desktop synchronisation client
+Icon=owncloud
+Categories=Network
+Terminal=false
+StartupNotify=false
+
+# Exec MUST be the bare command name so it resolves via PATH to the Nix
+# *wrapper* (/run/current-system/sw/bin/owncloud). The wrapper is what exports
+# QT_PLUGIN_PATH and NIXPKGS_QT6_QML_IMPORT_PATH.
+#
+# The ownCloud client's own "Launch on system startup" option writes an
+# autostart entry pointing at the UNWRAPPED inner binary
+# (…/bin/.owncloud-wrapped), because Qt resolves its own path via /proc/self/exe
+# and never sees the wrapper. Launched that way the Qt6 QML import path is unset
+# and the client dies on startup with:
+#
+#   module "QtQuick.Controls" plugin "qtquickcontrols2plugin" not found
+#
+# Hence this file, and hence the client's own autostart option must stay OFF.
+Exec=owncloud
+
+# Give the tray/session a moment to come up before the client starts.
+X-GNOME-Autostart-enabled=true
+X-GNOME-Autostart-Delay=10

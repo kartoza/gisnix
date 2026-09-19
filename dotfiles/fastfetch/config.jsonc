@@ -1,0 +1,121 @@
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+  "logo": {
+    "source": "/etc/kartoza-start-button.png",
+    "type": "kitty-direct",
+    "width": 18,
+    "padding": {
+      "top": 1,
+      "left": 2,
+      "right": 2
+    }
+  },
+  "display": {
+    "separator": "  ",
+    "color": {
+      "keys": "yellow",
+      "title": "blue"
+    }
+  },
+  "modules": [
+    {
+      "type": "title",
+      "format": "{user-name}@{host-name}",
+      "color": {
+        "1": "38;2;86;159;198"
+      }
+    },
+    {
+      "type": "separator",
+      "string": "─"
+    },
+    {
+      "type": "os",
+      "key": "  OS",
+      "keyColor": "38;2;223;158;47"
+    },
+    {
+      "type": "host",
+      "key": "  Host",
+      "keyColor": "38;2;223;158;47"
+    },
+    {
+      "type": "kernel",
+      "key": "  Kernel",
+      "keyColor": "38;2;223;158;47"
+    },
+    {
+      "type": "uptime",
+      "key": "  Uptime",
+      "keyColor": "38;2;86;159;198"
+    },
+    {
+      "type": "packages",
+      "key": "  Packages",
+      "keyColor": "38;2;86;159;198"
+    },
+    {
+      "type": "shell",
+      "key": "  Shell",
+      "keyColor": "38;2;86;159;198"
+    },
+    {
+      "type": "separator",
+      "string": "─"
+    },
+    {
+      "type": "de",
+      "key": "  DE",
+      "keyColor": "38;2;138;139;139"
+    },
+    {
+      "type": "wm",
+      "key": "  WM",
+      "keyColor": "38;2;138;139;139"
+    },
+    {
+      "type": "terminal",
+      "key": "  Terminal",
+      "keyColor": "38;2;138;139;139"
+    },
+    {
+      "type": "terminalfont",
+      "key": "  Font",
+      "keyColor": "38;2;138;139;139"
+    },
+    {
+      "type": "separator",
+      "string": "─"
+    },
+    {
+      "type": "cpu",
+      "key": "  CPU",
+      "keyColor": "38;2;6;150;154"
+    },
+    {
+      "type": "gpu",
+      "key": "  GPU",
+      "keyColor": "38;2;6;150;154"
+    },
+    {
+      "type": "memory",
+      "key": "  Memory",
+      "keyColor": "38;2;6;150;154"
+    },
+    {
+      "type": "disk",
+      "key": "  Disk",
+      "keyColor": "38;2;6;150;154",
+      "folders": "/"
+    },
+    {
+      "type": "separator",
+      "string": "─"
+    },
+    {
+      "type": "colors",
+      "paddingLeft": 2,
+      "symbol": "circle"
+    }
+  ]
+}

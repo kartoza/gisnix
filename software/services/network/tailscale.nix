@@ -4,9 +4,6 @@
   # make the tailscale command usable to users
   environment.systemPackages = [
     pkgs.tailscale
-    (pkgs.writeScriptBin "tailscale-switch" (
-      builtins.readFile ../../../dotfiles/scripts/tailscale-switch.sh
-    ))
   ];
 
   # enable the tailscale service

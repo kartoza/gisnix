@@ -1,10 +1,11 @@
 # COSMIC community extensions and panel applets
 #
 # The cosmic-ext-* packages are community cosmic-utils builds. They are NOT in
-# cache.nixos.org or cosmic.cachix.org, so every one of them SOURCE BUILDS.
-# That is what made bay's first upgrade appear to hang, and it is why they are
-# a bundle of their own rather than part of the desktop: a machine can now run
-# COSMIC without committing to a Rust toolchain's worth of compilation.
+# cache.nixos.org or cosmic.cachix.org, so every one of them SOURCE BUILDS —
+# which can make a first upgrade that pulls them in appear to hang for a
+# long stretch. That is why they are a bundle of their own rather than part
+# of the desktop: a machine can now run COSMIC without committing to a Rust
+# toolchain's worth of compilation.
 #
 # They were split out of packages.nix, which still holds the desktop itself —
 # the core applications, the Kartoza App Library icon, and the screenshot and

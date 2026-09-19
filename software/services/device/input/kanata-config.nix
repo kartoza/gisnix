@@ -1,9 +1,8 @@
-# Shared kanata layer/mod/nav config: home-row mods (GACS, long-hold to arm), the
-# space/menu navigation+mouse layer, and the transparent meta layer used for
-# RGB feedback. Parameterised by the chord file so a host can run a SECOND
-# kanata instance with a different chord set — the Glove80 uses its own
-# bracket combos and US-layout output (see hosts/abyss/kanata-keyboard.nix),
-# while the Ornata/Framework keep the pt-PT chords in dotfiles/kanata/chords.kbd.
+# Shared kanata layer/mod/nav config: home-row mods (GACS, long-hold to
+# arm), the space/menu navigation+mouse layer, and the transparent meta
+# layer used for RGB feedback. Parameterised by the chord file so a
+# multi-keyboard setup can run a second instance with its own chord set on
+# a different board.
 {
   # Timing for the space/menu → navigation-layer hold (kept snappy).
   tapTimeout ? 280,
@@ -17,14 +16,14 @@
   # double-tap then hold a mod key within it to autorepeat its LETTER.
   modTapTimeout ? 200,
   modHoldTimeout ? 500,
-  # Per-layout BRACKET chord lines (no defchordsv2 wrapper) — pt boards use
-  # dotfiles/kanata/chords.kbd, the Glove80 chords-glove80.kbd.
-  chordsFile,
-  # Shared bigram -> n-gram expansion chord lines, spliced into the same
-  # defchordsv2 block (kanata allows exactly one per config). Every
-  # instance passes dotfiles/kanata/expansions.kbd so the whole fleet —
-  # Sonsei included, via its chords-only instance — expands identically.
-  expansionsFile,
+  # Optional per-layout BRACKET chord file (no defchordsv2 wrapper — just
+  # the bracket lines themselves). null = no chords at all, the default:
+  # gisnix ships the layer/mod/nav mechanism but no opinionated chord set —
+  # write your own and point this at it.
+  chordsFile ? null,
+  # Optional bigram -> n-gram expansion chord lines, spliced into the same
+  # defchordsv2 block (kanata allows exactly one per config). null = none.
+  expansionsFile ? null,
   # Opt-in third layer: hold this key, and hjkl drive herdr. null = off.
   # The key is the caller's choice because the right one differs by board —
   # the Glove80 uses `bspc` to match the Sonsei's own superkey 22, while a
@@ -52,13 +51,29 @@
   # has to be chosen here — today that is only `@`, which is AltGr+2 on pt-PT
   # and Shift+2 on US.
   #
-  # MUST agree with chordsFile, which encodes the same fact for the bracket
-  # chords: dotfiles/kanata/chords.kbd is pt, chords-glove80.kbd is us. Two
-  # statements of one fact, so they are named together at every call site.
+  # MUST agree with chordsFile, if one is given: the chord outputs are
+  # keycodes for a specific layout, so the two are one fact stated twice.
   layout ? "us",
 }:
 let
   herdrLayer = herdrKey != null;
+
+  # defchordsv2 is only legal ONCE per config, and only if there is at
+  # least one chord in it — an empty block is invalid kanata syntax. So the
+  # whole thing is omitted when neither file is given, rather than pointed
+  # at an empty placeholder.
+  chordsBlock =
+    if chordsFile == null && expansionsFile == null then
+      ""
+    else
+      ''
+
+        ;; Chords — exactly one defchordsv2 is allowed, so the bracket
+        ;; lines and the expansion lines are spliced into a single block.
+        (defchordsv2
+        ${if chordsFile != null then builtins.readFile chordsFile else ""}
+        ${if expansionsFile != null then builtins.readFile expansionsFile else ""}
+        )'';
 
   # The trigger slot only exists in defsrc when the layer is on, so every
   # deflayer must gain or lose a column in step with it. One definition
@@ -492,11 +507,5 @@ in
     scroll-down (mwheel-down 50 120)${clipboardAliases}${herdrAliases}
   )
 
-  ;; Chords — exactly one defchordsv2 is allowed, so the per-instance
-  ;; bracket lines and the fleet-shared expansion lines are spliced into a
-  ;; single block here.
-  (defchordsv2
-  ${builtins.readFile chordsFile}
-  ${builtins.readFile expansionsFile}
-  )
+  ${chordsBlock}
 ''

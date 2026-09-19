@@ -1,0 +1,285 @@
+# Kartoza theme for yazi - Official Kartoza Color Palette
+# Colors:
+#   highlight1 = "#DF9E2F" (yellow/orange - primary accent)
+#   highlight2 = "#569FC6" (blue - secondary accent)
+#   highlight3 = "#8A8B8B" (grey)
+#   highlight4 = "#06969A" (teal)
+#   alert      = "#CC0403" (red)
+#   base00     = "#1a1a1a" (background)
+#   base01     = "#2d2d2d" (lighter background)
+#   base02     = "#3d3d3d" (selection)
+
+[mgr]
+cwd = { fg = "#569FC6", bold = true }
+hovered = { fg = "#1a1a1a", bg = "#06969A", bold = true }
+preview_hovered = { underline = true }
+find_keyword = { fg = "#1a1a1a", bg = "#DF9E2F", bold = true }
+find_position = { fg = "#DF9E2F", bg = "reset", italic = true }
+marker_copied = { fg = "#06969A", bg = "#06969A" }
+marker_cut = { fg = "#CC0403", bg = "#CC0403" }
+marker_marked = { fg = "#DF9E2F", bg = "#DF9E2F" }
+marker_selected = { fg = "#569FC6", bg = "#569FC6" }
+tab_active = { fg = "#1a1a1a", bg = "#569FC6", bold = true }
+tab_inactive = { fg = "#8A8B8B", bg = "#2d2d2d" }
+# tab_width removed: yazi 25+ no longer accepts a plain integer here.
+count_copied = { fg = "#1a1a1a", bg = "#06969A" }
+count_cut = { fg = "#1a1a1a", bg = "#CC0403" }
+count_selected = { fg = "#1a1a1a", bg = "#569FC6" }
+border_symbol = "│"
+border_style = { fg = "#3d3d3d" }
+
+[status]
+separator_open = ""
+separator_close = ""
+separator_style = { fg = "#569FC6", bg = "#06969A" }
+mode_normal = { fg = "#1a1a1a", bg = "#569FC6", bold = true }
+mode_select = { fg = "#1a1a1a", bg = "#DF9E2F", bold = true }
+mode_unset = { fg = "#1a1a1a", bg = "#8A8B8B", bold = true }
+progress_label = { fg = "#1a1a1a", bg = "#06969A", bold = true }
+progress_normal = { fg = "#06969A", bg = "#2d2d2d" }
+progress_error = { fg = "#CC0403", bg = "#2d2d2d" }
+permissions_t = { fg = "#1a1a1a", bg = "#06969A" }
+permissions_r = { fg = "#1a1a1a", bg = "#DF9E2F" }
+permissions_w = { fg = "#1a1a1a", bg = "#CC0403" }
+permissions_x = { fg = "#1a1a1a", bg = "#569FC6" }
+permissions_s = { fg = "#1a1a1a", bg = "#8A8B8B" }
+
+[select]
+border = { fg = "#569FC6" }
+active = { fg = "#1a1a1a", bg = "#569FC6", bold = true }
+inactive = { fg = "#e0e0e0", bg = "#2d2d2d" }
+
+[input]
+border = { fg = "#569FC6" }
+title = { fg = "#569FC6", bold = true }
+value = { fg = "#e0e0e0" }
+selected = { fg = "#1a1a1a", bg = "#06969A" }
+
+[completion]
+border = { fg = "#569FC6" }
+active = { fg = "#1a1a1a", bg = "#569FC6", bold = true }
+inactive = { fg = "#e0e0e0", bg = "#2d2d2d" }
+icon_file = ""
+icon_folder = ""
+icon_command = ""
+
+[tasks]
+border = { fg = "#569FC6" }
+title = { fg = "#569FC6", bold = true }
+hovered = { fg = "#1a1a1a", bg = "#06969A" }
+
+[which]
+mask = { bg = "#1a1a1a" }
+cand = { fg = "#06969A", bold = true }
+rest = { fg = "#8A8B8B" }
+desc = { fg = "#e0e0e0" }
+separator = "  "
+separator_style = { fg = "#3d3d3d" }
+
+[help]
+on = { fg = "#06969A", bold = true }
+run = { fg = "#569FC6" }
+desc = { fg = "#8A8B8B" }
+hovered = { fg = "#1a1a1a", bg = "#06969A", bold = true }
+footer = { fg = "#569FC6", bg = "#1a1a1a" }
+
+[notify]
+title_info = { fg = "#569FC6", bold = true }
+title_warn = { fg = "#DF9E2F", bold = true }
+title_error = { fg = "#CC0403", bold = true }
+
+# File icons (requires Nerd Font)
+[icon]
+prepend_rules = [
+    # Directories
+    { url = ".git/", text = "" },
+    { url = "node_modules/", text = "" },
+    { url = ".github/", text = "" },
+    { url = "Documents/", text = "" },
+    { url = "Downloads/", text = "" },
+    { url = "Music/", text = "" },
+    { url = "Pictures/", text = "" },
+    { url = "Videos/", text = "" },
+    { url = "Desktop/", text = "" },
+    { url = "dev/", text = "" },
+    { url = "src/", text = "" },
+    { url = "test/", text = "" },
+    { url = "tests/", text = "" },
+    { url = "docs/", text = "" },
+    { url = "*/", text = "" },
+
+    # Nix
+    { url = "*.nix", text = "", fg = "#569FC6" },
+    { url = "flake.nix", text = "", fg = "#DF9E2F" },
+    { url = "flake.lock", text = "", fg = "#8A8B8B" },
+
+    # Shell
+    { url = "*.sh", text = "", fg = "#27ae60" },
+    { url = "*.bash", text = "", fg = "#27ae60" },
+    { url = "*.zsh", text = "", fg = "#27ae60" },
+    { url = "*.fish", text = "", fg = "#27ae60" },
+
+    # Python
+    { url = "*.py", text = "", fg = "#06969A" },
+    { url = "*.pyx", text = "", fg = "#06969A" },
+    { url = "*.pyc", text = "", fg = "#8A8B8B" },
+
+    # Rust
+    { url = "*.rs", text = "", fg = "#e67e22" },
+    { url = "Cargo.toml", text = "", fg = "#e67e22" },
+    { url = "Cargo.lock", text = "", fg = "#8A8B8B" },
+
+    # Go
+    { url = "*.go", text = "", fg = "#16a085" },
+    { url = "go.mod", text = "", fg = "#16a085" },
+    { url = "go.sum", text = "", fg = "#8A8B8B" },
+
+    # JavaScript / TypeScript
+    { url = "*.js", text = "", fg = "#DF9E2F" },
+    { url = "*.mjs", text = "", fg = "#DF9E2F" },
+    { url = "*.ts", text = "", fg = "#569FC6" },
+    { url = "*.jsx", text = "", fg = "#06969A" },
+    { url = "*.tsx", text = "", fg = "#06969A" },
+
+    # Web
+    { url = "*.html", text = "", fg = "#e67e22" },
+    { url = "*.css", text = "", fg = "#569FC6" },
+    { url = "*.scss", text = "", fg = "#9a6ac7" },
+    { url = "*.svg", text = "", fg = "#DF9E2F" },
+
+    # Data / Config
+    { url = "*.json", text = "", fg = "#DF9E2F" },
+    { url = "*.yaml", text = "", fg = "#06969A" },
+    { url = "*.yml", text = "", fg = "#06969A" },
+    { url = "*.toml", text = "", fg = "#e67e22" },
+    { url = "*.xml", text = "", fg = "#e67e22" },
+    { url = "*.ini", text = "", fg = "#8A8B8B" },
+    { url = "*.conf", text = "", fg = "#8A8B8B" },
+    { url = "*.env", text = "", fg = "#DF9E2F" },
+    { url = "*.sql", text = "", fg = "#9a6ac7" },
+
+    # Documents
+    { url = "*.md", text = "", fg = "#e0e0e0" },
+    { url = "*.txt", text = "", fg = "#e0e0e0" },
+    { url = "*.pdf", text = "", fg = "#CC0403" },
+    { url = "*.doc", text = "", fg = "#569FC6" },
+    { url = "*.docx", text = "", fg = "#569FC6" },
+    { url = "*.xls", text = "", fg = "#27ae60" },
+    { url = "*.xlsx", text = "", fg = "#27ae60" },
+    { url = "*.ppt", text = "", fg = "#e67e22" },
+    { url = "*.pptx", text = "", fg = "#e67e22" },
+
+    # Images
+    { url = "*.png", text = "", fg = "#06969A" },
+    { url = "*.jpg", text = "", fg = "#06969A" },
+    { url = "*.jpeg", text = "", fg = "#06969A" },
+    { url = "*.gif", text = "", fg = "#06969A" },
+    { url = "*.webp", text = "", fg = "#06969A" },
+    { url = "*.bmp", text = "", fg = "#06969A" },
+    { url = "*.ico", text = "", fg = "#06969A" },
+    { url = "*.tiff", text = "", fg = "#06969A" },
+
+    # Video
+    { url = "*.mp4", text = "", fg = "#DF9E2F" },
+    { url = "*.mkv", text = "", fg = "#DF9E2F" },
+    { url = "*.avi", text = "", fg = "#DF9E2F" },
+    { url = "*.mov", text = "", fg = "#DF9E2F" },
+    { url = "*.webm", text = "", fg = "#DF9E2F" },
+
+    # Audio
+    { url = "*.mp3", text = "", fg = "#9a6ac7" },
+    { url = "*.flac", text = "", fg = "#9a6ac7" },
+    { url = "*.ogg", text = "", fg = "#9a6ac7" },
+    { url = "*.wav", text = "", fg = "#9a6ac7" },
+    { url = "*.m4a", text = "", fg = "#9a6ac7" },
+
+    # Archives
+    { url = "*.zip", text = "", fg = "#e67e22" },
+    { url = "*.tar", text = "", fg = "#e67e22" },
+    { url = "*.gz", text = "", fg = "#e67e22" },
+    { url = "*.xz", text = "", fg = "#e67e22" },
+    { url = "*.bz2", text = "", fg = "#e67e22" },
+    { url = "*.7z", text = "", fg = "#e67e22" },
+    { url = "*.rar", text = "", fg = "#e67e22" },
+    { url = "*.deb", text = "", fg = "#e67e22" },
+    { url = "*.rpm", text = "", fg = "#e67e22" },
+
+    # Git
+    { url = ".gitignore", text = "", fg = "#8A8B8B" },
+    { url = ".gitmodules", text = "", fg = "#8A8B8B" },
+
+    # Docker
+    { url = "Dockerfile", text = "", fg = "#569FC6" },
+    { url = "docker-compose.yml", text = "", fg = "#569FC6" },
+    { url = "docker-compose.yaml", text = "", fg = "#569FC6" },
+
+    # CI/CD
+    { url = "Makefile", text = "", fg = "#DF9E2F" },
+    { url = "Justfile", text = "", fg = "#DF9E2F" },
+
+    # Geo/GIS
+    { url = "*.geojson", text = "", fg = "#06969A" },
+    { url = "*.gpkg", text = "", fg = "#06969A" },
+    { url = "*.shp", text = "", fg = "#06969A" },
+    { url = "*.tif", text = "", fg = "#06969A" },
+    { url = "*.qgs", text = "", fg = "#27ae60" },
+    { url = "*.qgz", text = "", fg = "#27ae60" },
+
+    # Lock files
+    { url = "*.lock", text = "", fg = "#8A8B8B" },
+    { url = "package-lock.json", text = "", fg = "#8A8B8B" },
+
+    # Misc special files
+    { url = "LICENSE", text = "", fg = "#DF9E2F" },
+    { url = "README.md", text = "", fg = "#DF9E2F" },
+    { url = "CLAUDE.md", text = "", fg = "#9a6ac7" },
+    { url = ".envrc", text = "", fg = "#DF9E2F" },
+]
+
+[filetype]
+rules = [
+    # Directories - kartoza blue, bold
+    { url = "*/", fg = "#569FC6", bold = true },
+
+    # Nix files - kartoza blue, highlighted
+    { url = "*.nix", fg = "#569FC6", bold = true },
+
+    # Images - kartoza teal
+    { url = "*.{jpg,jpeg,png,gif,bmp,webp,tiff,tif,ico}", fg = "#06969A", bold = true },
+    { url = "*.svg", fg = "#06969A" },
+
+    # Videos - kartoza yellow/orange
+    { url = "*.{mp4,mkv,avi,mov,wmv,flv,webm,m4v,3gp}", fg = "#DF9E2F", bold = true },
+
+    # Audio - lighter orange
+    { url = "*.{mp3,flac,ogg,wav,aac,m4a,wma}", fg = "#e67e22" },
+
+    # Archives - muted orange
+    { url = "*.{zip,tar,gz,rar,7z,xz,bz2,zst,deb,rpm}", fg = "#e67e22", italic = true },
+
+    # Documents - kartoza alert red
+    { url = "*.{pdf,doc,docx,xls,xlsx,ppt,pptx,odt,ods,odp}", fg = "#CC0403" },
+    { url = "*.{txt,md,rst}", fg = "#e0e0e0" },
+
+    # Code - teal variants
+    { url = "*.{py,js,ts,jsx,tsx,html,css,scss,json,xml,yaml,yml,toml,ini,conf}", fg = "#06969A" },
+    { url = "*.{sh,bash,zsh,fish}", fg = "#27ae60", bold = true },
+    { url = "*.{rs,go,c,cpp,h,hpp,java,kt,swift}", fg = "#16a085" },
+    { url = "*.{sql,graphql}", fg = "#9a6ac7" },
+
+    # Config and dotfiles - kartoza grey
+    { url = ".*", fg = "#8A8B8B" },
+    { url = "*.lock", fg = "#8A8B8B", italic = true },
+
+    # Special files - kartoza yellow/orange accent
+    { url = "*README*", fg = "#DF9E2F", bold = true },
+    { url = "*LICENSE*", fg = "#DF9E2F" },
+    { url = "*Makefile", fg = "#DF9E2F" },
+    { url = "*flake.nix", fg = "#DF9E2F", bold = true },
+    { url = "*flake.lock", fg = "#8A8B8B", italic = true },
+
+    # Logs and temp - muted
+    { url = "*.log", fg = "#8A8B8B", italic = true },
+    { url = "*.tmp", fg = "#8A8B8B", italic = true },
+    { url = "*.bak", fg = "#8A8B8B", italic = true },
+]

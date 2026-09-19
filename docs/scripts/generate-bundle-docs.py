@@ -130,13 +130,13 @@ def main() -> int:
         "",
         "```bash",
         "gisnix configure                      # this machine, then tick the bundles",
-        "gisnix configure atoll                # straight to atoll's bundles",
-        "gisnix configure atoll --list         # what it takes today; changes nothing",
-        "gisnix configure atoll --enable desktop-gis",
-        "gisnix configure atoll --disable terminal-ai,desktop-games",
-        "gisnix configure atoll --set base,desktop-browsers --locale za-en",
-        "gisnix configure atoll --kernel latest  # kernel 7.2, as abyss runs",
-        "gisnix configure atoll --enable security --dry-run",
+        "gisnix configure myhost               # straight to myhost's bundles",
+        "gisnix configure myhost --list        # what it takes today; changes nothing",
+        "gisnix configure myhost --enable desktop-gis",
+        "gisnix configure myhost --disable terminal-ai,desktop-games",
+        "gisnix configure myhost --set base,desktop-browsers --locale za-en",
+        "gisnix configure myhost --kernel latest",
+        "gisnix configure myhost --enable security --dry-run",
         "```",
         "",
         "### The chooser",
@@ -204,12 +204,12 @@ def main() -> int:
 
     lines += [
         "",
-        "This is **not** the same as \"every host must have it\". `bay` and"
-        " `pinnacle` import their software directly and take neither, and"
-        " forcing the bundles onto them would change what those machines"
-        " install — a tool protecting you from one mistake by making a"
-        " different one. The rule only bites on a host that already has the"
-        " bundle. `--force` overrides it.",
+        "This is **not** the same as \"every host must have it\". A host that"
+        " imports its software directly, bypassing the bundle list entirely,"
+        " takes neither — forcing the bundle onto it would change what that"
+        " machine installs, a tool protecting you from one mistake by making"
+        " a different one. The rule only bites on a host that already has"
+        " the bundle. `--force` overrides it.",
         "",
         "### Groups bring their sub-bundles",
         "",

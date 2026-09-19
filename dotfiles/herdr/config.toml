@@ -1,0 +1,46 @@
+# Herdr configuration — Kartoza nix-config
+#
+# Deployed read-only to /etc/xdg/herdr/config.toml by software/base/herdr.nix
+# and symlinked into each user's ~/.config/herdr/config.toml, which is the
+# only place herdr reads from. Mirrors the yazi/kitty pattern.
+#
+# ONLY the two agent bindings are set here. Everything else — including the
+# ctrl+b prefix itself and every prefix+<key> herdr ships with — falls back to
+# the built-in defaults, deliberately:
+#
+#   * The kanata herdr layer drives this board by SENDING those defaults
+#     (`ctrl+b p`, `ctrl+b n`, `ctrl+b w`). An earlier version of this file
+#     rebound previous_tab/next_tab to direct ctrl+shift chords, which would
+#     have left those macros pressing keys that no longer did anything. See
+#     395e0c2b, where the whole file was rolled away.
+#   * So: add bindings, never move one the macros already send.
+#
+# WHY prefix+u AND prefix+i
+#
+# `previous agent` and `next agent` ship unbound — `herdr` shows them as
+# `unset` in its keybinds panel — so there is nothing to send for them.
+#
+# u and i are two of the few prefix keys herdr does not already claim; it
+# takes 1 b c e g h j k l m n o p q r s t v w x z tab and minus, plus shift
+# variants. They also sit directly above j and k, where the kanata herdr
+# layer already puts the workspace macros, so the hand knows where they are:
+#
+#   caps + u  ->  ctrl+b u  ->  previous agent
+#   caps + i  ->  ctrl+b i  ->  next agent
+#
+# Keep this file and the herdr layer in
+# software/services/device/input/kanata-config.nix in step: a binding changed
+# here without the macro changing there is a key that quietly stops working.
+
+# Onboarding is done fleet-wide. This MUST be stated here: when the key is
+# missing (or true) herdr shows onboarding and then tries to SAVE the
+# completion back into this very file — which is a read-only root-owned
+# symlink into /etc/xdg, so the save fails ("failed to save onboarding
+# setting: permission denied") and the cycle repeats on every launch.
+# Pinning false means herdr never needs to write here at all.
+# (Top-level key: must sit above [keys], TOML scopes keys to the last table.)
+onboarding = false
+
+[keys]
+previous_agent = "prefix+u"
+next_agent = "prefix+i"

@@ -1,0 +1,78 @@
+[mgr]
+ratio = [1, 4, 3]
+sort_by = "mtime"
+sort_sensitive = false
+sort_reverse = true
+sort_dir_first = true
+linemode = "permissions"
+show_hidden = false
+show_symlink = true
+
+[which]
+sort_by = "none"
+sort_sensitive = false
+sort_reverse = false
+sort_translit = false
+
+[preview]
+image_filter = "lanczos3"
+image_quality = 90
+max_width = 600
+max_height = 900
+cache_dir = ""
+
+# Custom openers (prepended to defaults)
+[opener]
+prepend_rules = [
+    { name = "edit", run = 'nvim "$@"', desc = "Edit in Neovim", block = true },
+    { name = "browser", run = 'xdg-open "$@"', desc = "Open in browser" },
+    { name = "fim-view", run = 'fim "$@"', desc = "View with fim (framebuffer)", block = true },
+    { name = "fim-video", run = 'play-video-fim "$@"', desc = "Play video with fim", block = true },
+]
+
+# File open rules (prepended to defaults)
+# Note: yazi 25+ renamed the filename-glob key from `name` to `url`.
+# The `[opener]` rules above still use `name` because there it's the
+# opener's identifier, referenced by `use = [ ... ]` below.
+[open]
+prepend_rules = [
+    # Directories: opener pipeline does nothing, so <Enter> falls back
+    # to yazi's default "enter the directory" behavior. Per sxyazi in
+    # https://github.com/sxyazi/yazi/issues/3357#issuecomment.
+    # Note: requires PR #3360 (merged in yazi 25.5.x+) for prepended
+    # rules to override presets.
+    { url = "*/", use = [] },
+
+    # Web files - open in browser, with edit fallback
+    { url = "*.{html,htm}", use = [ "browser", "edit" ] },
+
+    # Images - fim for framebuffer, then default
+    { url = "*.{jpg,jpeg,png,gif,bmp,webp,tiff,tif,ico,svg}", use = [ "fim-view", "open" ] },
+
+    # Videos - fim for framebuffer, then default
+    { url = "*.{mp4,mkv,avi,mov,wmv,flv,webm,m4v,3gp}", use = [ "fim-video", "open" ] },
+]
+
+# Custom key bindings (prepended to defaults, so all standard bindings still work)
+[keymap]
+prepend_keymap = [
+    # View with fim
+    { on = [ "f", "i" ], run = "shell 'fim \"$0\"' --confirm", desc = "View image with fim" },
+
+    # Linemode toggles to view file metadata
+    { on = [ "m", "s" ], run = "linemode size", desc = "Show file size" },
+    { on = [ "m", "t" ], run = "linemode mtime", desc = "Show modified time" },
+    { on = [ "m", "p" ], run = "linemode permissions", desc = "Show permissions" },
+    { on = [ "m", "o" ], run = "linemode owner", desc = "Show owner" },
+    { on = [ "m", "n" ], run = "linemode none", desc = "Hide linemode" },
+
+    # Go to path
+    { on = [ "g", "d" ], run = "cd --interactive", desc = "Go to a directory" },
+
+    # Zoxide - jump to frequently used directories
+    { on = [ "z" ], run = "plugin zoxide", desc = "Zoxide jump" },
+
+    # fzf - fuzzy find files and cd to their directory
+    { on = [ "f", "f" ], run = "plugin fzf", desc = "Fzf find file" },
+    { on = [ "f", "d" ], run = "plugin fzf --args='directory'", desc = "Fzf find directory" },
+]

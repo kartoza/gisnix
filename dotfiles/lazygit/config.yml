@@ -1,0 +1,180 @@
+# Lazygit configuration with Kartoza colors
+# Kartoza Color Palette:
+#   highlight1 = "#DF9E2F" (yellow/orange - primary accent)
+#   highlight2 = "#569FC6" (blue - secondary accent)
+#   highlight3 = "#8A8B8B" (grey)
+#   highlight4 = "#06969A" (teal)
+#   alert = "#CC0403" (red)
+
+gui:
+  # Show keyboard shortcuts in the TUI
+  showKeybindingHints: true
+  showIcons: true
+  showFileTree: true
+  showRandomTip: false
+  showCommandLog: true
+  commandLogSize: 8
+  showBottomLine: true
+  nerdFontsVersion: "3"
+
+  # Border style
+  border: "rounded"
+
+  # Window size
+  windowSize: "normal"
+
+  # Scrollbar
+  scrollHeight: 2
+  scrollPastBottom: true
+
+  # Mouse support
+  mouseEvents: true
+
+  # Side panel width
+  sidePanelWidth: 0.3333
+
+  # Expand focused side panel
+  expandFocusedSidePanel: true
+
+  # Theme configuration with Kartoza colors
+  theme:
+    # Active border uses Kartoza teal (highlight4)
+    activeBorderColor:
+      - "#06969A"
+      - bold
+
+    # Inactive border uses Kartoza grey (highlight3)
+    inactiveBorderColor:
+      - "#8A8B8B"
+
+    # Search match color uses Kartoza yellow/orange (highlight1)
+    searchingActiveBorderColor:
+      - "#DF9E2F"
+      - bold
+
+    # Options text uses Kartoza blue (highlight2)
+    optionsTextColor:
+      - "#569FC6"
+
+    # Selected line background uses Kartoza blue (highlight2)
+    selectedLineBgColor:
+      - "#569FC6"
+
+    # Selected range background slightly darker
+    selectedRangeBgColor:
+      - "#3d7aa3"
+
+    # Cherry-picked commit uses Kartoza yellow/orange
+    cherryPickedCommitFgColor:
+      - "#1a1a1a"
+    cherryPickedCommitBgColor:
+      - "#DF9E2F"
+
+    # Marked base commit uses Kartoza teal
+    markedBaseCommitFgColor:
+      - "#1a1a1a"
+    markedBaseCommitBgColor:
+      - "#06969A"
+
+    # Unstaged changes use Kartoza alert red
+    unstagedChangesColor:
+      - "#CC0403"
+
+    # Default foreground - light for dark theme
+    defaultFgColor:
+      - "#e0e0e0"
+
+git:
+  paging:
+    colorArg: always
+    useConfig: false
+
+  commit:
+    signOff: false
+    autoWrapCommitMessage: true
+    autoWrapWidth: 72
+
+  merging:
+    manualCommit: false
+    args: ""
+
+  log:
+    order: "topo-order"
+    showGraph: "when-maximised"
+    showWholeGraph: false
+
+os:
+  editPreset: ""
+
+refresher:
+  refreshInterval: 10
+  fetchInterval: 60
+
+update:
+  method: "never"
+
+confirmOnQuit: false
+quitOnTopLevelReturn: false
+
+keybinding:
+  universal:
+    quit: "q"
+    quit-alt1: "<c-c>"
+    return: "<esc>"
+    quitWithoutChangingDirectory: "Q"
+    togglePanel: "<tab>"
+    prevItem: "<up>"
+    nextItem: "<down>"
+    prevItem-alt: "k"
+    nextItem-alt: "j"
+    prevPage: ","
+    nextPage: "."
+    gotoTop: "<"
+    gotoBottom: ">"
+    scrollLeft: "H"
+    scrollRight: "L"
+    prevBlock: "<left>"
+    nextBlock: "<right>"
+    prevBlock-alt: "h"
+    nextBlock-alt: "l"
+    nextMatch: "n"
+    prevMatch: "N"
+    startSearch: "/"
+    optionMenu: "?"
+    optionMenu-alt1: "x"
+    select: "<space>"
+    goInto: "<enter>"
+    confirm: "<enter>"
+    remove: "d"
+    new: "n"
+    edit: "e"
+    openFile: "o"
+    scrollUpMain: "<pgup>"
+    scrollDownMain: "<pgdown>"
+    scrollUpMain-alt1: "K"
+    scrollDownMain-alt1: "J"
+    scrollUpMain-alt2: "<c-u>"
+    scrollDownMain-alt2: "<c-d>"
+    executeCustomCommand: ":"
+    createRebaseOptionsMenu: "m"
+    pushFiles: "P"
+    pullFiles: "p"
+    refresh: "R"
+    createPatchOptionsMenu: "<c-p>"
+    nextTab: "]"
+    prevTab: "["
+    nextScreenMode: "+"
+    prevScreenMode: "_"
+    undo: "z"
+    redo: "<c-z>"
+    filteringMenu: "<c-s>"
+    diffingMenu: "W"
+    diffingMenu-alt: "<c-e>"
+    copyToClipboard: "<c-o>"
+    openRecentRepos: "<c-r>"
+    submitEditorText: "<enter>"
+    appendNewline: "<a-enter>"
+    extrasMenu: "@"
+    toggleWhitespaceInDiffView: "<c-w>"
+    increaseContextInDiffView: "}"
+    decreaseContextInDiffView: "{"

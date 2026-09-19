@@ -1,0 +1,24 @@
+# khal configuration
+# Documentation: https://khal.readthedocs.io/
+
+[calendars]
+
+[[kartoza]]
+path = ~/.local/share/calendars/kartoza/*
+type = discover
+color = dark cyan
+
+[locale]
+timeformat = %H:%M
+dateformat = %d/%m/%Y
+longdateformat = %d/%m/%Y
+datetimeformat = %d/%m/%Y %H:%M
+longdatetimeformat = %d/%m/%Y %H:%M
+firstweekday = 0
+
+[default]
+default_calendar = kartoza
+highlight_event_days = True
+
+[view]
+agenda_event_format = {calendar-color}{cancelled}{start-end-time-style} {title}{repeat-symbol}{reset}

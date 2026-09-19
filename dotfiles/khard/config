@@ -1,0 +1,28 @@
+# khard configuration
+# Documentation: https://khard.readthedocs.io/
+
+[addressbooks]
+
+[[kartoza]]
+path = ~/.local/share/contacts/kartoza/
+
+[general]
+default_action = list
+editor = vim
+merge_editor = vimdiff
+
+[contact table]
+display = formatted_name
+group_by_addressbook = no
+reverse = no
+show_nicknames = yes
+show_uids = no
+sort = formatted_name
+localize_dates = yes
+preferred_phone_number_type = cell, home
+preferred_email_address_type = work, home
+
+[vcard]
+private_objects =
+search_in_source_files = no
+skip_unparsable = no

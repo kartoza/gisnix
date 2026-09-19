@@ -32,15 +32,11 @@
     poppler-utils # for manipulating PDF files and converting them to other formats.
     restic # for local backups
     rpl # search and replace strings in files
-    rsync # file sync — also the remote end tree-sync talks to on every host
+    rsync # file sync
     tailspin # a log file highlighter
-    # Additive, checksum-verified folder harmonisation between hosts
-    # (e.g. `tree-sync ~/gisdata waterfall:/data/gis`): folders missing on
-    # the destination are synced over, matching ones reported in sync,
-    # divergent ones listed for manual review — never deletes remotely.
-    (writeScriptBin "tree-sync" (builtins.readFile ../../dotfiles/scripts/tree-sync.sh))
-    unlock-host # remote ZFS boot-unlock dispatcher for encrypted-root fleet hosts
-    unlock-waterfall # convenience wrapper: unlock-host waterfall
+    unlock-host # remote ZFS boot-unlock dispatcher for encrypted-root hosts:
+    # unlock-host <lan-ip> <initrd-ssh-port> [user] — see hosts/fleet.nix's
+    # initrdSshPort field for the port
     t-rec # blazingly fast terminal recorder that saveas as animated gifs
     unzip # unzip stuff
     usbutils # lsusb etc

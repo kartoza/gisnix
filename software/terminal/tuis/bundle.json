@@ -7,7 +7,6 @@
     "calendar.nix",
     "fastfetch.nix",
     "files.nix",
-    "geotui.nix",
     "lazygit.nix",
     "mail.nix",
     "monitors.nix",

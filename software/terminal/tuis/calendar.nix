@@ -1,19 +1,19 @@
-# Calendar and scheduling applications
+# Calendar and scheduling applications.
+#
+# vdirsyncer (CalDAV/CardDAV sync) is deliberately not deployed here: it
+# needs a real account config (server, credentials) that is yours to
+# write, not something a generic distro can ship a working default for.
+# The packages below read from the same ~/.local/share/{calendars,contacts}
+# vdirsyncer would populate; install vdirsyncer yourself and point its
+# config at /etc/xdg/vdirsyncer/config or ~/.config/vdirsyncer/config
+# if you want the sync half too.
 { pkgs, ... }:
 {
   environment.systemPackages = with pkgs; [
     khal # CLI calendar application with CalDAV support for Google Calendar
     khard # console based contacts management
-    vdirsyncer # Synchronizes calendars and contacts with CalDAV/CardDAV servers
     gcalcli # Command line interface to Google Calendar
   ];
-
-  # Deploy vdirsyncer configuration to /etc/xdg/vdirsyncer/config
-  # vdirsyncer supports VDIRSYNCER_CONFIG env var
-  environment.etc."xdg/vdirsyncer/config" = {
-    mode = "0644";
-    source = ../../../dotfiles/vdirsyncer/config;
-  };
 
   # Deploy khal configuration to /etc/xdg/khal/config
   # khal checks XDG_CONFIG_DIRS which includes /etc/xdg by default
@@ -50,10 +50,4 @@
       fi
     done
   '';
-
-  # vdirsyncer uses VDIRSYNCER_CONFIG env var
-  # khal uses XDG_CONFIG_DIRS (which includes /etc/xdg by default on NixOS)
-  environment.variables = {
-    VDIRSYNCER_CONFIG = "/etc/xdg/vdirsyncer/config";
-  };
 }
