@@ -85,6 +85,15 @@
       target = "/gisnix/overlays";
     }
     {
+      # software/ and overlays/ both reach for files here via relative
+      # `builtins.readFile ../../dotfiles/...` paths (kitty, starship,
+      # herdr, fastfetch, unlock-host, and more) — every one of them is a
+      # missing-file evaluation error on a fresh install unless dotfiles/
+      # is baked onto the ISO too. Caught by utils/check-iso-contents.py.
+      source = ./dotfiles;
+      target = "/gisnix/dotfiles";
+    }
+    {
       source = ./templates;
       target = "/gisnix/templates";
     }
