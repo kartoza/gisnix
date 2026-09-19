@@ -49,6 +49,20 @@ in
 
     boot.supportedFilesystems = [ "zfs" ];
 
+    # Force-importing a pool skips ZFS's own check that the pool isn't
+    # already imported (and potentially still live) elsewhere — the exact
+    # mechanism that catches "this disk is from another machine and that
+    # machine might still be using it" before it becomes silent corruption.
+    # Every gisnix install path creates the pool fresh via disko in the
+    # same boot that will mount it, so the hostid always matches and this
+    # is never needed for anything the installer does. Explicit false
+    # rather than the (currently true, changing to false from NixOS 26.11)
+    # upstream default, so this doesn't drift out from under a host with
+    # an upgrade. A host whose disk genuinely was moved from different
+    # hardware — not a gisnix-supported flow — force-imports once by hand
+    # at the emergency shell rather than carrying the risk on every boot.
+    boot.zfs.forceImportRoot = false;
+
     # Prompt for the passphrase during boot. Pools are always encrypted here,
     # so this is unconditional — without it an encrypted root fails to mount and
     # the machine drops to an emergency shell.

@@ -51,8 +51,8 @@
   swapDevices = [ ];
 
   # ZFS support (used when disks.nix picks the ZFS-encrypted template).
+  # forceImportRoot is set centrally in software/base/zfs.nix, not here.
   boot.supportedFilesystems = [ "zfs" ];
-  boot.zfs.forceImportRoot = true;
   # NIXROOT is encrypted by default (see disks.nix) — prompt for the
   # passphrase at boot. Harmless if the plain XFS template was chosen
   # instead: there is no ZFS pool to prompt for.

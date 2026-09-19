@@ -149,8 +149,8 @@ _HARDWARE_NIX = """{
 }
 """
 
-_ZFS_BLOCK = """  boot.supportedFilesystems = [ "zfs" ];
-  boot.zfs.forceImportRoot = true;
+_ZFS_BLOCK = """  # forceImportRoot is set centrally in software/base/zfs.nix, not here.
+  boot.supportedFilesystems = [ "zfs" ];
   boot.zfs.requestEncryptionCredentials = %(encrypted)s;
   boot.initrd.systemd.enable = true;
   services.zfs.autoScrub.enable = true;"""

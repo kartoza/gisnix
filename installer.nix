@@ -151,7 +151,14 @@
   ];
 
   # ZFS is x86_64-only in nixpkgs — fine here, this ISO is x86_64-only too.
+  # Support only, not a root of its own: the ISO's own root is squashfs,
+  # disko creates the target's pool fresh during install. Explicit false
+  # (see software/base/zfs.nix for the fuller reasoning, which every real
+  # gisnix host gets from that module — this ISO doesn't import it) rather
+  # than the upstream default, which is true today and risks importing a
+  # pool that's still live elsewhere; changing to false from NixOS 26.11.
   boot.supportedFilesystems = [ "zfs" ];
+  boot.zfs.forceImportRoot = false;
 
   # Disable everything not needed for a terminal installer
   services.udisks2.enable = lib.mkForce false;
