@@ -20,7 +20,11 @@ Then edit, in order:
 3. **`hardware.nix`** — real hardware needs real detection. The shipped
    version is a generic virtio/UEFI profile for VM testing; for bare metal,
    replace it with what `nixos-generate-config` produces on the target (or
-   adapt from a real host's `hardware.nix` if you're migrating one).
+   adapt from a real host's `hardware.nix` if you're migrating one). Either
+   way, replace `networking.hostId` with a fresh value
+   (`head -c 8 /etc/machine-id` on the target) — the example's own value is
+   exactly that, an example, and ZFS needs every host to have a different
+   one.
 4. **`disks.nix`** — pick a storage template (see
    [Storage modes](../admin/storage-modes.md) and
    [Architecture](architecture.md#storage-templates)) and set the real

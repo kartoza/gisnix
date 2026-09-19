@@ -50,6 +50,15 @@
   boot.extraModulePackages = [ ];
   swapDevices = [ ];
 
+  # ZFS refuses to import a pool without one — it's how a pool tells two
+  # machines apart, which matters the moment a disk moves between them.
+  # THE VALUE BELOW IS THIS TEMPLATE'S OWN EXAMPLE, NOT YOURS — every host
+  # needs a value nothing else on your network has. Generate a real one
+  # when you copy this file: `head -c 8 /etc/machine-id` on the target,
+  # or the installer generates a fresh one automatically and you never
+  # see this file at all.
+  networking.hostId = "57d6625e";
+
   # ZFS support (used when disks.nix picks the ZFS-encrypted template).
   # forceImportRoot is set centrally in software/base/zfs.nix, not here.
   boot.supportedFilesystems = [ "zfs" ];

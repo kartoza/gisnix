@@ -9,6 +9,7 @@ one `gisnix create-host` creates are byte-identical in shape.
 
 from __future__ import annotations
 
+import secrets
 import sys
 from pathlib import Path
 
@@ -134,6 +135,15 @@ _HARDWARE_NIX = """{
   boot.extraModulePackages = [ ];
   swapDevices = [ ];
 
+  # ZFS refuses to import a pool without one — it's how a pool tells two
+  # machines apart, which matters the moment a disk moves between them.
+  # Generated fresh for this machine at install time (secrets.token_hex,
+  # not derived from the ISO's own /etc/machine-id, which every machine
+  # booting the same image would otherwise share) — not hand-picked, and
+  # deliberately not reused from any template, or every host this
+  # installer ever creates would collide on the same id.
+  networking.hostId = "%(host_id)s";
+
   # Whatever size you picked on the installer's own welcome screen — carried
   # over so the first real boot doesn't spring the same "why is this text
   # enormous" surprise the installer itself shipped with by default.
@@ -173,7 +183,11 @@ def render_hardware_nix(state: InstallState) -> str:
             else "false"
         )
         zfs_block = _ZFS_BLOCK % {"encrypted": encrypted}
-    return _HARDWARE_NIX % {"zfs_block": zfs_block, "console_font_size": state.console_font_size}
+    return _HARDWARE_NIX % {
+        "zfs_block": zfs_block,
+        "console_font_size": state.console_font_size,
+        "host_id": secrets.token_hex(4),
+    }
 
 
 def render_disks_nix(state: InstallState) -> str:
