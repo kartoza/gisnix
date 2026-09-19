@@ -55,18 +55,51 @@ created by hand are byte-identical in shape.
 it works, so the `installing` screen can stream them into a log widget
 rather than blocking silently:
 
-1. Write the host/user/flake files to a temp directory.
+1. Write the host/user/flake files to a temp directory. The generated
+   `flake.nix` carries *two* `nixosConfigurations` at this point: the plain
+   `<hostname>` and an install-only `<hostname>-install` with
+   `stableCosmic = true` (see [Stable COSMIC for the first
+   install](#stable-cosmic-for-the-first-install) below).
 2. Lock the generated flake's `gisnix` input to *this ISO's own local
    copy* (`--override-input gisnix path:$GISNIX_ROOT`) — the install needs
    no network, and installs the exact revision the ISO was built from.
-3. `disko --mode destroy,format,mount --flake <tmpdir>#<hostname>` —
-   through `--flake`, not a raw `disks.nix` path, because `disks.nix` needs
-   `gisnixRoot` supplied via the full module evaluation.
-4. `nixos-install --flake <tmpdir>#<hostname>`.
+3. `disko --mode destroy,format,mount --flake <tmpdir>#<hostname>-install`
+   — through `--flake`, not a raw `disks.nix` path, because `disks.nix`
+   needs `gisnixRoot` supplied via the full module evaluation.
+4. `nixos-install --flake <tmpdir>#<hostname>-install`.
 5. Re-lock the `gisnix` input back to `github:kartoza/gisnix` (best-effort
    — needs network, but the machine is already fully installed either way)
    so the copy that lands in the new owner's home tracks upstream normally.
-6. Copy the flake into `/home/<user>/nixos-config` on the new machine.
+6. Overwrite `flake.nix` with the plain (no `stableCosmic`) version —
+   `render_flake_nix(state)` with no `install=True` — so the `-install`
+   output never reaches the new owner's home.
+7. Copy the flake into `/home/<user>/nixos-config` on the new machine.
+
+### Stable COSMIC for the first install {#stable-cosmic-for-the-first-install}
+
+Every gisnix host pulls COSMIC from `nixpkgs-unstable` (see
+`overlays/default.nix`) — that's deliberate for a *running* system doing an
+occasional `gisnix update`, but it meant the very first install, watched
+over someone's shoulder from a live ISO, could end up compiling desktop
+components with no cache hit. nixos-26.05 (stable) already carries
+`cosmic-comp` 1.2.0, fully built on cache.nixos.org.
+
+`lib.mkHost` takes an optional `stableCosmic` argument, threaded into
+`overlays/default.nix`, which swaps COSMIC's package source from
+`nixpkgs-unstable` to `prev` (the stable nixpkgs already underneath
+everything else) when set. It defaults to `false` — every host built by
+`nix run .#<host>-vm`, every real fleet machine, and `gisnix update` on an
+already-installed one all still pull COSMIC from `nixpkgs-unstable`, same
+as before this existed. Only the installer's own `-install` output sets
+it, and only for the one `nixos-install` run that needs to finish fast.
+
+The practical effect: first boot is on stable COSMIC 1.2.0, already built.
+The first `gisnix update` from `~/nixos-config` afterward is what actually
+moves the machine to bleeding-edge COSMIC (and whatever else
+`nixpkgs-unstable` carries) — which may compile something nixos-unstable's
+Hydra hasn't gotten to yet, same as it always has. That trade — a fast,
+fully-cached first boot, one deliberate `gisnix update` away from
+bleeding-edge — is the point, not a compromise to fix later.
 
 ## `--mock` mode
 

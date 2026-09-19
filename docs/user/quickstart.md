@@ -51,7 +51,11 @@ and follow the wizard:
    no return: the selected disk(s) are erased.
 8. **Install** — disko partitions and formats, `nixos-install` builds the
    system, and a tiny flake pinning gisnix is written to
-   `~/nixos-config` on the new machine.
+   `~/nixos-config` on the new machine. This one build pulls COSMIC from
+   stable nixpkgs rather than the bleeding-edge build every other gisnix
+   host uses, so it's fully cached and doesn't compile a desktop from
+   source — see [Afterwards](#afterwards) for the one command that moves
+   you onto the latest COSMIC once you're booted.
 
 Want to see the wizard first without touching a real disk? `setup
 --mock` (or `gisnix setup --mock` from a gisnix checkout) fakes disks and
@@ -63,7 +67,7 @@ network and skips every destructive step — no sudo needed either, since
 Remove the USB drive, reboot, type the ZFS passphrase if you chose
 encryption, and log in with the account you created.
 
-## Afterwards
+## Afterwards {#afterwards}
 
 `~/nixos-config` is the single source of truth from here. It's a plain
 NixOS flake — the always-working path is:
@@ -75,6 +79,19 @@ cd ~/nixos-config
 # references/bundles.md for what each one holds)
 sudo nixos-rebuild switch --flake .#<name>
 ```
+
+The desktop you just booted into is running stable COSMIC (see step 8
+above) — a deliberate trade for a fast, fully-cached first install, not
+the end state. Run this once you're online to move to the same
+bleeding-edge COSMIC every other gisnix host tracks:
+
+```bash
+gisnix update
+```
+
+This may compile something nixos-unstable's own cache hasn't built yet,
+so expect it to take longer than a routine update — that cost only shows
+up here, once, instead of during the install itself.
 
 !!! note "The `gisnix configure` menu"
     On a full checkout that keeps `utils/` alongside `hosts/` — gisnix

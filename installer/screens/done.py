@@ -28,7 +28,12 @@ class DoneScreen(Screen):
             yield Static(
                 f"1. Remove the USB drive and reboot.\n"
                 f"2. If you chose ZFS encryption, enter the passphrase at the prompt.\n"
-                f"3. Log in as {state.username}.\n\n"
+                f"3. Log in as {state.username}.\n"
+                f"4. Once you're online, run [b]gisnix update[/b] — this install pulled "
+                f"COSMIC from stable nixpkgs so it would finish fast, fully cached; "
+                f"gisnix update moves you onto the same bleeding-edge COSMIC every other "
+                f"gisnix machine tracks (may take a while the first time, since that's "
+                f"the one place this install deferred a real compile to).\n\n"
                 f"~/nixos-config is the single source of truth from here — "
                 f"gisnix configure, gisnix update, gisnix bundles all work exactly as on any "
                 f"other gisnix machine."
