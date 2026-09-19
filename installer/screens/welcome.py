@@ -3,6 +3,7 @@ from __future__ import annotations
 from textual.widgets import Static
 
 from ..repo import MOCK
+from ..widgets import FontSizeSlider
 from .base import WizardScreen
 
 
@@ -33,6 +34,13 @@ class WelcomeScreen(WizardScreen):
                 else ""
             ),
         )
+        yield FontSizeSlider(self.app.state.console_font_size, id="font-size-slider")
+
+    def on_next(self) -> bool | None:
+        self.app.state.console_font_size = self.query_one(
+            "#font-size-slider", FontSizeSlider
+        ).size_pt
+        return True
 
     def on_back(self) -> None:
         self.app.exit()

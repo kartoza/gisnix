@@ -134,6 +134,13 @@ _HARDWARE_NIX = """{
   boot.extraModulePackages = [ ];
   swapDevices = [ ];
 
+  # Whatever size you picked on the installer's own welcome screen — carried
+  # over so the first real boot doesn't spring the same "why is this text
+  # enormous" surprise the installer itself shipped with by default.
+  console.font = "ter-v%(console_font_size)sn";
+  console.packages = [ pkgs.terminus_font ];
+  console.earlySetup = true;
+
 %(zfs_block)s
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
@@ -166,7 +173,7 @@ def render_hardware_nix(state: InstallState) -> str:
             else "false"
         )
         zfs_block = _ZFS_BLOCK % {"encrypted": encrypted}
-    return _HARDWARE_NIX % {"zfs_block": zfs_block}
+    return _HARDWARE_NIX % {"zfs_block": zfs_block, "console_font_size": state.console_font_size}
 
 
 def render_disks_nix(state: InstallState) -> str:

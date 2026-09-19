@@ -32,7 +32,10 @@ installer
 and follow the wizard:
 
 1. **Welcome** and a network check (offline installs can continue if the
-   closure is already cached).
+   closure is already cached). The welcome screen also has a console font
+   size control — focus it and press ←/→, and the whole display resizes
+   immediately, before you commit to anything. The size you land on carries
+   through to the installed machine's own console, too.
 2. **New host, or an existing profile** — pick a profile if one is already
    committed somewhere gisnix can see it; otherwise start fresh.
 3. **Hostname, locale, boot theme** (Kartoza or QGIS Plymouth/GRUB splash).
