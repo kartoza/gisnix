@@ -129,6 +129,36 @@ def network_is_up() -> bool:
         return False
 
 
+class GitHubKeysError(Exception):
+    """Raised by fetch_github_keys with a message fit to show the user."""
+
+
+def fetch_github_keys(username: str) -> list[str]:
+    """The public keys GitHub publishes for this user, no auth needed —
+    https://github.com/<username>.keys is the same plain-text list GitHub's
+    own docs point people at for `ssh-copy-id`. Same trick tuinix's
+    installer used it for: typing a public key into a wizard by hand is
+    unreliable, and there's usually no clipboard to paste one from on a
+    live ISO either."""
+    if MOCK:
+        return [f"ssh-ed25519 AAAAMOCKMOCKMOCKMOCKMOCKMOCK {username}@github"]
+    try:
+        proc = subprocess.run(
+            ["curl", "-fsS", "--max-time", "10", f"https://github.com/{username}.keys"],
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise GitHubKeysError(f"could not reach GitHub ({exc}).") from exc
+    if proc.returncode != 0:
+        raise GitHubKeysError(f"GitHub user {username!r} not found, or GitHub is unreachable.")
+    keys = [line.strip() for line in proc.stdout.splitlines() if line.strip()]
+    if not keys:
+        raise GitHubKeysError(f"GitHub user {username!r} has no public keys listed.")
+    return keys
+
+
 _VALID_HOSTNAME = re.compile(r"^[a-z][a-z0-9-]{0,62}$")
 _VALID_USERNAME = re.compile(r"^[a-z_][a-z0-9_-]{0,31}$")
 

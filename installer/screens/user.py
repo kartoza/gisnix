@@ -3,7 +3,7 @@ from __future__ import annotations
 from textual.containers import VerticalGroup
 from textual.widgets import Input, Label, TextArea
 
-from ..repo import hash_password, valid_username
+from ..repo import GitHubKeysError, fetch_github_keys, hash_password, valid_username
 from .base import WizardScreen
 
 
@@ -21,7 +21,9 @@ class UserScreen(WizardScreen):
             yield Input(password=True, id="password-input")
             yield Label("Confirm password")
             yield Input(password=True, id="password-confirm-input")
-            yield Label("SSH public key(s) — optional, one per line")
+            yield Label("GitHub username — imports your public key(s) automatically")
+            yield Input(placeholder="e.g. octocat (optional)", id="github-username-input")
+            yield Label("Or paste key(s) directly, one per line — both are optional")
             # A class-level CSS override here would REPLACE WizardScreen's
             # CSS rather than merge with it (Screen.CSS is a plain class
             # attribute, not something Textual combines across a subclass
@@ -53,6 +55,15 @@ class UserScreen(WizardScreen):
 
         keys_text = self.query_one("#sshkeys-input", TextArea).text
         keys = [line.strip() for line in keys_text.splitlines() if line.strip()]
+
+        github_username = self.query_one("#github-username-input", Input).value.strip()
+        if github_username:
+            try:
+                fetched = fetch_github_keys(github_username)
+            except GitHubKeysError as exc:
+                self.set_error(str(exc), focus="#github-username-input")
+                return False
+            keys = list(dict.fromkeys(keys + fetched))  # de-duplicate, keep order
 
         state = self.app.state
         state.username = username

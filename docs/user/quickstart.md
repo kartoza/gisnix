@@ -40,7 +40,10 @@ and follow the wizard:
 2. **New host, or an existing profile** — pick a profile if one is already
    committed somewhere gisnix can see it; otherwise start fresh.
 3. **Hostname, locale, boot theme** (Kartoza or QGIS Plymouth/GRUB splash).
-4. **User account** — username, password, optional SSH public key(s).
+4. **User account** — username, password, and a way to get your SSH
+   key(s) onto the machine: type a GitHub username and it pulls your
+   public keys from `github.com/<username>.keys`, or paste key(s) in
+   directly if you'd rather. Both are optional.
 5. **Storage** — ZFS single-disk encrypted (recommended, AES-256-GCM
    passphrase), plain XFS single-disk, or multi-disk ZFS
    stripe/raidz/raidz2.
