@@ -50,18 +50,22 @@ in
     boot.supportedFilesystems = [ "zfs" ];
 
     # Force-importing a pool skips ZFS's own check that the pool isn't
-    # already imported (and potentially still live) elsewhere — the exact
-    # mechanism that catches "this disk is from another machine and that
-    # machine might still be using it" before it becomes silent corruption.
-    # Every gisnix install path creates the pool fresh via disko in the
-    # same boot that will mount it, so the hostid always matches and this
-    # is never needed for anything the installer does. Explicit false
-    # rather than the (currently true, changing to false from NixOS 26.11)
-    # upstream default, so this doesn't drift out from under a host with
-    # an upgrade. A host whose disk genuinely was moved from different
-    # hardware — not a gisnix-supported flow — force-imports once by hand
-    # at the emergency shell rather than carrying the risk on every boot.
-    boot.zfs.forceImportRoot = false;
+    # already imported (and potentially still live) elsewhere. This used to
+    # be false here on the theory that disko creates the pool fresh in the
+    # same boot that mounts it, so the hostid always matches — that theory
+    # is wrong, confirmed against a real install ("cannot import 'NIXROOT':
+    # pool was previously in use from another system... Last accessed by
+    # nixos (hostid=...)"). Disko creates the pool while still running
+    # under the LIVE ISO's own ambient hostid; the INSTALLED system boots
+    # with a different one — installer/writer.py generates a fresh,
+    # per-host networking.hostId for the target config, unrelated to
+    # whatever the installer environment happened to be using. Every
+    # install's first boot hits this mismatch, unavoidably. `true` only
+    # matters for that one boot: importing successfully re-stamps the pool
+    # with the booting system's own hostid, so every boot after the first
+    # already matches and force is a no-op — this is what tuinix already
+    # does, unconditionally, with no reported issue.
+    boot.zfs.forceImportRoot = true;
 
     # Prompt for the passphrase during boot. Pools are always encrypted here,
     # so this is unconditional — without it an encrypted root fails to mount and
