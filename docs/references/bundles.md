@@ -326,7 +326,7 @@ graph LR
 
 | Bundle | Modules | Requires | Pulled in by |
 | --- | --- | --- | --- |
-| [`base`](#base)  | 9 | — | — |
+| [`base`](#base)  | 10 | — | — |
 | [`base-kernel`](#base-kernel)  *(choice)* | 2 | — | — |
 | [`terminal-ai`](#terminal-ai)  | 4 | — | — |
 | [`terminal-chat`](#terminal-chat)  | 1 | — | — |
@@ -401,6 +401,7 @@ graph LR
 | `initrd-ssh-unlock.nix` | Getting back into a machine when something in the initrd goes wrong, at the console |
 | `kitty.nix` | — |
 | `starship.nix` | — |
+| `user-config-ownership.nix` | Several modules (kitty.nix, herdr.nix, yazi.nix, calendar.nix, and any future one following the same pattern) deploy… |
 | `utilities.nix` | — |
 | `zfs.nix` | ZFS root: pool behaviour, the bootloader that has to understand it, and the passphrase prompt at boot |
 | `zram.nix` | — |
@@ -1154,6 +1155,6 @@ Taking this also brings in `services-system`.
 
 ---
 
-60 bundles, 149 modules.
+60 bundles, 150 modules.
 
 Made with love by [Kartoza](https://kartoza.com) | [Donate](https://github.com/sponsors/timlinux) | [GitHub](https://github.com/kartoza/gisnix)

@@ -20,6 +20,7 @@
     "initrd-ssh-unlock.nix",
     "kitty.nix",
     "starship.nix",
+    "user-config-ownership.nix",
     "utilities.nix",
     "zfs.nix",
     "zram.nix"
