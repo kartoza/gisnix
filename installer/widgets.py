@@ -18,7 +18,19 @@ from textual.widgets import Static
 #: upstream, which doesn't matter here since nothing asks for bold.
 FONT_SIZES = [12, 14, 16, 18, 20, 22, 24, 28, 32]
 
-DEFAULT_FONT_SIZE = 16
+#: Matches the live ISO's own fixed console font (installer.nix sets
+#: ter-v32n unconditionally) — the one size actually confirmed to render
+#: correctly, in multiple screenshots, on real console hardware. Every
+#: OTHER size in FONT_SIZES is only ever exercised live, on the ISO's own
+#: console, during the wizard itself — a genuinely different code path
+#: from what the INSTALLED system boots with, and untested there. A
+#: garbled post-install console (unreadable, not just unattractive —
+#: confirmed against a real install) traced to exactly that: the
+#: installed system defaulted to a smaller, never-independently-confirmed
+#: size instead of the one already proven. Change this back down only
+#: once a smaller size has been confirmed against a real POST-INSTALL
+#: boot, not just the live ISO.
+DEFAULT_FONT_SIZE = 32
 
 
 def set_console_font_size(size: int) -> None:
