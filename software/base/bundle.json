@@ -20,7 +20,6 @@
     "kitty.nix",
     "starship.nix",
     "utilities.nix",
-    "zfs-backup.nix",
     "zfs.nix",
     "zram.nix"
   ]

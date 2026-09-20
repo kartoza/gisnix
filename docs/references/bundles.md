@@ -240,6 +240,7 @@ graph LR
   desktop_productivity["desktop-productivity"]
   desktop_remote["desktop-remote"]
   desktop_essentials["desktop-essentials"]
+  desktop_essentials_extras["desktop-essentials-extras"]
   desktop_gis_source_builds["desktop-gis-source-builds<br/><i>opt-in</i>"]
   desktop_environments_cosmic_extensions["desktop-environments-cosmic-extensions<br/><i>opt-in</i>"]
   desktop_gis_versions_qgis_1_8["desktop-gis-versions-qgis-1-8<br/><i>opt-in</i>"]
@@ -285,6 +286,7 @@ graph LR
   desktop_productivity --> desktop_environments_cosmic
   desktop_remote --> desktop_environments_cosmic
   desktop_environments_cosmic --> desktop_essentials
+  desktop_essentials_extras --> desktop_essentials
   desktop_gis_source_builds --> desktop_gis
   desktop_environments_cosmic_extensions --> desktop_environments_cosmic
   desktop_gis_versions_qgis_1_8 --> desktop_gis
@@ -324,7 +326,7 @@ graph LR
 
 | Bundle | Modules | Requires | Pulled in by |
 | --- | --- | --- | --- |
-| [`base`](#base)  | 9 | — | — |
+| [`base`](#base)  | 8 | — | — |
 | [`base-kernel`](#base-kernel)  *(choice)* | 2 | — | — |
 | [`terminal-ai`](#terminal-ai)  | 4 | — | — |
 | [`terminal-chat`](#terminal-chat)  | 1 | — | — |
@@ -333,7 +335,7 @@ graph LR
 | [`desktop-browsers`](#desktop-browsers)  | 1 | `desktop-environments-cosmic` | — |
 | [`desktop-comms`](#desktop-comms)  | 3 | `desktop-environments-cosmic` | — |
 | [`desktop-ebook-readers`](#desktop-ebook-readers)  | 4 | `desktop-environments-cosmic` | — |
-| [`desktop-essentials`](#desktop-essentials)  | 2 | — | `desktop-environments-cosmic` |
+| [`desktop-essentials`](#desktop-essentials)  | 1 | — | `desktop-environments-cosmic`, `desktop-essentials-extras` |
 | [`desktop-games`](#desktop-games)  | 3 | `desktop-environments-cosmic` | — |
 | [`desktop-gis`](#desktop-gis)  | 8 | `desktop-environments-cosmic` | `desktop-gis-source-builds`, `desktop-gis-versions-qgis-1-8`, `desktop-gis-versions-qgis-2-10`, `desktop-gis-versions-qgis-2-16`, `desktop-gis-versions-qgis-2-18`, `desktop-gis-versions-qgis-2-4`, `desktop-gis-versions-qgis-2-6`, `desktop-gis-versions-qgis-2-8`, `desktop-gis-versions-qgis-3-10`, `desktop-gis-versions-qgis-3-16`, `desktop-gis-versions-qgis-3-22`, `desktop-gis-versions-qgis-3-24`, `desktop-gis-versions-qgis-3-26`, `desktop-gis-versions-qgis-3-28`, `desktop-gis-versions-qgis-3-32`, `desktop-gis-versions-qgis-3-34`, `desktop-gis-versions-qgis-3-36`, `desktop-gis-versions-qgis-3-38`, `desktop-gis-versions-qgis-3-4`, `desktop-gis-versions-qgis-3-40`, `desktop-gis-versions-qgis-3-42`, `desktop-gis-versions-qgis-3-44`, `desktop-gis-versions-qgis-3-8`, `desktop-gis-versions-qgis-4-0` |
 | [`desktop-kartoza-apps`](#desktop-kartoza-apps)  | 1 | `desktop-environments-cosmic` | — |
@@ -341,6 +343,7 @@ graph LR
 | [`desktop-productivity`](#desktop-productivity)  | 3 | `desktop-environments-cosmic` | — |
 | [`desktop-remote`](#desktop-remote)  | 3 | `desktop-environments-cosmic` | — |
 | [`desktop-environments-cosmic`](#desktop-environments-cosmic)  | 3 | `desktop-essentials` | `desktop-browsers`, `desktop-comms`, `desktop-ebook-readers`, `desktop-environments-cosmic-extensions`, `desktop-games`, `desktop-gis`, `desktop-kartoza-apps`, `desktop-multimedia`, `desktop-productivity`, `desktop-remote` |
+| [`desktop-essentials-extras`](#desktop-essentials-extras)  | 1 | `desktop-essentials` | — |
 | [`desktop-gis-source-builds`](#desktop-gis-source-builds)  | 3 | `desktop-gis` | — |
 | [`desktop-environments-cosmic-extensions`](#desktop-environments-cosmic-extensions)  | 1 | `desktop-environments-cosmic` | — |
 | [`desktop-gis-versions-qgis-1-8`](#desktop-gis-versions-qgis-1-8)  | 1 | `desktop-gis` | — |
@@ -380,7 +383,7 @@ graph LR
 | [`services-system-boot-themes`](#services-system-boot-themes)  *(choice)* | 6 | — | — |
 | [`services-system-console`](#services-system-console)  | 4 | `services-system` | — |
 | [`services-system-power`](#services-system-power)  | 3 | `services-system` | — |
-| [`services-system-storage`](#services-system-storage)  | 2 | `services-system` | — |
+| [`services-system-storage`](#services-system-storage)  | 3 | `services-system` | — |
 | [`security`](#security)  | 4 | — | — |
 | [`locale`](#locale)  *(choice)* | 8 | — | — |
 
@@ -398,7 +401,6 @@ graph LR
 | `kitty.nix` | — |
 | `starship.nix` | — |
 | `utilities.nix` | — |
-| `zfs-backup.nix` | — |
 | `zfs.nix` | ZFS root: pool behaviour, the bootloader that has to understand it, and the passphrase prompt at boot |
 | `zram.nix` | — |
 
@@ -513,7 +515,6 @@ Taking this also brings in `desktop-environments-cosmic`.
 
 | Module | What it is |
 | --- | --- |
-| `desktop-base-extras.nix` | Desktop applications beyond the minimum a COSMIC session needs |
 | `desktop-base.nix` | Desktop base — DE-agnostic desktop pieces that are NOT COSMIC-repo packages |
 
 ### desktop-games
@@ -615,6 +616,18 @@ Taking this also brings in `desktop-essentials`.
 | `cosmic.nix` | COSMIC Desktop Environment — the kartoza.cosmic option and the settings that depend on it |
 | `packages.nix` | COSMIC Desktop Packages Applications and utilities for the COSMIC desktop environment COSMIC packages come from… |
 | `ssh-gpg.nix` | COSMIC Desktop SSH and GPG integration |
+
+### desktop-essentials-extras
+
+*Desktop extras beyond the minimum a COSMIC session needs: clipboard history, document/image viewers, screen recording, disk management, and standalone volume/network applets. Split out so a fast first install can skip them and add them back with `gisnix configure` once there's a GUI to do it from.*
+
+`software/desktop/essentials/extras/`
+
+Taking this also brings in `desktop-essentials`.
+
+| Module | What it is |
+| --- | --- |
+| `desktop-base-extras.nix` | Desktop applications beyond the minimum a COSMIC session needs |
 
 ### desktop-gis-source-builds
 
@@ -1096,7 +1109,7 @@ Taking this also brings in `services-system`.
 
 ### services-system-storage
 
-*Filesystem support and snapshot scheduling: NTFS for external drives, sanoid for automatic ZFS snapshots.*
+*Filesystem support and snapshot scheduling: NTFS for external drives, sanoid for automatic ZFS snapshots, and a manual ZFS backup TUI for offloading snapshots to an external drive.*
 
 `software/services/system/storage/`
 
@@ -1104,6 +1117,7 @@ Taking this also brings in `services-system`.
 
 - `ntfs.nix`
 - `sanoid.nix`
+- `zfs-backup.nix`
 
 ### security
 
@@ -1139,6 +1153,6 @@ Taking this also brings in `services-system`.
 
 ---
 
-59 bundles, 148 modules.
+60 bundles, 148 modules.
 
 Made with love by [Kartoza](https://kartoza.com) | [Donate](https://github.com/sponsors/timlinux) | [GitHub](https://github.com/kartoza/gisnix)

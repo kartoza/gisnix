@@ -4,7 +4,6 @@
   "description": "Desktop-environment-agnostic pieces every graphical session needs: fonts, file manager, clipboard, notifications, document viewers, screen capture.",
   "implies": [],
   "modules": [
-    "desktop-base-extras.nix",
     "desktop-base.nix"
   ]
 }

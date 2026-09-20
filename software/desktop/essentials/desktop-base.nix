@@ -1,8 +1,9 @@
 # Desktop base — DE-agnostic desktop pieces that are NOT COSMIC-repo
-# packages. Imported unconditionally by profiles/cosmic-desktop.nix.
-#
-# Split into two tiers:
-#   * always-on  — the bare minimum for a usable COSMIC session (kept even
+# packages. The bare minimum for a usable COSMIC session — clipboard
+# history, document viewers, screen recording, and the rest of what a
+# workstation also wants live in the separate desktop-essentials-extras
+# bundle instead, so a fast first install can skip them and add them back
+# with `gisnix configure` once there's a GUI to do it from.
 {
   pkgs,
   lib,
@@ -10,8 +11,6 @@
   ...
 }:
 {
-  imports = [ ./desktop-base-extras.nix ];
-
   environment.systemPackages = (
     with pkgs;
     [

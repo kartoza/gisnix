@@ -1,0 +1,11 @@
+{
+  "name": "desktop-essentials-extras",
+  "path": "desktop/essentials/extras",
+  "description": "Desktop extras beyond the minimum a COSMIC session needs: clipboard history, document/image viewers, screen recording, disk management, and standalone volume/network applets. Split out so a fast first install can skip them and add them back with `gisnix configure` once there's a GUI to do it from.",
+  "implies": [
+    "desktop-essentials"
+  ],
+  "modules": [
+    "desktop-base-extras.nix"
+  ]
+}

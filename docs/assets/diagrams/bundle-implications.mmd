@@ -10,6 +10,7 @@ graph LR
   desktop_productivity["desktop-productivity"]
   desktop_remote["desktop-remote"]
   desktop_essentials["desktop-essentials"]
+  desktop_essentials_extras["desktop-essentials-extras"]
   desktop_gis_source_builds["desktop-gis-source-builds<br/><i>opt-in</i>"]
   desktop_environments_cosmic_extensions["desktop-environments-cosmic-extensions<br/><i>opt-in</i>"]
   desktop_gis_versions_qgis_1_8["desktop-gis-versions-qgis-1-8<br/><i>opt-in</i>"]
@@ -55,6 +56,7 @@ graph LR
   desktop_productivity --> desktop_environments_cosmic
   desktop_remote --> desktop_environments_cosmic
   desktop_environments_cosmic --> desktop_essentials
+  desktop_essentials_extras --> desktop_essentials
   desktop_gis_source_builds --> desktop_gis
   desktop_environments_cosmic_extensions --> desktop_environments_cosmic
   desktop_gis_versions_qgis_1_8 --> desktop_gis
