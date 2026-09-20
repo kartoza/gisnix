@@ -304,6 +304,8 @@
         "docs-build"
         "docs-generate-bundles"
         "docs-generate-commands"
+        "docs-generate-hosts"
+        "docs-generate-software"
         "test-install"
       ]
       ++ builtins.concatMap (h: [
@@ -679,6 +681,24 @@
             name = "docs-generate-commands";
             description = "Regenerate docs/references/commands.md from utils/commands.json";
             body = "exec python3 docs/scripts/generate-commands-docs.py";
+          };
+          # Both of these run `nix eval` against every host in .#all-hosts,
+          # so — unlike the two above — they need a real nix daemon and a
+          # full flake evaluation. Not runnable in a sandboxed agent
+          # environment without one; that's also exactly why nobody had
+          # verified they still worked against gisnix's own example host
+          # until they were finally wired up here.
+          docs-generate-hosts = mkDocsApp {
+            name = "docs-generate-hosts";
+            description = "Regenerate docs/hosts/<host>.md from each host's evaluated config";
+            extraInputs = [ defaultPkgs.nix ];
+            body = "exec python3 docs/scripts/generate-host-docs.py";
+          };
+          docs-generate-software = mkDocsApp {
+            name = "docs-generate-software";
+            description = "Regenerate docs/references/software.md, the fleet-wide package catalogue";
+            extraInputs = [ defaultPkgs.nix ];
+            body = "exec python3 docs/scripts/generate-software-catalogue.py";
           };
         }
         // commandApps
