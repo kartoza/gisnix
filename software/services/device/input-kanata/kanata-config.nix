@@ -252,7 +252,7 @@ let
           _ _ ${emailInLayer} _ _    _ @herdr-agent-down @herdr-agent-up _ _
           _ _ _ _ _    @herdr-left @herdr-down @herdr-up @herdr-right _
           _ _ _ _ _    @herdr-new-tab _ _ _ _
-          _ _ _ _ _
+          _ _ _${herdrPass}${tabPass}
         )
       '';
 
@@ -314,7 +314,7 @@ let
           _ _ ${emailInLayer} @aerc-reply _    @aerc-headers @aerc-unread @aerc-flag @aerc-contact-edit _
           @aerc-archive @aerc-spam @aerc-delete @aerc-forward @aerc-recall    @aerc-acct-prev @aerc-folder-next @aerc-folder-prev @aerc-acct-next _
           _ _ @aerc-compose @aerc-search @aerc-filter    @aerc-contact-add @aerc-mark _ _ _
-          _ _ _ _ _
+          _ _ _${herdrPass}${tabPass}
         )
       '';
 
