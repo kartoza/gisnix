@@ -25,9 +25,6 @@ STORAGE_ZFS_MULTI = "zfs-multi"
 
 @dataclass
 class InstallState:
-    # welcome step
-    console_font_size: int = 16  # pt; see installer/widgets.py's FontSizeSlider
-
     # host_mode step
     use_existing_host: bool = False
     existing_host_name: str | None = None

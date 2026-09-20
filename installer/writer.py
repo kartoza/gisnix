@@ -148,13 +148,6 @@ _HARDWARE_NIX = """{
   # installer ever creates would collide on the same id.
   networking.hostId = "%(host_id)s";
 
-  # Whatever size you picked on the installer's own welcome screen — carried
-  # over so the first real boot doesn't spring the same "why is this text
-  # enormous" surprise the installer itself shipped with by default.
-  console.font = "ter-v%(console_font_size)sn";
-  console.packages = [ pkgs.terminus_font ];
-  console.earlySetup = true;
-
 %(zfs_block)s
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
@@ -189,7 +182,6 @@ def render_hardware_nix(state: InstallState) -> str:
         zfs_block = _ZFS_BLOCK % {"encrypted": encrypted}
     return _HARDWARE_NIX % {
         "zfs_block": zfs_block,
-        "console_font_size": state.console_font_size,
         "host_id": secrets.token_hex(4),
     }
 
