@@ -29,16 +29,15 @@ whole wizard) before advancing.
 
 The `bundles` screen doesn't open a picker — it installs the fixed
 `DEFAULT_BUNDLES` set (`base` + minimal COSMIC, `installer/state.py`) and
-moves on. It used to suspend the wizard (`with self.app.suspend():`) and
-call `configure_tui.choose(...)`, the same picker `gisnix configure` uses
-on an installed machine, but that picker is itself a Textual `App`, and
-`App.run()` calls `asyncio.run()` — which cannot nest inside the
-installer's own already-running event loop. `suspend()` releases the
-terminal for a subprocess; it doesn't exit the installer's asyncio loop,
-so the inner `asyncio.run()` still fires into a loop that's already
-running and crashes. The same picker is one `gisnix configure` away once
-the machine is up — running standalone there, with no outer loop to
-collide with.
+moves on. Reusing `gisnix configure`'s own picker here (`with
+self.app.suspend():` around a call to `configure_tui.choose(...)`)
+doesn't work: that picker is itself a Textual `App`, and `App.run()`
+calls `asyncio.run()` — which cannot nest inside the installer's own
+already-running event loop. `suspend()` releases the terminal for a
+subprocess; it doesn't exit the installer's asyncio loop, so the inner
+`asyncio.run()` still fires into a loop that's already running and
+crashes. The same picker is one `gisnix configure` away once the machine
+is up — running standalone there, with no outer loop to collide with.
 
 ## Writing the new machine's files
 

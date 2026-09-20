@@ -87,8 +87,7 @@ Ctrl+C, same as tapping it always has.
 ## Navigation layer
 
 Hold Space and the layout underneath your left hand becomes a mouse; your
-right hand becomes arrow keys and paging. (Menu used to reach this layer
-too — it now drives push-to-talk instead, see below.)
+right hand becomes arrow keys and paging.
 
 | Key | Action |
 |---|---|
