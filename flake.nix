@@ -633,7 +633,7 @@
                   -device virtio-blk-pci,drive=disk0,serial=gisnix-root \
                   -cdrom "$ISO" \
                   -boot order=dc,menu=on \
-                  -netdev user,id=net0 \
+                  -netdev user,id=net0,hostfwd=tcp::2222-:22,hostfwd=tcp::2223-:2222 \
                   -device virtio-net-pci,netdev=net0 \
                   -display sdl \
                   -usb -device qemu-xhci -device usb-tablet \
