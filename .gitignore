@@ -1,6 +1,7 @@
 result
 result-*
 .direnv/
+/.cache/
 .envrc.local
 __pycache__/
 *.pyc

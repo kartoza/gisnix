@@ -1,0 +1,12 @@
+graph LR
+    INET[("Internet")]
+    TS{{"Tailscale mesh"}}
+    example["example"]
+    INET --> example
+    classDef server fill:#FCF3E0,stroke:#DF9E2F,stroke-width:2px,color:#383939
+    classDef desktop fill:#EAF3F8,stroke:#569FC6,stroke-width:2px,color:#383939
+    classDef inet fill:#F5F5F2,stroke:#8A8B8B,color:#383939
+    classDef mesh fill:#EAF3F8,stroke:#569FC6,stroke-width:2px,color:#383939
+    class example desktop
+    class INET inet
+    class TS mesh

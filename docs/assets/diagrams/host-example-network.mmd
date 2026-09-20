@@ -1,0 +1,11 @@
+graph LR
+    HOST["example<br/>x86_64-linux"]
+    INET[("Internet")]
+    INET -- "TCP: 22<br/>UDP: 5353" --> HOST
+    HOST -- outbound --> INET
+    classDef host fill:#FCF3E0,stroke:#DF9E2F,stroke-width:2px,color:#383939
+    classDef inet fill:#F5F5F2,stroke:#8A8B8B,color:#383939
+    classDef mesh fill:#EAF3F8,stroke:#569FC6,stroke-width:2px,color:#383939
+    classDef other fill:#F5F5F2,stroke:#D1D1D1,color:#383939
+    class HOST host
+    class INET inet

@@ -1,0 +1,16 @@
+graph TD
+    HW["Hardware<br/>x86_64-linux"]
+    BOOT["Bootloader<br/>GRUB"]
+    KERN["Linux kernel<br/>6.18.52"]
+    SD["systemd<br/>29 services, 5 timers"]
+    HW --> BOOT --> KERN --> SD
+    DM["Display manager<br/>cosmic-greeter, greetd"]
+    DE["Desktop env<br/>COSMIC"]
+    APPS["Applications<br/>247 packages"]
+    SD --> DM --> DE --> APPS
+    classDef hw fill:#F5F5F2,stroke:#8A8B8B,color:#383939
+    classDef sys fill:#EAF3F8,stroke:#569FC6,color:#383939
+    classDef de fill:#FCF3E0,stroke:#DF9E2F,color:#383939
+    class HW,BOOT hw
+    class KERN,SD sys
+    class DM,DE,APPS de
