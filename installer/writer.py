@@ -236,6 +236,16 @@ def render_user_nix(state: InstallState) -> str:
     openssh.authorizedKeys.keys = {keys_block};
   }};
 
+  # Same password as the account above, not a new credential — root has
+  # no login of its own otherwise (nixos-install --root-passwd blocks the
+  # automated install waiting on a terminal prompt Textual never forwards,
+  # so installer_run.py passes --no-root-passwd instead). Without this,
+  # a hashedPassword of null reads to sulogin as a LOCKED account, not an
+  # empty one — so a boot failure before {state.username}'s own login is
+  # reachable also means no rescue shell at all, at exactly the moment
+  # one is needed most.
+  users.users.root.hashedPassword = "{state.password_hash}";
+
   # kanata (services-device-input-kanata, on by default) writes remapped
   # keystrokes through /dev/uinput — see software/services/device/
   # input-kanata/kanata-keyboard.nix's own header for the group this needs.
