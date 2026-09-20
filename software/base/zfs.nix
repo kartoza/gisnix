@@ -74,7 +74,16 @@ in
     boot.loader.grub.devices = [ "nodev" ];
     boot.loader.grub.efiInstallAsRemovable = true;
     boot.loader.grub.efiSupport = true;
-    boot.loader.grub.useOSProber = true;
+
+    # os-prober scans every attached block/optical device for other
+    # operating systems to add to the boot menu — pointless here, since
+    # every gisnix install path (like forceImportRoot above) creates the
+    # target disk fresh via disko, single-OS, in the same boot that
+    # installs it. Worse than pointless during the install itself: the
+    # live ISO is still attached as its own virtual CD-ROM at that point,
+    # and os-prober scanning a slow/emulated optical device is a
+    # well-known way for `install-grub.sh` to crawl or hang outright.
+    boot.loader.grub.useOSProber = false;
 
     # networking.hostId is required by ZFS and is set per host in hardware.nix.
 
