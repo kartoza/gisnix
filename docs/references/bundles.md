@@ -398,7 +398,7 @@ graph LR
 | `fetchers.nix` | — |
 | `fish.nix` | — |
 | `herdr.nix` | — |
-| `initrd-ssh-unlock.nix` | Getting back into a machine when something in the initrd goes wrong, remotely or at the console |
+| `initrd-ssh-unlock.nix` | Getting back into a machine when something in the initrd goes wrong, at the console |
 | `kitty.nix` | — |
 | `starship.nix` | — |
 | `utilities.nix` | — |
