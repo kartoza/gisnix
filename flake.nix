@@ -127,12 +127,30 @@
         }
       );
 
-      # Project config
+      # Project config. gisnix's own defaults — a downstream flake almost
+      # certainly wants its OWN values here (its real domain, its own
+      # nixosStateVersion, fields gisnix's config.nix doesn't even have),
+      # not gisnix's example.com placeholders, so mkHost below takes this
+      # as an overridable parameter rather than hard-wiring it. Every
+      # internal caller in THIS file (mkHostDeploy, the dev-environment
+      # warning, etc.) keeps using this binding directly — only mkHost's
+      # own specialArgs needs to see a caller's override.
       projectConfig = {
         configRevision = if self ? rev then self.rev else "dirty";
         environmentName = builtins.replaceStrings [ "\n" ] [ "" ] (builtins.readFile ./environment.txt);
       }
       // (import ./config.nix);
+
+      # Plain aliases, not renames — exists only so mkHost's own
+      # `projectConfig ? projectConfig` wouldn't self-shadow into infinite
+      # recursion (confirmed: Nix resolves a pattern default of the same
+      # name against the pattern's own scope, not the enclosing `let`).
+      # Every other reference to projectConfig/fleet in this file keeps
+      # using the real names directly. `fleet` is defined further down in
+      # this same `let` — fine, `let` bindings in Nix see each other
+      # regardless of textual order.
+      gisnixDefaultProjectConfig = projectConfig;
+      gisnixDefaultFleet = fleet;
 
       # Build a NixOS system. `hostPath` defaults to this flake's own
       # ./hosts/<hostname> so gisnix's own example host and any others you
@@ -152,6 +170,19 @@
           # installer's first-boot flake only. Everything else should leave
           # it alone and get COSMIC from nixpkgs-unstable as usual.
           stableCosmic ? false,
+          # gisnix's own example.com/26.05 placeholders by default — a
+          # downstream flake (nix-config, or any other consumer) almost
+          # certainly has its own real domain, stateVersion and whatever
+          # else its own config.nix carries, and none of that should be
+          # silently replaced by gisnix's just because a host's mkHost
+          # call didn't think to ask. Confirmed the hard way: gisnix's
+          # nixosStateVersion is "26.05", nix-config's is "25.05" — using
+          # gisnix's unconditionally would have changed it out from under
+          # a real host with no warning at all.
+          projectConfig ? gisnixDefaultProjectConfig,
+          # Same reasoning — gisnix's own hosts/fleet.nix, not a
+          # consumer's real fleet registry, unless told otherwise.
+          fleet ? gisnixDefaultFleet,
         }:
         let
           hostConfig = import (hostPath + "/config.nix");
@@ -215,15 +246,25 @@
       # found, so growing the fleet is "add a directory," not "add a
       # directory and remember to also edit flake.nix."
       #
-      # perHostArgs is for the rare host that needs something mkHost's
-      # defaults don't cover (stableCosmic, extraModules) — keyed by
-      # hostname, merged into that host's own hostPath-derived args. A
-      # consumer wanting genuinely different per-host machinery (deploy
-      # method, hardware-specific extras) beyond what mkHost itself takes
-      # is better served calling mkHost directly in its own loop; mkFleet
+      # projectConfig/fleet: the consumer's OWN, applied to every host this
+      # builds — same reasoning as mkHost's own parameters of the same
+      # name, just once for the whole fleet instead of repeated per host.
+      #
+      # perHostArgs is for the rare host that needs something else mkHost
+      # takes (stableCosmic, extraModules, or a per-host projectConfig
+      # override) — keyed by hostname, merged OVER that host's shared args,
+      # so a per-host entry wins if it sets the same key. A consumer
+      # wanting genuinely different per-host machinery (deploy method,
+      # hardware-specific extras) beyond what mkHost itself takes is
+      # better served calling mkHost directly in its own loop; mkFleet
       # only covers the common case.
       mkFleet =
-        hostsDir: perHostArgs:
+        hostsDir:
+        {
+          perHostArgs ? { },
+          projectConfig ? gisnixDefaultProjectConfig,
+          fleet ? gisnixDefaultFleet,
+        }:
         let
           names = builtins.attrNames (
             nixpkgs.lib.filterAttrs (
@@ -235,7 +276,11 @@
           map (name: {
             inherit name;
             value = mkHost name (
-              { hostPath = hostsDir + "/${name}"; } // (perHostArgs.${name} or { })
+              {
+                hostPath = hostsDir + "/${name}";
+                inherit projectConfig fleet;
+              }
+              // (perHostArgs.${name} or { })
             );
           }) names
         );
