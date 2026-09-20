@@ -38,6 +38,15 @@
   # gisnix installs by default, so unlike herdr this stays off unless a
   # caller both runs aerc and asks for it.
   aercLayer ? false,
+  # Hold the Menu key (between right Alt and right Ctrl) to talk to voxtype
+  # instead of raising the navigation/mouse layer — that layer is still
+  # reachable by holding space (see spc-nav below), so nothing is lost, just
+  # moved off its second trigger. `on-press-fakekey`/`on-release-fakekey`
+  # tap a virtual key at the moment the REAL key is pressed and again when
+  # it's released, and those virtual keys run `voxtype record start`/`stop`
+  # — see the defvirtualkeys block below. Tap-menu still opens the context
+  # menu as normal; only the hold changes.
+  voxtypePtt ? false,
   # Opt-in clipboard holds on x/c/v, transcribed from the Sonsei's superkeys
   # 9/20/21: tap the letter, hold it for the clipboard action. Note the
   # asymmetry is the Sonsei's own — copy is Ctrl+C (not Ctrl+Shift+C) while
@@ -134,6 +143,23 @@ let
   herdrSrc = if herdrLayer then " ${herdrKey}" else "";
   herdrDefault = if herdrLayer then " @herdr-nav" else "";
   herdrPass = if herdrLayer then " _" else "";
+
+  # Fake keys the menu-hold action above taps — kanata runs the `cmd` each
+  # is bound to when tapped, so pressing/releasing the real Menu key becomes
+  # `voxtype record start`/`voxtype record stop`. voxtype's own daemon has
+  # to already be running (systemd --user service) for these to reach it.
+  # No path to the voxtype binary here — it has to already be on PATH,
+  # which the bundle that turns voxtypePtt on is responsible for.
+  voxtypeVirtualKeys =
+    if !voxtypePtt then
+      ""
+    else
+      ''
+        (defvirtualkeys
+          voxtype-start (cmd voxtype record start)
+          voxtype-stop (cmd voxtype record stop)
+        )
+      '';
 
   # Tab has its OWN gate — aercLayer, independent of herdrLayer — so a host
   # can take herdr's keybinds without also taking a mail client's. Same
@@ -498,8 +524,16 @@ in
     ;; Space: tap for space, hold for navigation layer
     spc-nav (tap-hold ${toString tapTimeout} ${toString holdTimeout} spc (layer-while-held navigation))
 
-    ;; Menu key: tap for context menu, hold for navigation/mouse layer
-    menu-nav (tap-hold ${toString tapTimeout} ${toString holdTimeout} menu (layer-while-held navigation))
+    ;; Menu key: tap for context menu always. Hold does voxtype push-to-talk
+    ;; when voxtypePtt is on (the default — see that parameter's own
+    ;; comment), or the navigation/mouse layer otherwise, matching what
+    ;; this key did before voxtype existed.
+    menu-nav (tap-hold ${toString tapTimeout} ${toString holdTimeout} menu ${
+      if voxtypePtt then
+        "(multi (on-press-fakekey voxtype-start tap) (on-release-fakekey voxtype-stop tap))"
+      else
+        "(layer-while-held navigation)"
+    })
 
     ;; Physical Super: modifier as normal + the meta lighting layer
     met (multi lmet (layer-while-held meta))
@@ -531,5 +565,6 @@ in
     scroll-down (mwheel-down 50 120)${clipboardAliases}${herdrAliases}${aercAliases}${emailAlias}
   )
 
+  ${voxtypeVirtualKeys}
   ${chordsBlock}
 ''

@@ -42,6 +42,11 @@ let
   # Set by kanata-email.nix from whichever users have declared their own
   # `kartoza.userEmails.<name>` — null until at least one has.
   emailScript = config.kartoza.kanataEmailScript;
+
+  # Hold Menu for voxtype push-to-talk (see docs/user/keyboard.md). On by
+  # default, matching voxtype itself shipping in environment.systemPackages
+  # below — the two only make sense together.
+  voxtypePtt = true;
 in
 {
   hardware.uinput.enable = true;
@@ -75,13 +80,13 @@ in
 
         # concurrent-tap-hold is required by defchordsv2 whenever a chord
         # file is in use; harmless when none is. danger-enable-cmd is
-        # needed only for the email macro's cmd-output-keys — added only
-        # once a user has actually declared an email, so a fresh install
-        # with nobody opted in carries no extra capability.
+        # needed for the email macro's cmd-output-keys AND for voxtype's
+        # push-to-talk cmd actions below — either one turns it on, so a
+        # host with neither carries no extra capability.
         extraDefCfg = ''
           process-unmapped-keys yes
           concurrent-tap-hold yes
-        '' + lib.optionalString (emailScript != null) "danger-enable-cmd yes\n";
+        '' + lib.optionalString (emailScript != null || voxtypePtt) "danger-enable-cmd yes\n";
 
         config = import ./kanata-config.nix {
           inherit tapTimeout holdTimeout layout chordsFile emailScript;
@@ -95,6 +100,7 @@ in
           # data involved, unlike emailScript above), so it ships on by
           # default along with everything else here.
           clipboardHolds = true;
+          inherit voxtypePtt;
         };
       };
     };
@@ -119,8 +125,28 @@ in
     }
   ) config.services.kanata.keyboards;
 
+  # voxtype (https://github.com/peteonrails/voxtype) — local, offline
+  # push-to-talk voice-to-text: hold Menu, speak, release, and it types
+  # the transcription at your cursor. whisper.cpp runs on-device; nothing
+  # leaves the machine unless a host explicitly opts into the remote/API
+  # mode voxtype also supports, which gisnix does not configure. The
+  # daemon has to stay running for `voxtype record start/stop` (what the
+  # Menu-hold above actually runs) to reach it — hence the user service.
+  systemd.user.services.voxtype = {
+    description = "voxtype push-to-talk voice-to-text daemon";
+    wantedBy = [ "default.target" ];
+    unitConfig.ConditionUser = "!@system";
+    serviceConfig = {
+      Type = "simple";
+      ExecStart = "${pkgs.voxtype}/bin/voxtype";
+      Restart = "on-failure";
+      RestartSec = 3;
+    };
+  };
+
   environment.systemPackages = with pkgs; [
     kanata
+    voxtype
 
     (writeShellScriptBin "kanata-toggle" ''
       #!/usr/bin/env bash
