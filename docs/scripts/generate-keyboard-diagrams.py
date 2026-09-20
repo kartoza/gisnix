@@ -36,6 +36,7 @@ AMBER = "#FFD400"  # Shift / nav left-click
 CYAN = "#00E5FF"  # nav right-click
 VIOLET = "#B14FFF"  # nav scroll
 PINK = "#FF2D95"  # layer activators
+ORANGE = "#FF8A00"  # push-to-talk (voxtype)
 GRAY = "#8A8B8B"  # bracket chords
 TEAL = "#06969A"  # plain key
 DARK = "#2A2B2B"  # unlit key (held-layer views)
@@ -123,7 +124,7 @@ US_ANSI_ROWS = [
     [
         ("Ctrl", 1.25, "lctrl"), ("Fn", 1, None), ("Super", 1.25, "super"),
         ("Alt", 1.25, "lalt"), ("Space", 6.25, "spc"), ("AltGr", 1.25, "altgr"),
-        ("Ctrl", 1.25, "rctrl"),
+        ("Menu", 1.25, "menu"), ("Ctrl", 1.25, "rctrl"),
     ],
 ]
 
@@ -142,8 +143,9 @@ def board_has(rows, key):
 
 
 def base_view(rows):
-    activators = [k for k in ("spc", "menu", "caps") if board_has(rows, k)]
-    names = {"spc": "Space", "menu": "Menu", "caps": "Caps"}
+    activators = [k for k in ("spc", "caps") if board_has(rows, k)]
+    names = {"spc": "Space", "caps": "Caps"}
+    has_menu = board_has(rows, "menu")
     return {
         "title": "Base layer — home-row mods and the default bracket chords",
         "background_key": TEAL,
@@ -155,6 +157,7 @@ def base_view(rows):
             "d": RED, "k": RED, "lctrl": RED, "rctrl": RED,
             "f": AMBER, "j": AMBER, "lsft": AMBER, "rsft": AMBER,
             **{k: PINK for k in activators},
+            **({"menu": ORANGE} if has_menu else {}),
             "q": GRAY, "w": GRAY, "o": GRAY, "p": GRAY,
             "x": GRAY, "z": GRAY, "m": GRAY, ",": GRAY,
         },
@@ -165,7 +168,7 @@ def base_view(rows):
             "lalt": "Alt", "altgr": "Alt", "lsft": "Shift", "rsft": "Shift",
             "q": "{", "w": "{", "o": "}", "p": "}",
             "x": "<", "z": "<", "m": ">", ",": ">",
-            "spc": "hold: nav", "menu": "hold: nav", "caps": "hold: herdr",
+            "spc": "hold: nav", "menu": "hold: voxtype PTT", "caps": "hold: herdr",
         },
         "legend": [
             (GREEN, "Super (a ; + Super key)"),
@@ -173,6 +176,7 @@ def base_view(rows):
             (RED, "Ctrl (d k + Ctrl keys)"),
             (AMBER, "Shift (f j + Shift keys)"),
             (PINK, "layer activators, held (" + ", ".join(names[k] for k in activators) + ")"),
+            *([(ORANGE, "push-to-talk, held (Menu — voxtype)")] if has_menu else []),
             (GRAY, "bracket chords (also on a s / l k — see the key labels above)"),
             (TEAL, "plain key"),
         ],
@@ -180,8 +184,8 @@ def base_view(rows):
 
 
 def nav_view(rows):
-    held = [k for k in ("spc", "menu") if board_has(rows, k)]
-    names = {"spc": "Space", "menu": "Menu"}
+    held = [k for k in ("spc",) if board_has(rows, k)]
+    names = {"spc": "Space"}
     return {
         "title": "Navigation layer — while " + " or ".join(names[k] for k in held) + " is held",
         "background_key": DARK,

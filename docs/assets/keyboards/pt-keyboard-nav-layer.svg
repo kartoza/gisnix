@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1048" height="520" viewBox="0 0 1048 520" font-family="Ubuntu, DejaVu Sans, sans-serif">
 <rect width="1048" height="520" rx="14" fill="#1B1C1C"/>
-<text x="524.0" y="30" text-anchor="middle" fill="#F5F5F2" font-size="17" font-weight="bold">Navigation layer — while Space or Menu is held</text>
+<text x="524.0" y="30" text-anchor="middle" fill="#F5F5F2" font-size="17" font-weight="bold">Navigation layer — while Space is held</text>
 <rect x="40.0" y="46" width="54.0" height="54" rx="8" fill="#2A2B2B" stroke="#242525" stroke-width="1.5"/>
 <text x="67.0" y="78.0" text-anchor="middle" fill="#F5F5F2" font-size="13">Esc</text>
 <rect x="100.0" y="46" width="54.0" height="54" rx="8" fill="#2A2B2B" stroke="#242525" stroke-width="1.5"/>
@@ -164,9 +164,8 @@
 <text x="674.5" y="378.0" text-anchor="middle" fill="#F5F5F2" font-size="13">AltGr</text>
 <rect x="715.0" y="346" width="54.0" height="54" rx="8" fill="#2A2B2B" stroke="#242525" stroke-width="1.5"/>
 <text x="742.0" y="378.0" text-anchor="middle" fill="#F5F5F2" font-size="13">Fn</text>
-<rect x="775.0" y="346" width="69.0" height="54" rx="8" fill="#FF2D95" stroke="#242525" stroke-width="1.5"/>
-<text x="809.5" y="368" text-anchor="middle" fill="#F5F5F2" font-size="13" font-weight="bold">Menu</text>
-<text x="809.5" y="386" text-anchor="middle" fill="#F5F5F2" font-size="10">(held)</text>
+<rect x="775.0" y="346" width="69.0" height="54" rx="8" fill="#2A2B2B" stroke="#242525" stroke-width="1.5"/>
+<text x="809.5" y="378.0" text-anchor="middle" fill="#F5F5F2" font-size="13">Menu</text>
 <rect x="850.0" y="346" width="84.0" height="54" rx="8" fill="#2A2B2B" stroke="#242525" stroke-width="1.5"/>
 <text x="892.0" y="378.0" text-anchor="middle" fill="#F5F5F2" font-size="13">Ctrl</text>
 <rect x="40.0" y="420" width="16" height="16" rx="4" fill="#569FC6"/>

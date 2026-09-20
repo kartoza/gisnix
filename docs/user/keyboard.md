@@ -86,9 +86,9 @@ Ctrl+C, same as tapping it always has.
 
 ## Navigation layer
 
-Hold Space or the Menu key (to the left of the right Ctrl key on most
-boards) and the layout underneath your left hand becomes a mouse; your
-right hand becomes arrow keys and paging.
+Hold Space and the layout underneath your left hand becomes a mouse; your
+right hand becomes arrow keys and paging. (Menu used to reach this layer
+too — it now drives push-to-talk instead, see below.)
 
 | Key | Action |
 |---|---|
@@ -109,6 +109,35 @@ right hand becomes arrow keys and paging.
 
 Release Space or Menu and the layer disappears; every key underneath goes
 back to typing normally.
+
+## Push-to-talk (voxtype)
+
+Hold the Menu key (between right Alt and right Ctrl on most boards —
+sometimes labelled with a small menu icon) and speak; release it and
+whatever you said gets typed at your cursor. This is
+[voxtype](https://github.com/peteonrails/voxtype), installed and running
+by default alongside kanata.
+
+Transcription runs entirely on the machine, via whisper.cpp — nothing you
+say is sent anywhere, and it works with no network connection at all
+(voxtype also supports sending audio to a remote API, but gisnix doesn't
+configure that mode, so it's never in play here). The first hold after
+boot may take a moment while the daemon loads its speech model into
+memory; after that, holds are quick.
+
+A tap of Menu still opens the context menu, unchanged — only the *hold*
+was repurposed for this.
+
+If nothing happens when you hold Menu, check the daemon is running:
+
+```
+systemctl --user status voxtype
+```
+
+See voxtype's own [configuration
+reference](https://github.com/peteonrails/voxtype) for changing the
+speech model, language, or output behaviour — gisnix ships it with
+upstream's defaults.
 
 ## herdr layer
 
