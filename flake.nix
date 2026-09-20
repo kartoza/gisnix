@@ -307,6 +307,7 @@
         "docs-generate-hosts"
         "docs-generate-software"
         "test-install"
+        "test-boot"
       ]
       ++ builtins.concatMap (h: [
         "${h}-vm"
@@ -641,6 +642,67 @@
               ''
             );
             meta.description = "Build the installer ISO and boot it in QEMU with a persistent 40G test disk";
+          };
+          # Same QEMU launch as test-install, but skips `nix build` entirely
+          # when result/iso already has one — for relaunching after closing
+          # the window by mistake, or any other case where the ISO you
+          # already have is the one you want. Note this means it's also the
+          # WRONG command right after changing anything that affects the
+          # ISO's own closure (installer/*.py, or a bundle the live ISO
+          # imports) — those changes won't be in an ISO built before them,
+          # and this command has no way to tell the two cases apart. Use
+          # test-install itself when in doubt.
+          test-boot = {
+            type = "app";
+            program = toString (
+              defaultPkgs.writeShellScript "test-boot" ''
+                set -e
+                ISO=$(find result/iso -name "*.iso" 2>/dev/null | head -1)
+                if [ -z "$ISO" ]; then
+                  echo "No ISO in result/iso/ yet — building it first..."
+                  nix build .#nixosConfigurations.installer.config.system.build.isoImage --print-build-logs
+                  ISO=$(find result/iso -name "*.iso" | head -1)
+                  if [ -z "$ISO" ]; then
+                    echo "ERROR: No ISO found in result/iso/ even after building" >&2
+                    exit 1
+                  fi
+                fi
+                echo "Using ISO: $ISO"
+
+                DISK="gisnix-test.qcow2"
+                if [ ! -f "$DISK" ]; then
+                  echo "ERROR: $DISK not found — nothing to boot yet. Run test-install first." >&2
+                  exit 1
+                fi
+
+                OVMF_CODE="${defaultPkgs.OVMF.fd}/FV/OVMF_CODE.fd"
+                OVMF_VARS="$PWD/.gisnix-test-OVMF_VARS.fd"
+                if [ ! -f "$OVMF_VARS" ]; then
+                  echo "ERROR: $OVMF_VARS not found — run test-install first to set up UEFI vars." >&2
+                  exit 1
+                fi
+
+                echo "Launching QEMU..."
+                ${defaultPkgs.qemu}/bin/qemu-system-x86_64 \
+                  -enable-kvm \
+                  -m 8G \
+                  -smp 4 \
+                  -cpu host \
+                  -machine q35,accel=kvm \
+                  -drive if=pflash,format=raw,readonly=on,file="$OVMF_CODE" \
+                  -drive if=pflash,format=raw,file="$OVMF_VARS" \
+                  -drive file="$DISK",format=qcow2,if=none,id=disk0 \
+                  -device virtio-blk-pci,drive=disk0,serial=gisnix-root \
+                  -cdrom "$ISO" \
+                  -boot order=dc,menu=on \
+                  -netdev user,id=net0,hostfwd=tcp::2222-:22,hostfwd=tcp::2223-:2222 \
+                  -device virtio-net-pci,netdev=net0 \
+                  -display sdl \
+                  -usb -device qemu-xhci -device usb-tablet \
+                  -name "gisnix installer test"
+              ''
+            );
+            meta.description = "Relaunch the existing test ISO/disk in QEMU without rebuilding (only builds if result/iso is empty)";
           };
           docs-serve = mkDocsApp {
             name = "docs-serve";
