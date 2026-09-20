@@ -417,4 +417,11 @@
   # and its GRUB menu matches it. Each member is the Plymouth/GRUB pair,
   # because a Kartoza menu handing over to a QGIS splash reads as a fault.
   bootTheme = "kartoza";
+
+  # Port the initrd SSH server listens on for remote unlock/reboot (see
+  # software/base/initrd-ssh-unlock.nix, part of `base`) — every gisnix
+  # host gets one. `unlock-host <lan-ip> <this-port>` reaches it. Set to
+  # `null` instead to disable it for a host that wants nothing reachable
+  # before its own sshd is up.
+  initrdSshPort = 2222;
 }

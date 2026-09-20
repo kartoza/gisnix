@@ -39,9 +39,10 @@
 #   aliases        extra names pointing at lanAddress in /etc/hosts.
 #   macAddress     wired NIC MAC, for wake-on-LAN, or null if the host is not
 #                  woken remotely.
-#   initrdSshPort  port the initrd SSH daemon listens on for boot-time pool
-#                  unlocking, or null if the host has no encrypted pool
-#                  standing between power-on and a finished boot.
+#   initrdSshPort  port the initrd SSH daemon listens on for remote
+#                  unlock/reboot — every host gets one by default (see
+#                  software/base/initrd-ssh-unlock.nix), null only for a
+#                  host that opted out in its own config.nix.
 #   deploy         "local"  — rebuild in place, on the machine itself
 #                  "ssh"    — build here, sign, copy the closure, activate
 #                             there. For hosts that should not build.
@@ -62,7 +63,7 @@
       lanAddress = null;
       aliases = [ ];
       macAddress = null;
-      initrdSshPort = null;
+      initrdSshPort = 2222;
       deploy = "none";
     };
   };

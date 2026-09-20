@@ -17,6 +17,7 @@
     "fetchers.nix",
     "fish.nix",
     "herdr.nix",
+    "initrd-ssh-unlock.nix",
     "kitty.nix",
     "starship.nix",
     "utilities.nix",

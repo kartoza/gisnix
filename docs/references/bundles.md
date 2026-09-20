@@ -326,7 +326,7 @@ graph LR
 
 | Bundle | Modules | Requires | Pulled in by |
 | --- | --- | --- | --- |
-| [`base`](#base)  | 8 | — | — |
+| [`base`](#base)  | 9 | — | — |
 | [`base-kernel`](#base-kernel)  *(choice)* | 2 | — | — |
 | [`terminal-ai`](#terminal-ai)  | 4 | — | — |
 | [`terminal-chat`](#terminal-chat)  | 1 | — | — |
@@ -398,6 +398,7 @@ graph LR
 | `fetchers.nix` | — |
 | `fish.nix` | — |
 | `herdr.nix` | — |
+| `initrd-ssh-unlock.nix` | Remote boot-unlock — a minimal SSH server in the initrd, so a machine whose encrypted ZFS root is waiting on a… |
 | `kitty.nix` | — |
 | `starship.nix` | — |
 | `utilities.nix` | — |
@@ -1153,6 +1154,6 @@ Taking this also brings in `services-system`.
 
 ---
 
-60 bundles, 148 modules.
+60 bundles, 149 modules.
 
 Made with love by [Kartoza](https://kartoza.com) | [Donate](https://github.com/sponsors/timlinux) | [GitHub](https://github.com/kartoza/gisnix)
