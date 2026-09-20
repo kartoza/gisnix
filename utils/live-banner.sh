@@ -13,32 +13,40 @@
 #
 # The box-drawing and arrow glyphs below are safe on THIS console specifically
 # because installer.nix sets console.font to a Terminus "v"-charset PSF — the
-# broad-Unicode-coverage variant. The real console already renders the logo
-# in full colour (chafa correctly detects it can't do Kitty/Sixel graphics
-# there and falls back to symbols on its own) — --format=symbols just pins
-# that choice explicitly rather than trusting auto-detection everywhere this
-# might run.
+# broad-Unicode-coverage variant. Colour is safe here too: the chafa logo
+# above already renders in full 24-bit colour on this same console (chafa
+# correctly detects it can't do Kitty/Sixel graphics there and falls back to
+# ANSI symbols on its own), so plain text using the same escape codes has
+# nothing further to prove. brand.nix's own accent palette, not colours
+# invented for this one script — teal for structure, orange for the "do
+# this" arrows, blue for the commands themselves.
 #
 # Safe to run any time: it only prints.
 set -uo pipefail
 
+TEAL=$'\033[38;2;6;150;154m'   # brand.nix primary — the Kartoza mark
+BLUE=$'\033[38;2;86;159;198m'  # brand.nix secondary
+ORANGE=$'\033[38;2;223;158;47m' # brand.nix accent
+BOLD=$'\033[1m'
+RESET=$'\033[0m'
+
 clear
 chafa --size=28x resources/kartoza-logo.png --format=symbols 2>/dev/null || true
 
-cat <<'EOF'
+cat <<EOF
 
-  gisnix — a reproducible NixOS distribution for GIS workstations
-  ─────────────────────────────────────────────────────────────────
+  ${BOLD}gisnix${RESET} — a reproducible NixOS distribution for GIS workstations
+  ${TEAL}─────────────────────────────────────────────────────────────────${RESET}
 
-  ┌───┬────────────────────┬───────────────────┐
-  │ → │ No network yet?    │ sudo nmtui        │
-  │ → │ Ready to install?  │ sudo setup        │
-  │ → │ Just want to look? │ sudo setup --mock │
-  └───┴────────────────────┴───────────────────┘
+  ${TEAL}┌───┬────────────────────┬───────────────────┐${RESET}
+  ${TEAL}│${RESET} ${ORANGE}→${RESET} ${TEAL}│${RESET} No network yet?    ${TEAL}│${RESET} ${BLUE}sudo nmtui${RESET}        ${TEAL}│${RESET}
+  ${TEAL}│${RESET} ${ORANGE}→${RESET} ${TEAL}│${RESET} Ready to install?  ${TEAL}│${RESET} ${BLUE}sudo setup${RESET}        ${TEAL}│${RESET}
+  ${TEAL}│${RESET} ${ORANGE}→${RESET} ${TEAL}│${RESET} Just want to look? ${TEAL}│${RESET} ${BLUE}sudo setup --mock${RESET} ${TEAL}│${RESET}
+  ${TEAL}└───┴────────────────────┴───────────────────┘${RESET}
 
   Everything above needs sudo — you're logged in as nixos, not root.
 
-  ─────────────────────────────────────────────────────────────────
-  → github.com/kartoza/gisnix        → kartoza.com
+  ${TEAL}─────────────────────────────────────────────────────────────────${RESET}
+  ${ORANGE}→${RESET} ${BLUE}github.com/kartoza/gisnix${RESET}        ${ORANGE}→${RESET} ${BLUE}kartoza.com${RESET}
 EOF
 echo
