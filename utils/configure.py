@@ -42,6 +42,22 @@ sys.path.insert(0, str(Path(__file__).resolve().parent / "lib"))
 import hostconfig as H  # noqa: E402
 import moduleedit as M  # noqa: E402
 
+
+def _rel(path: Path) -> str:
+    """Display path relative to whichever root it actually lives under —
+    GISNIX_ROOT for a software/ module, TARGET_ROOT for a host's own
+    config.nix. The two are the same directory when this runs inside
+    gisnix's own checkout (all of history until now); a downstream
+    consumer is the first case where they differ, so a plain single
+    `.relative_to(H.REPO_ROOT)` would raise ValueError for a host path."""
+    for root in (H.TARGET_ROOT, H.GISNIX_ROOT):
+        try:
+            return str(path.relative_to(root))
+        except ValueError:
+            continue
+    return str(path)
+
+
 GREEN = "\033[38;2;88;150;50m"
 YELLOW = "\033[38;2;240;230;74m"
 BLUE = "\033[38;2;147;176;35m"
@@ -365,7 +381,7 @@ def choose_kernel(current: str | None) -> str | None:
 def report_state(config: H.HostConfig, host: str) -> None:
     """The host's current position on every bundle, grouped as the file is."""
     catalogue = H.catalogue()
-    heading(f"{host} — {config.path.relative_to(H.REPO_ROOT)}")
+    heading(f"{host} — {_rel(config.path)}")
     if not config.has_block:
         warn("this host has no `bundles` block; it imports its software directly")
 
@@ -492,7 +508,7 @@ def report_implications(after: set[str]) -> None:
 
 def show_diff(path: Path, new_text: str) -> None:
     """The edit, as a coloured unified diff, before anything is written."""
-    rel = path.relative_to(H.REPO_ROOT)
+    rel = _rel(path)
     with tempfile.TemporaryDirectory() as tmp:
         candidate = Path(tmp) / path.name
         candidate.write_text(new_text)
@@ -592,7 +608,9 @@ def evaluates(host: str) -> tuple[bool, str]:
         ],
         capture_output=True,
         text=True,
-        cwd=H.REPO_ROOT,
+        # The target's own flake, not gisnix's — nixosConfigurations.<host>
+        # is defined in the consumer's flake.nix, wherever that lives.
+        cwd=H.TARGET_ROOT,
     )
     return proc.returncode == 0, proc.stderr
 
@@ -663,7 +681,7 @@ def _evaluate_and_keep(host: str, restore: dict) -> bool:
     _put_back(restore)
     say()
     for target in sorted(restore):
-        ok(f"restored {target.relative_to(H.REPO_ROOT)}")
+        ok(f"restored {_rel(target)}")
     say()
     say(f"  {DIM}Nothing was kept. The error above is what `nixos-rebuild` would{NC}")
     say(f"  {DIM}have shown you, except that it comes before the machine changed.{NC}")
@@ -682,7 +700,7 @@ def report_module_edits(edits: dict) -> bool:
     heading("Changes to software/ — these affect every host taking the bundle")
     for module, expected in sorted(edits.items()):
         current = set(M.I.packages_in(module)[0])
-        rel = module.relative_to(H.REPO_ROOT)
+        rel = _rel(module)
         bundle = next(
             (b for b in H.catalogue() if str(rel).startswith(f"software/{b['path']}/")),
             None,
@@ -1059,7 +1077,7 @@ def main(argv: list[str]) -> int:
     say()
     if not changed:
         say(f"  {DIM}The bundle selection is unchanged; this only reshapes the file.{NC}")
-    if not confirm(f"Write this to {path.relative_to(H.REPO_ROOT)}?", assume_yes=args.yes):
+    if not confirm(f"Write this to {_rel(path)}?", assume_yes=args.yes):
         say("  left alone.")
         return 0
 
@@ -1073,14 +1091,14 @@ def main(argv: list[str]) -> int:
             M.apply(module, M.rendered(module, expected), expected)
         except M.Refused as refused:
             _put_back(restore)
-            die(f"{module.relative_to(H.REPO_ROOT)}: {refused}")
-        ok(f"wrote {module.relative_to(H.REPO_ROOT)}")
+            die(f"{_rel(module)}: {refused}")
+        ok(f"wrote {_rel(module)}")
 
     if host_changed:
         restore[path] = config.text
         H.write(path, new_text)
         say()
-        ok(f"wrote {path.relative_to(H.REPO_ROOT)}")
+        ok(f"wrote {_rel(path)}")
 
     if not args.no_eval and not _evaluate_and_keep(host, restore):
         return 1

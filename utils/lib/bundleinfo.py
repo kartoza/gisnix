@@ -29,10 +29,19 @@ import sys
 from functools import lru_cache
 from pathlib import Path
 
+# Bootstrap value, just to find hostconfig.py — always a sibling file in
+# utils/lib/ regardless of where this tree is checked out or baked, so
+# __file__-relative is safe here specifically.
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "utils" / "lib"))
 
 import hostconfig as H  # noqa: E402
+
+# Real value: GISNIX_ROOT (env var if set, same __file__ fallback otherwise)
+# — see hostconfig.py's own comment for why this differs from a host's
+# TARGET_ROOT. Every use below (software/, overlays/) is a bundle-catalogue
+# reference, so GISNIX_ROOT is always the right one.
+REPO_ROOT = H.GISNIX_ROOT
 
 #: Attributes whose value is a list of packages.
 PACKAGE_KEYS = (

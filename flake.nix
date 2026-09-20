@@ -206,6 +206,40 @@
           };
         };
 
+      # A downstream flake managing several hosts (nix-config's own use
+      # case) would otherwise hand-write one `nixosConfigurations.<name> =
+      # gisnix.lib.mkHost ...` line per host — fine for a couple, tedious
+      # and error-prone at a couple dozen. mkFleet scans hostsDir for
+      # subdirectories carrying a config.nix (the same convention
+      # hostconfig.py's own hosts() uses) and calls mkHost once per name
+      # found, so growing the fleet is "add a directory," not "add a
+      # directory and remember to also edit flake.nix."
+      #
+      # perHostArgs is for the rare host that needs something mkHost's
+      # defaults don't cover (stableCosmic, extraModules) — keyed by
+      # hostname, merged into that host's own hostPath-derived args. A
+      # consumer wanting genuinely different per-host machinery (deploy
+      # method, hardware-specific extras) beyond what mkHost itself takes
+      # is better served calling mkHost directly in its own loop; mkFleet
+      # only covers the common case.
+      mkFleet =
+        hostsDir: perHostArgs:
+        let
+          names = builtins.attrNames (
+            nixpkgs.lib.filterAttrs (
+              name: type: type == "directory" && builtins.pathExists (hostsDir + "/${name}/config.nix")
+            ) (builtins.readDir hostsDir)
+          );
+        in
+        builtins.listToAttrs (
+          map (name: {
+            inherit name;
+            value = mkHost name (
+              { hostPath = hostsDir + "/${name}"; } // (perHostArgs.${name} or { })
+            );
+          }) names
+        );
+
       # The fleet registry: metadata for every machine this flake manages,
       # plus the unmanaged peers it publishes names for. See hosts/fleet.nix.
       fleet = import ./hosts/fleet.nix;
@@ -287,7 +321,14 @@
               ++ map (d: defaultPkgs.${d}) c.deps;
             excludeShellChecks = c.excludeChecks or [ ];
             text =
-              mkCommandBanner c
+              # Where the bundle catalogue (software/, overlays/,
+              # docs/references/) lives — always gisnix's own source, never
+              # the caller's cwd. `self` is this flake's own store path
+              # whether it's run standalone or consumed as another flake's
+              # input, so this is correct either way. See
+              # utils/lib/hostconfig.py for the other half (TARGET_ROOT).
+              "export GISNIX_ROOT=\"${self}\"\n"
+              + mkCommandBanner c
               + nixpkgs.lib.concatMapStrings (f: builtins.readFile (./utils/lib + "/${f}") + "\n") (
                 c.prelude or [ ]
               )
@@ -536,6 +577,7 @@
       lib = {
         inherit
           mkHost
+          mkFleet
           mkVm
           mkBootVm
           mkTest

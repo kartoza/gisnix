@@ -47,8 +47,25 @@ import textwrap
 from dataclasses import dataclass, field
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(REPO_ROOT / "docs" / "scripts"))
+# Two different roots, easy to conflate because they're the same directory
+# when this runs inside gisnix's own checkout (the only way it ever ran
+# until now). GISNIX_ROOT is where the bundle catalogue lives — software/,
+# overlays/, docs/references/software.json — always gisnix's own tree, set
+# by the nix-packaged command wrapper via $GISNIX_ROOT, falling back to
+# this file's own location for direct/dev-shell invocation. TARGET_ROOT is
+# where the HOST being configured lives — hosts/<name>/config.nix — always
+# the caller's own working directory, since a downstream flake (nix-config,
+# or any other consumer) keeps its hosts physically in its own repo, not
+# gisnix's.
+GISNIX_ROOT = Path(os.environ.get("GISNIX_ROOT", "") or Path(__file__).resolve().parent.parent.parent)
+TARGET_ROOT = Path(os.environ.get("GISNIX_TARGET_ROOT", "") or Path.cwd())
+
+# Back-compat name: every existing caller of H.REPO_ROOT meant "gisnix's own
+# tree" (the bundle catalogue) except hosts()/path_for() below, which are
+# fixed separately. Keeping this avoids touching every call site at once.
+REPO_ROOT = GISNIX_ROOT
+
+sys.path.insert(0, str(GISNIX_ROOT / "docs" / "scripts"))
 
 import bundles as B  # noqa: E402
 
@@ -355,13 +372,15 @@ def resolve(names: list[str]) -> list[str]:
 
 
 def hosts() -> list[str]:
-    """Every host in `hosts/` that has a `config.nix`, alphabetically."""
-    root = REPO_ROOT / "hosts"
+    """Every host in the TARGET repo's `hosts/` that has a `config.nix`,
+    alphabetically. Deliberately TARGET_ROOT, not GISNIX_ROOT — a
+    downstream consumer's hosts live in its own repo, not gisnix's."""
+    root = TARGET_ROOT / "hosts"
     return sorted(d.name for d in root.iterdir() if (d / "config.nix").is_file())
 
 
 def path_for(host: str) -> Path:
-    return REPO_ROOT / "hosts" / host / "config.nix"
+    return TARGET_ROOT / "hosts" / host / "config.nix"
 
 
 # ── reading ───────────────────────────────────────────────────────────────

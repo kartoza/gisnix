@@ -33,15 +33,25 @@
 # prevent.
 set -uo pipefail
 
+# GISNIX_ROOT is set by the nix-packaged command wrapper (flake.nix's
+# mkCommandDrv, exporting ${self}) — the bundle catalogue always lives
+# there. Unset means direct/dev-shell invocation (`bash utils/configure.sh`
+# from inside a gisnix checkout), so fall back to this script's own
+# location. Either way, the CURRENT DIRECTORY is left alone — that's the
+# target host's own repo, gisnix configure.py itself resolves it via
+# hostconfig.py's TARGET_ROOT (= cwd).
+GISNIX_ROOT="${GISNIX_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+export GISNIX_ROOT
+
 case "${1:-}" in
   -h | --help)
-    exec python3 utils/configure.py --help
+    exec python3 "$GISNIX_ROOT/utils/configure.py" --help
     ;;
 esac
 
-[ -d software ] || {
-  echo "configure: run from the repo root" >&2
+[ -d hosts ] || {
+  echo "configure: no hosts/ here — run this from your flake's own repo root" >&2
   exit 1
 }
 
-exec python3 utils/configure.py "$@"
+exec python3 "$GISNIX_ROOT/utils/configure.py" "$@"

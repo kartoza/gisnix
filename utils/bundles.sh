@@ -15,17 +15,19 @@
 # docs/references/bundles.md.
 set -uo pipefail
 
+# See utils/configure.sh for why this exists — the bundle catalogue always
+# lives at GISNIX_ROOT (set by the nix-packaged wrapper, or this script's
+# own location for direct invocation), never the caller's cwd. Read-only
+# reference command, so unlike configure there's no target host repo to
+# also resolve.
+GISNIX_ROOT="${GISNIX_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+
 GREEN=$'\033[38;2;88;150;50m'
 YELLOW=$'\033[38;2;240;230;74m'
 BLUE=$'\033[38;2;147;176;35m'
 DIM=$'\033[2m'
 BOLD=$'\033[1m'
 NC=$'\033[0m'
-
-[ -d software ] || {
-  echo "run from the repo root" >&2
-  exit 1
-}
 
 MODE=list
 TARGET=""
@@ -47,7 +49,7 @@ case "${1:-}" in
     ;;
 esac
 
-export KZ_MODE="$MODE" KZ_TARGET="$TARGET"
+export KZ_MODE="$MODE" KZ_TARGET="$TARGET" KZ_GISNIX_ROOT="$GISNIX_ROOT"
 export KZ_GREEN="$GREEN" KZ_YELLOW="$YELLOW" KZ_BLUE="$BLUE"
 export KZ_DIM="$DIM" KZ_BOLD="$BOLD" KZ_NC="$NC"
 
@@ -56,7 +58,7 @@ export KZ_DIM="$DIM" KZ_BOLD="$BOLD" KZ_NC="$NC"
 # disagree about what a bundle contains.
 exec python3 - <<'PYEOF'
 import os, sys, textwrap
-sys.path.insert(0, "docs/scripts")
+sys.path.insert(0, os.path.join(os.environ["KZ_GISNIX_ROOT"], "docs", "scripts"))
 import bundles
 
 G, Y, B = os.environ["KZ_GREEN"], os.environ["KZ_YELLOW"], os.environ["KZ_BLUE"]
