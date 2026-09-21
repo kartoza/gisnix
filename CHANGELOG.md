@@ -3,6 +3,14 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.5.1] - 2026-09-20
+
+### Fixed
+
+- `koodo-reader` (`desktop-ebook-readers`) permits `electron-41.9.1`,
+  EOL and marked insecure by nixpkgs — same pattern already used for
+  Logseq's electron 39 in `gui-apps.nix`.
+
 ## [0.5.0] - 2026-09-20
 
 ### Fixed
