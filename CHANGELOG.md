@@ -3,6 +3,28 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.6.0] - 2026-09-20
+
+### Added
+
+- `kartoza.insecurePackages` — a proper list option for
+  `nixpkgs.config.permittedInsecurePackages`, same shape and same
+  reason as the existing `kartoza.unfreePackages`. `nixpkgs.config` is
+  a bare, loosely-typed attrs value with no per-key merge behaviour, so
+  two files each setting `permittedInsecurePackages` directly collide
+  and only one survives — confirmed on a real host taking both
+  `desktop-productivity` (Logseq's EOL electron 39) and
+  `desktop-ebook-readers` (koodo-reader's EOL electron 41)
+  simultaneously: only one of the two permits took effect, and the
+  other package refused to evaluate despite its own module already
+  trying to allow it.
+
+### Fixed
+
+- `koodo-reader.nix` and `gui-apps.nix` both switched from setting
+  `nixpkgs.config.permittedInsecurePackages` directly to
+  `kartoza.insecurePackages`, which concatenates instead of colliding.
+
 ## [0.5.1] - 2026-09-20
 
 ### Fixed
