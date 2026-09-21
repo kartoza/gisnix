@@ -3,6 +3,19 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.5.0] - 2026-09-20
+
+### Fixed
+
+- `mkHost`/`mkFleet` accept a `consumerInputs` override — same class of
+  gap as the `projectConfig`/`fleet` override in 0.2.0, found the same
+  way (a real migration, a real nix eval). Without it, every host file
+  a downstream flake writes sees GISNIX's own `inputs` as its `inputs`
+  specialArg, so a private input the consumer's own flake declares
+  (a vendored flake, a special-purpose kernel pin) comes back "attribute
+  missing" — not because it doesn't exist, but because the host was
+  handed the wrong flake's inputs entirely.
+
 ## [0.4.0] - 2026-09-20
 
 Split Kartoza-internal apps from generically-useful ones — prompted by a
