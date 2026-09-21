@@ -97,10 +97,8 @@ so expect it to take longer than a routine update — that cost only shows
 up here, once, instead of during the install itself.
 
 !!! note "The `gisnix configure` menu"
-    On a full checkout that keeps `utils/` alongside `hosts/` — gisnix
-    itself, or a downstream flake built the same way — `gisnix configure`
-    gives you an interactive bundle picker instead of hand-editing. Running
-    it usefully against a *standalone* tiny flake like the one the
-    installer generates isn't wired up yet — see
-    [Building on gisnix](../developer/downstream-flakes.md) for the
-    current state of that gap.
+    `nix run github:kartoza/gisnix#configure -- <name>`, run from inside
+    `~/nixos-config`, gives you the same interactive bundle picker without
+    hand-editing `config.nix` — no separate gisnix checkout needed. See
+    [Building your fleet](fleet.md) for the rest of the day-to-day
+    commands (`bundles`, `update`, adding a second machine).

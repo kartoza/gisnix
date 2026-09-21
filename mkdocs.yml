@@ -150,6 +150,7 @@ nav:
   - User guide:
       - user/index.md
       - Quickstart: user/quickstart.md
+      - Building your fleet: user/fleet.md
       - Keyboard remapping: user/keyboard.md
   - Administration:
       - admin/index.md
