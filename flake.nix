@@ -190,6 +190,21 @@
           # Same reasoning — gisnix's own hosts/fleet.nix, not a
           # consumer's real fleet registry, unless told otherwise.
           fleet ? gisnixDefaultFleet,
+          # What a host's OWN files see as `inputs` — deliberately a
+          # DIFFERENT parameter name than the plain `inputs` used
+          # throughout the rest of this function (disko/agenix/stylix
+          # modules, the overlay call below): those need gisnix's real
+          # inputs unconditionally, however a host's specialArg gets
+          # configured, or gisnix's own hosts stop evaluating. Defaults
+          # to gisnix's own `inputs`, unchanged from before this existed.
+          # A consumer overrides it with ITS OWN real inputs so a host
+          # file referencing `inputs.<its-own-input-name>` — a private
+          # kernel pin, its own vendored flake, anything gisnix doesn't
+          # have — resolves correctly instead of "attribute missing".
+          # Confirmed the hard way: abyss's hardware.nix references
+          # inputs.nixpkgs-master, which only exists in nix-config's own
+          # inputs, not gisnix's.
+          consumerInputs ? inputs,
         }:
         let
           hostConfig = import (hostPath + "/config.nix");
@@ -215,7 +230,6 @@
           );
           specialArgs = {
             inherit
-              inputs
               outputs
               hostname
               hostPath
@@ -223,6 +237,11 @@
               hostConfig
               fleet
               ;
+            # consumerInputs, not the plain `inputs` this function itself
+            # uses above for disko/agenix/stylix/the overlay call — see
+            # consumerInputs' own comment on why these are deliberately
+            # different.
+            inputs = consumerInputs;
             geodiff = inputs.geodiff;
             kartoza-plymouth-theme = inputs.kartoza-plymouth-theme;
             kartoza-grub-themes = inputs.kartoza-grub-themes;
@@ -271,6 +290,8 @@
           perHostArgs ? { },
           projectConfig ? gisnixDefaultProjectConfig,
           fleet ? gisnixDefaultFleet,
+          # See mkHost's own comment on why this exists.
+          consumerInputs ? inputs,
         }:
         let
           names = builtins.attrNames (
@@ -285,7 +306,7 @@
             value = mkHost name (
               {
                 hostPath = hostsDir + "/${name}";
-                inherit projectConfig fleet;
+                inherit projectConfig fleet consumerInputs;
               }
               // (perHostArgs.${name} or { })
             );
