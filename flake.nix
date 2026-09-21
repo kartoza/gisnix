@@ -292,9 +292,7 @@
       # Hosts that actually have a server.nix — the only ones a `-deploy`
       # app makes sense for (nixos-anywhere/Hetzner deploys). A test-only
       # host like the shipped example has none.
-      deployableHosts = builtins.filter (
-        h: builtins.pathExists (./hosts + "/${h}/server.nix")
-      ) allHosts;
+      deployableHosts = builtins.filter (h: builtins.pathExists (./hosts + "/${h}/server.nix")) allHosts;
 
       # Deploy a NixOS host with nixos-anywhere.
       mkHostDeploy = hostname: {
@@ -446,6 +444,7 @@
               ]
               ++ extraInputs;
               text = ''
+                export GISNIX_ROOT="${self}"
                 cd "$(git rev-parse --show-toplevel)"
                 ${body}
               '';
@@ -609,7 +608,12 @@
         in
         defaultPkgs.testers.runNixOSTest (
           import ./tests/test-${hostname}.nix {
-            inherit inputs outputs hostConfig fleet;
+            inherit
+              inputs
+              outputs
+              hostConfig
+              fleet
+              ;
             lib = nixpkgs.lib;
             projectConfig = prodConfig;
           }
@@ -655,14 +659,12 @@
         nixpkgs.lib.mapAttrs' (n: v: nixpkgs.lib.nameValuePair (n + "-vm") v) (
           nixpkgs.lib.genAttrs allHosts (h: mkVm h)
         )
-        //
-          nixpkgs.lib.mapAttrs' (n: v: nixpkgs.lib.nameValuePair (n + "-bootvm") v) (
-            nixpkgs.lib.genAttrs allHosts (h: mkBootVm h)
-          )
-        //
-          nixpkgs.lib.mapAttrs' (n: v: nixpkgs.lib.nameValuePair (n + "-deploy") v) (
-            nixpkgs.lib.genAttrs deployableHosts (h: mkHostDeploy h)
-          )
+        // nixpkgs.lib.mapAttrs' (n: v: nixpkgs.lib.nameValuePair (n + "-bootvm") v) (
+          nixpkgs.lib.genAttrs allHosts (h: mkBootVm h)
+        )
+        // nixpkgs.lib.mapAttrs' (n: v: nixpkgs.lib.nameValuePair (n + "-deploy") v) (
+          nixpkgs.lib.genAttrs deployableHosts (h: mkHostDeploy h)
+        )
         // {
           # `nix run .#` and `nix run .#gisnix` are the same dispatcher: with
           # no arguments it prints the cheat-sheet, with a command name it
@@ -841,7 +843,7 @@
             name = "docs-generate-hosts";
             description = "Regenerate docs/hosts/<host>.md from each host's evaluated config";
             extraInputs = [ defaultPkgs.nix ];
-            body = "exec python3 docs/scripts/generate-host-docs.py";
+            body = ''exec python3 "$GISNIX_ROOT/docs/scripts/generate-host-docs.py"'';
           };
           docs-generate-software = mkDocsApp {
             name = "docs-generate-software";
@@ -892,7 +894,13 @@
         in
         {
           default = import ./utils/develop.nix {
-            inherit inputs system pkgs commandPackages gisnixDispatcher;
+            inherit
+              inputs
+              system
+              pkgs
+              commandPackages
+              gisnixDispatcher
+              ;
           };
         }
       );

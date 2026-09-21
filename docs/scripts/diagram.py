@@ -78,11 +78,18 @@ def render(
     *,
     rel_prefix: str = "../assets/diagrams",
     background: str = "transparent",
+    diagram_dir: Path | None = None,
 ) -> str:
-    """Render `source` to `docs/assets/diagrams/<slug>.svg`, return an embed.
+    """Render `source` to `<diagram_dir>/<slug>.svg`, return an embed.
 
     `rel_prefix` is the path from the page that will contain the embed back to
     the diagram directory — `../assets/diagrams` for a page in `docs/hosts/`.
+
+    `diagram_dir` defaults to gisnix's own docs/assets/diagrams — correct for
+    macros.py, which only ever renders gisnix's own hand-written pages.
+    generate-host-docs.py passes its own (a downstream consumer's own
+    docs/assets/diagrams, not gisnix's) explicitly instead, same reasoning as
+    that script's own GISNIX_ROOT/TARGET_ROOT split.
 
     A transparent background is the default so one SVG suits both the light and
     dark site themes as well as the PDF.
@@ -90,14 +97,15 @@ def render(
     Returns markdown. On any failure it returns a fenced mermaid block, so a
     broken or absent mermaid-cli degrades the PDF rather than breaking the site.
     """
+    diagram_dir = diagram_dir if diagram_dir is not None else DIAGRAM_DIR
     source = source.rstrip("\n") + "\n"
-    DIAGRAM_DIR.mkdir(parents=True, exist_ok=True)
+    diagram_dir.mkdir(parents=True, exist_ok=True)
 
     # Keep the source beside the SVG: it is reviewable in a diff, whereas the
     # generated SVG is not, and it lets anyone re-render without this script.
-    (DIAGRAM_DIR / f"{slug}.mmd").write_text(source)
+    (diagram_dir / f"{slug}.mmd").write_text(source)
 
-    svg_path = DIAGRAM_DIR / f"{slug}.svg"
+    svg_path = diagram_dir / f"{slug}.svg"
 
     mmdc = _mmdc()
     if mmdc is None:
@@ -121,7 +129,7 @@ def render(
     # browser per invocation, so on a full docs build this is the difference
     # between a couple of seconds and the better part of a minute.
     digest = hashlib.sha256((RENDER_VERSION + "\n" + source).encode()).hexdigest()[:16]
-    stamp = DIAGRAM_DIR / f".{slug}.sha"
+    stamp = diagram_dir / f".{slug}.sha"
     if svg_path.exists() and stamp.exists() and stamp.read_text().strip() == digest:
         return f"![{alt}]({rel_prefix}/{slug}.svg)\n"
 

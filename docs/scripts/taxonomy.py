@@ -42,19 +42,50 @@ the catalogue, just in the honest bucket.
 from __future__ import annotations
 
 import re
+import subprocess
 import sys
 from pathlib import Path
 
+# Bootstrap value, just to find bundleinfo.py — always a sibling's sibling
+# regardless of where this tree is checked out or baked.
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 
 sys.path.insert(0, str(REPO_ROOT / "utils" / "lib"))
 
 import bundleinfo  # noqa: E402
 
+# bundleinfo.REPO_ROOT is GISNIX_ROOT (env var if set, __file__ fallback
+# otherwise — see hostconfig.py). Real value used below, replacing the
+# bootstrap one above.
+GISNIX_ROOT = bundleinfo.REPO_ROOT
+
+# The flake actually being documented — always gisnix's own root when this
+# runs inside gisnix's own checkout (the only case until a downstream flake
+# started consuming gisnix), a consumer's own root otherwise. A package
+# declared in a real host/user file (its own hosts/, users/, and any
+# private software/ a consumer keeps alongside gisnix's) needs scanning
+# from HERE, not from wherever taxonomy.py itself happens to be checked
+# out — see generate-host-docs.py's own GISNIX_ROOT/TARGET_ROOT split for
+# the same reasoning applied to nix eval and doc output.
+TARGET_ROOT = Path(
+    subprocess.run(
+        ["git", "rev-parse", "--show-toplevel"], capture_output=True, text=True, check=True
+    ).stdout.strip()
+)
+
 # Directories that can declare packages. Deliberately excludes .vscode/,
 # legacy/ and result/ — the first contains editor settings that happen to
 # mention package names, the others are not part of the live configuration.
-_SCAN_ROOTS = ("software", "profiles", "hosts", "users", "overlays")
+#
+# Scanned from two different roots: software/profiles/overlays are gisnix's
+# bundle taxonomy (GISNIX_ROOT, always — a consumer doesn't reimplement
+# this), hosts/users are the flake actually being documented (TARGET_ROOT
+# — a consumer's own real machines and accounts, not gisnix's example).
+# When TARGET_ROOT == GISNIX_ROOT (running inside gisnix's own checkout)
+# this is just one root scanned twice; _scan() below dedupes by package
+# name so that costs nothing.
+_GISNIX_SCAN_ROOTS = ("software", "profiles", "overlays")
+_TARGET_SCAN_ROOTS = ("hosts", "users")
 
 _ATTR_RE = re.compile(r"(?:environment\.systemPackages|home\.packages)\s*=\s*")
 
@@ -175,20 +206,26 @@ def declaration_map() -> dict[str, str]:
         return _declaration_cache
 
     found: dict[str, str] = {}
-    for nix_file in sorted(REPO_ROOT.rglob("*.nix")):
-        rel = nix_file.relative_to(REPO_ROOT).as_posix()
-        if rel.split("/")[0] not in _SCAN_ROOTS:
-            continue
-        category = _category_for_path(rel)
-        for token in bundleinfo.packages_in(nix_file)[0]:
-            if token in _SKIP:
+    # GISNIX_ROOT first: populates the real software/ categories that the
+    # priority rule below treats as authoritative. TARGET_ROOT's hosts/
+    # and users/ (a consumer's own real machines and accounts) only ever
+    # add the generic host/user/profile/overlay fallback labels, and only
+    # for a package software/ itself doesn't already explain.
+    for root, scan_roots in ((GISNIX_ROOT, _GISNIX_SCAN_ROOTS), (TARGET_ROOT, _TARGET_SCAN_ROOTS)):
+        for nix_file in sorted(root.rglob("*.nix")):
+            rel = nix_file.relative_to(root).as_posix()
+            if rel.split("/")[0] not in scan_roots:
                 continue
-            # A package declared in software/ wins over the same name
-            # mentioned in a host or profile: software/ is where the
-            # taxonomy lives, and the other is usually an override.
-            if token in found and found[token] in _LABELS.values():
-                continue
-            found[token] = category
+            category = _category_for_path(rel)
+            for token in bundleinfo.packages_in(nix_file)[0]:
+                if token in _SKIP:
+                    continue
+                # A package declared in software/ wins over the same name
+                # mentioned in a host or profile: software/ is where the
+                # taxonomy lives, and the other is usually an override.
+                if token in found and found[token] in _LABELS.values():
+                    continue
+                found[token] = category
 
     _declaration_cache = found
     return found
