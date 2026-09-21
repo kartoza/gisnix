@@ -12,10 +12,14 @@
 {
   # Logseq (stable AND unstable nixpkgs alike) still pins electron 39,
   # which is EOL and marked insecure — upstream logseq has been parked on
-  # 0.10.x for a long time. Allow exactly that electron for exactly as
-  # long as we ship logseq; remove this line together with the package,
-  # or when nixpkgs moves logseq to a maintained electron.
-  nixpkgs.config.permittedInsecurePackages = [ "electron-39.8.10" ];
+  # 0.10.x for a long time. kartoza.insecurePackages (services/system/
+  # unfree.nix), not nixpkgs.config.permittedInsecurePackages directly —
+  # see that option's own comment for why a direct assignment here would
+  # silently collide with any other module doing the same (confirmed:
+  # koodo-reader.nix used to, and one of the two always lost). Remove
+  # this line together with the package, or when nixpkgs moves logseq to
+  # a maintained electron.
+  kartoza.insecurePackages = [ "electron-39.8.10" ];
 
   environment.systemPackages = with pkgs; [
     drawio

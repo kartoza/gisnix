@@ -1002,7 +1002,7 @@ Taking this also brings in `desktop-gis`.
 | `sound.nix` | See the NixOS manual (accessible by running ‘nixos-help’) |
 | `ssh-access.nix` | Who is allowed to reach sshd — the local network and the overlay VPN, never the open internet |
 | `ssh.nix` | — |
-| `unfree.nix` | One unfree-package allow-list, contributed to from anywhere |
+| `unfree.nix` | One unfree-package allow-list, and one insecure-package allow-list, each contributed to from anywhere |
 
 ### services-virtualisation
 
