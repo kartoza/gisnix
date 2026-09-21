@@ -133,6 +133,58 @@ itself doesn't need this: `gisnix.lib.mkHost` already imports
 points, so a `bundles = [ "desktop-browsers" ]` entry in your `config.nix`
 resolves correctly with no path juggling on your side at all.
 
+## Your own `inputs`
+
+`hostPath`'s files also receive an `inputs` specialArg — but by default it's
+*gisnix's own* `inputs`, not yours. A host file referencing a flake input
+your own flake declares (a vendored kernel, a private tool) fails with
+"attribute missing" even though the input genuinely exists — it's just not
+in the `inputs` this host file was handed.
+
+```nix
+gisnix.lib.mkHost "myhost" {
+  hostPath = ./hosts/myhost;
+  consumerInputs = inputs;   # your flake's own inputs, not gisnix's
+}
+```
+
+`mkFleet` takes the same parameter, applied to every host it builds. This
+only affects the `inputs` specialArg your own `hostPath` files see —
+gisnix's internal use of its own inputs (disko, home-manager, its own
+overlays) is unaffected either way.
+
+## Known gotchas from a real migration
+
+Two real failures, found migrating an existing, non-trivial fleet onto
+`mkHost` — worth knowing before you hit them yourself.
+
+**`nixpkgs.config` set directly, from more than one module.**
+`nixpkgs.config.allowUnfreePredicate` and
+`nixpkgs.config.permittedInsecurePackages` are bare, loosely-typed attrs
+keys with no per-key merge behaviour — the module system silently keeps
+only ONE definition if more than one module sets either directly. gisnix
+avoids this internally via `kartoza.unfreePackages`/`kartoza.insecurePackages`
+(`services-system/unfree.nix`), which are real `listOf str` options that
+concatenate. If your own `extraModules` (or a private module you layer in)
+sets `nixpkgs.config.allowUnfreePredicate` or
+`nixpkgs.config.permittedInsecurePackages` directly instead of using those
+two options, expect a package one of your OWN modules explicitly permits to
+still refuse evaluation with "marked as insecure"/unfree — silently, no
+error pointing at the real cause. Use `kartoza.unfreePackages`/
+`kartoza.insecurePackages` from any module instead; they're additive
+regardless of what else is declared.
+
+**`boot.zfs.forceImportRoot` conflicting with an existing host's own
+setting.** gisnix's `base` bundle sets this `true` unconditionally — it
+fixes a real installer bug (the live ISO and the freshly-installed system
+have different ZFS hostids on first boot). A host you're migrating that
+predates disko — an existing install, hostid already consistent — likely
+already sets this `false` in its own `hardware.nix`. Two plain (non-
+`mkForce`) definitions of the same value is a hard eval error
+("conflicting definition values"), not a silent one. Fix it in your own
+host file with `lib.mkForce false`, not by changing gisnix's default (which
+is correct for the fresh-install case every OTHER host relies on).
+
 ## Extending gisnix's tooling to your own bundles
 
 There's no mechanism yet for a downstream flake to *add* modules to a
@@ -150,6 +202,10 @@ bundle name.
   this correct (see [Architecture](architecture.md)).
 - `mkHost`/`mkFleet` accepting a real `projectConfig`/`fleet` override
   instead of gisnix's own placeholders.
+- `mkHost`/`mkFleet` accepting a `consumerInputs` override, so a host file
+  referencing an input only your own flake declares resolves correctly.
+- A real fleet migration (three hosts, one with pre-existing hardware
+  predating disko) — see the gotchas above, both found and fixed this way.
 - `nix run github:kartoza/gisnix#configure -- <host>` and `#bundles`,
   run from inside a downstream flake's own directory with no gisnix
   checkout present at all — verified against a scratch directory outside
