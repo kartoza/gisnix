@@ -3,6 +3,23 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.7.0] - 2026-09-21
+
+Docs-only — no code change. Written up after a real three-host fleet
+migration (nix-config's `minimal`, `atoll`, `abyss`) surfaced two gaps.
+
+### Added
+
+- `docs/developer/downstream-flakes.md`: `consumerInputs` was added in
+  0.5.0 but never documented; and two real gotchas from that migration —
+  `nixpkgs.config` set directly from more than one module (the same
+  last-definition-wins issue `kartoza.unfreePackages`/
+  `kartoza.insecurePackages` exist to solve), and `boot.zfs.forceImportRoot`
+  conflicting with a pre-disko host's own setting.
+- `docs/user/index.md`: surfaces voice dictation (push-to-talk, hold-Menu)
+  and [Building your fleet](user/fleet.md), neither linked from the user
+  guide's own landing page before now.
+
 ## [0.6.0] - 2026-09-20
 
 ### Added
