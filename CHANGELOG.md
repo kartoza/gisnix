@@ -3,6 +3,30 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.3.0] - 2026-09-20
+
+First real downstream fleet migration, in progress — two nix-config hosts
+now build through gisnix's own `mkHost`/`mkFleet`.
+
+### Added
+
+- `docs-generate-hosts` (per-host reference pages) now works the same way
+  `configure`/`bundles` already did — reads gisnix's published bundle
+  metadata, but runs its `nix eval` and writes generated pages against
+  the calling flake's own root, not gisnix's checkout.
+- `docs/user/fleet.md` — the fresh-install-to-fleet workflow: living with
+  one host, turning it into a real repo, adding a second machine,
+  `mkFleet`, and the `extraModules` pattern for private content gisnix's
+  generic modules can't carry.
+
+### Fixed
+
+- `docs/developer/downstream-flakes.md` described the exact
+  `GISNIX_ROOT`/`TARGET_ROOT` gap fixed in 0.2.0 as still open. Rewritten
+  with `mkFleet`, the `projectConfig`/`fleet` override, `gisnixRoot`
+  usage, and the CA-certificate re-attachment pattern — confirmed
+  against a real migration, not just described.
+
 ## [0.2.0] - 2026-09-20
 
 Groundwork for consuming gisnix from a real downstream fleet (nix-config),
