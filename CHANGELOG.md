@@ -3,6 +3,33 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.4.0] - 2026-09-20
+
+Split Kartoza-internal apps from generically-useful ones — prompted by a
+real nix-config migration hitting `pkgs.kartoza-timesheet` missing, and a
+direct call on how the split should actually work.
+
+### Added
+
+- `desktop-kartoza-apps` now carries `kartoza-webapps` (23 of the
+  original 25 web-app shortcuts — Gmail, Calendar, Meet, LinkedIn,
+  ChatGPT, the Kartoza Handbook/Training/GeoCommunity public sites,
+  and others — none of them Kartoza-internal) and `baboon.nix`
+  (terminal typing-practice game; the package already existed in the
+  overlay but nothing installed it, in either repo, until now).
+- New opt-in sibling bundle `desktop-kartoza-apps-screencaster`
+  (`kartoza-screencaster`, new flake input + overlay entry) —
+  experimental (a known upstream build issue), so opt-in rather than
+  part of the always-on set.
+
+### Changed
+
+- `desktop-kartoza-apps`'s description no longer says "none of this
+  belongs in gisnix" — most of it always did; only two of the original
+  25 web apps (an internal ERP, a private Sentry instance) and
+  timesheets were ever actually Kartoza-internal, and those never
+  moved here.
+
 ## [0.3.0] - 2026-09-20
 
 First real downstream fleet migration, in progress — two nix-config hosts
