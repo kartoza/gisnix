@@ -1,0 +1,13 @@
+{
+  "name": "desktop-kartoza-apps-screencaster",
+  "path": "desktop/kartoza-apps/screencaster",
+  "description": "Kartoza Screencaster: screen/webcam/audio recording with a TUI, autostarted into the system tray. Experimental — the upstream build has a known CGO_ENABLED issue (see the module's own comment) — so it's opt-in rather than part of desktop-kartoza-apps' always-on set.",
+  "optIn": true,
+  "optInReason": "experimental — a known upstream build issue, and not everyone wants a screen recorder autostarted into their tray",
+  "implies": [
+    "desktop-kartoza-apps"
+  ],
+  "modules": [
+    "kartoza-screencaster.nix"
+  ]
+}

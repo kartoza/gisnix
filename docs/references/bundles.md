@@ -105,6 +105,7 @@ A bundle marked `"optIn": true` is **never** selected on a host's behalf. It has
 | Bundle | Why |
 | --- | --- |
 | [`desktop-gis-source-builds`](#desktop-gis-source-builds) | hours of build time; the binary channels already cover normal use |
+| [`desktop-kartoza-apps-screencaster`](#desktop-kartoza-apps-screencaster) | experimental — a known upstream build issue, and not everyone wants a screen recorder autostarted into their tray |
 | [`desktop-environments-cosmic-extensions`](#desktop-environments-cosmic-extensions) | every one of these source builds. They are community cosmic-utils packages, in neither cache.nixos.org nor cosmic.cachix.org — expect a slow rebuild the first time you enable this bundle, not a hang |
 | [`desktop-gis-versions-qgis-1-8`](#desktop-gis-versions-qgis-1-8) | a frozen historical QGIS; take it only when a project needs this exact series |
 | [`desktop-gis-versions-qgis-2-10`](#desktop-gis-versions-qgis-2-10) | a frozen historical QGIS; take it only when a project needs this exact series |
@@ -242,6 +243,7 @@ graph LR
   desktop_essentials["desktop-essentials"]
   desktop_essentials_extras["desktop-essentials-extras"]
   desktop_gis_source_builds["desktop-gis-source-builds<br/><i>opt-in</i>"]
+  desktop_kartoza_apps_screencaster["desktop-kartoza-apps-screencaster<br/><i>opt-in</i>"]
   desktop_environments_cosmic_extensions["desktop-environments-cosmic-extensions<br/><i>opt-in</i>"]
   desktop_gis_versions_qgis_1_8["desktop-gis-versions-qgis-1-8<br/><i>opt-in</i>"]
   desktop_gis_versions_qgis_2_10["desktop-gis-versions-qgis-2-10<br/><i>opt-in</i>"]
@@ -288,6 +290,7 @@ graph LR
   desktop_environments_cosmic --> desktop_essentials
   desktop_essentials_extras --> desktop_essentials
   desktop_gis_source_builds --> desktop_gis
+  desktop_kartoza_apps_screencaster --> desktop_kartoza_apps
   desktop_environments_cosmic_extensions --> desktop_environments_cosmic
   desktop_gis_versions_qgis_1_8 --> desktop_gis
   desktop_gis_versions_qgis_2_10 --> desktop_gis
@@ -338,13 +341,14 @@ graph LR
 | [`desktop-essentials`](#desktop-essentials)  | 1 | — | `desktop-environments-cosmic`, `desktop-essentials-extras` |
 | [`desktop-games`](#desktop-games)  | 3 | `desktop-environments-cosmic` | — |
 | [`desktop-gis`](#desktop-gis)  | 8 | `desktop-environments-cosmic` | `desktop-gis-source-builds`, `desktop-gis-versions-qgis-1-8`, `desktop-gis-versions-qgis-2-10`, `desktop-gis-versions-qgis-2-16`, `desktop-gis-versions-qgis-2-18`, `desktop-gis-versions-qgis-2-4`, `desktop-gis-versions-qgis-2-6`, `desktop-gis-versions-qgis-2-8`, `desktop-gis-versions-qgis-3-10`, `desktop-gis-versions-qgis-3-16`, `desktop-gis-versions-qgis-3-22`, `desktop-gis-versions-qgis-3-24`, `desktop-gis-versions-qgis-3-26`, `desktop-gis-versions-qgis-3-28`, `desktop-gis-versions-qgis-3-32`, `desktop-gis-versions-qgis-3-34`, `desktop-gis-versions-qgis-3-36`, `desktop-gis-versions-qgis-3-38`, `desktop-gis-versions-qgis-3-4`, `desktop-gis-versions-qgis-3-40`, `desktop-gis-versions-qgis-3-42`, `desktop-gis-versions-qgis-3-44`, `desktop-gis-versions-qgis-3-8`, `desktop-gis-versions-qgis-4-0` |
-| [`desktop-kartoza-apps`](#desktop-kartoza-apps)  | 1 | `desktop-environments-cosmic` | — |
+| [`desktop-kartoza-apps`](#desktop-kartoza-apps)  | 3 | `desktop-environments-cosmic` | `desktop-kartoza-apps-screencaster` |
 | [`desktop-multimedia`](#desktop-multimedia)  | 4 | `desktop-environments-cosmic` | — |
 | [`desktop-productivity`](#desktop-productivity)  | 3 | `desktop-environments-cosmic` | — |
 | [`desktop-remote`](#desktop-remote)  | 3 | `desktop-environments-cosmic` | — |
 | [`desktop-environments-cosmic`](#desktop-environments-cosmic)  | 3 | `desktop-essentials` | `desktop-browsers`, `desktop-comms`, `desktop-ebook-readers`, `desktop-environments-cosmic-extensions`, `desktop-games`, `desktop-gis`, `desktop-kartoza-apps`, `desktop-multimedia`, `desktop-productivity`, `desktop-remote` |
 | [`desktop-essentials-extras`](#desktop-essentials-extras)  | 1 | `desktop-essentials` | — |
 | [`desktop-gis-source-builds`](#desktop-gis-source-builds)  | 3 | `desktop-gis` | — |
+| [`desktop-kartoza-apps-screencaster`](#desktop-kartoza-apps-screencaster)  | 1 | `desktop-kartoza-apps` | — |
 | [`desktop-environments-cosmic-extensions`](#desktop-environments-cosmic-extensions)  | 1 | `desktop-environments-cosmic` | — |
 | [`desktop-gis-versions-qgis-1-8`](#desktop-gis-versions-qgis-1-8)  | 1 | `desktop-gis` | — |
 | [`desktop-gis-versions-qgis-2-10`](#desktop-gis-versions-qgis-2-10)  | 1 | `desktop-gis` | — |
@@ -554,7 +558,7 @@ Present in the directory but deliberately not installed: `qgis-pinned.nix`, `qgi
 
 ### desktop-kartoza-apps
 
-*Endpoint monitoring for the desktop. A downstream flake with private tooling — timesheets, screencasters, web-app launchers and the like — adds bundles of its own alongside this one; none of that belongs in gisnix.*
+*Endpoint monitoring, a terminal typing-practice game, and general-purpose web-app launchers (Chromium app-mode shortcuts for Gmail, Calendar, Meet, LinkedIn, and around twenty others — see programs.kartoza-webapps in kartoza-webapps/default.nix). Nothing here is Kartoza-internal; a downstream flake with genuinely private tooling (an internal ERP, timesheets, a private Sentry instance) adds its own bundle alongside this one rather than folding it in here.*
 
 `software/desktop/kartoza-apps/`
 
@@ -562,7 +566,9 @@ Taking this also brings in `desktop-environments-cosmic`.
 
 | Module | What it is |
 | --- | --- |
+| `baboon.nix` | Baboon — terminal typing-practice game |
 | `gatus-monitor.nix` | Gatus Monitor — system-tray app for watching Gatus health-check endpoints |
+| `kartoza-webapps.nix` | — |
 
 ### desktop-multimedia
 
@@ -644,6 +650,18 @@ Taking this also brings in `desktop-gis`.
 | `qgis-dev.nix` | For hints on how to set up python deps with QGIS see the top level README.md in this repo |
 | `qgis-latest-git.nix` | NixOS module to install the latest QGIS from source from Git |
 | `qgis-ltr-git.nix` | NixOS module to install the ltr QGIS from source from Git |
+
+### desktop-kartoza-apps-screencaster
+
+*Kartoza Screencaster: screen/webcam/audio recording with a TUI, autostarted into the system tray. Experimental — the upstream build has a known CGO_ENABLED issue (see the module's own comment) — so it's opt-in rather than part of desktop-kartoza-apps' always-on set.*
+
+`software/desktop/kartoza-apps/screencaster/`
+
+Taking this also brings in `desktop-kartoza-apps`.
+
+| Module | What it is |
+| --- | --- |
+| `kartoza-screencaster.nix` | Kartoza Screencaster — screen/webcam/audio recording with a TUI |
 
 ### desktop-environments-cosmic-extensions
 
@@ -1155,6 +1173,6 @@ Taking this also brings in `services-system`.
 
 ---
 
-60 bundles, 150 modules.
+61 bundles, 153 modules.
 
 Made with love by [Kartoza](https://kartoza.com) | [Donate](https://github.com/sponsors/timlinux) | [GitHub](https://github.com/kartoza/gisnix)

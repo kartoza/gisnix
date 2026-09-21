@@ -1,0 +1,24 @@
+<svg width="220" height="80" viewBox="0 0 220 80" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:rgb(93,96,239);stop-opacity:1" /> <!-- Purple -->
+      <stop offset="100%" style="stop-color:rgb(150,200,255);stop-opacity:1" /> <!-- Light Blue -->
+    </linearGradient>
+    <style>
+      .ai-text { font-family: 'Roboto', 'Helvetica Neue', sans-serif; font-size: 40px; font-weight: 700; }
+      .studio-text { font-family: 'Roboto', 'Helvetica Neue', sans-serif; font-size: 40px; font-weight: 300; }
+    </style>
+  </defs>
+
+  <!-- Text: AI -->
+  <text x="20" y="55" class="ai-text" fill="url(#grad4)">AI</text>
+  
+  <!-- "Spark" for the dot of the 'I' -->
+  <g transform="translate(60, 23)"> <!-- Approximate position of 'I' dot -->
+    <path d="M0 0 L2 -4 L4 0 L6 -2 L4 -4 L2 -8 L0 -4 L-2 -2 Z" fill="rgb(93,96,239)" />
+  </g>
+  
+  <!-- Text: STUDIO -->
+  <text x="95" y="55" class="studio-text" fill="#555555">STUDIO</text>
+
+</svg>

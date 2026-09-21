@@ -20,7 +20,8 @@ in
   (final: prev: {
     # nixos-utils from the shared flake input.
     nixos-utils = inputs.nixos-utils.packages.${final.stdenv.hostPlatform.system}.default;
-    kartoza-plymouth-theme = inputs.kartoza-plymouth-theme.packages.${final.stdenv.hostPlatform.system}.default;
+    kartoza-plymouth-theme =
+      inputs.kartoza-plymouth-theme.packages.${final.stdenv.hostPlatform.system}.default;
     # QGIS "Spatial without Compromise" Plymouth splash (theme dir: qgis).
     qgis-plymouth-theme =
       inputs.kartoza-plymouth-theme.packages.${final.stdenv.hostPlatform.system}.qgis-plymouth;
@@ -53,6 +54,10 @@ in
 
     # Gatus Monitor - system tray app for monitoring Gatus health check endpoints
     gatus-monitor = inputs.gatus-monitor.packages.${final.stdenv.hostPlatform.system}.default;
+
+    # Kartoza Screencaster - screen/webcam/audio recording with TUI
+    kartoza-screencaster =
+      inputs.kartoza-screencaster.packages.${final.stdenv.hostPlatform.system}.default;
 
     # Bubblewrapped AI applications. All generated from the one jail
     # definition in ./pkgs/ai/mk-sandboxed.nix — add new tools there rather

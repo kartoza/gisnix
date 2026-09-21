@@ -1,11 +1,13 @@
 {
   "name": "desktop-kartoza-apps",
   "path": "desktop/kartoza-apps",
-  "description": "Endpoint monitoring for the desktop. A downstream flake with private tooling — timesheets, screencasters, web-app launchers and the like — adds bundles of its own alongside this one; none of that belongs in gisnix.",
+  "description": "Endpoint monitoring, a terminal typing-practice game, and general-purpose web-app launchers (Chromium app-mode shortcuts for Gmail, Calendar, Meet, LinkedIn, and around twenty others — see programs.kartoza-webapps in kartoza-webapps/default.nix). Nothing here is Kartoza-internal; a downstream flake with genuinely private tooling (an internal ERP, timesheets, a private Sentry instance) adds its own bundle alongside this one rather than folding it in here.",
   "implies": [
     "desktop-environments-cosmic"
   ],
   "modules": [
-    "gatus-monitor.nix"
+    "baboon.nix",
+    "gatus-monitor.nix",
+    "kartoza-webapps.nix"
   ]
 }

@@ -91,6 +91,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Screen/webcam/audio recorder with a TUI — desktop-kartoza-apps-
+    # screencaster, opt-in (see that bundle's own description for why).
+    kartoza-screencaster = {
+      url = "github:kartoza/kartoza-screencaster";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Home-manager for user-level configuration
     home-manager = {
       url = "github:nix-community/home-manager";
