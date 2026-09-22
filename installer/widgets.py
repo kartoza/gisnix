@@ -145,13 +145,16 @@ class FontSizeSlider(Static, can_focus=True):
 #: Sub-pixel grid size the circle is rasterised onto. Fixed for every
 #: frame — the CIRCLE's diameter shrinks/grows, but the canvas it's drawn
 #: on doesn't, so the widget's own size never changes and nothing else on
-#: the network screen jumps around as the pulse plays. Odd, so there's a
-#: true centre cell.
-_CANVAS = 11
+#: the network screen jumps around as the pulse plays. Doubled from the
+#: first cut (11) at the operator's request — big enough to carry a
+#: status word across its own middle row, not just read as a coloured dot.
+_CANVAS = 22
 _CANVAS_ROWS = (_CANVAS + 1) // 2  # two sub-pixel rows per half-block terminal row
+_TEXT_ROW = _CANVAS_ROWS // 2  # the one terminal row the status label prints on
 
 #: "3x3 half pixel dimension" — the fully-collapsed pulse point between
-#: phases, per spec.
+#: phases, per spec. Unchanged by the radius doubling above: this is the
+#: pinch point, not a fraction of the max.
 _MIN_DIAMETER = 3
 _MAX_DIAMETER = _CANVAS
 
@@ -167,6 +170,15 @@ CIRCLE_COLOR_FAIL = _PALETTE["danger"]
 #: of those to mean something it doesn't elsewhere in the wizard.
 CIRCLE_COLOR_OK = "#4CAF50"
 
+#: One label per phase, printed across the circle's own middle row —
+#: replaces a separate status line below it. "Connection Failed" (17
+#: chars) is the longest and still leaves 5 columns of breathing room
+#: inside a 22-wide circle.
+CIRCLE_LABEL_IDLE = "Preparing"
+CIRCLE_LABEL_CHECKING = "Checking"
+CIRCLE_LABEL_OK = "Connected"
+CIRCLE_LABEL_FAIL = "Connection Failed"
+
 
 def _ease_in_out_cubic(t: float) -> float:
     """Smooth accel/decel/accel/decel — a linear shrink/grow reads as
@@ -179,22 +191,49 @@ def _ease_in_out_cubic(t: float) -> float:
     return 1 - (p * p * p) / 2
 
 
-def _circle_frame(diameter: float, color: str) -> Text:
+def _reveal_centered(text: str, frac: float) -> str:
+    """The centre `len(text) * frac` characters of `text` — frac 0 is
+    empty, frac 1 is the whole word. Growing this fraction in lockstep
+    with the circle's own diameter is what makes the label look like it
+    grows outward from the centre with the circle instead of just
+    popping in/out at some fixed size."""
+    frac = max(0.0, min(1.0, frac))
+    n = round(len(text) * frac)
+    if n <= 0:
+        return ""
+    start = (len(text) - n) // 2
+    return text[start : start + n]
+
+
+def _circle_frame(diameter: float, color: str, label: str = "") -> Text:
     """Rasterise a filled circle of `diameter` sub-pixels, centred on a
     fixed _CANVAS x _CANVAS grid, packed two sub-pixel-rows per terminal
     row via half-block characters (█ both on, ▀ top only, ▄ bottom only —
     the same block-glyph family already relied on for the corner logo
     badge, so this is drawing with characters already confirmed to render
-    on the console font)."""
+    on the console font). `label`, if given, replaces the exact middle
+    terminal row with that word (or a centre-out partial reveal of it,
+    scaled to how open the circle currently is) instead of circle glyphs
+    — the status text riding along inside the circle rather than sitting
+    in a separate line below it."""
     radius = diameter / 2
     center = (_CANVAS - 1) / 2
+    span = _MAX_DIAMETER - _MIN_DIAMETER
+    frac = (diameter - _MIN_DIAMETER) / span if span else 1.0
+    revealed = _reveal_centered(label, frac) if label else ""
 
     def inside(x: float, y: float) -> bool:
         return (x - center) ** 2 + (y - center) ** 2 <= radius * radius
 
     style = Style(color=color, bold=True)
     lines = []
-    for top_row in range(0, _CANVAS, 2):
+    for row_index, top_row in enumerate(range(0, _CANVAS, 2)):
+        if row_index == _TEXT_ROW and revealed:
+            pad = _CANVAS - len(revealed)
+            left = max(pad // 2, 0)
+            right = max(_CANVAS - left - len(revealed), 0)
+            lines.append(" " * left + revealed + " " * right)
+            continue
         bottom_row = top_row + 1
         chars = []
         for col in range(_CANVAS):
@@ -214,15 +253,19 @@ def _circle_frame(diameter: float, color: str) -> Text:
 
 class NetworkStatusCircle(Static):
     """A small animated status indicator for the network-check screen:
-    gray (idle) -> orange (checking) -> green/red (result). Each phase
-    holds for at least _HOLD_SECONDS; each transition between phases is
-    an eased pulse — shrink to the 3x3 minimum, then grow back, changing
-    colour at the pinch point — lasting at least _TRANSITION_SECONDS,
-    counted separately from hold time. The real connectivity check can
-    itself take several seconds (see repo.network_is_up's curl timeout);
-    this keeps that wait visibly alive instead of a frozen screen, and
-    report_result() only advances the animation once its own minimum
-    ORANGE hold has already elapsed, whichever finishes last."""
+    gray "Preparing" -> orange "Checking" -> green "Connected" / red
+    "Connection Failed", the label printed across the circle's own
+    middle row rather than in a separate line below it. Each phase holds
+    for at least _HOLD_SECONDS; each transition between phases is an
+    eased pulse — shrink to the 3x3 minimum (taking its label down to
+    nothing with it, via _reveal_centered), then grow back in the new
+    colour with the new label growing back in alongside it — lasting at
+    least _TRANSITION_SECONDS, counted separately from hold time. The
+    real connectivity check can itself take several seconds (see
+    repo.network_is_up's curl timeout); this keeps that wait visibly
+    alive instead of a frozen screen, and report_result() only advances
+    the animation once its own minimum ORANGE hold has already elapsed,
+    whichever finishes last."""
 
     DEFAULT_CSS = f"""
     NetworkStatusCircle {{
@@ -233,7 +276,9 @@ class NetworkStatusCircle(Static):
     """
 
     def __init__(self, id: str | None = None) -> None:
-        super().__init__(_circle_frame(_MAX_DIAMETER, CIRCLE_COLOR_IDLE), id=id)
+        super().__init__(
+            _circle_frame(_MAX_DIAMETER, CIRCLE_COLOR_IDLE, CIRCLE_LABEL_IDLE), id=id
+        )
         self._phase = "gray_hold"
         self._phase_start = time.monotonic()
         self._result: bool | None = None
@@ -255,15 +300,24 @@ class NetworkStatusCircle(Static):
             if elapsed >= _HOLD_SECONDS:
                 self._advance("to_orange")
         elif self._phase == "to_orange":
-            self._render_transition(elapsed, CIRCLE_COLOR_IDLE, CIRCLE_COLOR_CHECKING)
+            self._render_transition(
+                elapsed,
+                CIRCLE_COLOR_IDLE,
+                CIRCLE_COLOR_CHECKING,
+                CIRCLE_LABEL_IDLE,
+                CIRCLE_LABEL_CHECKING,
+            )
             if elapsed >= _TRANSITION_SECONDS:
                 self._advance("orange_hold")
         elif self._phase == "orange_hold":
             if elapsed >= _HOLD_SECONDS and self._result is not None:
                 self._advance("to_result")
         elif self._phase == "to_result":
-            target = CIRCLE_COLOR_OK if self._result else CIRCLE_COLOR_FAIL
-            self._render_transition(elapsed, CIRCLE_COLOR_CHECKING, target)
+            target_color = CIRCLE_COLOR_OK if self._result else CIRCLE_COLOR_FAIL
+            target_label = CIRCLE_LABEL_OK if self._result else CIRCLE_LABEL_FAIL
+            self._render_transition(
+                elapsed, CIRCLE_COLOR_CHECKING, target_color, CIRCLE_LABEL_CHECKING, target_label
+            )
             if elapsed >= _TRANSITION_SECONDS:
                 self._advance("result_hold")
         # result_hold: final frame already drawn by _advance, nothing more to tick.
@@ -272,21 +326,24 @@ class NetworkStatusCircle(Static):
         self._phase = phase
         self._phase_start = time.monotonic()
         if phase == "orange_hold":
-            self.update(_circle_frame(_MAX_DIAMETER, CIRCLE_COLOR_CHECKING))
+            self.update(_circle_frame(_MAX_DIAMETER, CIRCLE_COLOR_CHECKING, CIRCLE_LABEL_CHECKING))
         elif phase == "result_hold":
-            final = CIRCLE_COLOR_OK if self._result else CIRCLE_COLOR_FAIL
-            self.update(_circle_frame(_MAX_DIAMETER, final))
+            final_color = CIRCLE_COLOR_OK if self._result else CIRCLE_COLOR_FAIL
+            final_label = CIRCLE_LABEL_OK if self._result else CIRCLE_LABEL_FAIL
+            self.update(_circle_frame(_MAX_DIAMETER, final_color, final_label))
             if self._timer is not None:
                 self._timer.stop()
 
-    def _render_transition(self, elapsed: float, from_color: str, to_color: str) -> None:
+    def _render_transition(
+        self, elapsed: float, from_color: str, to_color: str, from_label: str, to_label: str
+    ) -> None:
         t = min(elapsed / _TRANSITION_SECONDS, 1.0)
         if t < 0.5:
             local = _ease_in_out_cubic(t * 2)
             diameter = _MAX_DIAMETER - (_MAX_DIAMETER - _MIN_DIAMETER) * local
-            color = from_color
+            color, label = from_color, from_label
         else:
             local = _ease_in_out_cubic((t - 0.5) * 2)
             diameter = _MIN_DIAMETER + (_MAX_DIAMETER - _MIN_DIAMETER) * local
-            color = to_color
-        self.update(_circle_frame(diameter, color))
+            color, label = to_color, to_label
+        self.update(_circle_frame(diameter, color, label))

@@ -10,6 +10,23 @@ from .base import WizardScreen
 
 
 class NetworkScreen(WizardScreen):
+    """The circle itself carries the phase word (Preparing/Checking/
+    Connected/Connection Failed — see widgets.NetworkStatusCircle), so
+    there's no separate "Checking connectivity..." status line doing the
+    same job in different words. #net-status stays empty on success and
+    only fills in with actionable guidance on failure, where "the circle
+    turned red" alone doesn't tell you what to do about it."""
+
+    CSS = """
+    #net-status {
+        margin-top: 1;
+    }
+    #net-caption {
+        margin-top: 2;
+        color: $muted;
+    }
+    """
+
     def __init__(self) -> None:
         super().__init__("Network check", next_label="Continue")
 
@@ -17,7 +34,7 @@ class NetworkScreen(WizardScreen):
         with Center():
             yield NetworkStatusCircle(id="net-circle")
         with Center():
-            yield Static("Checking connectivity to cache.nixos.org...", id="net-status")
+            yield Static("", id="net-status")
         with Center():
             yield Static(
                 "Packages will be fetched from the NixOS binary cache.", id="net-caption"
@@ -39,11 +56,8 @@ class NetworkScreen(WizardScreen):
 
     def _on_result(self, up: bool) -> None:
         self.query_one("#net-circle", NetworkStatusCircle).report_result(up)
-        status = self.query_one("#net-status", Static)
-        if up:
-            status.update("[b]Connected.[/b]")
-        else:
-            status.update(
+        if not up:
+            self.query_one("#net-status", Static).update(
                 "[b]No connection detected.[/b] The install itself needs network to "
                 "fetch packages — connect to Wi-Fi/Ethernet and come back to this "
                 "step before continuing."
