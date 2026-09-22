@@ -3,6 +3,20 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.10.0] - 2026-09-22
+
+### Added
+
+- `kartoza.kanata.aercLayer` — aerc (mail client) macros now share
+  herdr's trigger key instead of owning Tab, switched with a caps+space
+  chord (hold the trigger key, tap Space while held) via kanata's
+  `layer-switch`. A short beep confirms the switch. Same two-base-layer
+  shape as the removed "polymorphic base" era, deliberately — see
+  `kanata-config.nix`'s own comment for why this one doesn't share that
+  scheme's failure mode (a manual toggle instead of automatic focus
+  detection). A real option now, not a bare function parameter nothing
+  outside `kanata-keyboard.nix` could reach.
+
 ## [0.9.2] - 2026-09-22
 
 ### Fixed
