@@ -143,7 +143,11 @@ class InstallerApp(App):
         }
         screen = registry[step]()
         order = self._current_order()
-        if step in order:
+        # installing/done are plain Screen subclasses, not WizardScreen —
+        # no card/title-row chrome to number in the first place (see their
+        # own docstrings: no Back/Next bar once the disk is being
+        # partitioned). set_step only exists on WizardScreen.
+        if step in order and hasattr(screen, "set_step"):
             screen.set_step(order.index(step) + 1, len(order))
         return screen
 
