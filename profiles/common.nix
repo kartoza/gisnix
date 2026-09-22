@@ -22,6 +22,14 @@
     # because the module system merges a function-valued option by picking a
     # single definition. See that file for the full story.
     ../software/services/system/unfree.nix
+    # kartoza.userEmails — declared here, not under kanata's own bundle,
+    # because it's a fact about a USER, not about whether this particular
+    # host has kanata installed. A user file setting
+    # `kartoza.userEmails.<name> = "...";` must not fail to evaluate just
+    # because the host importing that user file happens to have no
+    # keyboard remapper — the option needs to exist everywhere, even
+    # though only the herdr layer's email key ever reads it.
+    ../software/services/device/input-kanata/kanata-email.nix
   ];
 
   # Enable QEMU binfmt emulation for cross-architecture builds.
