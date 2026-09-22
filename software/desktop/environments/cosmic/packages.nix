@@ -34,6 +34,13 @@ let
     SCREENSHOT_DIR="''${XDG_PICTURES_DIR:-$HOME/Pictures}/Screenshots"
     mkdir -p "$SCREENSHOT_DIR"
 
+    # Last interactively-selected region, so region-repeat can reuse it
+    # without popping slurp again — e.g. cropping several screenshots of
+    # the same on-screen area in a row. Survives reboots (~/.cache, not
+    # $XDG_RUNTIME_DIR) since "the same region as last time" is just as
+    # useful the next day as it is five minutes later.
+    LAST_REGION_FILE="''${XDG_CACHE_HOME:-$HOME/.cache}/kartoza-screenshot-last-region"
+
     TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
     TEMP_FILE="/tmp/screenshot-$TIMESTAMP.png"
 
@@ -42,13 +49,27 @@ let
     case "$MODE" in
         region)
             REGION=$(${pkgs.slurp}/bin/slurp) || exit 0
+            mkdir -p "$(dirname "$LAST_REGION_FILE")"
+            printf '%s' "$REGION" > "$LAST_REGION_FILE"
+            ${pkgs.grim}/bin/grim -g "$REGION" "$TEMP_FILE"
+            ;;
+        region-repeat)
+            # First-use safety net: nothing saved yet falls back to an
+            # interactive selection, same as region, rather than erroring.
+            if [[ -f "$LAST_REGION_FILE" ]]; then
+                REGION=$(< "$LAST_REGION_FILE")
+            else
+                REGION=$(${pkgs.slurp}/bin/slurp) || exit 0
+                mkdir -p "$(dirname "$LAST_REGION_FILE")"
+                printf '%s' "$REGION" > "$LAST_REGION_FILE"
+            fi
             ${pkgs.grim}/bin/grim -g "$REGION" "$TEMP_FILE"
             ;;
         screen)
             ${pkgs.grim}/bin/grim "$TEMP_FILE"
             ;;
         *)
-            echo "Usage: $0 [region|screen]"
+            echo "Usage: $0 [region|region-repeat|screen]"
             exit 1
             ;;
     esac
