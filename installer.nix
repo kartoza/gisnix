@@ -6,6 +6,7 @@
   pkgs,
   modulesPath,
   gisnixSetup,
+  installerClosureSeed,
   ...
 }:
 {
@@ -26,7 +27,14 @@
     earlySetup = true;
   };
 
-  isoImage.storeContents = [ ];
+  # Was `[ ]`: the ISO shipped gisnix's flake SOURCE (see isoImage.contents
+  # below) so evaluation worked offline, but no actual packages, which is
+  # why nixos-install still reached for cache.nixos.org even with no
+  # network present. installerClosureSeed (flake.nix's installer
+  # nixosSystem, see its own comment) is the toplevel for the installer's
+  # default bundle selection — baking its closure in here means a default
+  # install is satisfied entirely from the ISO's own store.
+  isoImage.storeContents = [ installerClosureSeed ];
   isoImage.squashfsCompression = "zstd -Xcompression-level 19";
   system.includeBuildDependencies = false;
 
@@ -132,7 +140,31 @@
     pkgs.git
     pkgs.vim
     pkgs.curl
+    # iPhone USB tethering: usbmuxd below handles the pairing handshake,
+    # these give the installer environment ifuse/libimobiledevice on PATH
+    # too (mount/inspect, not required for tethering itself, but usbmuxd's
+    # closure pulls them in anyway).
+    pkgs.libimobiledevice
+    pkgs.ifuse
   ];
+
+  # usbmuxd is what makes `networking.networkmanager` actually see an
+  # iPhone tethered over USB — without it the kernel's ipheth driver still
+  # binds, but the phone never leaves "Trust This Computer?" limbo, so no
+  # usb0 interface ever appears for NetworkManager to pick up. Every real
+  # gisnix host gets this from the services-device-mobile bundle
+  # (software/services/device/mobile/iphone.nix); the installer ISO is
+  # built directly from installation-cd-minimal.nix, not through mkHost's
+  # bundle list, so it needs its own copy.
+  services.usbmuxd.enable = true;
+
+  # The installation-cd-minimal profile this ISO is built from ships no
+  # firmware blobs — fine for the kernel's own drivers, not fine for wifi:
+  # Framework 13's Intel/MediaTek radios (like most laptop wifi/bluetooth
+  # chips) need a redistributable firmware blob loaded before the device
+  # shows up at all, which is why nmtui saw no radio to configure rather
+  # than a radio it couldn't connect with.
+  hardware.enableRedistributableFirmware = true;
 
   # SSH: installed for rescue use but NOT started by default — the live ISO
   # has a well-known root password, so exposing sshd unsolicited would let

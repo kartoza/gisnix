@@ -676,6 +676,22 @@
             system = "x86_64-linux";
             specialArgs = {
               gisnixSetup = self.packages.x86_64-linux.gisnix-setup;
+              # A representative install-only closure baked onto the ISO, so
+              # a first install with the installer's own default bundles
+              # (base + minimal COSMIC + browsers + kanata — see
+              # installer/state.py's DEFAULT_BUNDLES) needs no network.
+              # hosts/example carries that exact bundle set already — it's
+              # the host fleet.nix's own comment names as "used by the
+              # installer" — with stableCosmic = true so it matches the
+              # nixpkgs-stable "-install" flake output installer_run.py
+              # actually builds against, not the nixpkgs-unstable desktop a
+              # real host runs day to day. Any install that changes bundles
+              # or hostname still diverges a little (a handful of
+              # hostname/user-specific derivations aren't cached), but the
+              # bulk of the closure — the packages themselves — already sit
+              # in the ISO's own store, so nix only needs to build the small
+              # host-specific bits locally rather than fetch anything.
+              installerClosureSeed = (mkHost "example" { stableCosmic = true; }).config.system.build.toplevel;
             };
             modules = [ ./installer.nix ];
           };

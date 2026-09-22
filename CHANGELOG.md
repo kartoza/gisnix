@@ -3,6 +3,35 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.13.1] - 2026-09-22
+
+### Fixed
+
+- Installer ISO: no wifi radio detected in `nmtui` on real hardware (e.g.
+  Framework 13) — the `installation-cd-minimal` base ships no firmware
+  blobs, which most laptop wifi/bluetooth chips need before the device
+  even shows up. `hardware.enableRedistributableFirmware = true` now set
+  on the installer.
+- Installer ISO: iPhone USB tethering did nothing — `usbmuxd` was never
+  enabled and `libimobiledevice`/`ifuse` were never installed on the live
+  environment (every real gisnix host gets these from the
+  services-device-mobile bundle; the installer ISO isn't built through
+  the bundle system).
+- Installer ISO: an offline install failed reaching cache.nixos.org even
+  though the ISO carries gisnix's flake source — `isoImage.storeContents`
+  was empty, so evaluation worked offline but no actual packages did.
+  Now bakes in the closure of the installer's own default bundle
+  selection (`hosts/example`, stableCosmic), so a default install needs
+  no network; installs that change the bundle selection or add extras
+  still need it.
+- Installer TUI: focused widgets rendered as a stark white block —
+  `text-style: bold reverse` (added to make the built-in 5%-tint focus
+  style visible on the virtual console) swaps foreground/background at
+  render time, and Textual's default foreground is near-white on a dark
+  theme, so every focused field inverted to white-on-dark instead of
+  picking up the intended accent-colour highlight. Replaced with plain
+  `bold` on top of the existing accent-tinted background/border.
+
 ## [0.13.0] - 2026-09-22
 
 ### Added

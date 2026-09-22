@@ -49,8 +49,14 @@ class InstallerApp(App):
     # enough that a plain override loses to it otherwise.
     #
     # The built-in focus style is a 5% background tint — meant for a real
-    # terminal with full colour depth, invisible on a virtual console.
-    # `!important` bold-reverse is unmissable regardless of colour support.
+    # terminal with full colour depth, invisible on a virtual console. The
+    # first fix for that was `text-style: bold reverse`, which is unmissable
+    # but wrong: `reverse` swaps foreground/background at render time, and
+    # Textual's default foreground on a dark theme is near-white — so every
+    # focused widget rendered as a stark white block with dark text, on both
+    # the console AND a real terminal. The accent tint below is already the
+    # unmissable-on-a-console fix; `bold` alone is enough extra emphasis on
+    # top of it, no inversion needed.
     CSS = """
     Button, Input, ToggleButton, OptionList, SelectCurrent, RadioSet, TextArea {
         border: solid $surface-lighten-2 !important;
@@ -76,15 +82,15 @@ class InstallerApp(App):
     Button:focus, Input:focus, ToggleButton:focus, OptionList:focus, SelectCurrent:focus,
     RadioSet:focus, TextArea:focus {
         border: solid $accent !important;
-        background: $accent 35% !important;
-        text-style: bold reverse !important;
+        background: $accent 45% !important;
+        text-style: bold !important;
     }
     Input.-invalid:focus {
         border: solid $error !important;
-        background: $error 35% !important;
+        background: $error 45% !important;
     }
     *:focus {
-        text-style: bold reverse;
+        text-style: bold;
     }
     """
 
