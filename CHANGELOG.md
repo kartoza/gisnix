@@ -3,6 +3,18 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.9.1] - 2026-09-22
+
+### Fixed
+
+- Push-to-talk itself never ran voxtype: kanata's `cmd voxtype record
+  start`/`stop` failed with "No such file or directory" because kanata
+  runs as a system service, which doesn't get
+  `/run/current-system/sw/bin` on PATH — confirmed on a real machine
+  holding Menu/right-Ctrl and watching the command fail in the kanata
+  log, despite voxtype being installed and on PATH for an interactive
+  shell. Both bindings now use an absolute path to the binary.
+
 ## [0.9.0] - 2026-09-22
 
 ### Added
