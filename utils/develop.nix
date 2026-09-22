@@ -78,6 +78,11 @@ pkgs.mkShell {
         # tree — no `nix run`/rebuild between edits, the fastest loop for
         # iterating on the setup wizard's screens.
         textual
+        # pytest: installer/tests/ — `pytest installer/tests` from repo
+        # root. No pytest-asyncio: those tests wrap App.run_test() in a
+        # plain asyncio.run() inside an ordinary sync test function
+        # instead, rather than pulling in a second plugin for it.
+        pytest
       ]
     ))
   ];
