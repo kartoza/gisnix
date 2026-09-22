@@ -12,7 +12,7 @@ from textual.app import App
 from textual.widgets._toggle_button import ToggleButton  # noqa: PLC2701 — see comment below
 
 from . import branding
-from .repo import MOCK
+from .repo import MOCK, existing_hosts
 from .state import InstallState
 
 # RadioButton, Checkbox, AND SelectionList (which reads these directly off
@@ -104,6 +104,10 @@ class InstallerApp(App):
         super().__init__()
         self.state = InstallState()
         self._history: list[str] = ["welcome"]
+        # Computed once — existing_hosts() shells out to nix-instantiate,
+        # and the answer can't change mid-run (the ISO's own hosts/ is
+        # read-only). Drives _current_order()'s host_mode skip below.
+        self._has_existing_hosts = bool(existing_hosts())
 
     def get_css_variables(self) -> dict[str, str]:
         variables = super().get_css_variables()
@@ -181,7 +185,18 @@ class InstallerApp(App):
     ]
 
     def _current_order(self) -> list[str]:
-        return self._ORDER_EXISTING if self.state.use_existing_host else self._ORDER_NEW
+        order = self._ORDER_EXISTING if self.state.use_existing_host else self._ORDER_NEW
+        if not self._has_existing_hosts:
+            # host_mode's only real content is "install an existing host
+            # profile (N available)" vs. the default "create a new host" —
+            # with nothing bundled to pick from, that's not a choice, so
+            # don't show a step whose only option is the one already
+            # selected. state.use_existing_host stays at its False default
+            # in this case, so _ORDER_NEW (which this filters too, a no-op
+            # since it never contains "existing_host" mode's own steps) is
+            # what actually gets walked from here on.
+            order = [step for step in order if step != "host_mode"]
+        return order
 
     def _next_step_name(self, current: str) -> str | None:
         order = self._current_order()
