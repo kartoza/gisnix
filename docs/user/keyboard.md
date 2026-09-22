@@ -179,6 +179,9 @@ toggles Caps Lock as normal.
 | `u` | down the agent list |
 | `i` | up the agent list |
 | `n` | new tab |
+| `s` | edit scrollback — opens the pane's history in `$EDITOR` for keyboard-only selection and copy |
+| `r` | toggle kanata's own macro recorder (not herdr's) — press once to start, again to stop; a click plays either way |
+| `p` | play back the recorded macro |
 | `e` | types your email address, if you've set one (see below) |
 
 herdr's own `previous agent`/`next agent` binds ship unbound; the `base`

@@ -143,6 +143,9 @@ in
             # as a distinct cue from the mode-toggle beep above.
             voxtypeStartSound = "${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo/device-added.oga";
             voxtypeStopSound = "${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo/device-removed.oga";
+            # herdr's macro-record toggle click — camera-shutter, not
+            # bell.oga or the voxtype pair, so all three stay distinct.
+            recordToggleSound = "${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo/camera-shutter.oga";
           };
         };
       };

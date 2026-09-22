@@ -72,6 +72,14 @@
   # null by default (silent), set together with beepPlayer.
   voxtypeStartSound ? null,
   voxtypeStopSound ? null,
+  # herdr's macro-record toggle (herdrLayer only — see herdr-record-toggle
+  # below) click, played on both start AND stop: kanata's
+  # dynamic-macro-record is a stateless toggle (the same action starts it
+  # and, pressed again, ends it), so there's no config-time way to tell
+  # which transition just happened and play a different sound per
+  # direction without doubling every layer into a recording-state
+  # dimension too. One click, both ways — simple, on purpose.
+  recordToggleSound ? null,
   # Opt-in clipboard holds on x/c/v, transcribed from the Sonsei's superkeys
   # 9/20/21: tap the letter, hold it for the clipboard action. Note the
   # asymmetry is the Sonsei's own — copy is Ctrl+C (not Ctrl+Shift+C) while
@@ -383,8 +391,8 @@ let
         ;; mode-to-aerc — only wired when dualMode; otherwise space stays
         ;; plain like everything else here.
         (deflayer herdr
-          _ _ ${emailInLayer} _ _    _ @herdr-agent-down @herdr-agent-up _ _
-          _ _ _ _ _    @herdr-left @herdr-down @herdr-up @herdr-right _
+          _ _ ${emailInLayer} @herdr-record-toggle _    _ @herdr-agent-down @herdr-agent-up _ @herdr-play-macro
+          _ @herdr-edit-scrollback _ _ _    @herdr-left @herdr-down @herdr-up @herdr-right _
           _ _ _ _ _    @herdr-new-tab _ _ _ _
           ${if dualMode then "@mode-to-aerc" else "_"} _ _${herdrPass}${rctlPass}
         )
@@ -495,6 +503,24 @@ let
           ''
       )
       + ''
+        ;; edit_scrollback (prefix+e in herdr's own config — see
+        ;; dotfiles/herdr/config.toml, unbound there so this is herdr's
+        ;; default) opens the pane's scrollback in $EDITOR for
+        ;; keyboard-only selection and copy. `s`, not `e` — `e` is
+        ;; already the email macro two rows up.
+        herdr-edit-scrollback (macro C-b e)
+        ;; kanata's own dynamic-macro recorder, slot 0 — not herdr's.
+        ;; Toggle: pressing dynamic-macro-record with the same id again
+        ;; ends and saves the recording, so one key does both start and
+        ;; stop. One click plays either way (see recordToggleSound's own
+        ;; comment for why not two distinct sounds).
+        herdr-record-toggle ${
+          if recordToggleSound == null || beepPlayer == null then
+            "(dynamic-macro-record 0)"
+          else
+            "(multi (dynamic-macro-record 0) (cmd ${beepPlayer} ${recordToggleSound}))"
+        }
+        herdr-play-macro (dynamic-macro-play 0)
         herdr-left  (macro C-b p)
         herdr-down  (macro C-b w 25 down ret)
         herdr-up    (macro C-b w 25 up ret)
