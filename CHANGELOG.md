@@ -3,6 +3,24 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.13.2] - 2026-09-22
+
+### Added
+
+- `docs/developer/releasing.md`: the release process was CI behavior
+  nobody had written down — version bump, changelog section, tag, push,
+  and what pushing a `v*` tag actually triggers (an unattended ISO build
+  and GitHub Release, no separate confirmation step).
+
+### Fixed
+
+- Kanata's herdr<->aerc mode-toggle beep and voxtype's start/stop audio
+  cues never played: kanata's own systemd unit is a system service, which
+  gets no `XDG_RUNTIME_DIR`, so the bare `pw-play` its `cmd` actions
+  invoked had no PipeWire socket to reach and failed silently. Wrapped it
+  in a script that finds whichever logged-in user's PipeWire session is
+  actually up.
+
 ## [0.13.1] - 2026-09-22
 
 ### Fixed

@@ -163,6 +163,7 @@ nav:
       - Adding a host: developer/adding-a-host.md
       - The installer: developer/installer.md
       - Building on gisnix (lib.mkHost): developer/downstream-flakes.md
+      - Releasing: developer/releasing.md
   - References:
       - references/index.md
       - Operator commands: references/commands.md

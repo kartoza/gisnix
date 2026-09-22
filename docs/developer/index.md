@@ -12,6 +12,8 @@ For working on gisnix itself, or building your own fleet on top of it.
   instead of nesting `gisnix configure`'s picker.
 - **[Building on gisnix](downstream-flakes.md)** — what `lib.mkHost` gives a
   downstream flake, and what's still rough around that edge.
+- **[Releasing](releasing.md)** — version bump, changelog, tag, push — and
+  what the tag push actually triggers.
 
 ## Development environment
 

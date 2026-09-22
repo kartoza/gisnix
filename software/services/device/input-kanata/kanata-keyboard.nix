@@ -48,6 +48,32 @@ let
   # below — the two only make sense together.
   voxtypePtt = true;
 
+  # kanata's own systemd unit is a SYSTEM service (it needs /dev/uinput and
+  # /dev/input, which is also why it carries the uinput/openrazer
+  # supplementary groups below) — not something the user's session manager
+  # spawned. Systemd only sets XDG_RUNTIME_DIR for units IT launches inside
+  # a user's own manager; a bare `pw-play` invoked from this service's
+  # `cmd` actions (the herdr<->aerc mode-toggle beep, voxtype's start/stop
+  # cues, herdr's macro-record click) has no PipeWire socket to reach and
+  # fails silently — the `cmd` "succeeds" from kanata's point of view
+  # (pw-play exits nonzero, kanata just logs it), so nothing looked broken
+  # short of actually listening for the sound. This wrapper hunts down
+  # whichever logged-in user's PipeWire socket is actually up and plays
+  # into that one, rather than hardcoding a uid that would break the
+  # moment a different user logs in or the uid changes.
+  kanataPlaySound = pkgs.writeShellScriptBin "kanata-play-sound" ''
+    for sock in /run/user/*/pipewire-0; do
+      if [ -S "$sock" ]; then
+        export XDG_RUNTIME_DIR="''${sock%/pipewire-0}"
+        exec ${pkgs.pipewire}/bin/pw-play "$@"
+      fi
+    done
+    # No PipeWire session up — nothing to play into. Exit 0 regardless:
+    # a `cmd` action failing is not a reason to disrupt the key press it
+    # rode in on.
+    exit 0
+  '';
+
   cfg = config.kartoza.kanata;
 in
 {
@@ -135,7 +161,7 @@ in
             # Herdr<->aerc mode-toggle beep — only reached when aercLayer is
             # on, but harmless to always pass (kanata-config.nix's own
             # dualMode gate decides whether it's ever used).
-            beepPlayer = "${pkgs.pipewire}/bin/pw-play";
+            beepPlayer = "${kanataPlaySound}/bin/kanata-play-sound";
             beepSound = "${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo/bell.oga";
             # Voxtype push-to-talk cues: a short rising sound when
             # recording starts, a short falling one when it stops —
