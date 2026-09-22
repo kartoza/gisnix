@@ -4,6 +4,7 @@ from textual import work
 from textual.containers import Center
 from textual.widgets import Static
 
+from .. import branding
 from ..repo import network_is_up
 from ..widgets import NetworkStatusCircle
 from .base import WizardScreen
@@ -15,17 +16,14 @@ class NetworkScreen(WizardScreen):
     there's no separate "Checking connectivity..." status line doing the
     same job in different words. #net-status stays empty on success and
     only fills in with actionable guidance on failure, where "the circle
-    turned red" alone doesn't tell you what to do about it."""
+    turned red" alone doesn't tell you what to do about it.
 
-    CSS = """
-    #net-status {
-        margin-top: 1;
-    }
-    #net-caption {
-        margin-top: 2;
-        color: $muted;
-    }
-    """
+    No class-level CSS here — Screen.CSS is a plain class attribute, not
+    something Textual merges across a subclass chain, so defining one on
+    this screen would REPLACE WizardScreen's (card border, title row,
+    docked button bar, all of it) instead of adding to it. See user.py's
+    matching comment on its own TextArea — styling the two Statics below
+    directly instead."""
 
     def __init__(self) -> None:
         super().__init__("Network check", next_label="Continue")
@@ -34,11 +32,16 @@ class NetworkScreen(WizardScreen):
         with Center():
             yield NetworkStatusCircle(id="net-circle")
         with Center():
-            yield Static("", id="net-status")
+            status = Static("", id="net-status")
+            status.styles.margin = (1, 0, 0, 0)
+            yield status
         with Center():
-            yield Static(
+            caption = Static(
                 "Packages will be fetched from the NixOS binary cache.", id="net-caption"
             )
+            caption.styles.margin = (2, 0, 0, 0)
+            caption.styles.color = branding.textual_css_vars()["muted"]
+            yield caption
 
     def on_mount(self) -> None:
         super().on_mount()
