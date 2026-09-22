@@ -65,197 +65,210 @@ in
     '';
   };
 
-  hardware.uinput.enable = true;
+  # Everything below is config, not more options — once a module declares
+  # a top-level `options`, NixOS requires the rest explicitly wrapped in
+  # `config` rather than left alongside it (confirmed the hard way: "has
+  # an unsupported attribute" on a real rebuild).
+  config = {
+    hardware.uinput.enable = true;
 
-  # Passwordless sudo for the toggle/status scripts below.
-  security.sudo.extraRules = [
-    {
-      groups = [ "wheel" ];
-      commands = [
-        {
-          command = "/run/current-system/sw/bin/systemctl start kanata-*";
-          options = [ "NOPASSWD" ];
-        }
-        {
-          command = "/run/current-system/sw/bin/systemctl stop kanata-*";
-          options = [ "NOPASSWD" ];
-        }
-        {
-          command = "/run/current-system/sw/bin/systemctl restart kanata-*";
-          options = [ "NOPASSWD" ];
-        }
-      ];
-    }
-  ];
+    # Passwordless sudo for the toggle/status scripts below.
+    security.sudo.extraRules = [
+      {
+        groups = [ "wheel" ];
+        commands = [
+          {
+            command = "/run/current-system/sw/bin/systemctl start kanata-*";
+            options = [ "NOPASSWD" ];
+          }
+          {
+            command = "/run/current-system/sw/bin/systemctl stop kanata-*";
+            options = [ "NOPASSWD" ];
+          }
+          {
+            command = "/run/current-system/sw/bin/systemctl restart kanata-*";
+            options = [ "NOPASSWD" ];
+          }
+        ];
+      }
+    ];
 
-  services.kanata = {
-    enable = true;
-    keyboards = {
-      keyboard = {
-        devices = [ ]; # match every keyboard
+    services.kanata = {
+      enable = true;
+      keyboards = {
+        keyboard = {
+          devices = [ ]; # match every keyboard
 
-        # concurrent-tap-hold is required by defchordsv2 whenever a chord
-        # file is in use; harmless when none is. danger-enable-cmd is
-        # needed for the email macro's cmd-output-keys AND for voxtype's
-        # push-to-talk cmd actions below — either one turns it on, so a
-        # host with neither carries no extra capability.
-        extraDefCfg = ''
-          process-unmapped-keys yes
-          concurrent-tap-hold yes
-        '' + lib.optionalString (emailScript != null || voxtypePtt) "danger-enable-cmd yes\n";
+          # concurrent-tap-hold is required by defchordsv2 whenever a chord
+          # file is in use; harmless when none is. danger-enable-cmd is
+          # needed for the email macro's cmd-output-keys AND for voxtype's
+          # push-to-talk cmd actions below — either one turns it on, so a
+          # host with neither carries no extra capability.
+          extraDefCfg = ''
+            process-unmapped-keys yes
+            concurrent-tap-hold yes
+          ''
+          + lib.optionalString (emailScript != null || voxtypePtt) "danger-enable-cmd yes\n";
 
-        config = import ./kanata-config.nix {
-          inherit tapTimeout holdTimeout layout chordsFile emailScript;
-          # herdr ships in the `base` bundle, so its keybinds ship here too —
-          # hold Caps Lock (a tap still toggles caps; nobody holds it on
-          # purpose, so this costs nothing) for tab/workspace nav and the
-          # agent list. aercLayer defaults off (see the option above) — gisnix
-          # does not install aerc, so a mail-client macro layer has no
-          # business shipping to everyone by default.
-          herdrKey = "caps";
-          aercLayer = cfg.aercLayer;
-          # Hold x/c/v for cut/copy/paste. A generic mechanism (no per-user
-          # data involved, unlike emailScript above), so it ships on by
-          # default along with everything else here.
-          clipboardHolds = true;
-          inherit voxtypePtt;
-          voxtypePackage = pkgs.voxtype;
-          # Herdr<->aerc mode-toggle beep — only reached when aercLayer is
-          # on, but harmless to always pass (kanata-config.nix's own
-          # dualMode gate decides whether it's ever used).
-          beepPlayer = "${pkgs.pipewire}/bin/pw-play";
-          beepSound = "${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo/bell.oga";
+          config = import ./kanata-config.nix {
+            inherit
+              tapTimeout
+              holdTimeout
+              layout
+              chordsFile
+              emailScript
+              ;
+            # herdr ships in the `base` bundle, so its keybinds ship here too —
+            # hold Caps Lock (a tap still toggles caps; nobody holds it on
+            # purpose, so this costs nothing) for tab/workspace nav and the
+            # agent list. aercLayer defaults off (see the option above) — gisnix
+            # does not install aerc, so a mail-client macro layer has no
+            # business shipping to everyone by default.
+            herdrKey = "caps";
+            aercLayer = cfg.aercLayer;
+            # Hold x/c/v for cut/copy/paste. A generic mechanism (no per-user
+            # data involved, unlike emailScript above), so it ships on by
+            # default along with everything else here.
+            clipboardHolds = true;
+            inherit voxtypePtt;
+            voxtypePackage = pkgs.voxtype;
+            # Herdr<->aerc mode-toggle beep — only reached when aercLayer is
+            # on, but harmless to always pass (kanata-config.nix's own
+            # dualMode gate decides whether it's ever used).
+            beepPlayer = "${pkgs.pipewire}/bin/pw-play";
+            beepSound = "${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo/bell.oga";
+          };
         };
       };
     };
-  };
 
-  # Upstream's kanata module sets no `Restart=`, so systemd's default
-  # (Restart=no) applies and a crash is terminal: the keyboard silently
-  # reverts to its raw layout — no home-row mods, no nav layer — until
-  # someone notices and restarts it by hand. A crash here is transient
-  # (kanata check-builds every config it generates, so a unit that starts
-  # at all has a valid one), so restarting is the right response. The
-  # start limit is the backstop for a genuinely unstartable instance.
-  systemd.services = lib.mapAttrs' (
-    name: _:
-    lib.nameValuePair "kanata-${name}" {
-      startLimitIntervalSec = 60;
-      startLimitBurst = 5;
+    # Upstream's kanata module sets no `Restart=`, so systemd's default
+    # (Restart=no) applies and a crash is terminal: the keyboard silently
+    # reverts to its raw layout — no home-row mods, no nav layer — until
+    # someone notices and restarts it by hand. A crash here is transient
+    # (kanata check-builds every config it generates, so a unit that starts
+    # at all has a valid one), so restarting is the right response. The
+    # start limit is the backstop for a genuinely unstartable instance.
+    systemd.services = lib.mapAttrs' (
+      name: _:
+      lib.nameValuePair "kanata-${name}" {
+        startLimitIntervalSec = 60;
+        startLimitBurst = 5;
+        serviceConfig = {
+          Restart = "on-failure";
+          RestartSec = 3;
+        };
+      }
+    ) config.services.kanata.keyboards;
+
+    # voxtype (https://github.com/peteonrails/voxtype) — local, offline
+    # push-to-talk voice-to-text: hold Menu, speak, release, and it types
+    # the transcription at your cursor. whisper.cpp runs on-device; nothing
+    # leaves the machine unless a host explicitly opts into the remote/API
+    # mode voxtype also supports, which gisnix does not configure. The
+    # daemon has to stay running for `voxtype record start/stop` (what the
+    # Menu-hold above actually runs) to reach it — hence the user service.
+    #
+    # The daemon preloads its whisper.cpp model at startup and hard-fails if
+    # it isn't already on disk — upstream's own answer is `voxtype setup`,
+    # a manual step. That is a real trap on a fresh install: nobody runs it
+    # unprompted, so the service just crash-loops (RestartSec=3, forever)
+    # until someone notices and thinks to run it by hand. Fetching it
+    # ourselves via `pkgs.fetchurl` would be more hermetic, but voxtype
+    # doesn't publish a stable per-model URL/hash to pin against; this
+    # mirrors upstream's own home-manager module instead (services.voxtype
+    # in github:peteonrails/voxtype's modules/services/voxtype.nix) — a
+    # `voxtype-model-loader` oneshot that runs the same download the manual
+    # step would, gated on the network actually being up, before the daemon
+    # ever tries to preload anything.
+    systemd.user.services.voxtype-model-loader = {
+      description = "Download voxtype's speech model";
+      before = [ "voxtype.service" ];
+      wants = [ "network-online.target" ];
+      after = [ "network-online.target" ];
+      unitConfig.ConditionUser = "!@system";
+      # voxtype shells out to curl for the actual download. A systemd user
+      # service's PATH is not /run/current-system/sw/bin — curl has to be
+      # handed to it explicitly, confirmed the hard way ("Failed to run
+      # curl: No such file or directory") on a real machine. `path` (a list,
+      # concatenated onto nixpkgs' own default), not `environment.PATH` (a
+      # plain string) — the latter collided with the coreutils/systemd
+      # default nixos/modules/system/boot/systemd/user.nix already sets for
+      # every user service: "conflicting definition values", confirmed the
+      # hard way too.
+      path = [ pkgs.curl ];
       serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        ExecStart = "${pkgs.voxtype}/bin/voxtype setup --download --model base.en --no-post-install";
+        Restart = "on-failure";
+        RestartSec = 30;
+      };
+    };
+
+    systemd.user.services.voxtype = {
+      description = "voxtype push-to-talk voice-to-text daemon";
+      wantedBy = [ "default.target" ];
+      wants = [ "voxtype-model-loader.service" ];
+      after = [ "voxtype-model-loader.service" ];
+      unitConfig.ConditionUser = "!@system";
+      serviceConfig = {
+        Type = "simple";
+        ExecStart = "${pkgs.voxtype}/bin/voxtype";
         Restart = "on-failure";
         RestartSec = 3;
       };
-    }
-  ) config.services.kanata.keyboards;
-
-  # voxtype (https://github.com/peteonrails/voxtype) — local, offline
-  # push-to-talk voice-to-text: hold Menu, speak, release, and it types
-  # the transcription at your cursor. whisper.cpp runs on-device; nothing
-  # leaves the machine unless a host explicitly opts into the remote/API
-  # mode voxtype also supports, which gisnix does not configure. The
-  # daemon has to stay running for `voxtype record start/stop` (what the
-  # Menu-hold above actually runs) to reach it — hence the user service.
-  #
-  # The daemon preloads its whisper.cpp model at startup and hard-fails if
-  # it isn't already on disk — upstream's own answer is `voxtype setup`,
-  # a manual step. That is a real trap on a fresh install: nobody runs it
-  # unprompted, so the service just crash-loops (RestartSec=3, forever)
-  # until someone notices and thinks to run it by hand. Fetching it
-  # ourselves via `pkgs.fetchurl` would be more hermetic, but voxtype
-  # doesn't publish a stable per-model URL/hash to pin against; this
-  # mirrors upstream's own home-manager module instead (services.voxtype
-  # in github:peteonrails/voxtype's modules/services/voxtype.nix) — a
-  # `voxtype-model-loader` oneshot that runs the same download the manual
-  # step would, gated on the network actually being up, before the daemon
-  # ever tries to preload anything.
-  systemd.user.services.voxtype-model-loader = {
-    description = "Download voxtype's speech model";
-    before = [ "voxtype.service" ];
-    wants = [ "network-online.target" ];
-    after = [ "network-online.target" ];
-    unitConfig.ConditionUser = "!@system";
-    # voxtype shells out to curl for the actual download. A systemd user
-    # service's PATH is not /run/current-system/sw/bin — curl has to be
-    # handed to it explicitly, confirmed the hard way ("Failed to run
-    # curl: No such file or directory") on a real machine. `path` (a list,
-    # concatenated onto nixpkgs' own default), not `environment.PATH` (a
-    # plain string) — the latter collided with the coreutils/systemd
-    # default nixos/modules/system/boot/systemd/user.nix already sets for
-    # every user service: "conflicting definition values", confirmed the
-    # hard way too.
-    path = [ pkgs.curl ];
-    serviceConfig = {
-      Type = "oneshot";
-      RemainAfterExit = true;
-      ExecStart = "${pkgs.voxtype}/bin/voxtype setup --download --model base.en --no-post-install";
-      Restart = "on-failure";
-      RestartSec = 30;
     };
+
+    environment.systemPackages = with pkgs; [
+      kanata
+      voxtype
+
+      (writeShellScriptBin "kanata-toggle" ''
+        #!/usr/bin/env bash
+        mapfile -t SERVICES < <(systemctl list-units --all --plain --no-legend 'kanata-*.service' | awk '{print $1}')
+        [ ''${#SERVICES[@]} -eq 0 ] && { echo "No kanata services found"; exit 1; }
+
+        if systemctl is-active --quiet "''${SERVICES[0]}"; then
+          for s in "''${SERVICES[@]}"; do sudo systemctl stop "$s"; done
+          notify-send -u normal -t 2000 "Kanata" "Keyboard remapping DISABLED" -i input-keyboard
+          echo "Kanata disabled (''${SERVICES[*]})"
+        else
+          for s in "''${SERVICES[@]}"; do sudo systemctl start "$s"; done
+          notify-send -u normal -t 2000 "Kanata" "Keyboard remapping ENABLED" -i input-keyboard
+          echo "Kanata enabled (''${SERVICES[*]})"
+        fi
+      '')
+
+      (writeShellScriptBin "kanata-status" ''
+        #!/usr/bin/env bash
+        systemctl list-units --all --plain --no-legend 'kanata-*.service' | awk '{print $1, $3}'
+      '')
+
+      (writeShellScriptBin "kanata-debug" ''
+        #!/usr/bin/env bash
+        echo "=== Kanata Keyboard Debugging ==="
+        echo "1. Kanata service status:"
+        systemctl status kanata-keyboard --no-pager
+
+        echo -e "\n2. Available input devices:"
+        ls -la /dev/input/by-path/ | grep -i kbd || echo "No keyboard devices found"
+
+        echo -e "\n3. Kanata logs (last 20 lines):"
+        journalctl -u kanata-keyboard --no-pager -n 20
+
+        echo -e "\n4. uinput device:"
+        ls -la /dev/uinput 2>/dev/null || echo "/dev/uinput not found"
+
+        echo -e "\n5. Groups for current user:"
+        groups
+      '')
+
+      (writeShellScriptBin "kanata-test" ''
+        #!/usr/bin/env bash
+        echo "Testing kanata with verbose output (Ctrl+C to exit)..."
+        sudo kanata --cfg /etc/kanata/keyboard.kbd --debug
+      '')
+    ];
   };
-
-  systemd.user.services.voxtype = {
-    description = "voxtype push-to-talk voice-to-text daemon";
-    wantedBy = [ "default.target" ];
-    wants = [ "voxtype-model-loader.service" ];
-    after = [ "voxtype-model-loader.service" ];
-    unitConfig.ConditionUser = "!@system";
-    serviceConfig = {
-      Type = "simple";
-      ExecStart = "${pkgs.voxtype}/bin/voxtype";
-      Restart = "on-failure";
-      RestartSec = 3;
-    };
-  };
-
-  environment.systemPackages = with pkgs; [
-    kanata
-    voxtype
-
-    (writeShellScriptBin "kanata-toggle" ''
-      #!/usr/bin/env bash
-      mapfile -t SERVICES < <(systemctl list-units --all --plain --no-legend 'kanata-*.service' | awk '{print $1}')
-      [ ''${#SERVICES[@]} -eq 0 ] && { echo "No kanata services found"; exit 1; }
-
-      if systemctl is-active --quiet "''${SERVICES[0]}"; then
-        for s in "''${SERVICES[@]}"; do sudo systemctl stop "$s"; done
-        notify-send -u normal -t 2000 "Kanata" "Keyboard remapping DISABLED" -i input-keyboard
-        echo "Kanata disabled (''${SERVICES[*]})"
-      else
-        for s in "''${SERVICES[@]}"; do sudo systemctl start "$s"; done
-        notify-send -u normal -t 2000 "Kanata" "Keyboard remapping ENABLED" -i input-keyboard
-        echo "Kanata enabled (''${SERVICES[*]})"
-      fi
-    '')
-
-    (writeShellScriptBin "kanata-status" ''
-      #!/usr/bin/env bash
-      systemctl list-units --all --plain --no-legend 'kanata-*.service' | awk '{print $1, $3}'
-    '')
-
-    (writeShellScriptBin "kanata-debug" ''
-      #!/usr/bin/env bash
-      echo "=== Kanata Keyboard Debugging ==="
-      echo "1. Kanata service status:"
-      systemctl status kanata-keyboard --no-pager
-
-      echo -e "\n2. Available input devices:"
-      ls -la /dev/input/by-path/ | grep -i kbd || echo "No keyboard devices found"
-
-      echo -e "\n3. Kanata logs (last 20 lines):"
-      journalctl -u kanata-keyboard --no-pager -n 20
-
-      echo -e "\n4. uinput device:"
-      ls -la /dev/uinput 2>/dev/null || echo "/dev/uinput not found"
-
-      echo -e "\n5. Groups for current user:"
-      groups
-    '')
-
-    (writeShellScriptBin "kanata-test" ''
-      #!/usr/bin/env bash
-      echo "Testing kanata with verbose output (Ctrl+C to exit)..."
-      sudo kanata --cfg /etc/kanata/keyboard.kbd --debug
-    '')
-  ];
 }
