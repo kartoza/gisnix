@@ -3,6 +3,14 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.13.0] - 2026-09-22
+
+### Added
+
+- `screenshot-satty region-repeat` mode: reuses the last interactively
+  selected region instead of popping `slurp` again — useful for cropping
+  several screenshots of the same on-screen area in a row.
+
 ## [0.12.0] - 2026-09-22
 
 ### Added
