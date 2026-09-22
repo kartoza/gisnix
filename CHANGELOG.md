@@ -3,6 +3,24 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.13.3] - 2026-09-22
+
+### Fixed
+
+- v0.13.1's release upload was rejected by GitHub ("size must be less
+  than 2147483648") and v0.13.2 inherited the same failure — the ISO
+  built fine, but v0.13.1's `installerClosureSeed` change baked in a
+  full base+COSMIC+browsers+kanata closure to make a default install
+  offline-capable, and that pushed the ISO well past GitHub's
+  2GB-per-release-asset limit. Reverted `isoImage.storeContents` to
+  `[ ]`: the ISO carries gisnix's flake source (evaluation still works
+  offline) but `nixos-install` needs network again to fetch packages.
+  Making a real install fully offline needs the ISO hosted somewhere
+  without GitHub's size cap — not resolved here.
+- Installer network-check screen and the quickstart docs still implied
+  an offline install (pre-cached closure) was a supported path — updated
+  both to say plainly that the install needs network.
+
 ## [0.13.2] - 2026-09-22
 
 ### Added

@@ -21,7 +21,7 @@ class NetworkScreen(WizardScreen):
             status.update("[b]Connected.[/b] Packages will be fetched from the binary cache.")
         else:
             status.update(
-                "[b]No connection detected.[/b] You can still continue if this is an "
-                "offline install with a pre-cached closure — otherwise connect to "
-                "Wi-Fi/Ethernet and come back to this step."
+                "[b]No connection detected.[/b] The install itself needs network to "
+                "fetch packages — connect to Wi-Fi/Ethernet and come back to this "
+                "step before continuing."
             )

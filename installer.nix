@@ -6,7 +6,6 @@
   pkgs,
   modulesPath,
   gisnixSetup,
-  installerClosureSeed,
   ...
 }:
 {
@@ -27,14 +26,18 @@
     earlySetup = true;
   };
 
-  # Was `[ ]`: the ISO shipped gisnix's flake SOURCE (see isoImage.contents
-  # below) so evaluation worked offline, but no actual packages, which is
-  # why nixos-install still reached for cache.nixos.org even with no
-  # network present. installerClosureSeed (flake.nix's installer
-  # nixosSystem, see its own comment) is the toplevel for the installer's
-  # default bundle selection — baking its closure in here means a default
-  # install is satisfied entirely from the ISO's own store.
-  isoImage.storeContents = [ installerClosureSeed ];
+  # Tried baking in the closure of the installer's default bundle
+  # selection here (v0.13.1) so a default install needed no network — it
+  # does work, but a base+COSMIC+browsers+kanata closure pushes the ISO
+  # well past GitHub's 2GB-per-release-asset limit, and both v0.13.1 and
+  # v0.13.2's release uploads were rejected outright as a result ("size
+  # must be less than 2147483648"). Reverted to `[ ]`: the ISO ships
+  # gisnix's flake SOURCE (see isoImage.contents below), so evaluation
+  # works offline, but nixos-install still needs network to fetch the
+  # actual packages. Making a real install work fully offline needs the
+  # ISO hosted somewhere without GitHub's size cap — a separate decision,
+  # not made here.
+  isoImage.storeContents = [ ];
   isoImage.squashfsCompression = "zstd -Xcompression-level 19";
   system.includeBuildDependencies = false;
 
