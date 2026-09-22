@@ -3,6 +3,27 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.8.0] - 2026-09-22
+
+Two real bugs found migrating the rest of a real fleet (six more hosts)
+onto `mkHost`.
+
+### Fixed
+
+- voxtype crash-loops forever on a fresh install: the daemon hard-fails
+  if its whisper.cpp model isn't already on disk, and the only fix was a
+  manual `voxtype setup` nobody runs unprompted. Added a
+  `voxtype-model-loader` oneshot (mirroring upstream's own home-manager
+  module, reimplemented as a plain NixOS `systemd.user.services` entry)
+  that downloads the model before the daemon starts, gated on
+  `network-online.target`. Confirmed on a real machine: 6609 restarts
+  before anyone noticed voice dictation had never worked.
+- `kartoza.userEmails` was declared only inside `kanata-email.nix`, so
+  any host importing a user file that sets it — without also importing
+  kanata — failed with "option does not exist". Moved the declaration to
+  `profiles/common.nix` (imported by every host); it's inert unless a
+  host also has kanata to read it.
+
 ## [0.7.0] - 2026-09-21
 
 Docs-only — no code change. Written up after a real three-host fleet
