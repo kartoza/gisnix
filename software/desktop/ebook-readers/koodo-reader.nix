@@ -22,4 +22,17 @@
   kartoza.insecurePackages = [ "electron-41.9.1" ];
 
   environment.systemPackages = [ pkgs.koodo-reader ];
+
+  # Koodo Reader's own .desktop file claims application/pdf (ebook readers
+  # commonly do — PDF is a common e-book format), which silently became the
+  # default PDF handler on any host also taking desktop-base-extras
+  # (Evince) the moment both desktop files exist together — nothing sets
+  # an explicit default otherwise, so whichever app the desktop
+  # environment happens to prefer wins. Evince is the one meant to open
+  # PDFs by default here; Koodo Reader is for actual ebooks
+  # (epub/mobi/etc — see its own MimeType list for the rest).
+  environment.etc."xdg/mimeapps.list".text = ''
+    [Default Applications]
+    application/pdf=org.gnome.Evince.desktop
+  '';
 }
