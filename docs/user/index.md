@@ -6,6 +6,8 @@ for that).
 
 - **[Quickstart](quickstart.md)** — download the ISO, boot it, run the
   installer.
+- **[Making a bootable USB stick](bootable-usb.md)** — balenaEtcher, `dd`,
+  Rufus, whichever tool suits your platform.
 - **[Keyboard remapping](keyboard.md)** — the home-row modifiers,
   navigation layer, and hold-Menu [voice dictation](keyboard.md#push-to-talk-voxtype)
   the `services-device-input-kanata` bundle gives you (on by default), and

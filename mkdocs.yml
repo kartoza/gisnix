@@ -150,6 +150,7 @@ nav:
   - User guide:
       - user/index.md
       - Quickstart: user/quickstart.md
+      - Making a bootable USB stick: user/bootable-usb.md
       - Building your fleet: user/fleet.md
       - Keyboard remapping: user/keyboard.md
   - Administration:

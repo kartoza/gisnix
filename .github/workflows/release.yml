@@ -1,0 +1,105 @@
+# Build the installer ISO and publish it to the GitHub Release for the tag
+# that triggered this — the release notes come straight from CHANGELOG.md's
+# section for that version, so there is exactly one place that describes a
+# release (Keep a Changelog format, see CHANGELOG.md's own header).
+#
+# The ISO is always uploaded under the same filename (gisnix-installer.iso),
+# not one with the version baked in — that is what makes
+# https://github.com/kartoza/gisnix/releases/latest/download/gisnix-installer.iso
+# a stable link across every release, which is what the docs site's
+# "Download Now!" button points at.
+
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to build and release (e.g. v0.8.0)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build ISO and publish release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+          fetch-depth: 0
+
+      # NixOS ISO builds (a full COSMIC desktop closure) are disk-hungry;
+      # hosted runners ship ~30-40GB of preinstalled toolchains this build
+      # never touches. Free it before nix ever runs.
+      - name: Free disk space
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: true
+          swap-storage: false
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v27
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            accept-flake-config = true
+
+      - name: Resolve tag/version
+        id: version
+        run: |
+          tag="${{ inputs.tag || github.ref_name }}"
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+          echo "version=${tag#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Build installer ISO
+        run: nix build .#nixosConfigurations.installer.config.system.build.isoImage --print-build-logs
+
+      - name: Rename ISO to a stable filename
+        run: |
+          iso="$(find result/iso -maxdepth 1 -name '*.iso' | head -n1)"
+          if [ -z "$iso" ]; then
+            echo "no .iso found under result/iso" >&2
+            exit 1
+          fi
+          mkdir -p dist
+          cp "$iso" dist/gisnix-installer.iso
+          sha256sum dist/gisnix-installer.iso > dist/gisnix-installer.iso.sha256
+
+      # CHANGELOG.md sections are "## [X.Y.Z] - date"; the release body is
+      # everything between this version's heading and the next "## [" line
+      # (or end of file for the very first release).
+      - name: Extract release notes from CHANGELOG.md
+        id: notes
+        run: |
+          version="${{ steps.version.outputs.version }}"
+          awk -v ver="$version" '
+            $0 ~ "^## \\[" ver "\\]" { found=1; next }
+            found && /^## \[/ { exit }
+            found { print }
+          ' CHANGELOG.md > release-notes.md
+          if [ ! -s release-notes.md ]; then
+            echo "No CHANGELOG.md section found for [$version] — writing a placeholder." >&2
+            echo "See [CHANGELOG.md](https://github.com/kartoza/gisnix/blob/main/CHANGELOG.md) for details." > release-notes.md
+          fi
+
+      - name: Create release and upload ISO
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: gisnix ${{ steps.version.outputs.tag }}
+          body_path: release-notes.md
+          files: |
+            dist/gisnix-installer.iso
+            dist/gisnix-installer.iso.sha256

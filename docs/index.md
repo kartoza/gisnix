@@ -16,7 +16,8 @@ whose entire configuration is one flake — reproducible, and, if you chose
 ZFS, encrypted with a passphrase prompted at boot.
 
 <div class="kz-cta" markdown>
-[:material-book-open-variant: Quickstart](user/quickstart.md){ .kz-cta__primary }
+[:material-download: Download Now!](https://github.com/kartoza/gisnix/releases/latest/download/gisnix-installer.iso){ .kz-cta__primary }
+[:material-book-open-variant: Quickstart](user/quickstart.md){ .kz-cta__secondary }
 [:material-format-list-bulleted: Software bundles](references/bundles.md){ .kz-cta__secondary }
 [:simple-github: Source](https://github.com/kartoza/gisnix){ .kz-cta__secondary }
 </div>

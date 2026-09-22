@@ -2,7 +2,8 @@
 
 ## 1. Get the ISO
 
-Build it yourself (there's no release build yet):
+[Download the latest release](https://github.com/kartoza/gisnix/releases/latest)
+— or build it yourself:
 
 ```bash
 git clone https://github.com/kartoza/gisnix
@@ -14,11 +15,12 @@ The `.iso` lands in `result/iso/`.
 
 ## 2. Boot it
 
-Flash the ISO to a USB drive and boot the target machine from it — UEFI
-required, Secure Boot off. Or try it first in a VM: `nix run .#test-install`
-builds the ISO and boots it in QEMU with a persistent test disk. A plain
-UEFI ISO also boots fine in VirtualBox or VMware without any hypervisor-
-specific variant.
+Flash the ISO to a USB drive — see [making a bootable USB
+stick](bootable-usb.md) if you haven't done this before — and boot the
+target machine from it: UEFI required, Secure Boot off. Or try it first
+in a VM: `nix run .#test-install` builds the ISO and boots it in QEMU
+with a persistent test disk. A plain UEFI ISO also boots fine in
+VirtualBox or VMware without any hypervisor-specific variant.
 
 ## 3. Run setup
 
