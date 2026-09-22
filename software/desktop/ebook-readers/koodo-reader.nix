@@ -31,8 +31,11 @@
   # environment happens to prefer wins. Evince is the one meant to open
   # PDFs by default here; Koodo Reader is for actual ebooks
   # (epub/mobi/etc — see its own MimeType list for the rest).
-  environment.etc."xdg/mimeapps.list".text = ''
-    [Default Applications]
-    application/pdf=org.gnome.Evince.desktop
-  '';
+  #
+  # xdg.mime.defaultApplications (an attrsOf, real merge behaviour), not
+  # environment.etc."xdg/mimeapps.list" directly — NixOS's own
+  # config/xdg/mime.nix already generates that same file from this exact
+  # option, so writing it a second time is a hard "conflicting definition
+  # values" eval error, confirmed on a real rebuild.
+  xdg.mime.defaultApplications."application/pdf" = "org.gnome.Evince.desktop";
 }
