@@ -347,3 +347,245 @@ class NetworkStatusCircle(Static):
             diameter = _MIN_DIAMETER + (_MAX_DIAMETER - _MIN_DIAMETER) * local
             color, label = to_color, to_label
         self.update(_circle_frame(diameter, color, label))
+
+
+def _fill_bar_text(width: int, fill: float, color: str) -> Text:
+    """A horizontal bar, `fill` (0..1) of `width` filled with solid
+    blocks — the same whole-character-only glyph rule as the circle
+    (no eighth-block partial-fill glyphs; the console font's coverage of
+    those is exactly what app.py's ToggleButton comment already flags as
+    unreliable), shared by both GitHubCheckBar and PasswordStrengthBar."""
+    width = max(width, 1)
+    filled = round(width * max(0.0, min(1.0, fill)))
+    return Text("█" * filled + " " * (width - filled), style=Style(color=color, bold=True))
+
+
+class GitHubCheckBar(Static):
+    """A horizontal fill bar under the GitHub-username field on the user
+    screen, started when that field loses focus (see UserScreen's focus
+    poll — deliberately not on every keystroke, since this drives a real
+    network request per check). Fills toward 90% while the real
+    github.com/<user>.keys fetch is in flight (orange, same palette as
+    NetworkStatusCircle), holds there for at least _HOLD_SECONDS or until
+    the fetch resolves (whichever is later), then finishes filling to
+    100% in green (keys found) or red (invalid user / no keys). Unlike
+    the circle's pulse, a progress bar only ever fills forward — there is
+    no shrink here, that reads as "undoing progress" for this widget."""
+
+    #: Never quite full until there's a real answer — same idea as the
+    #: circle never settling on its final colour before its result is in.
+    _CHECKING_FILL = 0.9
+
+    DEFAULT_CSS = """
+    GitHubCheckBar {
+        width: 1fr;
+        height: 1;
+        margin: 0 0 1 0;
+    }
+    """
+
+    def __init__(self, id: str | None = None) -> None:
+        super().__init__("", id=id)
+        self._phase = "idle"
+        self._phase_start = 0.0
+        self._result: bool | None = None
+        self._timer = None
+
+    def start_check(self) -> None:
+        """Call when the field blurs with a new, non-empty value."""
+        if self._timer is not None:
+            self._timer.stop()
+        self._phase = "checking"
+        self._phase_start = time.monotonic()
+        self._result = None
+        self._timer = self.set_interval(1 / 20, self._tick)
+
+    def reset(self) -> None:
+        """Call when the field is cleared — no username, nothing to show."""
+        if self._timer is not None:
+            self._timer.stop()
+            self._timer = None
+        self._phase = "idle"
+        self.update("")
+
+    def report_result(self, ok: bool) -> None:
+        """Call once the real fetch resolves — may land before or after
+        the minimum checking-hold ends; _tick() applies it as soon as
+        both are true."""
+        self._result = ok
+
+    def _tick(self) -> None:
+        elapsed = time.monotonic() - self._phase_start
+        if self._phase == "checking":
+            t = min(elapsed / _TRANSITION_SECONDS, 1.0)
+            fill = self._CHECKING_FILL * _ease_in_out_cubic(t)
+            self.update(_fill_bar_text(self.size.width, fill, CIRCLE_COLOR_CHECKING))
+            if elapsed >= _TRANSITION_SECONDS:
+                self._phase = "checking_hold"
+                self._phase_start = time.monotonic()
+        elif self._phase == "checking_hold":
+            if elapsed >= _HOLD_SECONDS and self._result is not None:
+                self._phase = "to_result"
+                self._phase_start = time.monotonic()
+        elif self._phase == "to_result":
+            t = min(elapsed / _TRANSITION_SECONDS, 1.0)
+            eased = _ease_in_out_cubic(t)
+            fill = self._CHECKING_FILL + (1 - self._CHECKING_FILL) * eased
+            color = CIRCLE_COLOR_OK if self._result else CIRCLE_COLOR_FAIL
+            self.update(_fill_bar_text(self.size.width, fill, color))
+            if elapsed >= _TRANSITION_SECONDS:
+                self._phase = "result_hold"
+                if self._timer is not None:
+                    self._timer.stop()
+        # result_hold: final frame already drawn, nothing more to tick.
+
+
+#: Score->colour gradient stops for PasswordStrengthBar, shared with the
+#: rest of the wizard's status palette (red = FAIL, orange = CHECKING,
+#: green = OK) rather than inventing a fourth colour scheme.
+_STRENGTH_STOPS = [
+    (0.0, CIRCLE_COLOR_FAIL),
+    (0.5, CIRCLE_COLOR_CHECKING),
+    (1.0, CIRCLE_COLOR_OK),
+]
+
+_PASSWORD_TRANSITION_SECONDS = 0.3
+
+
+def _hex_to_rgb(value: str) -> tuple[int, int, int]:
+    value = value.lstrip("#")
+    return (int(value[0:2], 16), int(value[2:4], 16), int(value[4:6], 16))
+
+
+def _rgb_to_hex(rgb: tuple[float, float, float]) -> str:
+    return "#{:02X}{:02X}{:02X}".format(*(round(max(0, min(255, c))) for c in rgb))
+
+
+def _lerp(a: float, b: float, t: float) -> float:
+    return a + (b - a) * t
+
+
+def _strength_color(score: float) -> str:
+    """Interpolate red -> orange -> green across the three stops above,
+    rather than a hard cutoff — the colour itself eases with the score
+    the same way the fill/pulse animations ease with time."""
+    score = max(0.0, min(1.0, score))
+    stops = [(s, _hex_to_rgb(c)) for s, c in _STRENGTH_STOPS]
+    for (s0, c0), (s1, c1) in zip(stops, stops[1:]):
+        if s0 <= score <= s1:
+            local_t = (score - s0) / (s1 - s0) if s1 > s0 else 0.0
+            return _rgb_to_hex(tuple(_lerp(c0[i], c1[i], local_t) for i in range(3)))
+    return _rgb_to_hex(stops[-1][1])
+
+
+def _password_strength(password: str) -> float:
+    """A deliberately simple 0..1 heuristic — length (the single biggest
+    real-world factor per NIST guidance) weighted above character-class
+    variety. Advisory only: on_next() still only requires a non-empty,
+    matching password. This is a glance-able "does this look weak"
+    meter, not a policy gate and not a real entropy estimate."""
+    if not password:
+        return 0.0
+    length_score = min(len(password) / 20, 1.0)
+    classes = sum(
+        (
+            any(c.islower() for c in password),
+            any(c.isupper() for c in password),
+            any(c.isdigit() for c in password),
+            any(not c.isalnum() for c in password),
+        )
+    )
+    variety_score = classes / 4
+    return max(0.0, min(1.0, 0.65 * length_score + 0.35 * variety_score))
+
+
+class _AnimatedFillBar(Static):
+    """Shared "ease the current fill+colour toward a new target over a
+    fixed duration" engine for PasswordStrengthBar and PasswordMatchBar.
+    Both react to live typing rather than a background check, so both
+    retarget instantly and just animate the CATCH-UP — unlike the circle
+    /GitHubCheckBar's longer hold-then-transition phase machine, which
+    exists specifically to make a slow background check visible."""
+
+    DEFAULT_CSS = """
+    _AnimatedFillBar {
+        width: 1fr;
+        height: 1;
+        margin: 0 0 1 0;
+    }
+    """
+
+    def __init__(self, transition_seconds: float, idle_color: str, id: str | None = None) -> None:
+        super().__init__("", id=id)
+        self._transition_seconds = transition_seconds
+        idle_rgb = _hex_to_rgb(idle_color)
+        self._current_fill = 0.0
+        self._current_rgb = idle_rgb
+        self._start_fill = 0.0
+        self._start_rgb = idle_rgb
+        self._target_fill = 0.0
+        self._target_rgb = idle_rgb
+        self._anim_start = 0.0
+        self._timer = None
+
+    def _retarget(self, fill: float, color: str) -> None:
+        self._start_fill = self._current_fill
+        self._start_rgb = self._current_rgb
+        self._target_fill = fill
+        self._target_rgb = _hex_to_rgb(color)
+        self._anim_start = time.monotonic()
+        if self._timer is None:
+            self._timer = self.set_interval(1 / 20, self._tick)
+
+    def _tick(self) -> None:
+        t = min((time.monotonic() - self._anim_start) / self._transition_seconds, 1.0)
+        eased = _ease_in_out_cubic(t)
+        self._current_fill = _lerp(self._start_fill, self._target_fill, eased)
+        self._current_rgb = tuple(
+            _lerp(self._start_rgb[i], self._target_rgb[i], eased) for i in range(3)
+        )
+        self.update(_fill_bar_text(self.size.width, self._current_fill, _rgb_to_hex(self._current_rgb)))
+        if t >= 1.0 and self._timer is not None:
+            self._timer.stop()
+            self._timer = None
+
+
+class PasswordStrengthBar(_AnimatedFillBar):
+    """A live fill bar under the password field, recomputed on every
+    keystroke (UserScreen.on_input_changed) — length/variety combine into
+    a 0..1 score (_password_strength), mapped to a red -> orange -> green
+    fill+colour (_strength_color) that eases toward its new target rather
+    than jumping, so fast typing still reads as smooth motion."""
+
+    def __init__(self, id: str | None = None) -> None:
+        super().__init__(_PASSWORD_TRANSITION_SECONDS, CIRCLE_COLOR_FAIL, id=id)
+
+    def update_password(self, password: str) -> None:
+        score = _password_strength(password)
+        self._retarget(score if password else 0.0, _strength_color(score))
+
+
+#: Deliberately longer than the strength bar's 0.3s — "do these two
+#: fields match" is a single yes/no answer, not a continuously-refining
+#: score, so the fill has room to be a visible, unhurried beat of
+#: feedback rather than a flicker, per spec ("minimum duration so the
+#: animation is noticeable"). Still non-blocking: it's an independent
+#: set_interval ticking the widget, not a sleep in the input handler —
+#: typing in either field is never held up by it.
+_MATCH_TRANSITION_SECONDS = 1.0
+
+
+class PasswordMatchBar(_AnimatedFillBar):
+    """Fills to green (match) or red (mismatch) whenever the confirm
+    field's relationship to the password field changes; an empty confirm
+    field resets to empty — nothing to compare yet isn't the same as a
+    mismatch."""
+
+    def __init__(self, id: str | None = None) -> None:
+        super().__init__(_MATCH_TRANSITION_SECONDS, CIRCLE_COLOR_FAIL, id=id)
+
+    def update_match(self, password: str, confirm: str) -> None:
+        if not confirm:
+            self._retarget(0.0, CIRCLE_COLOR_FAIL)
+            return
+        self._retarget(1.0, CIRCLE_COLOR_OK if password == confirm else CIRCLE_COLOR_FAIL)
