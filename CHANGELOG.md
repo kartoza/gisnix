@@ -3,6 +3,48 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.14.0] - 2026-09-22
+
+### Added
+
+- ZFS dataset quotas are now sized from the actual disk (`installer/sizing.py`)
+  instead of a fixed 20G `/nix` quota — a real desktop/QGIS closure could blow
+  straight through that mid-`nixos-install`. A disk too small for the layout
+  is now rejected on the storage screen, before disko touches it, instead of
+  failing deep inside a chroot with a cryptic error. The install log is also
+  now teed to `/mnt/gisnix-install.log` once `/mnt` is the real target root.
+- Reshaped wizard visuals: two-tone colour panels on the welcome/storage/
+  confirm screens, a "Step X of Y" counter and a small Kartoza corner-logo
+  badge (chafa, quad-block glyphs) on every screen, and the console
+  font-size slider is back on the welcome screen — rescoped this time so it
+  can never leak into the installed system's `console.font` the way it did
+  before (see Fixed history for that original bug).
+- Animated status indicators: the network-check screen shows a pulsing
+  circle that goes gray "Preparing" → orange "Checking" → green "Connected"
+  / red "Connection Failed", with an eased shrink-and-grow transition
+  between phases. The user-account screen gets matching animated bars — a
+  fill bar under the GitHub-username field that resolves once its key
+  fetch completes, a live password-strength meter, and a match/mismatch
+  bar under the confirm-password field. The same strength/match bars are
+  reused on the ZFS encryption passphrase fields.
+- The software-selection screen now shows the five default bundles as a
+  stack of cards (order and colour convey the base → desktop layering)
+  instead of a bulleted list, with copy pointing at `gisnix configure`
+  (from `~/nixos-config`, after reboot) for adding more.
+
+### Fixed
+
+- zfs-multi's device list was comma-joined into invalid Nix list syntax
+  (`[ "a", "b" ]` instead of the space-separated `[ "a" "b" ]`) — would
+  have broken every multi-disk install at evaluation time.
+- The network-check screen's own class-level `CSS` was silently replacing
+  `WizardScreen`'s entire CSS instead of merging with it (`Screen.CSS`
+  doesn't merge across a Python subclass chain) — the card border, title
+  row, step badge, and docked button bar all vanished on that one screen.
+- Textual's own command-palette affordance (unrelated to this fixed-
+  purpose installer) is disabled, and the corner logo badge's size and
+  colour fidelity were tuned after live testing on a real console.
+
 ## [0.13.3] - 2026-09-22
 
 ### Fixed
