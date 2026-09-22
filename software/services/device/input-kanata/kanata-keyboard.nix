@@ -137,6 +137,12 @@ in
             # dualMode gate decides whether it's ever used).
             beepPlayer = "${pkgs.pipewire}/bin/pw-play";
             beepSound = "${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo/bell.oga";
+            # Voxtype push-to-talk cues: a short rising sound when
+            # recording starts, a short falling one when it stops —
+            # device-added/-removed rather than bell.oga, so this reads
+            # as a distinct cue from the mode-toggle beep above.
+            voxtypeStartSound = "${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo/device-added.oga";
+            voxtypeStopSound = "${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo/device-removed.oga";
           };
         };
       };

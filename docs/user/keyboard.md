@@ -142,6 +142,11 @@ A tap of Menu still opens the context menu, and a tap of right Ctrl still
 sends Ctrl, unchanged — only the *hold* was repurposed for this, on
 either key.
 
+A short sound plays on press (recording started) and a different one on
+release (recording stopped) — audible confirmation you don't have to
+watch the screen for, and a clear signal for when it's *not* recording
+(no sound on press means the daemon isn't running — see below).
+
 If nothing happens when you hold Menu or right Ctrl, check both services:
 
 ```

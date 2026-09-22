@@ -59,12 +59,19 @@
   # "Failed to execute program voxtype: No such file or directory" on a
   # real machine, even with voxtype in environment.systemPackages).
   voxtypePackage ? null,
-  # Absolute paths for the herdr<->aerc mode-toggle beep (see dualMode
-  # below) — only used when both herdrKey and aercLayer are set. Same
-  # PATH lesson as voxtypeBin: kanata is a system service, so the player
-  # binary and sound file both have to be absolute, not just "on PATH".
+  # Absolute path to an audio player — shared by the herdr<->aerc
+  # mode-toggle beep (see dualMode below) and the voxtype start/stop
+  # sounds just below. Same PATH lesson as voxtypeBin: kanata is a
+  # system service, so the player binary and every sound file have to be
+  # absolute, not just "on PATH".
   beepPlayer ? null,
+  # Mode-toggle beep sound (dualMode only).
   beepSound ? null,
+  # Voxtype push-to-talk audio cues: a short sound on press (recording
+  # started) and a different one on release (recording stopped) — both
+  # null by default (silent), set together with beepPlayer.
+  voxtypeStartSound ? null,
+  voxtypeStopSound ? null,
   # Opt-in clipboard holds on x/c/v, transcribed from the Sonsei's superkeys
   # 9/20/21: tap the letter, hold it for the clipboard action. Note the
   # asymmetry is the Sonsei's own — copy is Ctrl+C (not Ctrl+Shift+C) while
@@ -207,14 +214,28 @@ let
   # the package is installed and on PATH for an interactive shell.
   voxtypeBin = "${voxtypePackage}/bin/voxtype";
 
+  # If a sound was given, play it alongside the record start/stop command
+  # (a `multi` of both `cmd`s) rather than just running voxtype alone.
+  voxtypeStartAction =
+    if voxtypeStartSound == null || beepPlayer == null then
+      "(cmd ${voxtypeBin} record start)"
+    else
+      "(multi (cmd ${voxtypeBin} record start) (cmd ${beepPlayer} ${voxtypeStartSound}))";
+
+  voxtypeStopAction =
+    if voxtypeStopSound == null || beepPlayer == null then
+      "(cmd ${voxtypeBin} record stop)"
+    else
+      "(multi (cmd ${voxtypeBin} record stop) (cmd ${beepPlayer} ${voxtypeStopSound}))";
+
   voxtypeVirtualKeys =
     if !voxtypePtt then
       ""
     else
       ''
         (defvirtualkeys
-          voxtype-start (cmd ${voxtypeBin} record start)
-          voxtype-stop (cmd ${voxtypeBin} record stop)
+          voxtype-start ${voxtypeStartAction}
+          voxtype-stop ${voxtypeStopAction}
         )
       '';
 
