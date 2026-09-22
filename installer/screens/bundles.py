@@ -13,7 +13,6 @@ from __future__ import annotations
 from textual.widgets import Static
 
 from ..state import DEFAULT_BUNDLES
-from ..writer import LOAD_BEARING
 from .base import WizardScreen
 
 #: Stack order, top (most user-visible) to bottom (foundation) — rendered
@@ -43,8 +42,14 @@ class BundlesScreen(WizardScreen):
             "~/nixos-config and run 'gisnix configure' to add more bundles "
             "of software to your system."
         )
+        # A bare colour bar per bundle, not a full panel() card — no
+        # border, no body, no description, just the name. Reuses
+        # panel-title's own CSS classes directly (background/bold/
+        # height:1) so the stack still reads by colour, but fits on one
+        # screen instead of five bordered boxes with paragraph bodies.
         for name, tone in _STACK:
-            yield from self.panel(name, Static(LOAD_BEARING.get(name, "")), tone=tone)
+            suffix = f"-{tone}" if tone != "secondary" else ""
+            yield Static(name, classes=f"panel-title panel-title{suffix}")
 
     def on_next(self) -> bool | None:
         self.app.state.bundles = set(DEFAULT_BUNDLES)
