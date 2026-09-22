@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from textual.containers import VerticalGroup
 from textual.widgets import Checkbox, Input, Label, RadioButton, RadioSet, Select, SelectionList
 
 from .. import sizing
@@ -30,34 +29,41 @@ class StorageScreen(WizardScreen):
         self._disks = list_disks()
 
     def body(self):
-        with VerticalGroup():
-            yield Label("Storage mode")
-            with RadioSet(id="storage-mode"):
-                yield RadioButton(
+        yield from self.panel(
+            "Storage mode",
+            RadioSet(
+                RadioButton(
                     "ZFS, single disk, encrypted (recommended)",
                     value=True,
                     id="mode-zfs-enc",
-                )
-                yield RadioButton("XFS, single disk, unencrypted", id="mode-xfs")
-                yield RadioButton(
-                    "ZFS, multiple disks, stripe/raidz/raidz2", id="mode-zfs-multi"
-                )
+                ),
+                RadioButton("XFS, single disk, unencrypted", id="mode-xfs"),
+                RadioButton("ZFS, multiple disks, stripe/raidz/raidz2", id="mode-zfs-multi"),
+                id="storage-mode",
+            ),
+            tone="accent",
+        )
 
-            yield Label("Disk(s) — [b]everything on the selected disk(s) will be erased[/b]")
-            disks = [(f"{d.device}  {d.size_human}  {d.model}".strip(), d.device) for d in self._disks]
-            yield SelectionList[str](*disks, id="disk-list")
+        disks = [(f"{d.device}  {d.size_human}  {d.model}".strip(), d.device) for d in self._disks]
+        yield from self.panel(
+            "Disk(s) — everything on the selected disk(s) will be erased",
+            SelectionList[str](*disks, id="disk-list"),
+            tone="danger",
+        )
 
-            yield Label("Multi-disk RAID mode (only used for the multi-disk option above)")
-            yield Select(RAID_MODES, value="raidz", id="raid-mode-select")
-            yield Checkbox("Encrypt multi-disk pool too", value=True, id="multi-encrypt")
+        yield from self.panel(
+            "Multi-disk RAID mode (only used for the multi-disk option above)",
+            Select(RAID_MODES, value="raidz", id="raid-mode-select"),
+            Checkbox("Encrypt multi-disk pool too", value=True, id="multi-encrypt"),
+        )
 
-            yield Label(
-                "ZFS encryption passphrase (used for either ZFS option above, "
-                "8-512 characters)"
-            )
-            yield Input(password=True, id="passphrase-input")
-            yield Label("Confirm passphrase")
-            yield Input(password=True, id="passphrase-confirm-input")
+        yield from self.panel(
+            "ZFS encryption passphrase (used for either ZFS option above, 8-512 characters)",
+            Label("Passphrase"),
+            Input(password=True, id="passphrase-input"),
+            Label("Confirm passphrase"),
+            Input(password=True, id="passphrase-confirm-input"),
+        )
 
     def on_next(self) -> bool | None:
         mode_radio = self.query_one("#storage-mode", RadioSet).pressed_button

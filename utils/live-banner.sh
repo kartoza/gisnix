@@ -31,7 +31,13 @@ BOLD=$'\033[1m'
 RESET=$'\033[0m'
 
 clear
-chafa --size=28x resources/kartoza-logo.png --format=symbols 2>/dev/null || true
+# --symbols quad: Unicode quadrant-block glyphs only (▘▝▖▗▚▞▛▜▙▟) — the
+# family Terminus's console.font=ter-v32n (installer.nix) is built to
+# cover well, instead of chafa's full symbol repertoire occasionally
+# falling back to plain ASCII when a fancier glyph isn't confirmed safe.
+# --color-space din99d: perceptually accurate colour quantization —
+# closer to the real Kartoza palette than the faster default `rgb` mode.
+chafa --size=20x --symbols quad --color-space din99d resources/kartoza-logo.png --format=symbols 2>/dev/null || true
 
 cat <<EOF
 

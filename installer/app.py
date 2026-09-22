@@ -135,33 +135,46 @@ class InstallerApp(App):
             "installing": installing.InstallingScreen,
             "done": done.DoneScreen,
         }
-        return registry[step]()
+        screen = registry[step]()
+        order = self._current_order()
+        if step in order:
+            screen.set_step(order.index(step) + 1, len(order))
+        return screen
+
+    #: Two step sequences — the existing-host reinstall path skips
+    #: host_details/bundles (a known profile already has both). Kept as one
+    #: source of truth: _next_step_name walks it, _make numbers screens
+    #: against it, so the step badge and the actual navigation can never
+    #: drift out of sync with each other.
+    _ORDER_NEW = [
+        "welcome",
+        "network",
+        "host_mode",
+        "host_details",
+        "user",
+        "storage",
+        "bundles",
+        "confirm",
+        "installing",
+        "done",
+    ]
+    _ORDER_EXISTING = [
+        "welcome",
+        "network",
+        "host_mode",
+        "existing_host",
+        "user",
+        "storage",
+        "confirm",
+        "installing",
+        "done",
+    ]
+
+    def _current_order(self) -> list[str]:
+        return self._ORDER_EXISTING if self.state.use_existing_host else self._ORDER_NEW
 
     def _next_step_name(self, current: str) -> str | None:
-        order_new = [
-            "welcome",
-            "network",
-            "host_mode",
-            "host_details",
-            "user",
-            "storage",
-            "bundles",
-            "confirm",
-            "installing",
-            "done",
-        ]
-        order_existing = [
-            "welcome",
-            "network",
-            "host_mode",
-            "existing_host",
-            "user",
-            "storage",
-            "confirm",
-            "installing",
-            "done",
-        ]
-        order = order_existing if self.state.use_existing_host else order_new
+        order = self._current_order()
         try:
             i = order.index(current)
         except ValueError:

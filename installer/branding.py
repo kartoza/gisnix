@@ -115,6 +115,25 @@ def logo_path() -> Path | None:
     return candidate if candidate.exists() else None
 
 
+#: --symbols quad restricts chafa to the Unicode quadrant-block glyphs
+#: (▘▝▖▗▚▞▛▜▙▟ etc.) instead of its full "beautiful character art" symbol
+#: repertoire, which pulls in braille/geometric/alpha glyphs the console's
+#: Terminus font (installer.nix's ter-v32n) has no guarantee of carrying —
+#: the "ugly ascii" chafa falls back to when it can't confirm a fancier
+#: glyph is safe. Quadrant blocks are the same glyph family Terminus is
+#: built to cover well. --color-space din99d is chafa's perceptually
+#: accurate quantization mode (vs. the faster-but-cruder default `rgb`) —
+#: worth the extra CPU for a logo rendered once per process, not per frame.
+_CHAFA_SYMBOL_ARGS = ["--symbols", "quad", "--color-space", "din99d"]
+
+#: Columns for the small per-screen corner badge (base.py's title row) —
+#: distinct from the full-size welcome-banner render, which passes its own
+#: width. 6 columns renders 3 rows at chafa's quad-block aspect — small
+#: enough to sit beside the step-count badge without growing the title
+#: row (and eating into every screen's body space) any more than needed.
+CORNER_BADGE_WIDTH = 6
+
+
 def render_logo_chafa(width: int = 60) -> str | None:
     """The logo rendered to terminal escape sequences via chafa, or None if
     chafa or the logo asset is unavailable (caller falls back to text)."""
@@ -123,12 +142,38 @@ def render_logo_chafa(width: int = 60) -> str | None:
         return None
     try:
         out = subprocess.run(
-            ["chafa", f"--size={width}x", "--format=symbols", str(path)],
+            ["chafa", f"--size={width}x", *_CHAFA_SYMBOL_ARGS, "--format=symbols", str(path)],
             capture_output=True,
             text=True,
             check=True,
             timeout=10,
         )
-        return out.stdout
+        # Chafa hides/shows the cursor around its own output (harmless when
+        # printed straight to a real terminal, but these are cursor-visibility
+        # CSI sequences, not SGR/color codes — Rich's Text.from_ansi (used to
+        # embed this in the corner badge) only understands SGR, so strip them
+        # rather than risk them rendering as literal garbage in a widget.
+        return out.stdout.replace("\x1b[?25l", "").replace("\x1b[?25h", "")
     except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
         return None
+
+
+@lru_cache(maxsize=1)
+def render_corner_badge() -> str | None:
+    """The small logo badge every wizard screen's title row carries —
+    cached, since it's identical on every screen and every screen
+    construction would otherwise re-shell out to chafa for it."""
+    return render_logo_chafa(width=CORNER_BADGE_WIDTH)
+
+
+@lru_cache(maxsize=1)
+def corner_badge_rows() -> int:
+    """How many text rows render_corner_badge()'s output actually needs —
+    base.py sizes the whole title row to this rather than guessing, so a
+    change to CORNER_BADGE_WIDTH (or chafa's own aspect handling) can't
+    silently clip the badge. Falls back to 1 (a bare single-line title
+    bar, no badge shown) if chafa/the logo aren't available."""
+    ansi = render_corner_badge()
+    if not ansi:
+        return 1
+    return max(len(ansi.rstrip("\n").splitlines()), 1)

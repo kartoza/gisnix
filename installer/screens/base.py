@@ -8,9 +8,12 @@ reinvented.
 
 from __future__ import annotations
 
-from textual.containers import Container, Horizontal, VerticalScroll
+from rich.text import Text
+from textual.containers import Container, Horizontal, Vertical, VerticalScroll
 from textual.screen import Screen
 from textual.widgets import Button, Footer, Header, Static
+
+from .. import branding
 
 
 class WizardScreen(Screen):
@@ -36,13 +39,31 @@ class WizardScreen(Screen):
         border: solid $primary;
         padding: 0 1 1 1;
     }
+    #wizard-title-row {
+        margin: 0 0 1 0;
+    }
     #wizard-title {
         background: $primary;
         color: $text;
         text-style: bold;
-        text-align: center;
-        height: 1;
-        margin: 0 0 1 0;
+        padding: 0 1;
+        width: 1fr;
+        height: 100%;
+        content-align: left middle;
+    }
+    #wizard-step-badge {
+        background: $accent;
+        color: $ink;
+        text-style: bold;
+        padding: 0 1;
+        width: auto;
+        height: 100%;
+        content-align: center middle;
+    }
+    #wizard-logo-badge {
+        padding: 0 1;
+        height: 100%;
+        content-align: center middle;
     }
     #wizard-error {
         color: $error;
@@ -66,6 +87,60 @@ class WizardScreen(Screen):
     #wizard-back {
         dock: left;
     }
+
+    /* A titled, bordered sub-section — groups related fields into one
+       visually distinct block instead of a flat scroll of labels. Three
+       tones share the same shape: "secondary" for ordinary grouping,
+       "accent" to draw the eye to the step's main choice, "danger" for a
+       destructive/warning section (e.g. "this erases a disk"). */
+    .panel {
+        border: solid $secondary;
+        height: auto;
+        margin: 0 0 1 0;
+    }
+    .panel-accent {
+        border: solid $accent;
+    }
+    .panel-danger {
+        border: solid $danger;
+    }
+    .panel-title {
+        background: $secondary;
+        color: $text;
+        text-style: bold;
+        height: 1;
+        padding: 0 1;
+    }
+    .panel-title-accent {
+        background: $accent;
+        color: $ink;
+    }
+    .panel-title-danger {
+        background: $danger;
+        color: $text;
+    }
+    /* The "overtone": each panel's body sits on a muted tint of its own
+       title colour blended into the screen's dark surface, rather than
+       the flat default background — same two-tone card look (bright
+       header strip, deep-tinted body) as the sticky notes this design was
+       modelled on. Percentage-opacity blend, not a `-darken-N` suffix:
+       "secondary"/"accent"/"danger" are brand.nix colours layered on top
+       of Textual's own design system (app.py's get_css_variables), not
+       part of it — a `-darken-N` companion is only ever generated for
+       Textual's own built-in roles, so one doesn't exist for these. The
+       opacity-blend form (`$colour N%`) is the same mechanism app.py's
+       focus-state CSS already relies on, applied here instead of guessed. */
+    .panel .panel-body {
+        height: auto;
+        padding: 1;
+        background: $secondary 25%;
+    }
+    .panel-accent .panel-body {
+        background: $accent 25%;
+    }
+    .panel-danger .panel-body {
+        background: $danger 25%;
+    }
     """
 
     def __init__(self, title: str, next_label: str = "Next", next_variant: str = "primary") -> None:
@@ -73,11 +148,37 @@ class WizardScreen(Screen):
         self._title = title
         self._next_label = next_label
         self._next_variant = next_variant
+        self._step_index: int | None = None
+        self._step_total: int | None = None
+
+    def set_step(self, index: int, total: int) -> None:
+        """Called by InstallerApp right after construction — this screen
+        doesn't know its own position, the wizard's step order does."""
+        self._step_index = index
+        self._step_total = total
 
     def compose(self):
         yield Header(show_clock=True)
         with Container(id="wizard-card"):
-            yield Static(self._title, id="wizard-title")
+            # Explicit height, not CSS `auto`: title/step-badge/logo all
+            # need to stretch to fill it (a colour-filled title strip that
+            # only covered its own single text row, floating inside a
+            # taller auto-sized row, would look like a broken sliver, not
+            # a banner) — 100%-height children inside an auto container is
+            # the exact circular case Textual's layout can't resolve, so
+            # the row's height is fixed here in Python instead, from the
+            # one thing that actually needs more than one row: the badge.
+            title_row = Horizontal(id="wizard-title-row")
+            title_row.styles.height = branding.corner_badge_rows()
+            with title_row:
+                yield Static(self._title, id="wizard-title")
+                if self._step_total:
+                    yield Static(
+                        f"Step {self._step_index} of {self._step_total}", id="wizard-step-badge"
+                    )
+                badge = self._logo_badge()
+                if badge is not None:
+                    yield badge
             yield Static("", id="wizard-error")
             with VerticalScroll(id="wizard-body"):
                 yield from self.body()
@@ -90,6 +191,33 @@ class WizardScreen(Screen):
         """Override: yield the step's own widgets."""
         return []
         yield  # pragma: no cover - makes this a generator
+
+    def _logo_badge(self) -> Static | None:
+        """The tiny Kartoza mark in the title row's right corner, on every
+        screen. Parses chafa's ANSI through Rich's own decoder rather than
+        handing a raw escape-code string to Static — a raw string's
+        wrapping is measured in bytes, so a naive word-wrap can shred an
+        escape sequence mid-code; Text.from_ansi turns it into a real Rich
+        Text with the colour spans tracked separately from the visible
+        characters, and the widget is sized exactly to the render (no wrap
+        ever needed) rather than trusting auto-sizing to get it right."""
+        ansi = branding.render_corner_badge()
+        if not ansi:
+            return None
+        widget = Static(Text.from_ansi(ansi), id="wizard-logo-badge")
+        widget.styles.width = branding.CORNER_BADGE_WIDTH
+        return widget
+
+    def panel(self, title: str, *widgets, tone: str = "secondary"):
+        """A bordered, titled group of widgets — call with `yield from` from
+        inside `body()`. `tone` is "secondary" (default), "accent", or
+        "danger"."""
+        suffix = f"-{tone}" if tone != "secondary" else ""
+        with Container(classes=f"panel panel{suffix}"):
+            yield Static(title, classes=f"panel-title panel-title{suffix}")
+            with Vertical(classes="panel-body"):
+                for widget in widgets:
+                    yield widget
 
     def on_mount(self) -> None:
         """Land the cursor on the step's own first field rather than
