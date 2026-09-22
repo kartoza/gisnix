@@ -6,6 +6,7 @@ from .. import sizing
 from ..repo import list_disks
 from ..sizing import ATUIN_SIZE_BYTES, ESP_SIZE_BYTES
 from ..state import STORAGE_XFS_SINGLE, STORAGE_ZFS_ENCRYPTED_SINGLE, STORAGE_ZFS_MULTI
+from ..widgets import PasswordMatchBar, PasswordStrengthBar
 from .base import WizardScreen
 
 #: zfs-load-key(8): passphrase-format key material must be 8-512 bytes —
@@ -61,9 +62,25 @@ class StorageScreen(WizardScreen):
             "ZFS encryption passphrase (used for either ZFS option above, 8-512 characters)",
             Label("Passphrase"),
             Input(password=True, id="passphrase-input"),
+            PasswordStrengthBar(id="passphrase-strength-bar"),
             Label("Confirm passphrase"),
             Input(password=True, id="passphrase-confirm-input"),
+            PasswordMatchBar(id="passphrase-match-bar"),
         )
+
+    def on_input_changed(self, event: Input.Changed) -> None:
+        if event.input.id == "passphrase-input":
+            self.query_one("#passphrase-strength-bar", PasswordStrengthBar).update_password(
+                event.value
+            )
+            self._update_passphrase_match_bar()
+        elif event.input.id == "passphrase-confirm-input":
+            self._update_passphrase_match_bar()
+
+    def _update_passphrase_match_bar(self) -> None:
+        passphrase = self.query_one("#passphrase-input", Input).value
+        confirm = self.query_one("#passphrase-confirm-input", Input).value
+        self.query_one("#passphrase-match-bar", PasswordMatchBar).update_match(passphrase, confirm)
 
     def on_next(self) -> bool | None:
         mode_radio = self.query_one("#storage-mode", RadioSet).pressed_button
