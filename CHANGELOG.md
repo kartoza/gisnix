@@ -3,6 +3,16 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.10.2] - 2026-09-22
+
+### Fixed
+
+- The 0.9.2 PDF-default fix wrote `environment.etc."xdg/mimeapps.list"`
+  directly, colliding with NixOS's own `config/xdg/mime.nix` (which
+  generates that same file from `xdg.mime.defaultApplications`) —
+  "conflicting definition values", confirmed on a real rebuild. Switched
+  to that option instead.
+
 ## [0.10.1] - 2026-09-22
 
 ### Fixed
