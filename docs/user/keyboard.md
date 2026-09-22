@@ -117,6 +117,17 @@ whatever you said gets typed at your cursor. This is
 [voxtype](https://github.com/peteonrails/voxtype), installed and running
 by default alongside kanata.
 
+Not every board has a Menu key — the Framework 16's built-in keyboard is
+one that doesn't. **Physical right Ctrl works too**, as a second trigger:
+hold it and speak, same as Menu. Tapping it still sends a normal Ctrl
+press, so it stays usable as a modifier — but a fast `Ctrl+<key>` chord
+typed *specifically* through the right Ctrl key can be read as a hold
+instead (another key pressed while it's down), which starts push-to-talk
+rather than applying the modifier. Left Ctrl is untouched, so every
+shortcut still works through that key; only the right one changed
+character, in exchange for push-to-talk existing on boards with no Menu
+key at all.
+
 Transcription runs entirely on the machine, via whisper.cpp — nothing you
 say is sent anywhere once it's running (voxtype also supports sending
 audio to a remote API, but gisnix doesn't configure that mode, so it's
@@ -127,10 +138,11 @@ holding Menu on a machine that has never been online yet does nothing
 until that finishes. After the model is cached on disk, everything is
 offline, including on future boots with no network at all.
 
-A tap of Menu still opens the context menu, unchanged — only the *hold*
-was repurposed for this.
+A tap of Menu still opens the context menu, and a tap of right Ctrl still
+sends Ctrl, unchanged — only the *hold* was repurposed for this, on
+either key.
 
-If nothing happens when you hold Menu, check both services:
+If nothing happens when you hold Menu or right Ctrl, check both services:
 
 ```
 systemctl --user status voxtype-model-loader

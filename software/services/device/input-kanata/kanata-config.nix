@@ -38,14 +38,17 @@
   # gisnix installs by default, so unlike herdr this stays off unless a
   # caller both runs aerc and asks for it.
   aercLayer ? false,
-  # Hold the Menu key (between right Alt and right Ctrl) to talk to voxtype
-  # instead of raising the navigation/mouse layer — that layer is still
-  # reachable by holding space (see spc-nav below), so nothing is lost, just
-  # moved off its second trigger. `on-press-fakekey`/`on-release-fakekey`
-  # tap a virtual key at the moment the REAL key is pressed and again when
-  # it's released, and those virtual keys run `voxtype record start`/`stop`
-  # — see the defvirtualkeys block below. Tap-menu still opens the context
-  # menu as normal; only the hold changes.
+  # Hold the Menu key (between right Alt and right Ctrl) — or, on a board
+  # with no Menu key, physical right Ctrl instead (see rctlSrc/rctlAlias
+  # below) — to talk to voxtype instead of raising the navigation/mouse
+  # layer. That layer is still reachable by holding space (see spc-nav
+  # below), so nothing is lost, just moved off its second trigger.
+  # `on-press-fakekey`/`on-release-fakekey` tap a virtual key at the
+  # moment the REAL key is pressed and again when it's released, and
+  # those virtual keys run `voxtype record start`/`stop` — see the
+  # defvirtualkeys block below. Tapping either key still does its normal
+  # thing (Menu opens the context menu, right Ctrl is still Ctrl); only
+  # the hold changes.
   voxtypePtt ? false,
   # Opt-in clipboard holds on x/c/v, transcribed from the Sonsei's superkeys
   # 9/20/21: tap the letter, hold it for the clipboard action. Note the
@@ -144,6 +147,36 @@ let
   herdrDefault = if herdrLayer then " @herdr-nav" else "";
   herdrPass = if herdrLayer then " _" else "";
 
+  # Right Ctrl (physical) — a second, always-reachable push-to-talk trigger
+  # alongside Menu. Menu doesn't exist on every board (the Framework 16's
+  # built-in keyboard has none), but right Ctrl does. Governed by the same
+  # voxtypePtt flag as Menu, not a separate one — one switch, two keys.
+  #
+  # Cost: this key is not in defsrc by default, so kanata never touches it
+  # and it passes through as an ordinary Ctrl modifier. Adding it to
+  # defsrc to catch the hold means kanata now decides tap vs hold — and a
+  # quick Ctrl+<key> chord typed via the RIGHT Ctrl key specifically can
+  # resolve as a hold (another key pressed while it's down), which runs
+  # PTT instead of applying the Ctrl modifier. Left Ctrl is untouched, so
+  # every shortcut still works via that key; only the right one changes
+  # character. A considered trade, not an oversight — see the commit that
+  # added this for the reasoning.
+  rctlSrc = if voxtypePtt then " rctl" else "";
+  rctlDefault = if voxtypePtt then " @rctl-ptt" else "";
+  rctlPass = if voxtypePtt then " _" else "";
+
+  rctlAlias =
+    if !voxtypePtt then
+      ""
+    else
+      ''
+
+        ;; Right Ctrl: tap for a normal Ctrl press (still usable as a
+        ;; modifier — see the trade-off noted above), hold for the same
+        ;; voxtype push-to-talk Menu already triggers.
+        rctl-ptt (tap-hold ${toString tapTimeout} ${toString holdTimeout} rctl (multi (on-press-fakekey voxtype-start tap) (on-release-fakekey voxtype-stop tap)))
+      '';
+
   # Fake keys the menu-hold action above taps — kanata runs the `cmd` each
   # is bound to when tapped, so pressing/releasing the real Menu key becomes
   # `voxtype record start`/`voxtype record stop`. voxtype's own daemon has
@@ -178,7 +211,7 @@ let
         q w e r t    y u i o p
         @a @s @d @f g    h @j @k @l @;
         z ${cutKey} ${copyKey} ${pasteKey} b    n m , . /
-        @spc-nav @menu-nav @met${herdrDefault}${tabDefault}
+        @spc-nav @menu-nav @met${herdrDefault}${tabDefault}${rctlDefault}
       )'';
 
   # The herdr layer. hjkl are transcribed from the Sonsei's layer 2 ("Macros
@@ -278,7 +311,7 @@ let
           _ _ ${emailInLayer} _ _    _ @herdr-agent-down @herdr-agent-up _ _
           _ _ _ _ _    @herdr-left @herdr-down @herdr-up @herdr-right _
           _ _ _ _ _    @herdr-new-tab _ _ _ _
-          _ _ _${herdrPass}${tabPass}
+          _ _ _${herdrPass}${tabPass}${rctlPass}
         )
       '';
 
@@ -340,7 +373,7 @@ let
           _ _ ${emailInLayer} @aerc-reply _    @aerc-headers @aerc-unread @aerc-flag @aerc-contact-edit _
           @aerc-archive @aerc-spam @aerc-delete @aerc-forward @aerc-recall    @aerc-acct-prev @aerc-folder-next @aerc-folder-prev @aerc-acct-next _
           _ _ @aerc-compose @aerc-search @aerc-filter    @aerc-contact-add @aerc-mark _ _ _
-          _ _ _${herdrPass}${tabPass}
+          _ _ _${herdrPass}${tabPass}${rctlPass}
         )
       '';
 
@@ -466,11 +499,14 @@ in
   ;; lmet = the physical Super key (for the meta lighting layer)
   ;; herdrKey (herdr instances only) = tap normal / hold for the herdr layer
   ;; tab (aercLayer instances only) = tap Tab / hold for the aerc layer
+  ;; rctl (voxtypePtt instances only) = physical right Ctrl, tap normal /
+  ;;   hold for voxtype push-to-talk — a second trigger alongside Menu,
+  ;;   for boards (the Framework 16's built-in keyboard) with no Menu key
   (defsrc
     q w e r t    y u i o p
     a s d f g    h j k l ;
     z x c v b    n m , . /
-    spc menu lmet${herdrSrc}${tabSrc}
+    spc menu lmet${herdrSrc}${tabSrc}${rctlSrc}
   )
 
   ;; Default layer with home row mods (long-hold to arm the modifier)
@@ -489,7 +525,7 @@ in
     _ @lmb @mouse-up @rmb @scroll-up    _ pgdn pgup end _
     _ @mouse-left @mouse-down @mouse-right @scroll-down    left down up rght _
     _ _ _ _ _    home @spd-half @spd-quarter @spd-tenth _
-    _ _ _${herdrPass}${tabPass}
+    _ _ _${herdrPass}${tabPass}${rctlPass}
   )
 
   ;; Meta layer: purely for lighting feedback. All keys are
@@ -500,7 +536,7 @@ in
     _ _ _ _ _    _ _ _ _ _
     _ _ _ _ _    _ _ _ _ _
     _ _ _ _ _    _ _ _ _ _
-    _ _ _${herdrPass}${tabPass}
+    _ _ _${herdrPass}${tabPass}${rctlPass}
   )${herdrDeflayer}${aercDeflayer}
 
   ;; Alias definitions
@@ -562,7 +598,7 @@ in
 
     ;; Mouse scroll - interval(ms) distance
     scroll-up (mwheel-up 50 120)
-    scroll-down (mwheel-down 50 120)${clipboardAliases}${herdrAliases}${aercAliases}${emailAlias}
+    scroll-down (mwheel-down 50 120)${clipboardAliases}${herdrAliases}${aercAliases}${emailAlias}${rctlAlias}
   )
 
   ${voxtypeVirtualKeys}
