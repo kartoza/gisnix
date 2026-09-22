@@ -47,8 +47,24 @@ let
   # default, matching voxtype itself shipping in environment.systemPackages
   # below — the two only make sense together.
   voxtypePtt = true;
+
+  cfg = config.kartoza.kanata;
 in
 {
+  options.kartoza.kanata.aercLayer = lib.mkOption {
+    type = lib.types.bool;
+    default = false;
+    example = true;
+    description = ''
+      Take over the herdr trigger key (Caps Lock) for aerc (a mail
+      client) commands too, toggled with a caps+space chord — see
+      docs/user/keyboard.md. Off by default: gisnix does not install
+      aerc, so a mail-client macro layer has no business shipping to
+      everyone. A host that runs aerc sets this from its own config,
+      e.g. `kartoza.kanata.aercLayer = true;`.
+    '';
+  };
+
   hardware.uinput.enable = true;
 
   # Passwordless sudo for the toggle/status scripts below.
@@ -93,15 +109,22 @@ in
           # herdr ships in the `base` bundle, so its keybinds ship here too —
           # hold Caps Lock (a tap still toggles caps; nobody holds it on
           # purpose, so this costs nothing) for tab/workspace nav and the
-          # agent list. aercLayer stays off: gisnix does not install aerc,
-          # so a mail-client macro layer has no business shipping by default.
+          # agent list. aercLayer defaults off (see the option above) — gisnix
+          # does not install aerc, so a mail-client macro layer has no
+          # business shipping to everyone by default.
           herdrKey = "caps";
+          aercLayer = cfg.aercLayer;
           # Hold x/c/v for cut/copy/paste. A generic mechanism (no per-user
           # data involved, unlike emailScript above), so it ships on by
           # default along with everything else here.
           clipboardHolds = true;
           inherit voxtypePtt;
           voxtypePackage = pkgs.voxtype;
+          # Herdr<->aerc mode-toggle beep — only reached when aercLayer is
+          # on, but harmless to always pass (kanata-config.nix's own
+          # dualMode gate decides whether it's ever used).
+          beepPlayer = "${pkgs.pipewire}/bin/pw-play";
+          beepSound = "${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo/bell.oga";
         };
       };
     };

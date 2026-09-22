@@ -33,10 +33,11 @@
   # Whatever is named here keeps its normal action on TAP; only the hold is
   # taken. See the layer comment below.
   herdrKey ? null,
-  # Opt-in fourth layer: hold Tab, and the board becomes aerc (a mail
-  # client) commands. Independent of herdrKey — aerc is not something
-  # gisnix installs by default, so unlike herdr this stays off unless a
-  # caller both runs aerc and asks for it.
+  # Opt-in fourth layer: the board becomes aerc (a mail client) commands.
+  # REQUIRES herdrKey — aerc shares herdr's trigger key (see dualMode
+  # below), it doesn't have its own. Not something gisnix installs by
+  # default, so unlike herdr this stays off unless a caller both runs
+  # aerc and asks for it.
   aercLayer ? false,
   # Hold the Menu key (between right Alt and right Ctrl) — or, on a board
   # with no Menu key, physical right Ctrl instead (see rctlSrc/rctlAlias
@@ -58,6 +59,12 @@
   # "Failed to execute program voxtype: No such file or directory" on a
   # real machine, even with voxtype in environment.systemPackages).
   voxtypePackage ? null,
+  # Absolute paths for the herdr<->aerc mode-toggle beep (see dualMode
+  # below) — only used when both herdrKey and aercLayer are set. Same
+  # PATH lesson as voxtypeBin: kanata is a system service, so the player
+  # binary and sound file both have to be absolute, not just "on PATH".
+  beepPlayer ? null,
+  beepSound ? null,
   # Opt-in clipboard holds on x/c/v, transcribed from the Sonsei's superkeys
   # 9/20/21: tap the letter, hold it for the clipboard action. Note the
   # asymmetry is the Sonsei's own — copy is Ctrl+C (not Ctrl+Shift+C) while
@@ -84,6 +91,11 @@
 }:
 let
   herdrLayer = herdrKey != null;
+
+  # aercLayer shares herdr's trigger key instead of owning Tab — see the
+  # herdr deflayer's own comment for the history (Tab held its own layer
+  # until this). Requires herdrLayer; aercLayer alone does nothing.
+  dualMode = herdrLayer && aercLayer;
 
   # defchordsv2 is only legal ONCE per config, and only if there is at
   # least one chord in it — an empty block is invalid kanata syntax. So the
@@ -206,25 +218,45 @@ let
         )
       '';
 
-  # Tab has its OWN gate — aercLayer, independent of herdrLayer — so a host
-  # can take herdr's keybinds without also taking a mail client's. Same
-  # three-way split as the trigger key above: a defsrc column, its action
-  # on the base layer, and a transparent slot on every other layer.
-  tabSrc = if aercLayer then " tab" else "";
-  tabDefault = if aercLayer then " @tab-aerc" else "";
-  tabPass = if aercLayer then " _" else "";
+  # The main typing layer — one copy, unless dualMode splits it in two.
+  #
+  # dualMode (herdrLayer AND aercLayer both on) needs two BASE layers,
+  # default-herdr and default-aerc, identical except for what the herdr
+  # trigger key does — the polymorphic-base era (see the herdr comment
+  # below) tried exactly this shape once already, switched automatically
+  # by focus detection, and was removed because the detection never
+  # fired reliably. This is the same shape for a different reason: not
+  # auto-detection, a manual toggle (see herdrAliases' mode-to-aerc/
+  # mode-to-herdr) — `layer-switch` changes which of the two is the
+  # active base, and each one's own herdr-trigger binding decides which
+  # target layer (herdr or aerc) that key reaches from here on.
+  # herdrCol matches herdrDefault's own convention exactly: a leading-space
+  # string when the column exists, or "" to omit it — defsrc must gain or
+  # lose this column in lockstep, so the two can't diverge (herdrLayer
+  # false means no herdr key was given at all, nothing to bind).
+  defaultLayerBody =
+    herdrCol:
+    ''
+      q w e r t    y u i o p
+          @a @s @d @f g    h @j @k @l @;
+          z ${cutKey} ${copyKey} ${pasteKey} b    n m , . /
+          @spc-nav @menu-nav @met${herdrCol}${rctlDefault}'';
 
-  # The main typing layer. There used to be a second stamped copy of it
-  # (`default-aerc`, the polymorphic-base era — see the herdr comment
-  # below); with the aerc layer on its own Tab hold there is exactly one
-  # base again, so it is written out plainly.
-  defaultLayer = ''
-    (deflayer default
-        q w e r t    y u i o p
-        @a @s @d @f g    h @j @k @l @;
-        z ${cutKey} ${copyKey} ${pasteKey} b    n m , . /
-        @spc-nav @menu-nav @met${herdrDefault}${tabDefault}${rctlDefault}
-      )'';
+  defaultLayer =
+    if !dualMode then
+      ''
+        (deflayer default
+            ${defaultLayerBody herdrDefault}
+          )''
+    else
+      ''
+        (deflayer default-herdr
+            ${defaultLayerBody " @herdr-nav"}
+          )
+
+        (deflayer default-aerc
+            ${defaultLayerBody " @aerc-nav"}
+          )'';
 
   # The herdr layer. hjkl are transcribed from the Sonsei's layer 2 ("Macros
   # & Symbols") — that board's own macro layout puts navigation on h/j/k/l,
@@ -255,20 +287,27 @@ let
   # honest description of what it now is: the place a held key reaches a
   # macro. Adding more of them here is expected.
   #
-  # THE AERC LAYER IS ON TAB, NOT ON THIS TRIGGER, AND IS A SEPARATE OPT-IN
-  # (aercLayer) — every aerc verb lives ONLY there, including the s/a
-  # mail-filing pair (they sat on this layer too at first, but filing mail
-  # is meaningless outside aerc and a herdr-layer key that types `:move
-  # Spam` into a terminal is a hazard, not a shortcut). Holding Tab opens
-  # the aerc layer from anywhere a caller has enabled it — see the aerc
-  # deflayer below for the full key table (it has grown past what fits in
-  # one sentence here). This
-  # REPLACES the polymorphic-base era, where a kitty focus watcher flipped
-  # the base layer over TCP so the herdr trigger meant "drive aerc" while
-  # aerc was focused — the detection never fired reliably (the macros
-  # simply didn't run), and a second held key that always works beats one
-  # clever key that mostly doesn't. Do not resurrect the watcher; if aerc
-  # macros misbehave now, the fault is in the macros, not in detection.
+  # THE AERC LAYER IS A SEPARATE OPT-IN (aercLayer, requires herdrKey too)
+  # SHARING THIS TRIGGER, NOT A SECOND ONE — every aerc verb lives ONLY on
+  # the aerc layer, including the s/a mail-filing pair (they sat on this
+  # layer too at first, but filing mail is meaningless outside aerc and a
+  # herdr-layer key that types `:move Spam` into a terminal is a hazard,
+  # not a shortcut). Which layer holding the trigger key reaches — herdr
+  # or aerc — depends on which base layer is currently active; toggle
+  # with mode-to-aerc/mode-to-herdr (space, held while the OTHER one of
+  # the pair is held — see herdrAliases and each deflayer's own comment).
+  # See the aerc deflayer below for the full key table (it has grown past
+  # what fits in one sentence here).
+  #
+  # This is deliberately NOT the polymorphic-base era, an earlier version
+  # of essentially the same idea: a kitty focus watcher flipped the base
+  # layer over TCP so the herdr trigger meant "drive aerc" while aerc was
+  # focused, automatically — removed because the detection never fired
+  # reliably (the macros simply didn't run). The shape here is similar
+  # (two base layers, one trigger key), but the switch is a manual toggle,
+  # not automatic focus detection, so that specific failure mode doesn't
+  # apply. Do not resurrect the watcher; if aerc macros misbehave now, the
+  # fault is in the macros, not in mode detection.
   #
   # u and i are ours, not the Sonsei's, and they are the one pair here that
   # depends on configuration rather than on herdr's defaults: herdr ships
@@ -318,12 +357,15 @@ let
       ''
 
         ;; herdr layer — held via the trigger key. Everything but hjkl is
-        ;; transparent, so the rest of the board behaves as normal.
+        ;; transparent, so the rest of the board behaves as normal. Space,
+        ;; while this layer is held, toggles to aerc mode — see
+        ;; mode-to-aerc — only wired when dualMode; otherwise space stays
+        ;; plain like everything else here.
         (deflayer herdr
           _ _ ${emailInLayer} _ _    _ @herdr-agent-down @herdr-agent-up _ _
           _ _ _ _ _    @herdr-left @herdr-down @herdr-up @herdr-right _
           _ _ _ _ _    @herdr-new-tab _ _ _ _
-          _ _ _${herdrPass}${tabPass}${rctlPass}
+          ${if dualMode then "@mode-to-aerc" else "_"} _ _${herdrPass}${rctlPass}
         )
       '';
 
@@ -333,7 +375,9 @@ let
     else
       ''
 
-        ;; aerc layer — held via Tab (see @tab-aerc). Every key here is a
+        ;; aerc layer — held via the same trigger key as herdr, once
+        ;; mode-to-aerc has switched the active base layer (see @aerc-nav
+        ;; and dualMode's own comment above defaultLayer). Every key here is a
         ;; typed aerc command (colon-chord + word + Enter), the same
         ;; philosophy s/a and the nav macros already established: it works
         ;; regardless of what binds.conf says, and it reads back as
@@ -361,7 +405,8 @@ let
         ;;
         ;; c/f/d/v cost something real: they take over a key that has a
         ;; hold-behaviour on the base layer (copy/Shift/Ctrl/paste) WHILE
-        ;; TAB IS HELD — the same trade a/s already made for Super/Alt.
+        ;; THE TRIGGER KEY IS HELD IN AERC MODE — the same trade a/s
+        ;; already made for Super/Alt.
         ;; Losing hold-to-copy specifically while composing/forwarding is
         ;; the one to watch; move c or v to a free key (q/w/t/p/z/x) if
         ;; that bites — the layer is nearly full now.
@@ -385,9 +430,20 @@ let
           _ _ ${emailInLayer} @aerc-reply _    @aerc-headers @aerc-unread @aerc-flag @aerc-contact-edit _
           @aerc-archive @aerc-spam @aerc-delete @aerc-forward @aerc-recall    @aerc-acct-prev @aerc-folder-next @aerc-folder-prev @aerc-acct-next _
           _ _ @aerc-compose @aerc-search @aerc-filter    @aerc-contact-add @aerc-mark _ _ _
-          _ _ _${herdrPass}${tabPass}${rctlPass}
+          ${if dualMode then "@mode-to-herdr" else "_"} _ _${herdrPass}${rctlPass}
         )
       '';
+
+  # Action for the space-toggle inside the herdr/aerc layers: switch the
+  # active BASE layer (persists past this key release — see dualMode's own
+  # comment above defaultLayer) and, if a player/sound were given, beep so
+  # a purely-audible mode switch has feedback beyond memory.
+  modeToggleAction =
+    layerName:
+    if beepPlayer != null && beepSound != null then
+      "(multi (layer-switch ${layerName}) (cmd ${beepPlayer} ${beepSound}))"
+    else
+      "(layer-switch ${layerName})";
 
   herdrAliases =
     if !herdrLayer then
@@ -398,6 +454,26 @@ let
         ;; herdr navigation — alias names match the Sonsei's Bazecor macro
         ;; names, so the two keyboards can be diffed against each other.
         herdr-nav   (tap-hold ${toString tapTimeout} ${toString holdTimeout} ${herdrKey} (layer-while-held herdr))
+      ''
+      + (
+        if !dualMode then
+          ""
+        else
+          ''
+            ;; Same trigger key, aerc instead of herdr — which one fires
+            ;; depends on which base layer (default-herdr/default-aerc) is
+            ;; currently active; see mode-to-aerc/mode-to-herdr below.
+            aerc-nav (tap-hold ${toString tapTimeout} ${toString holdTimeout} ${herdrKey} (layer-while-held aerc))
+            ;; Space, held WHILE herdr/aerc is held (see their deflayers'
+            ;; first bottom-row slot), toggles which mode the trigger key
+            ;; reaches next time. Doesn't change what's active THIS hold —
+            ;; only the next one, once the trigger key is released and
+            ;; pressed again against the new base layer.
+            mode-to-aerc  ${modeToggleAction "default-aerc"}
+            mode-to-herdr ${modeToggleAction "default-herdr"}
+          ''
+      )
+      + ''
         herdr-left  (macro C-b p)
         herdr-down  (macro C-b w 25 down ret)
         herdr-up    (macro C-b w 25 up ret)
@@ -444,12 +520,10 @@ let
         ;; default bind on a different key. One held key, one behaviour;
         ;; add a second key here if plain reply is ever wanted too.
         aerc-reply (macro ${colonChord} r e p l y spc ${dashChord} a ret)
-        ;; The aerc layer's trigger — hold Tab. A tap still types Tab, and
-        ;; Alt+Tab window switching is untouched (the switcher TAPS tab
-        ;; while Alt is held; nobody holds tab itself past the window).
-        ;; What IS given up is hold-Tab-to-autorepeat, with the same escape
-        ;; every tap-hold here has: double-tap and hold within tapTimeout.
-        tab-aerc (tap-hold ${toString tapTimeout} ${toString holdTimeout} tab (layer-while-held aerc))
+        ;; The aerc layer's trigger is @aerc-nav (herdrAliases, above) —
+        ;; the same physical key as herdr, reached by toggling mode-to-aerc
+        ;; first. Tab itself is untouched: it's not in defsrc at all, so it
+        ;; always just types Tab (Alt+Tab window switching included).
         ;; aerc navigation — typed commands rather than aerc's default
         ;; keybinds, so they work whatever binds.conf says and read back as
         ;; exactly what they do. `:` and `-` go via colonChord/dashChord
@@ -510,7 +584,6 @@ in
   ;; menu = the context-menu key (left of right Ctrl)
   ;; lmet = the physical Super key (for the meta lighting layer)
   ;; herdrKey (herdr instances only) = tap normal / hold for the herdr layer
-  ;; tab (aercLayer instances only) = tap Tab / hold for the aerc layer
   ;; rctl (voxtypePtt instances only) = physical right Ctrl, tap normal /
   ;;   hold for voxtype push-to-talk — a second trigger alongside Menu,
   ;;   for boards (the Framework 16's built-in keyboard) with no Menu key
@@ -518,7 +591,7 @@ in
     q w e r t    y u i o p
     a s d f g    h j k l ;
     z x c v b    n m , . /
-    spc menu lmet${herdrSrc}${tabSrc}${rctlSrc}
+    spc menu lmet${herdrSrc}${rctlSrc}
   )
 
   ;; Default layer with home row mods (long-hold to arm the modifier)
@@ -537,7 +610,7 @@ in
     _ @lmb @mouse-up @rmb @scroll-up    _ pgdn pgup end _
     _ @mouse-left @mouse-down @mouse-right @scroll-down    left down up rght _
     _ _ _ _ _    home @spd-half @spd-quarter @spd-tenth _
-    _ _ _${herdrPass}${tabPass}${rctlPass}
+    _ _ _${herdrPass}${rctlPass}
   )
 
   ;; Meta layer: purely for lighting feedback. All keys are
@@ -548,7 +621,7 @@ in
     _ _ _ _ _    _ _ _ _ _
     _ _ _ _ _    _ _ _ _ _
     _ _ _ _ _    _ _ _ _ _
-    _ _ _${herdrPass}${tabPass}${rctlPass}
+    _ _ _${herdrPass}${rctlPass}
   )${herdrDeflayer}${aercDeflayer}
 
   ;; Alias definitions

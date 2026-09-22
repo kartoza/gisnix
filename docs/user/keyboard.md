@@ -205,11 +205,31 @@ using anything else won't type at all rather than typing something close
 but wrong. `@` and `-` sit on different physical keys under `us` vs `pt`,
 and the script picks the right one from `kanataLayout`.
 
-What is **not** here: an aerc (mail client) layer on Tab hold. gisnix does
-not install aerc, so that macro set — compose, reply, file to folders,
-contacts — stays a separate opt-in (`aercLayer` in `kanata-config.nix`) for
-a host that actually runs it, rather than shipping mail-client keybinds to
-everyone by default.
+What is **not** here by default: an aerc (mail client) macro set —
+compose, reply, file to folders, contacts. gisnix does not install aerc,
+so this stays a separate opt-in (`kartoza.kanata.aercLayer = true;`) for
+a host that actually runs it, rather than shipping mail-client keybinds
+to everyone by default.
+
+### aerc mode (opt-in)
+
+A host with `kartoza.kanata.aercLayer = true;` gets a second thing the
+herdr trigger key can reach: hold it, and — instead of herdr — you get
+aerc commands on the same hjkl-shaped layout (switch account, switch
+folder, file to spam/archive, compose, reply-all, and more).
+
+Which one holding the trigger key reaches is a persistent choice, not
+something you pick each time: hold the trigger key, tap Space while
+still holding it, and release — that's the toggle. It doesn't change
+anything about the *current* hold; it changes which layer the trigger
+key reaches the *next* time you hold it, and plays a short beep so the
+switch has feedback beyond memory. Toggle again (same gesture, from
+inside the other layer) to go back.
+
+This replaced an earlier design where aerc lived on its own Tab hold —
+sharing the trigger key with a manual toggle means one key to remember
+instead of two, at the cost of that key doing different things
+depending on state.
 
 ## Layout diagrams
 
