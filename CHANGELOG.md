@@ -3,6 +3,19 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.9.0] - 2026-09-22
+
+### Added
+
+- Physical right Ctrl as a second voxtype push-to-talk trigger, alongside
+  Menu — for boards with no Menu key (the Framework 16's built-in
+  keyboard is one). Hold either, tap either for its normal action
+  (context menu / Ctrl). On by default, since voxtypePtt already is.
+  Trade-off: a fast Ctrl+<key> chord typed through the right Ctrl key
+  specifically can resolve as a hold and trigger push-to-talk instead of
+  the modifier — left Ctrl is unaffected, so every shortcut still works
+  through that key.
+
 ## [0.8.2] - 2026-09-22
 
 ### Fixed
