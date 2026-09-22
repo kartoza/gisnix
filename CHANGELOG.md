@@ -3,6 +3,15 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.10.1] - 2026-09-22
+
+### Fixed
+
+- `kanata-keyboard.nix` failed to evaluate after 0.10.0 added a
+  top-level `options` block: NixOS requires the rest of a module's
+  attributes wrapped in an explicit `config = {...};` once `options` is
+  present alongside it. Confirmed on a real rebuild.
+
 ## [0.10.0] - 2026-09-22
 
 ### Added
