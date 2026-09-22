@@ -3,6 +3,17 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.8.2] - 2026-09-22
+
+### Fixed
+
+- 0.8.1's own fix broke the rebuild it was meant to fix: plainly setting
+  `environment.PATH` collided with the default
+  `nixos/modules/system/boot/systemd/user.nix` already sets for every
+  user service ("conflicting definition values"). Switched to `path =
+  [ pkgs.curl ];`, the standard NixOS idiom for adding a binary to a
+  systemd unit's search path without replacing it outright.
+
 ## [0.8.1] - 2026-09-22
 
 ### Fixed
