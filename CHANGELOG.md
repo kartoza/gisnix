@@ -3,6 +3,18 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.9.2] - 2026-09-22
+
+### Fixed
+
+- Koodo Reader's `.desktop` file claims `application/pdf` (common for
+  ebook readers), which silently became the default PDF handler on any
+  host taking both `desktop-ebook-readers` and `desktop-base-extras` —
+  confirmed on a real machine, PDFs opened in Koodo Reader instead of
+  Evince the moment koodo-reader's insecure-package fix let it build for
+  the first time. `/etc/xdg/mimeapps.list` now explicitly defaults
+  `application/pdf` to Evince.
+
 ## [0.9.1] - 2026-09-22
 
 ### Fixed
