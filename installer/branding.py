@@ -128,10 +128,13 @@ _CHAFA_SYMBOL_ARGS = ["--symbols", "quad", "--color-space", "din99d"]
 
 #: Columns for the small per-screen corner badge (base.py's title row) —
 #: distinct from the full-size welcome-banner render, which passes its own
-#: width. 6 columns renders 3 rows at chafa's quad-block aspect — small
-#: enough to sit beside the step-count badge without growing the title
-#: row (and eating into every screen's body space) any more than needed.
-CORNER_BADGE_WIDTH = 6
+#: width. The logo is three interlocking loops in three colours; anything
+#: much smaller than this reduces to an unrecognisable colour smear rather
+#: than a mark (confirmed against a live --mock run — 6 columns/3 rows
+#: was tried first and was too small). 14 columns / 7 rows is a deliberate
+#: middle ground: recognisable, without the title row costing as much
+#: height on every screen as the one-off full-size welcome banner does.
+CORNER_BADGE_WIDTH = 14
 
 
 def render_logo_chafa(width: int = 60) -> str | None:

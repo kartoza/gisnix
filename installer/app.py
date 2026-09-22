@@ -33,6 +33,12 @@ class InstallerApp(App):
 
     TITLE = "gisnix installer" + (" [MOCK]" if MOCK else "")
 
+    # Textual's own ctrl+p command palette (theme switcher, etc.) has
+    # nothing to do with this wizard and its footer hint/corner affordance
+    # is one more thing to explain to someone who just wants to install a
+    # machine — this is a fixed-purpose flow, not a general Textual app.
+    ENABLE_COMMAND_PALETTE = False
+
     # App-level CSS applies across every screen.
     #
     # Button, Input, ToggleButton (the base class behind RadioButton and

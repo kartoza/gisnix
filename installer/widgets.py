@@ -24,6 +24,8 @@ import subprocess
 from textual.binding import Binding
 from textual.widgets import Static
 
+from .repo import MOCK
+
 #: Every normal-weight size terminus-font's "v" charset actually ships
 #: (confirmed against its own Makefile — PSF_XOS4_2), so every step here is
 #: guaranteed to exist rather than guessed at. 12pt has no bold companion in
@@ -45,7 +47,15 @@ def set_console_font_size(size: int) -> None:
     every NixOS system) takes a bare name and searches the console-fonts
     directories `console.packages` wires into the running system's profile
     — no path needed, same as typing it at a shell prompt. Affects only the
-    live ISO's current console session — nothing here is persisted."""
+    live ISO's current console session — nothing here is persisted.
+
+    `setfont` only ever does anything against a real Linux virtual console
+    (/dev/ttyN) — it is a no-op under any ordinary terminal emulator
+    (kitty, alacritty, a desktop SSH session, ...), which is also how
+    `--mock` is normally driven for fast iteration on the wizard itself.
+    Skipped outright in that case rather than shelling out for nothing."""
+    if MOCK:
+        return
     try:
         subprocess.run(
             ["setfont", f"ter-v{size}n"],
@@ -113,9 +123,13 @@ class FontSizeSlider(Static, can_focus=True):
 
     def _track_text(self) -> str:
         track = "".join("●" if i == self._index else "─" for i in range(len(FONT_SIZES)))
-        return (
-            f"[b]Console font size[/b]  ←  {track}  →  [b]{self.size_pt}pt[/b]\n"
-            "[dim]Focus this control (click or Tab) and press ←/→ — the console font "
+        hint = (
+            "[dim]Preview only in --mock: setfont only affects a real Linux "
+            "console, not this terminal emulator — try it on the actual live "
+            "ISO to see it change anything.[/dim]"
+            if MOCK
+            else "[dim]Focus this control (click or Tab) and press ←/→ — the console font "
             "changes immediately, so pick whatever's actually comfortable to read. "
             "Only affects this wizard session, not the machine you're installing.[/dim]"
         )
+        return f"[b]Console font size[/b]  ←  {track}  →  [b]{self.size_pt}pt[/b]\n{hint}"
