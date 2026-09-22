@@ -3,6 +3,28 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.15.0] - 2026-09-22
+
+### Added
+
+- Releases now attach a `gisnix-installer-vX.Y.Z.iso` (hard-linked to the
+  same build, plus its own `.sha256`) alongside the existing stable
+  `gisnix-installer.iso` — grabbing an exact version no longer means
+  downloading a same-named file as every other release. The stable name
+  is unchanged and still what the docs site's download button points at.
+
+### Fixed
+
+- 0.14.0 crashed with `AttributeError: 'InstallingScreen' object has no
+  attribute 'set_step'` right as the wizard reached the Installing step
+  on a real (non-mock) install — confirmed on bare metal. `InstallingScreen`
+  and `DoneScreen` are plain `Screen` subclasses, not `WizardScreen`, but
+  0.14.0's step-counter code called `set_step()` unconditionally on every
+  screen in the wizard order, those two included. Guarded with a
+  capability check; those two screens simply don't carry a numbered
+  badge, which is correct — they never had the card chrome to number in
+  the first place.
+
 ## [0.14.0] - 2026-09-22
 
 ### Added
