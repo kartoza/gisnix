@@ -3,6 +3,17 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.8.1] - 2026-09-22
+
+### Fixed
+
+- `voxtype-model-loader` (added in 0.8.0) failed with "Failed to run curl:
+  No such file or directory" — a systemd user service's PATH is not
+  `/run/current-system/sw/bin`, so curl (which voxtype's own `setup
+  --download` shells out to) has to be given to the unit explicitly.
+  Confirmed on a real machine: the 0.8.0 fix deployed and ran correctly,
+  it just needed this too.
+
 ## [0.8.0] - 2026-09-22
 
 Two real bugs found migrating the rest of a real fleet (six more hosts)
