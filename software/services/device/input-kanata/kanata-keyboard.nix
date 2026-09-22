@@ -151,6 +151,11 @@ in
     wants = [ "network-online.target" ];
     after = [ "network-online.target" ];
     unitConfig.ConditionUser = "!@system";
+    # voxtype shells out to curl for the actual download. A systemd user
+    # service's PATH is not /run/current-system/sw/bin — curl has to be
+    # handed to it explicitly, confirmed the hard way ("Failed to run
+    # curl: No such file or directory") on a real machine.
+    environment.PATH = lib.makeBinPath [ pkgs.curl ];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
