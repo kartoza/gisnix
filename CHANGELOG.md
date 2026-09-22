@@ -3,6 +3,15 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.12.0] - 2026-09-22
+
+### Added
+
+- herdr layer: `s` for herdr's own `edit_scrollback` (opens pane history
+  in `$EDITOR` for keyboard-only selection and copy), `r` to toggle
+  kanata's own dynamic-macro recorder (slot 0, with a click either way),
+  `p` to play it back.
+
 ## [0.11.0] - 2026-09-22
 
 ### Added
