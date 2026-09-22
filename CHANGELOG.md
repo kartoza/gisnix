@@ -3,6 +3,14 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.11.0] - 2026-09-22
+
+### Added
+
+- Audio cues on voxtype push-to-talk: a short rising sound on press, a
+  falling one on release — distinct from the herdr<->aerc mode-toggle's
+  own beep, so all three stay distinguishable by ear.
+
 ## [0.10.2] - 2026-09-22
 
 ### Fixed
