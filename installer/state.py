@@ -43,6 +43,10 @@ class InstallState:
     # storage step
     storage_mode: str = STORAGE_ZFS_ENCRYPTED_SINGLE
     disks: list[str] = field(default_factory=list)  # one device, or several for zfs-multi
+    #: device -> raw byte size, captured from the same lsblk probe that
+    #: populated the disk picker — writer.render_disks_nix uses this to size
+    #: ZFS dataset quotas against the real disk instead of a fixed guess.
+    disk_sizes: dict[str, int] = field(default_factory=dict)
     zfs_raid_mode: str = "raidz"  # "stripe" | "raidz" | "raidz2", zfs-multi only
     zfs_multi_encrypted: bool = True  # zfs-multi only; single-disk ZFS is always encrypted
     zfs_passphrase: str = ""

@@ -3,7 +3,9 @@ from __future__ import annotations
 from textual.containers import VerticalGroup
 from textual.widgets import Checkbox, Input, Label, RadioButton, RadioSet, Select, SelectionList
 
+from .. import sizing
 from ..repo import list_disks
+from ..sizing import ATUIN_SIZE_BYTES, ESP_SIZE_BYTES
 from ..state import STORAGE_XFS_SINGLE, STORAGE_ZFS_ENCRYPTED_SINGLE, STORAGE_ZFS_MULTI
 from .base import WizardScreen
 
@@ -113,9 +115,33 @@ class StorageScreen(WizardScreen):
         else:
             passphrase = ""
 
+        disk_sizes = {d.device: d.size_bytes for d in self._disks if d.device in selected_disks}
+        if mode == STORAGE_ZFS_ENCRYPTED_SINGLE:
+            try:
+                sizing.quota_plan(
+                    disk_sizes[selected_disks[0]],
+                    esp_bytes=ESP_SIZE_BYTES,
+                    reserved_bytes=ATUIN_SIZE_BYTES,
+                )
+            except sizing.DiskTooSmallError as exc:
+                self.set_error(str(exc), focus="#disk-list")
+                return False
+        elif mode == STORAGE_ZFS_MULTI:
+            usable = sizing.multi_disk_usable_bytes(
+                list(disk_sizes.values()),
+                esp_bytes=ESP_SIZE_BYTES,
+                mode=self.query_one("#raid-mode-select", Select).value,
+            )
+            try:
+                sizing.quota_plan(usable, esp_bytes=0, datasets=("root", "nix", "home"))
+            except sizing.DiskTooSmallError as exc:
+                self.set_error(str(exc), focus="#disk-list")
+                return False
+
         state = self.app.state
         state.storage_mode = mode
         state.disks = selected_disks
+        state.disk_sizes = disk_sizes
         state.zfs_raid_mode = self.query_one("#raid-mode-select", Select).value
         state.zfs_multi_encrypted = encrypted if needs_multi else state.zfs_multi_encrypted
         state.zfs_passphrase = passphrase

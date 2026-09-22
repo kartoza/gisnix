@@ -14,7 +14,12 @@
   encrypted ? true,
   poolName ? "NIXROOT",
   espSize ? "5G",
+  # Fallback defaults for a standalone `import` outside the installer —
+  # it always overrides these via installer/sizing.py, sized against the
+  # real pool capacity. See zfs-encrypted-single.nix's matching comment.
+  rootQuota ? "20G",
   nixQuota ? "300G",
+  homeQuota ? "300G",
 }:
 let
   minDisks = {
@@ -98,6 +103,7 @@ in
             mountpoint = "/";
             options = {
               "com.sun:auto-snapshot" = "false";
+              quota = rootQuota;
             };
             postCreateHook = "zfs snapshot ${poolName}/root@blank";
           };
@@ -114,6 +120,7 @@ in
             mountpoint = "/home";
             options = {
               "com.sun:auto-snapshot" = "true";
+              quota = homeQuota;
             };
           };
         };

@@ -62,6 +62,7 @@ def existing_hosts() -> list[ExistingHost]:
 @dataclass
 class Disk:
     device: str
+    size_bytes: int
     size_human: str
     model: str
 
@@ -69,9 +70,9 @@ class Disk:
 #: Fake disks for --mock: two sizes, so single- and multi-disk storage
 #: modes both have something plausible to pick from.
 _MOCK_DISKS = [
-    Disk(device="/dev/vda", size_human="80.0GB", model="QEMU HARDDISK (mock)"),
-    Disk(device="/dev/vdb", size_human="80.0GB", model="QEMU HARDDISK (mock)"),
-    Disk(device="/dev/vdc", size_human="40.0GB", model="QEMU HARDDISK (mock)"),
+    Disk(device="/dev/vda", size_bytes=80 * 1024**3, size_human="80.0GB", model="QEMU HARDDISK (mock)"),
+    Disk(device="/dev/vdb", size_bytes=80 * 1024**3, size_human="80.0GB", model="QEMU HARDDISK (mock)"),
+    Disk(device="/dev/vdc", size_bytes=40 * 1024**3, size_human="40.0GB", model="QEMU HARDDISK (mock)"),
 ]
 
 
@@ -100,6 +101,7 @@ def list_disks() -> list[Disk]:
         disks.append(
             Disk(
                 device=f"/dev/{dev['name']}",
+                size_bytes=size,
                 size_human=_human_size(size),
                 model=(dev.get("model") or "").strip(),
             )

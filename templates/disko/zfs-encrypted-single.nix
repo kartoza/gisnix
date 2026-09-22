@@ -10,7 +10,15 @@
   device,
   poolName ? "NIXROOT",
   espSize ? "5G",
+  # Fallback defaults for a standalone `import` of this template outside
+  # the installer (e.g. by hand, or `gisnix create-host`). The installer
+  # itself always overrides all four via installer/sizing.py, sized
+  # against the real disk so they leave headroom instead of risking a
+  # 0-byte-free pool — see that module's docstring.
+  rootQuota ? "10G",
   nixQuota ? "20G",
+  homeQuota ? "20G",
+  overflowQuota ? "10G",
   atuinSize ? "1G",
 }:
 {
@@ -72,6 +80,7 @@
             mountpoint = "/";
             options = {
               "com.sun:auto-snapshot" = "false";
+              quota = rootQuota;
             };
             postCreateHook = "zfs snapshot ${poolName}/root@blank";
           };
@@ -90,6 +99,7 @@
             mountpoint = "/home";
             options = {
               "com.sun:auto-snapshot" = "true";
+              quota = homeQuota;
             };
           };
 
@@ -98,6 +108,7 @@
             mountpoint = "/overflow";
             options = {
               "com.sun:auto-snapshot" = "true";
+              quota = overflowQuota;
             };
           };
 

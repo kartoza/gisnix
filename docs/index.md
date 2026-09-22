@@ -152,9 +152,12 @@ Whole-system, reproducible, and never a partial state.
 
 ## Requirements
 
-UEFI boot, Secure Boot off, 20GB of disk at minimum (more if you're
-taking several QGIS versions at once). See the
-[quickstart](user/quickstart.md) for the rest.
+UEFI boot, Secure Boot off, 48GB of disk at minimum (more if you're
+taking several QGIS versions at once). The installer sizes every ZFS
+dataset's quota from the disk you actually pick, always leaving 20GB
+unclaimed as pool headroom — a disk too small for that gets rejected on
+the storage screen instead of failing partway through the install. See
+the [quickstart](user/quickstart.md) for the rest.
 
 ---
 
