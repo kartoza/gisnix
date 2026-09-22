@@ -282,6 +282,45 @@ body,
     color: var(--text-default);
 }
 
+/* Feature-card grid — the landing page's "Install on Your Machine" step
+   cards and "What You Get" summary cards both use this. Auto-fit columns
+   so it reflows from 1 to 3-wide without a breakpoint to maintain. */
+.kz-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.25rem;
+    margin: 1.5rem 0;
+}
+.kz-feature {
+    padding: 1.25rem 1.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--rule-line);
+    background: var(--surface-white);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.kz-feature:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+[data-md-color-scheme="slate"] .kz-feature {
+    background: var(--md-code-bg-color);
+    border-color: var(--md-default-fg-color--lightest);
+}
+[data-md-color-scheme="slate"] .kz-feature:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+.kz-feature h3 {
+    margin-top: 0;
+    font-size: 1.05rem;
+}
+.kz-feature p:last-child {
+    margin-bottom: 0;
+    color: var(--text-muted);
+}
+[data-md-color-scheme="slate"] .kz-feature p:last-child {
+    color: var(--md-default-fg-color--light);
+}
+
 @media (max-width: 768px) {
     .kz-hero {
         grid-template-columns: 1fr;
