@@ -208,18 +208,12 @@ class WizardScreen(Screen):
         widget.styles.width = branding.CORNER_BADGE_WIDTH
         return widget
 
-    def panel(self, title: str, *widgets, tone: str = "secondary", indent: int = 0):
+    def panel(self, title: str, *widgets, tone: str = "secondary"):
         """A bordered, titled group of widgets — call with `yield from` from
         inside `body()`. `tone` is "secondary" (default), "accent", or
-        "danger". `indent` adds that many cells of left margin — a "stack
-        of cards" look (see bundles.py) where each successive card peeks
-        out from under the one above it, rather than every card sitting
-        flush with the left edge."""
+        "danger"."""
         suffix = f"-{tone}" if tone != "secondary" else ""
-        container = Container(classes=f"panel panel{suffix}")
-        if indent:
-            container.styles.margin = (0, 0, 1, indent)
-        with container:
+        with Container(classes=f"panel panel{suffix}"):
             yield Static(title, classes=f"panel-title panel-title{suffix}")
             with Vertical(classes="panel-body"):
                 for widget in widgets:

@@ -17,7 +17,7 @@ from ..writer import LOAD_BEARING
 from .base import WizardScreen
 
 #: Stack order, top (most user-visible) to bottom (foundation) — rendered
-#: as a card each, front-to-back. Must stay the same five names as
+#: as a card each, in that order. Must stay the same five names as
 #: state.DEFAULT_BUNDLES; deliberately hardcoded rather than derived from
 #: that set, since a set has no order of its own to render a stack from.
 #: Tone follows the same split: the two desktop-facing layers get the
@@ -43,10 +43,8 @@ class BundlesScreen(WizardScreen):
             "~/nixos-config and run 'gisnix configure' to add more bundles "
             "of software to your system."
         )
-        for indent, (name, tone) in enumerate(_STACK):
-            yield from self.panel(
-                name, Static(LOAD_BEARING.get(name, "")), tone=tone, indent=indent
-            )
+        for name, tone in _STACK:
+            yield from self.panel(name, Static(LOAD_BEARING.get(name, "")), tone=tone)
 
     def on_next(self) -> bool | None:
         self.app.state.bundles = set(DEFAULT_BUNDLES)
