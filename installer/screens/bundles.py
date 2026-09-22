@@ -13,7 +13,23 @@ from __future__ import annotations
 from textual.widgets import Static
 
 from ..state import DEFAULT_BUNDLES
+from ..writer import LOAD_BEARING
 from .base import WizardScreen
+
+#: Stack order, top (most user-visible) to bottom (foundation) — rendered
+#: as a card each, front-to-back. Must stay the same five names as
+#: state.DEFAULT_BUNDLES; deliberately hardcoded rather than derived from
+#: that set, since a set has no order of its own to render a stack from.
+#: Tone follows the same split: the two desktop-facing layers get the
+#: accent (gold) card, the three plumbing layers underneath stay in the
+#: calmer secondary (blue) card.
+_STACK = [
+    ("desktop-browsers", "accent"),
+    ("desktop-environments-cosmic", "accent"),
+    ("services-device-input-kanata", "secondary"),
+    ("services-system", "secondary"),
+    ("base", "secondary"),
+]
 
 
 class BundlesScreen(WizardScreen):
@@ -22,15 +38,15 @@ class BundlesScreen(WizardScreen):
 
     def body(self):
         yield Static(
-            "Installing with the default bundles:\n\n"
-            + "\n".join(f"  • {name}" for name in sorted(DEFAULT_BUNDLES))
-            + "\n\n"
-            "That's a minimal base system plus a minimal COSMIC desktop. "
-            "Once you're booted in, run `gisnix configure` from "
-            "~/nixos-config to add anything else — the same bundle picker, "
-            "running on the installed system rather than the installer.",
-            id="bundles-summary",
+            "This is a minimal system with COSMIC desktop and browsers. Once "
+            "you reboot into the system post install, you can cd into "
+            "~/nixos-config and run 'gisnix configure' to add more bundles "
+            "of software to your system."
         )
+        for indent, (name, tone) in enumerate(_STACK):
+            yield from self.panel(
+                name, Static(LOAD_BEARING.get(name, "")), tone=tone, indent=indent
+            )
 
     def on_next(self) -> bool | None:
         self.app.state.bundles = set(DEFAULT_BUNDLES)
