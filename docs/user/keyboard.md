@@ -118,20 +118,29 @@ whatever you said gets typed at your cursor. This is
 by default alongside kanata.
 
 Transcription runs entirely on the machine, via whisper.cpp — nothing you
-say is sent anywhere, and it works with no network connection at all
-(voxtype also supports sending audio to a remote API, but gisnix doesn't
-configure that mode, so it's never in play here). The first hold after
-boot may take a moment while the daemon loads its speech model into
-memory; after that, holds are quick.
+say is sent anywhere once it's running (voxtype also supports sending
+audio to a remote API, but gisnix doesn't configure that mode, so it's
+never in play here). The speech model itself (`base.en`) is fetched once,
+the first time the machine has network after install — a
+`voxtype-model-loader` service downloads it before the daemon starts, so
+holding Menu on a machine that has never been online yet does nothing
+until that finishes. After the model is cached on disk, everything is
+offline, including on future boots with no network at all.
 
 A tap of Menu still opens the context menu, unchanged — only the *hold*
 was repurposed for this.
 
-If nothing happens when you hold Menu, check the daemon is running:
+If nothing happens when you hold Menu, check both services:
 
 ```
+systemctl --user status voxtype-model-loader
 systemctl --user status voxtype
 ```
+
+A `voxtype-model-loader` stuck as `activating` (or restarting) means it's
+still waiting on the network, or waiting on it to come back — it retries
+every 30 seconds. `voxtype` itself won't start clean until the loader has
+finished at least once.
 
 See voxtype's own [configuration
 reference](https://github.com/peteonrails/voxtype) for changing the

@@ -132,9 +132,39 @@ in
   # mode voxtype also supports, which gisnix does not configure. The
   # daemon has to stay running for `voxtype record start/stop` (what the
   # Menu-hold above actually runs) to reach it — hence the user service.
+  #
+  # The daemon preloads its whisper.cpp model at startup and hard-fails if
+  # it isn't already on disk — upstream's own answer is `voxtype setup`,
+  # a manual step. That is a real trap on a fresh install: nobody runs it
+  # unprompted, so the service just crash-loops (RestartSec=3, forever)
+  # until someone notices and thinks to run it by hand. Fetching it
+  # ourselves via `pkgs.fetchurl` would be more hermetic, but voxtype
+  # doesn't publish a stable per-model URL/hash to pin against; this
+  # mirrors upstream's own home-manager module instead (services.voxtype
+  # in github:peteonrails/voxtype's modules/services/voxtype.nix) — a
+  # `voxtype-model-loader` oneshot that runs the same download the manual
+  # step would, gated on the network actually being up, before the daemon
+  # ever tries to preload anything.
+  systemd.user.services.voxtype-model-loader = {
+    description = "Download voxtype's speech model";
+    before = [ "voxtype.service" ];
+    wants = [ "network-online.target" ];
+    after = [ "network-online.target" ];
+    unitConfig.ConditionUser = "!@system";
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = "${pkgs.voxtype}/bin/voxtype setup --download --model base.en --no-post-install";
+      Restart = "on-failure";
+      RestartSec = 30;
+    };
+  };
+
   systemd.user.services.voxtype = {
     description = "voxtype push-to-talk voice-to-text daemon";
     wantedBy = [ "default.target" ];
+    wants = [ "voxtype-model-loader.service" ];
+    after = [ "voxtype-model-loader.service" ];
     unitConfig.ConditionUser = "!@system";
     serviceConfig = {
       Type = "simple";
