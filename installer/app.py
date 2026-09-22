@@ -95,6 +95,35 @@ class InstallerApp(App):
         border: solid $error !important;
         background: $error 45% !important;
     }
+    /* Buttons specifically get a blue focus with a bevel — light
+       top/left edges, dark bottom/right — rather than the generic accent
+       tint above (this rule is declared after it, so it wins for
+       Button:focus specifically; the two selectors have equal
+       specificity, so cascade order is what decides it). The bevel is a
+       raised-button illusion built from plain "solid" box-drawing with
+       asymmetric edge colours, not Textual's own "tall" border style —
+       that one draws itself from eighth-block characters the console
+       font can't render (see this class's CSS comment above). Pressing
+       Enter/clicking briefly adds Textual's OWN "-active" class (Button's
+       stock press-tracking, 0.2s by default — nothing custom here needs
+       to drive that timing); inverting which edges are light vs dark for
+       that moment is what reads as the button sinking in rather than
+       just flashing a different colour. */
+    Button:focus {
+        border-top: solid $secondary-light !important;
+        border-left: solid $secondary-light !important;
+        border-right: solid $secondary-dark !important;
+        border-bottom: solid $secondary-dark !important;
+        background: $secondary 35% !important;
+        text-style: bold !important;
+    }
+    Button:focus.-active {
+        border-top: solid $secondary-dark !important;
+        border-left: solid $secondary-dark !important;
+        border-right: solid $secondary-light !important;
+        border-bottom: solid $secondary-light !important;
+        background: $secondary 55% !important;
+    }
     *:focus {
         text-style: bold;
     }

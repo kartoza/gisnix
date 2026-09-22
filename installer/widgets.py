@@ -84,8 +84,8 @@ class FontSizeSlider(Static, can_focus=True):
 
     DEFAULT_CSS = """
     FontSizeSlider {
-        border: solid $surface-lighten-2;
-        padding: 0 1;
+        border: solid $secondary;
+        padding: 1 2;
         height: auto;
         margin-top: 1;
     }
@@ -129,7 +129,13 @@ class FontSizeSlider(Static, can_focus=True):
         set_console_font_size(self.size_pt)
 
     def _track_text(self) -> str:
-        track = "".join("●" if i == self._index else "─" for i in range(len(FONT_SIZES)))
+        # Spaced out, not packed tight — a wider control reads as more
+        # prominent/"bigger" than the same 9 marks jammed together, which
+        # is the one part of this control actually adjustable: the number
+        # of selectable sizes is fixed by what Terminus's "v" charset
+        # ships (12-32, in FONT_SIZES above) — there is no ter-v36n or
+        # ter-v8n file to fall back to, so that range itself can't grow.
+        track = "  ".join("●" if i == self._index else "─" for i in range(len(FONT_SIZES)))
         hint = (
             "[dim]Preview only in --mock: setfont only affects a real Linux "
             "console, not this terminal emulator — try it on the actual live "

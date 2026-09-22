@@ -85,6 +85,24 @@ def load() -> dict:
         return _FALLBACK
 
 
+def _blend(hex_color: str, toward: tuple[int, int, int], amount: float) -> str:
+    """`hex_color` blended `amount` (0..1) of the way toward an RGB
+    triple — plain linear interpolation, no colour-space cleverness
+    needed for a UI bevel. Used instead of Textual's `$var-lighten-N` /
+    `$var-darken-N` suffixes: those are only generated for Textual's OWN
+    built-in ColorSystem roles, not for the flat literal values this
+    module injects via get_css_variables() — a `$secondary-lighten-1`
+    reference would silently resolve against nothing (or crash the
+    stylesheet), not against Kartoza's blue. Computing the shades here as
+    ordinary hex strings sidesteps the question entirely."""
+    v = hex_color.lstrip("#")
+    r, g, b = int(v[0:2], 16), int(v[2:4], 16), int(v[4:6], 16)
+    tr, tg, tb = toward
+    return "#{:02X}{:02X}{:02X}".format(
+        round(r + (tr - r) * amount), round(g + (tg - g) * amount), round(b + (tb - b) * amount)
+    )
+
+
 def textual_css_vars() -> str:
     """Render the palette as Textual CSS custom-ish constants (a `$var:` block
     is not native to Textual CSS, so this returns literal color values keyed
@@ -92,9 +110,19 @@ def textual_css_vars() -> str:
     brand = load()
     roles = brand.get("roles", _FALLBACK["roles"])
     neutrals = brand.get("neutrals", _FALLBACK["neutrals"])
+    secondary = roles.get("secondary", _FALLBACK["roles"]["secondary"])
     return {
         "primary": roles.get("primary", _FALLBACK["roles"]["primary"]),
-        "secondary": roles.get("secondary", _FALLBACK["roles"]["secondary"]),
+        "secondary": secondary,
+        # A light/dark pair off the same blue, for a raised-vs-sunk bevel
+        # on focused buttons (app.py) — light top-left edges read as "lit
+        # from above", dark bottom-right as the corresponding shadow;
+        # swapping which pair sits on which edge is what makes a press
+        # look like it sinks in, without needing Textual's own eighth-block
+        # "tall" border style (the console font can't render those glyphs
+        # — see app.py's own comment on that).
+        "secondary-light": _blend(secondary, (255, 255, 255), 0.35),
+        "secondary-dark": _blend(secondary, (0, 0, 0), 0.45),
         "accent": roles.get("accent", _FALLBACK["roles"]["accent"]),
         "muted": roles.get("muted", _FALLBACK["roles"]["muted"]),
         "danger": roles.get("danger", _FALLBACK["roles"]["danger"]),
