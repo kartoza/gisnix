@@ -58,16 +58,21 @@ Once the tag lands, `.github/workflows/release.yml` runs unattended:
 1. Checks out the tag.
 2. Builds `nixosConfigurations.installer.config.system.build.isoImage` — a
    full ISO build, so this takes a while.
-3. Copies the result to a **stable filename**, `gisnix-installer.iso` (plus
-   a `.sha256` alongside it) — not one with the version baked in. That is
-   what makes
-   `https://github.com/kartoza/gisnix/releases/latest/download/gisnix-installer.iso`
-   a permanent link, which is what the docs site's download button points
-   at.
+3. Copies the result to two filenames (each with a `.sha256` alongside it),
+   the same bytes both times:
+   - `gisnix-installer.iso` — always this name, never one with the version
+     baked in. That is what makes
+     `https://github.com/kartoza/gisnix/releases/latest/download/gisnix-installer.iso`
+     a permanent link, which is what the docs site's download button points
+     at.
+   - `gisnix-installer-vX.Y.Z.iso` — a hard link to the same file, named for
+     this specific release, for grabbing an exact version rather than
+     whatever "latest" currently means (testing a fix, pinning to a
+     known-good ISO, browsing several versions on the Releases page).
 4. Extracts this version's section out of `CHANGELOG.md` (step 2 above) as
    the release body.
-5. Publishes a GitHub Release named `gisnix vX.Y.Z`, tag `vX.Y.Z`, with the
-   ISO and checksum attached.
+5. Publishes a GitHub Release named `gisnix vX.Y.Z`, tag `vX.Y.Z`, with both
+   ISOs and both checksums attached.
 
 No manual "are you sure" gate exists beyond the tag push itself — treat
 `git push origin vX.Y.Z` as the point of no return, not the commit before

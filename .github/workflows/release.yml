@@ -3,11 +3,18 @@
 # section for that version, so there is exactly one place that describes a
 # release (Keep a Changelog format, see CHANGELOG.md's own header).
 #
-# The ISO is always uploaded under the same filename (gisnix-installer.iso),
-# not one with the version baked in — that is what makes
-# https://github.com/kartoza/gisnix/releases/latest/download/gisnix-installer.iso
-# a stable link across every release, which is what the docs site's
-# "Download Now!" button points at.
+# The ISO is uploaded under TWO names on every release:
+#   - gisnix-installer.iso — always this exact filename, which is what
+#     makes https://github.com/kartoza/gisnix/releases/latest/download/
+#     gisnix-installer.iso a stable link across every release; the docs
+#     site's "Download Now!" button points at it and must never need to
+#     change when a new version ships.
+#   - gisnix-installer-vX.Y.Z.iso — the same bytes, named for a specific
+#     release. Grabbing an exact, unambiguous version (testing a fix,
+#     pinning to a known-good ISO, browsing the Releases page's asset
+#     list across several versions) means downloading a different-named
+#     file each time, not the same "gisnix-installer.iso" every release
+#     reuses.
 
 name: Release
 
@@ -66,7 +73,7 @@ jobs:
       - name: Build installer ISO
         run: nix build .#nixosConfigurations.installer.config.system.build.isoImage --print-build-logs
 
-      - name: Rename ISO to a stable filename
+      - name: Rename ISO to the stable + versioned filenames
         run: |
           iso="$(find result/iso -maxdepth 1 -name '*.iso' | head -n1)"
           if [ -z "$iso" ]; then
@@ -75,7 +82,13 @@ jobs:
           fi
           mkdir -p dist
           cp "$iso" dist/gisnix-installer.iso
+          # Hard link, not a second copy — same file on the same
+          # filesystem, so this costs no extra disk on a runner an
+          # earlier step already had to free space on for the ISO build.
+          ln dist/gisnix-installer.iso "dist/gisnix-installer-${{ steps.version.outputs.tag }}.iso"
           sha256sum dist/gisnix-installer.iso > dist/gisnix-installer.iso.sha256
+          sha256sum "dist/gisnix-installer-${{ steps.version.outputs.tag }}.iso" \
+            > "dist/gisnix-installer-${{ steps.version.outputs.tag }}.iso.sha256"
 
       # CHANGELOG.md sections are "## [X.Y.Z] - date"; the release body is
       # everything between this version's heading and the next "## [" line
@@ -103,3 +116,5 @@ jobs:
           files: |
             dist/gisnix-installer.iso
             dist/gisnix-installer.iso.sha256
+            dist/gisnix-installer-${{ steps.version.outputs.tag }}.iso
+            dist/gisnix-installer-${{ steps.version.outputs.tag }}.iso.sha256
