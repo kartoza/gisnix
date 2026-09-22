@@ -50,6 +50,14 @@
   # thing (Menu opens the context menu, right Ctrl is still Ctrl); only
   # the hold changes.
   voxtypePtt ? false,
+  # The voxtype package — needed only when voxtypePtt is true, to give the
+  # `cmd voxtype record start`/`stop` actions below an ABSOLUTE path.
+  # kanata itself runs as a system service, and system services don't get
+  # /run/current-system/sw/bin on PATH any more than user services do
+  # (same lesson as voxtype-model-loader's curl, confirmed the same way:
+  # "Failed to execute program voxtype: No such file or directory" on a
+  # real machine, even with voxtype in environment.systemPackages).
+  voxtypePackage ? null,
   # Opt-in clipboard holds on x/c/v, transcribed from the Sonsei's superkeys
   # 9/20/21: tap the letter, hold it for the clipboard action. Note the
   # asymmetry is the Sonsei's own — copy is Ctrl+C (not Ctrl+Shift+C) while
@@ -177,20 +185,24 @@ let
         rctl-ptt (tap-hold ${toString tapTimeout} ${toString holdTimeout} rctl (multi (on-press-fakekey voxtype-start tap) (on-release-fakekey voxtype-stop tap)))
       '';
 
-  # Fake keys the menu-hold action above taps — kanata runs the `cmd` each
-  # is bound to when tapped, so pressing/releasing the real Menu key becomes
-  # `voxtype record start`/`voxtype record stop`. voxtype's own daemon has
-  # to already be running (systemd --user service) for these to reach it.
-  # No path to the voxtype binary here — it has to already be on PATH,
-  # which the bundle that turns voxtypePtt on is responsible for.
+  # Fake keys the menu-hold/rctl-hold actions above tap — kanata runs the
+  # `cmd` each is bound to when tapped, so pressing/releasing the real key
+  # becomes `voxtype record start`/`voxtype record stop`. voxtype's own
+  # daemon has to already be running (systemd --user service) for these to
+  # reach it. Absolute path to the binary — kanata runs as a SYSTEM
+  # service, which doesn't get /run/current-system/sw/bin on its own PATH,
+  # so a bare "voxtype" fails with "No such file or directory" even though
+  # the package is installed and on PATH for an interactive shell.
+  voxtypeBin = "${voxtypePackage}/bin/voxtype";
+
   voxtypeVirtualKeys =
     if !voxtypePtt then
       ""
     else
       ''
         (defvirtualkeys
-          voxtype-start (cmd voxtype record start)
-          voxtype-stop (cmd voxtype record stop)
+          voxtype-start (cmd ${voxtypeBin} record start)
+          voxtype-stop (cmd ${voxtypeBin} record stop)
         )
       '';
 

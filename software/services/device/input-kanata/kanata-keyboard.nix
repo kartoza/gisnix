@@ -101,6 +101,7 @@ in
           # default along with everything else here.
           clipboardHolds = true;
           inherit voxtypePtt;
+          voxtypePackage = pkgs.voxtype;
         };
       };
     };
