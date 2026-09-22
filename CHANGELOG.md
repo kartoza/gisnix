@@ -3,6 +3,32 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.16.0] - 2026-09-22
+
+### Added
+
+- The "New machine, or a known profile?" step is skipped when there are
+  no bundled host profiles to choose between — that screen's only real
+  content is "install an existing profile" vs. the already-selected
+  "create a new host," which isn't a choice with nothing to pick from.
+  Step numbering compresses to match (no gap in "Step X of Y").
+- Buttons get a blue focus bevel (light top/left, dark bottom/right)
+  that inverts — sinks in — for the brief moment Enter/click holds them,
+  instead of the same flat accent tint every other focusable widget uses.
+- `installer/tests/`: 27 regression tests covering the wizard's own
+  navigation plumbing, ZFS quota math, generated Nix syntax, and the new
+  button styling — added after a real incident (see 0.15.0's crash fix)
+  exposed that nothing had ever exercised pushing every registered
+  screen. `pytest installer/tests` from the repo root; `pytest` is now
+  provisioned in the dev shell alongside `textual`.
+
+### Fixed
+
+- The software-selection screen's bundle stack showed each bundle's full
+  `LOAD_BEARING` description under its title, pushing the list well past
+  one screen — descriptions dropped, each bundle is now a single-row
+  colour bar; order and tone alone carry the "stack" idea.
+
 ## [0.15.0] - 2026-09-22
 
 ### Added
