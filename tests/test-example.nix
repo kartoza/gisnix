@@ -41,6 +41,15 @@
           hostname = "example";
         };
 
+        # unfree.nix (pulled in by profiles/common.nix) unconditionally sets
+        # nixpkgs.config to fold in kartoza.unfreePackages/insecurePackages —
+        # fine in prod, where nixpkgs.config merges as a plain attrs, but
+        # runNixOSTest pins nixpkgs.config read-only (see node.pkgs above),
+        # so that second definition collides with the one read-only.nix
+        # derives from node.pkgs. The test doesn't need unfree packages, so
+        # just disable the module here.
+        disabledModules = [ ./../software/services/system/unfree.nix ];
+
         imports = [
           inputs.agenix.nixosModules.default
 
