@@ -715,7 +715,14 @@
           # UEFI, and TTY. Persists the test disk (tuinix-style) across runs
           # so a completed install survives a reboot for inspection; delete
           # gisnix-test.qcow2 to start over.
-          test-install = {
+          #
+          # Named test-install-impl, not test-install: utils/test-install.sh
+          # (a commands.json row, so `gisnix test-install` shows up in the
+          # table) execs `nix run .#test-install-impl` to reach this. Naming
+          # this app plain "test-install" made commandApps' merge (below,
+          # via `//`) silently override it with the wrapper — which itself
+          # execs `nix run .#test-install`, recursing into itself forever.
+          test-install-impl = {
             type = "app";
             program = toString (
               defaultPkgs.writeShellScript "test-install" ''
@@ -772,7 +779,10 @@
           # imports) — those changes won't be in an ISO built before them,
           # and this command has no way to tell the two cases apart. Use
           # test-install itself when in doubt.
-          test-boot = {
+          #
+          # Named test-boot-impl for the same reason test-install-impl is —
+          # see that app's comment.
+          test-boot-impl = {
             type = "app";
             program = toString (
               defaultPkgs.writeShellScript "test-boot" ''
