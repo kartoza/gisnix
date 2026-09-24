@@ -169,12 +169,22 @@
   # than a radio it couldn't connect with.
   hardware.enableRedistributableFirmware = true;
 
-  # SSH: installed for rescue use but NOT started by default — the live ISO
-  # has a well-known root password, so exposing sshd unsolicited would let
-  # anyone on the LAN log in during installation. To enable rescue access:
+  # SSH: installed for rescue use but NOT started by default on real
+  # hardware — the live ISO has a well-known root password, so exposing
+  # sshd unsolicited would let anyone on the LAN log in during
+  # installation. To enable rescue access on real hardware:
   # passwd && systemctl start sshd
+  #
+  # ConditionVirtualization scopes the exception: `gisnix test-install`
+  # boots this exact same ISO under QEMU, reachable only via a
+  # localhost-only hostfwd port (never the LAN) — see flake.nix's
+  # test-install app. sshd auto-starting there costs nothing security-wise
+  # and is what `gisnix test-shell`/`test-logs` depend on to work
+  # unattended. The condition is false on bare metal, so this changes
+  # nothing about a real install's default-off posture.
   services.openssh.enable = true;
-  systemd.services.sshd.wantedBy = lib.mkForce [ ];
+  systemd.services.sshd.wantedBy = lib.mkForce [ "multi-user.target" ];
+  systemd.services.sshd.unitConfig.ConditionVirtualization = "qemu";
 
   users.users.root = {
     password = "gisnix";

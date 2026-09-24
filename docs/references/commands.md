@@ -19,7 +19,7 @@ Every command this flake provides. One row in `utils/commands.json` mints all of
 
 This page is the sixth, generated from the same row.
 
-**33 implemented**, 5 declared but not yet written. Commands still to be built are listed rather than hidden: the manifest describes the intended lifecycle, not only the part of it that exists.
+**37 implemented**, 5 declared but not yet written. Commands still to be built are listed rather than hidden: the manifest describes the intended lifecycle, not only the part of it that exists.
 
 ## The life of a host
 
@@ -142,8 +142,12 @@ graph LR
 | Command | Key | What it does |
 | --- | --- | --- |
 | [`vm`](#vm) | `<leader>pQ` | run a host in a VM |
+| [`test-install`](#test-install) | `<leader>pr` | run the real installer in a VM |
+| [`test-boot`](#test-boot) | `<leader>px` | relaunch the test-install VM |
+| [`test-shell`](#test-shell) | `<leader>ph` | ssh into the test-install VM |
+| [`test-logs`](#test-logs) | `<leader>pj` | fetch the test-install log |
+| [`makeiso`](#makeiso) | `<leader>pm` | build the installer ISO |
 | [`create-win11-vm`](#create-win11-vm) | `<leader>pv` | build a Windows 11 VM |
-| [`capture-boot`](#capture-boot) | `<leader>pC` | screenshot a QEMU boot |
 
 ## Host lifecycle
 
@@ -777,10 +781,10 @@ gisnix keyboard-diagrams
 
 ### vm
 
-Run any host's configuration in QEMU — quick boot by default, or --boot for the full UEFI/GRUB/Plymouth sequence.
+Run any host's configuration in QEMU, quick boot (kernel+initrd direct, no GRUB/Plymouth) — --boot is disabled for now, see project_virtiofsd_zfs_eperm memory.
 
 ```bash
-gisnix vm [<host>] [--boot] [--quick] [--list]
+gisnix vm [<host>] [--list]
 ```
 
 | | |
@@ -788,6 +792,78 @@ gisnix vm [<host>] [--boot] [--quick] [--list]
 | Implementation | `utils/vm.sh` |
 | Neovim | `<leader>pQ` |
 | On PATH | `coreutils`, `git`, `findutils`, `gnugrep`, `nettools`, `nix` |
+
+### test-install
+
+Build the installer ISO and boot it in QEMU (real UEFI, persistent 50G test disk) to run through the actual install wizard.
+
+```bash
+gisnix test-install
+```
+
+| | |
+| --- | --- |
+| Implementation | `utils/test-install.sh` |
+| Neovim | `<leader>pr` |
+| On PATH | `coreutils`, `git`, `nix` |
+
+### test-boot
+
+Relaunch the ISO/disk test-install already built, without rebuilding.
+
+```bash
+gisnix test-boot
+```
+
+| | |
+| --- | --- |
+| Implementation | `utils/test-boot.sh` |
+| Neovim | `<leader>px` |
+| On PATH | `coreutils`, `git`, `nix` |
+
+### test-shell
+
+SSH into the running `gisnix test-install`/`test-boot` QEMU VM (host-key checking off, password auto-supplied — throwaway, localhost-only).
+
+```bash
+gisnix test-shell
+```
+
+| | |
+| --- | --- |
+| Implementation | `utils/test-shell.sh` |
+| Neovim | `<leader>ph` |
+| Shared libraries | `utils/lib/test-vm.sh` |
+| On PATH | `coreutils`, `openssh`, `sshpass` |
+
+### test-logs
+
+Copy /mnt/gisnix-install.log off the running test-install VM to gisnix-install.log in the repo root (gitignored).
+
+```bash
+gisnix test-logs
+```
+
+| | |
+| --- | --- |
+| Implementation | `utils/test-logs.sh` |
+| Neovim | `<leader>pj` |
+| Shared libraries | `utils/lib/test-vm.sh` |
+| On PATH | `coreutils`, `git`, `openssh`, `sshpass` |
+
+### makeiso
+
+Build the installer ISO, named the way release.yml names a GitHub Release asset (dist/gisnix-installer.iso + a vX.Y.Z-named copy, each with a .sha256).
+
+```bash
+gisnix makeiso
+```
+
+| | |
+| --- | --- |
+| Implementation | `utils/makeiso.sh` |
+| Neovim | `<leader>pm` |
+| On PATH | `coreutils`, `git`, `nix`, `findutils` |
 
 ### create-win11-vm
 
@@ -802,20 +878,6 @@ gisnix create-win11-vm
 | Implementation | `utils/create-win11-vm.sh` |
 | Neovim | `<leader>pv` |
 | On PATH | `coreutils`, `nix`, `libvirt`, `systemd` |
-
-### capture-boot
-
-Capture a frame per second from a QEMU boot window, for boot-splash work.
-
-```bash
-gisnix capture-boot
-```
-
-| | |
-| --- | --- |
-| Implementation | `utils/capture-boot.sh` |
-| Neovim | `<leader>pC` |
-| On PATH | `coreutils`, `git`, `nix`, `gnused` |
 
 ---
 

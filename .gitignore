@@ -1,5 +1,6 @@
 result
 result-*
+/dist/
 .direnv/
 /.cache/
 .envrc.local
@@ -7,6 +8,7 @@ __pycache__/
 *.pyc
 *.qcow2
 .gisnix-test-OVMF_VARS.fd
+/gisnix-install.log
 /site/
 /pdfs/
 PROMPT.log

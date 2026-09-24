@@ -113,6 +113,28 @@ def run_install(state: InstallState) -> Iterator[str]:
 
     yield "── Partitioning and formatting (disko) ──"
     yield "THIS ERASES THE TARGET DISK(S). No further confirmation follows."
+
+    # Defensive: if an earlier attempt this same boot session got far
+    # enough to create the pool, it's still imported in the kernel even
+    # after disko's `--mode destroy` wipes the on-disk partition table —
+    # zpool import state isn't tracked via the GPT. A retry then fails at
+    # `zpool create` with "a pool with that name already exists", even
+    # though the disk itself is now blank. Export it first, best-effort;
+    # a genuine first attempt has nothing to export and this is a no-op.
+    # Every disko template in templates/disko/ defaults poolName to this,
+    # and the wizard has no option to override it, so it's always the
+    # right name to check for.
+    if (
+        subprocess.run(
+            ["zpool", "export", "-f", "NIXROOT"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        ).returncode
+        == 0
+    ):
+        yield "Exported a NIXROOT pool left imported by an earlier attempt this session."
+
     # --flake, not a raw disks.nix path: disks.nix takes `gisnixRoot` as a
     # module argument (see writer.render_disks_nix), which only exists once
     # evaluated as part of the full host through mkHost's specialArgs —

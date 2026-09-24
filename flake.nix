@@ -418,13 +418,16 @@
         "docs-generate-commands"
         "docs-generate-hosts"
         "docs-generate-software"
-        "test-install"
-        "test-boot"
+        # test-install/test-boot are NOT here — they're commands.json rows
+        # now (utils/test-install.sh, utils/test-boot.sh) that just exec
+        # these same apps, so they show up in the `gisnix` table. Listing
+        # them here too would just be a redundant, unreachable case branch.
       ]
-      ++ builtins.concatMap (h: [
-        "${h}-vm"
-        "${h}-bootvm"
-      ]) allHosts
+      # Deliberately NOT ${h}-vm/${h}-bootvm here — those apps still exist
+      # (vm.sh's `nix run .#<host>-vm` depends on it) but aren't first-class
+      # dispatcher commands: they were redundant with `gisnix vm <host>`
+      # and bloated `gisnix --list` with one entry per host. ${h}-bootvm
+      # doubly so — it's also the disabled --boot path (see vm.sh).
       ++ builtins.concatMap (h: [ "${h}-deploy" ]) deployableHosts;
 
       # Docs site: mkdocs-material and the interpreter used by
@@ -728,8 +731,8 @@
 
                 DISK="gisnix-test.qcow2"
                 if [ ! -f "$DISK" ]; then
-                  echo "Creating 40G test disk..."
-                  ${defaultPkgs.qemu}/bin/qemu-img create -f qcow2 "$DISK" 40G
+                  echo "Creating 50G test disk..."
+                  ${defaultPkgs.qemu}/bin/qemu-img create -f qcow2 "$DISK" 50G
                 fi
 
                 OVMF_CODE="${defaultPkgs.OVMF.fd}/FV/OVMF_CODE.fd"
@@ -758,7 +761,7 @@
                   -name "gisnix installer test"
               ''
             );
-            meta.description = "Build the installer ISO and boot it in QEMU with a persistent 40G test disk";
+            meta.description = "Build the installer ISO and boot it in QEMU with a persistent 50G test disk";
           };
           # Same QEMU launch as test-install, but skips `nix build` entirely
           # when result/iso already has one — for relaunching after closing

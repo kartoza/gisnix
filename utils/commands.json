@@ -707,7 +707,7 @@
       "key": "Q",
       "group": "vm",
       "order": 0,
-      "desc": "Run any host's configuration in QEMU \u2014 quick boot by default, or --boot for the full UEFI/GRUB/Plymouth sequence",
+      "desc": "Run any host's configuration in QEMU, quick boot (kernel+initrd direct, no GRUB/Plymouth) \u2014 --boot is disabled for now, see project_virtiofsd_zfs_eperm memory",
       "terse": "run a host in a VM",
       "deps": [
         "coreutils",
@@ -717,14 +717,88 @@
         "nettools",
         "nix"
       ],
-      "usage": "gisnix vm [<host>] [--boot] [--quick] [--list]"
+      "usage": "gisnix vm [<host>] [--list]"
+    },
+    {
+      "name": "test-install",
+      "file": "test-install.sh",
+      "key": "r",
+      "group": "vm",
+      "order": 1,
+      "desc": "Build the installer ISO and boot it in QEMU (real UEFI, persistent 50G test disk) to run through the actual install wizard",
+      "terse": "run the real installer in a VM",
+      "deps": [
+        "coreutils",
+        "git",
+        "nix"
+      ]
+    },
+    {
+      "name": "test-boot",
+      "file": "test-boot.sh",
+      "key": "x",
+      "group": "vm",
+      "order": 2,
+      "desc": "Relaunch the ISO/disk test-install already built, without rebuilding",
+      "terse": "relaunch the test-install VM",
+      "deps": [
+        "coreutils",
+        "git",
+        "nix"
+      ]
+    },
+    {
+      "name": "test-shell",
+      "file": "test-shell.sh",
+      "key": "h",
+      "group": "vm",
+      "order": 3,
+      "desc": "SSH into the running `gisnix test-install`/`test-boot` QEMU VM (host-key checking off, password auto-supplied — throwaway, localhost-only)",
+      "terse": "ssh into the test-install VM",
+      "prelude": [ "test-vm.sh" ],
+      "deps": [
+        "coreutils",
+        "openssh",
+        "sshpass"
+      ]
+    },
+    {
+      "name": "test-logs",
+      "file": "test-logs.sh",
+      "key": "j",
+      "group": "vm",
+      "order": 4,
+      "desc": "Copy /mnt/gisnix-install.log off the running test-install VM to gisnix-install.log in the repo root (gitignored)",
+      "terse": "fetch the test-install log",
+      "prelude": [ "test-vm.sh" ],
+      "deps": [
+        "coreutils",
+        "git",
+        "openssh",
+        "sshpass"
+      ]
+    },
+    {
+      "name": "makeiso",
+      "file": "makeiso.sh",
+      "key": "m",
+      "group": "vm",
+      "order": 5,
+      "desc": "Build the installer ISO, named the way release.yml names a GitHub Release asset (dist/gisnix-installer.iso + a vX.Y.Z-named copy, each with a .sha256)",
+      "terse": "build the installer ISO",
+      "deps": [
+        "coreutils",
+        "git",
+        "nix",
+        "findutils"
+      ]
     },
     {
       "name": "create-win11-vm",
       "file": "create-win11-vm.sh",
       "key": "v",
       "group": "vm",
-      "order": 1,
+      "order": 6,
       "desc": "Create a Windows 11 VM under libvirt with sensible defaults",
       "terse": "build a Windows 11 VM",
       "deps": [
@@ -732,21 +806,6 @@
         "nix",
         "libvirt",
         "systemd"
-      ]
-    },
-    {
-      "name": "capture-boot",
-      "file": "capture-boot.sh",
-      "key": "C",
-      "group": "vm",
-      "order": 2,
-      "desc": "Capture a frame per second from a QEMU boot window, for boot-splash work",
-      "terse": "screenshot a QEMU boot",
-      "deps": [
-        "coreutils",
-        "git",
-        "nix",
-        "gnused"
       ]
     },
     {

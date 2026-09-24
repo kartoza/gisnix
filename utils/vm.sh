@@ -1,29 +1,25 @@
 #!/usr/bin/env bash
 #
-# vm — run a host's configuration in a QEMU virtual machine.
+# vm — run a host's configuration in a QEMU virtual machine, quick boot.
 #
 #   gisnix vm                  # this machine, quick boot
 #   gisnix vm myhost           # another host, quick boot
-#   gisnix vm myhost --boot    # the full boot: UEFI/GRUB, then Plymouth
 #   gisnix vm --list           # which hosts can be run
 #
-# TWO VARIANTS, AND WHY BOTH EXIST
+# QEMU loads the kernel and initrd DIRECTLY. GRUB never runs and Plymouth
+# never shows. Headless, and the fastest way to answer "does this
+# configuration come up at all".
 #
-#   quick (default)  QEMU loads the kernel and initrd DIRECTLY. GRUB never
-#                    runs and Plymouth never shows. Headless, and the fastest
-#                    way to answer "does this configuration come up at all".
-#
-#   --boot           Boots through the bootloader, graphically: GRUB with its
-#                    theme, then the Plymouth splash. This is the one for
-#                    working on the boot EXPERIENCE — branding, resolution,
-#                    the splash — without rebooting real hardware.
-#                    See profiles/boot-vm.nix for the overrides; the writable
-#                    qcow is wiped on every run, so a stale disk cannot
-#                    silently re-run the previous configuration.
-#
-# Neither touches the machine you are sitting at. The login is whatever the
+# Does not touch the machine you are sitting at. The login is whatever the
 # host's users declare; a VM built from a host with disk encryption will ask
 # for the passphrase exactly as the real one does.
+#
+# --boot (full GRUB/Plymouth boot, was here previously) is disabled for now
+# — see memory project_virtiofsd_zfs_eperm.md: its disk-image build hits a
+# virtiofsd/ZFS EPERM that panics the inner builder VM on this fleet. The
+# root cause and fix are known (an overlay forcing virtiofsd
+# --inode-file-handles=never) but not yet applied. To test an actual
+# install instead of previewing a boot theme, use `gisnix test-install`.
 set -uo pipefail
 
 REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || true)
@@ -33,7 +29,6 @@ REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || true)
 }
 cd "$REPO_ROOT" || exit 1
 
-BOLD=$'\033[1m'
 DIM=$'\033[2m'
 NC=$'\033[0m'
 
@@ -43,13 +38,16 @@ usage() {
   awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"
 }
 
-VARIANT=vm
 HOST=""
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    --boot | --full) VARIANT=bootvm ;;
-    --quick) VARIANT=vm ;;
+    --boot | --full)
+      echo "vm: --boot is disabled for now — its disk-image build is known-broken on this fleet." >&2
+      echo "    See memory project_virtiofsd_zfs_eperm.md. Use 'gisnix test-install' to test a real install." >&2
+      exit 1
+      ;;
+    --quick) ;; # already the only mode
     --list)
       hosts
       exit 0
@@ -78,7 +76,7 @@ if [ -z "$HOST" ]; then
   self="$(hostname -s 2>/dev/null || true)"
   if hosts | grep -qx "$self"; then
     HOST="$self"
-    printf '  %sno host given — defaulting to this machine: %s%s%s\n' "$DIM" "$NC$BOLD" "$HOST" "$NC"
+    printf '  %sno host given — defaulting to this machine: %s%s\n' "$DIM" "$HOST" "$NC"
   else
     echo "vm: this machine (${self:-unknown}) is not a host here." >&2
     echo "    Name one: $(hosts | tr '\n' ' ')" >&2
@@ -92,12 +90,7 @@ hosts | grep -qx "$HOST" || {
   exit 1
 }
 
-if [ "$VARIANT" = bootvm ]; then
-  printf '  %sfull boot — UEFI/GRUB, then Plymouth. Graphical window.%s\n' "$DIM" "$NC"
-else
-  printf '  %squick boot — kernel loaded directly, no GRUB or Plymouth.%s\n' "$DIM" "$NC"
-  printf '  %s%s for the full boot sequence.%s\n' "$DIM" "gisnix vm $HOST --boot" "$NC"
-fi
+printf '  %squick boot — kernel loaded directly, no GRUB or Plymouth.%s\n' "$DIM" "$NC"
 echo
 
-exec nix run ".#${HOST}-${VARIANT}"
+exec nix run ".#${HOST}-vm"
