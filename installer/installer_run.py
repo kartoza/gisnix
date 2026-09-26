@@ -217,17 +217,31 @@ def run_install(state: InstallState) -> Iterator[str]:
     ]
 
     yield "── Building the system ──"
-    toplevel_link = work_dir / "system-toplevel"
-    yield from _stream(
-        nix
-        + [
-            "build",
-            f"{work_dir}#nixosConfigurations.{state.hostname}-install.config.system.build.toplevel",
-            "--out-link",
-            str(toplevel_link),
-        ]
+    # --no-link --print-out-paths, NOT --out-link: an out-link would drop a
+    # `system-toplevel` symlink into work_dir, and the final "copy the flake
+    # into the new machine" step below shutil.copytree()s work_dir — which
+    # would then follow that symlink into the store and die on its internal
+    # symlinks. Print the path to stdout instead and leave work_dir holding
+    # only the flake files it should.
+    build_cmd = nix + [
+        "build",
+        "--no-link",
+        "--print-out-paths",
+        f"{work_dir}#nixosConfigurations.{state.hostname}-install.config.system.build.toplevel",
+    ]
+    yield "$ " + " ".join(build_cmd)
+    proc = subprocess.Popen(
+        build_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1
     )
-    toplevel = str(toplevel_link.resolve())
+    assert proc.stderr is not None and proc.stdout is not None
+    for line in proc.stderr:  # nix build reports progress on stderr
+        yield line.rstrip("\n")
+    out = proc.stdout.read().strip()  # the out path(s), on stdout
+    if proc.wait() != 0:
+        raise RuntimeError("building the system failed")
+    toplevel = out.splitlines()[-1] if out else ""
+    if not toplevel:
+        raise RuntimeError("could not determine the built system path")
     yield f"system: {toplevel}"
 
     yield "── Copying the system onto the target disk ──"
