@@ -489,6 +489,8 @@
         python3 docs/scripts/generate-commands-docs.py
         echo "Rendering diagrams..."
         python3 docs/scripts/generate-diagrams.py
+        echo "Rendering keyboard layer diagrams..."
+        python3 docs/scripts/generate-keyboard-diagrams.py
       '';
 
       mkDocsApp =

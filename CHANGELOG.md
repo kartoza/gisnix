@@ -25,6 +25,10 @@ All notable changes to gisnix are documented here. Format follows
 - Indonesia added to the locale library (80 locales total).
 - Loud "this erases your disk / no responsibility for lost data" warnings
   across the install docs.
+- The keyboard documentation now shows the actual layer diagrams — base
+  (home-row modifiers), navigation and herdr — generated from the same key
+  tables kanata uses, in the Kartoza palette, and regenerated as part of
+  the docs build so they can't drift.
 
 ### Changed
 

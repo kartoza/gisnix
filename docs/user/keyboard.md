@@ -13,7 +13,9 @@ remapping — and the same hold-to-talk speech-to-text — works everywhere:
 ![kanata sits between the keyboard and every application; speech is a held key](../assets/diagrams/keyboard.svg){ .kz-figure }
 
 It ships in the `services-device-input-kanata` bundle, which is on by
-default — every gisnix install gets it unless you remove the line from
+default on **every** gisnix install — including a minimal one — so the
+home-row modifiers work the moment you first log in, with nothing to set
+up. You only lose it if you deliberately remove the line from
 `hosts/<name>/config.nix`. It needs no vendor hardware and is a separate
 bundle from `services-device-input` (Bazecor, OpenRazer, Piper), which
 stays opt-in.
@@ -243,21 +245,43 @@ depending on state.
 
 ## Layout diagrams
 
-The tables above, drawn out. One diagram set per `kanataLayout` value —
-US ANSI (the default) and pt-PT ISO — regenerated straight from the same
-key tables `kanata-config.nix` uses, with `gisnix keyboard-diagrams`.
+Here is the whole layout drawn out, so you can see where everything sits.
+There are three layers, and one set of diagrams per `kanataLayout` value —
+US ANSI (the default) and pt-PT ISO. They are generated straight from the
+same key tables `kanata-config.nix` uses (`gisnix keyboard-diagrams`), so
+they always match what the machine actually does.
+
+**The base layer** is what you type on normally. Its trick is the
+*home-row modifiers*: hold **A** for Super, **S** for Alt, **D** for Ctrl,
+**F** for Shift — and the mirror image on the right hand, **J** Shift,
+**K** Ctrl, **L** Alt, **;** Super. Tap those keys and they type their
+letter as usual; only holding turns them into a modifier, so your fingers
+never leave the home row to reach for Ctrl or Alt. The diagram also shows
+the keys that reach the other layers on a hold: **Space** or **Menu** for
+navigation, **Caps** for the herdr layer, and **right Ctrl** for voxtype
+push-to-talk.
+
+**The navigation layer** (hold Space or Menu) turns the right hand into
+arrow keys and mouse controls without leaving the keyboard.
+
+**The herdr layer** (hold Caps) is the one the `herdr` clipboard-history
+tool listens on.
 
 === "US (default)"
 
-    ![US base layer](../assets/keyboards/us-keyboard-base-layer.svg)
-    ![US navigation layer](../assets/keyboards/us-keyboard-nav-layer.svg)
-    ![US herdr layer](../assets/keyboards/us-keyboard-herdr-layer.svg)
+    ![US base layer — home-row modifiers and the keys that reach each layer](../assets/keyboards/us-keyboard-base-layer.svg)
+
+    ![US navigation layer — arrows and mouse on a hold](../assets/keyboards/us-keyboard-nav-layer.svg)
+
+    ![US herdr layer — held while Caps is down](../assets/keyboards/us-keyboard-herdr-layer.svg)
 
 === "pt-PT"
 
-    ![pt-PT base layer](../assets/keyboards/pt-keyboard-base-layer.svg)
-    ![pt-PT navigation layer](../assets/keyboards/pt-keyboard-nav-layer.svg)
-    ![pt-PT herdr layer](../assets/keyboards/pt-keyboard-herdr-layer.svg)
+    ![pt-PT base layer — home-row modifiers and the keys that reach each layer](../assets/keyboards/pt-keyboard-base-layer.svg)
+
+    ![pt-PT navigation layer — arrows and mouse on a hold](../assets/keyboards/pt-keyboard-nav-layer.svg)
+
+    ![pt-PT herdr layer — held while Caps is down](../assets/keyboards/pt-keyboard-herdr-layer.svg)
 
 ## Toggling it off
 

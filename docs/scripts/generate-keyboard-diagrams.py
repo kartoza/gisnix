@@ -154,29 +154,40 @@ def base_view(rows):
             # shared by the physical key and its two GACS home-row holds.
             "a": GREEN, ";": GREEN, "super": GREEN,
             "s": BLUE, "l": BLUE, "lalt": BLUE, "altgr": BLUE,
-            "d": RED, "k": RED, "lctrl": RED, "rctrl": RED,
+            "d": RED, "k": RED, "lctrl": RED,
             "f": AMBER, "j": AMBER, "lsft": AMBER, "rsft": AMBER,
+            # Right Ctrl: tap = Ctrl, hold = voxtype push-to-talk (the
+            # trigger on every keyboard). Coloured for the hold.
+            "rctrl": ORANGE,
             **{k: PINK for k in activators},
-            **({"menu": ORANGE} if has_menu else {}),
+            # Menu, where a board has one, is a second way into the
+            # navigation layer on hold — not push-to-talk any more.
+            **({"menu": PINK} if has_menu else {}),
             "q": GRAY, "w": GRAY, "o": GRAY, "p": GRAY,
             "x": GRAY, "z": GRAY, "m": GRAY, ",": GRAY,
         },
         "sublabels": {
             "a": "Super", "s": "Alt", "d": "Ctrl", "f": "Shift",
             "j": "Shift", "k": "Ctrl", "l": "Alt", ";": "Super",
-            "super": "Super", "lctrl": "Ctrl", "rctrl": "Ctrl",
+            "super": "Super", "lctrl": "Ctrl", "rctrl": "hold: voxtype",
             "lalt": "Alt", "altgr": "Alt", "lsft": "Shift", "rsft": "Shift",
             "q": "{", "w": "{", "o": "}", "p": "}",
             "x": "<", "z": "<", "m": ">", ",": ">",
-            "spc": "hold: nav", "menu": "hold: voxtype PTT", "caps": "hold: herdr",
+            "spc": "hold: nav", "menu": "hold: nav", "caps": "hold: herdr",
         },
         "legend": [
             (GREEN, "Super (a ; + Super key)"),
             (BLUE, "Alt (s l + Alt/AltGr)"),
-            (RED, "Ctrl (d k + Ctrl keys)"),
+            (RED, "Ctrl (d k + left Ctrl)"),
             (AMBER, "Shift (f j + Shift keys)"),
-            (PINK, "layer activators, held (" + ", ".join(names[k] for k in activators) + ")"),
-            *([(ORANGE, "push-to-talk, held (Menu — voxtype)")] if has_menu else []),
+            (ORANGE, "push-to-talk, held (right Ctrl — voxtype)"),
+            (
+                PINK,
+                "navigation layer, held ("
+                + ", ".join(names[k] for k in activators)
+                + (", Menu" if has_menu else "")
+                + ")",
+            ),
             (GRAY, "bracket chords (also on a s / l k — see the key labels above)"),
             (TEAL, "plain key"),
         ],
