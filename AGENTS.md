@@ -34,6 +34,44 @@ code itself) has gone missing during a repo extraction before and
 nothing caught it except a real `nixos-install` failing on a live
 machine.
 
+## The installer's explicit closure copy is load-bearing — never revert it
+
+`installer/installer_run.py` does NOT run `nixos-install --flake`. It
+builds the system toplevel, copies its closure into `/mnt` with an
+explicit `nix copy --no-check-sigs --to /mnt <toplevel>`, and only then
+runs `nixos-install --system <toplevel> --no-channel-copy`. This is not
+an accident or a style choice — it is the fix for a real, reproduced
+bug.
+
+`nixos-install`'s own build step (`nix build --store /mnt
+--extra-substituters "auto?trusted=1" ...#toplevel`) does not reliably
+copy the system closure into the target store. On a real install it left
+`/mnt` without the toplevel entirely — the log showed only the ~10 MiB
+flake source landing in `/mnt`, never the multi-GB system — so the
+system profile pointed at a path absent from `/mnt/nix/store` and the
+post-install chroot died with:
+
+    installing the boot loader...
+    chroot: failed to run command '/nix/var/nix/profiles/system/activate': No such file or directory
+    INSTALL FAILED: command failed (127)
+
+Reproduced in isolation: `nix build --store <target>` leaves the
+toplevel absent; a plain `nix copy --to <target> <toplevel>` places the
+full runtime closure with `activate`. That is why the copy is explicit.
+
+Rules for anyone touching the install flow:
+
+- Do NOT "simplify" the build + `nix copy` + `--system` sequence back
+  into a single `nixos-install --flake`. That reintroduces the bug.
+- If you change it, you must prove — with a real `sudo setup` install (or
+  `gisnix test-install` end to end) that reaches a booting system — that
+  the closure still lands in `/mnt` and the chroot finds `activate`. A
+  syntax check or an eval is NOT sufficient evidence here.
+- The `nix copy` stages the closure in the live environment's own store
+  first (RAM-backed on the ISO). If you rework it for low-memory targets,
+  the goal is to substitute straight to `/mnt` — not to drop the explicit
+  copy.
+
 ## The ISO only ships what installer.nix says it ships
 
 A fresh install evaluates the flake against whatever `installer.nix`'s
