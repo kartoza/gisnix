@@ -751,7 +751,7 @@
                 echo "Launching QEMU..."
                 ${defaultPkgs.qemu}/bin/qemu-system-x86_64 \
                   -enable-kvm \
-                  -m 8G \
+                  -m 12G \
                   -smp 4 \
                   -cpu host \
                   -machine q35,accel=kvm \
@@ -815,7 +815,7 @@
                 echo "Launching QEMU..."
                 ${defaultPkgs.qemu}/bin/qemu-system-x86_64 \
                   -enable-kvm \
-                  -m 8G \
+                  -m 12G \
                   -smp 4 \
                   -cpu host \
                   -machine q35,accel=kvm \

@@ -191,14 +191,57 @@ def run_install(state: InstallState) -> Iterator[str]:
     else:
         yield from _stream(disko_cmd)
 
+    # nixos-install's own build step (`nix build --store /mnt ...#toplevel`)
+    # does NOT reliably copy the system closure into the target store. On a
+    # real install it leaves /mnt without the toplevel entirely, so the
+    # post-install chroot dies with "activate: No such file / exit 127".
+    # Confirmed on real installs and reproduced in isolation.
+    #
+    # Do it in two explicit, verified steps instead: build the toplevel in
+    # the host store, then `nix copy` its closure into /mnt — which DOES
+    # place the whole runtime closure, activate included (verified: a plain
+    # `nix copy --to` populates the target where `nix build --store` does
+    # not). nixos-install is then handed the prebuilt path via --system, so
+    # it skips its own broken build/copy and only sets the system profile
+    # and installs the bootloader — the closure it needs is already there.
+    #
+    # Tradeoff: `nix build` stages the closure in the live environment's own
+    # store first (RAM-backed on the ISO) before the copy to disk, so a
+    # very-low-RAM target could feel the pressure of an ~8G desktop closure.
+    # Acceptable for a reliable install; the follow-up if it ever bites is
+    # to substitute straight to /mnt instead of staging.
+    nix = [
+        "nix",
+        "--extra-experimental-features",
+        "nix-command flakes",
+    ]
+
+    yield "── Building the system ──"
+    toplevel_link = work_dir / "system-toplevel"
+    yield from _stream(
+        nix
+        + [
+            "build",
+            f"{work_dir}#nixosConfigurations.{state.hostname}-install.config.system.build.toplevel",
+            "--out-link",
+            str(toplevel_link),
+        ]
+    )
+    toplevel = str(toplevel_link.resolve())
+    yield f"system: {toplevel}"
+
+    yield "── Copying the system onto the target disk ──"
+    yield from _stream(nix + ["copy", "--no-check-sigs", "--to", str(MOUNT_ROOT), toplevel])
+
     yield "── Installing NixOS (nixos-install) ──"
     yield from _stream(
         [
             "nixos-install",
             "--root",
             str(MOUNT_ROOT),
-            "--flake",
-            f"{work_dir}#{state.hostname}-install",
+            "--system",
+            toplevel,
+            "--no-channel-copy",
             "--no-root-passwd",
         ]
     )

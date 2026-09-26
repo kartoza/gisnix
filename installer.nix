@@ -182,9 +182,16 @@
   # and is what `gisnix test-shell`/`test-logs` depend on to work
   # unattended. The condition is false on bare metal, so this changes
   # nothing about a real install's default-off posture.
+  #
+  # "vm", not "qemu": test-install runs QEMU with KVM acceleration
+  # (-enable-kvm -machine accel=kvm), so systemd-detect-virt reports "kvm",
+  # not "qemu" — a ConditionVirtualization=qemu never matched and sshd
+  # stayed down. "vm" matches any virtualization (kvm, qemu, vmware, ...)
+  # while still being false on bare metal, which is exactly the scope we
+  # want.
   services.openssh.enable = true;
   systemd.services.sshd.wantedBy = lib.mkForce [ "multi-user.target" ];
-  systemd.services.sshd.unitConfig.ConditionVirtualization = "qemu";
+  systemd.services.sshd.unitConfig.ConditionVirtualization = "vm";
 
   users.users.root = {
     password = "gisnix";
