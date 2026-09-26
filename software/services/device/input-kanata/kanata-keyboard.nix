@@ -88,12 +88,36 @@ let
   voxtypeManagedConfig = pkgs.writeText "voxtype-config.toml" ''
     # Managed by gisnix (software/services/device/input-kanata/
     # kanata-keyboard.nix). Overwritten on every rebuild — edit there.
+    #
+    # The field set below mirrors what `voxtype setup` itself writes: voxtype
+    # 0.7.2 uses strict TOML parsing, so a required field with no default
+    # (notably [audio].device) is a hard start-up error if omitted, not a
+    # warning. Keep every uncommented key present.
     state_file = "auto"
 
     [hotkey]
+    # kanata owns the keyboards on a gisnix machine and drives recording via
+    # `voxtype record start/stop` on right-Ctrl hold (see kanata-config.nix),
+    # so voxtype's own detection is OFF — one trigger, no contention with the
+    # grab kanata holds on the input devices. key/modifiers are still required
+    # fields even when detection is off; key names what voxtype would listen
+    # for if you ever flipped `enabled` back on.
+    key = "RIGHTCTRL"
+    modifiers = []
     enabled = false
 
+    [audio]
+    # device has no default — leaving the whole [audio] table out is what made
+    # the daemon crash-loop ("missing field `device`"). Match voxtype's own
+    # generated defaults for the rest.
+    device = "default"
+    sample_rate = 16000
+    max_duration_secs = 60
+
     [audio.feedback]
+    # The start/stop beep, played from voxtype's own user session where it can
+    # reach PipeWire (kanata's system-scope cue never could). Independent of
+    # the trigger, so it sounds whether a cmd or a hotkey starts recording.
     enabled = true
     theme = "default"
     volume = 0.7
@@ -102,10 +126,12 @@ let
     backend = "local"
     model = "base.en"
     language = "en"
+    translate = false
 
     [output]
     mode = "type"
     fallback_to_clipboard = true
+    type_delay_ms = 0
   '';
 
   cfg = config.kartoza.kanata;

@@ -3,6 +3,19 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.19.1] - 2026-09-27
+
+### Fixed
+
+- The voxtype daemon crash-looped on the managed config shipped in 0.19.0.
+  voxtype 0.7.2 parses its `config.toml` strictly, and the config was missing
+  the `[audio]` table whose `device` field has no default — so every start
+  failed with `missing field 'device'` and push-to-talk was dead even though
+  kanata was firing the trigger correctly. The managed config now carries the
+  full `[audio]` table (with `[audio.feedback]` nested under it, where it
+  belongs) and mirrors voxtype's own generated defaults for the other required
+  fields.
+
 ## [0.19.0] - 2026-09-26
 
 ### Added
