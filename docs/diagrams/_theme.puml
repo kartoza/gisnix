@@ -1,0 +1,71 @@
+' Kartoza brand theme for gisnix PlantUML diagrams.
+' Included by every diagram: !include _theme.puml
+'
+' Palette (see docs/stylesheets/kartoza-tokens.css for the canonical values):
+'   gold  #DF9E2F   blue #569FC6   dark #383939   grey #8A8B8B
+'   fills #FCF3E0 (gold tint) #F5F5F2 (cloud) #FDE9E8 (red tint)
+'         #EAF3F8 (blue tint)  #E6F4F4 (teal tint)
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Ubuntu
+skinparam defaultFontColor #383939
+skinparam roundCorner 12
+skinparam shadowing false
+
+skinparam component {
+  BackgroundColor #FCF3E0
+  BorderColor #DF9E2F
+  FontColor #383939
+}
+skinparam rectangle {
+  BackgroundColor #F5F5F2
+  BorderColor #8A8B8B
+  FontColor #383939
+}
+skinparam package {
+  BackgroundColor #FFFFFF
+  BorderColor #8A8B8B
+  FontColor #383939
+}
+skinparam arrow {
+  Color #569FC6
+  FontColor #383939
+}
+skinparam note {
+  BackgroundColor #EAF3F8
+  BorderColor #569FC6
+  FontColor #383939
+}
+
+' Activity / flow diagrams
+skinparam activity {
+  BackgroundColor #FCF3E0
+  BorderColor #DF9E2F
+  FontColor #383939
+  DiamondBackgroundColor #EAF3F8
+  DiamondBorderColor #569FC6
+  StartColor #569FC6
+  EndColor #383939
+  ArrowColor #569FC6
+}
+
+' Sequence diagrams
+skinparam sequence {
+  ArrowColor #569FC6
+  LifeLineBorderColor #8A8B8B
+  LifeLineBackgroundColor #F5F5F2
+  ParticipantBackgroundColor #FCF3E0
+  ParticipantBorderColor #DF9E2F
+  ActorBackgroundColor #FCF3E0
+  ActorBorderColor #DF9E2F
+}
+
+' State diagrams
+skinparam state {
+  BackgroundColor #FCF3E0
+  BorderColor #DF9E2F
+  FontColor #383939
+  ArrowColor #569FC6
+  StartColor #569FC6
+  EndColor #383939
+}

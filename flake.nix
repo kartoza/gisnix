@@ -418,6 +418,7 @@
         "docs-generate-commands"
         "docs-generate-hosts"
         "docs-generate-software"
+        "docs-diagrams"
         # test-install/test-boot are NOT here — they're commands.json rows
         # now (utils/test-install.sh, utils/test-boot.sh) that just exec
         # these same apps, so they show up in the `gisnix` table. Listing
@@ -891,6 +892,15 @@
             description = "Regenerate docs/references/software.md, the fleet-wide package catalogue";
             extraInputs = [ defaultPkgs.nix ];
             body = "exec python3 docs/scripts/generate-software-catalogue.py";
+          };
+          docs-diagrams = mkDocsApp {
+            name = "docs-diagrams";
+            description = "Render the PlantUML diagrams (docs/diagrams/*.puml) to brand-coloured SVG + PNG";
+            extraInputs = [
+              defaultPkgs.plantuml
+              defaultPkgs.librsvg
+            ];
+            body = "exec python3 docs/scripts/generate-diagrams.py";
           };
         }
         // commandApps

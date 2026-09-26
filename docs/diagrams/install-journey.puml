@@ -1,0 +1,44 @@
+@startuml install-journey
+!include _theme.puml
+
+title Installing gisnix — from USB stick to a running machine
+
+start
+:Write the ISO to a USB stick;
+:Boot the target machine\nfrom the stick (UEFI);
+:Run **sudo setup**;
+
+partition "The setup wizard asks you" {
+  :Your name and account;
+  :A hostname;
+  :A locale\n(keyboard · timezone · language);
+  :A storage layout;
+}
+
+if (Storage layout?) then (ZFS, encrypted)
+  :Choose a disk-encryption\npassphrase;
+else (plain XFS / multi-disk ZFS)
+endif
+
+:Confirm — type the hostname back\n//This is the point of no return://\nthe target disk is erased;
+
+partition "The installer does the rest" {
+  :Partition and format the disk\n(disko);
+  :Build the system\nand copy it onto the disk;
+  :Install NixOS and the\nGRUB boot loader;
+  :Copy the machine's flake into\n**~/nixos-config**;
+}
+
+:Reboot and remove the stick;
+:Log in;
+
+note right
+  From here the machine is one flake at
+  **~/nixos-config**. Change software with
+  **gisnix configure**, rebuild with
+  **gisnix update**, roll back from the
+  boot menu.
+end note
+
+stop
+@enduml
