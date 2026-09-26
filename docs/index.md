@@ -10,15 +10,16 @@ hide:
 
 # gisnix
 
-A NixOS distribution for GIS workstations. Boot the installer, partition
-the disk, pick your software from a bundle registry, and get a machine
-whose entire configuration is one flake — reproducible, and, if you chose
-ZFS, encrypted with a passphrase prompted at boot.
+An opinionated, open-source NixOS distribution for GIS workstations.
+QGIS-centred, COSMIC on Wayland, ZFS-encrypted by default, keyboard-first,
+and reproducible down to the ISO. Boot the installer, partition the disk,
+pick your software from a bundle registry, and get a machine whose entire
+configuration is one flake.
 
 <div class="kz-cta" markdown>
 [:material-download: Download Now!](https://github.com/kartoza/gisnix/releases/latest/download/gisnix-installer.iso){ .kz-cta__primary }
+[:material-lightbulb-on: Why gisnix](why.md){ .kz-cta__secondary }
 [:material-book-open-variant: Quickstart](user/quickstart.md){ .kz-cta__secondary }
-[:material-format-list-bulleted: Software bundles](references/bundles.md){ .kz-cta__secondary }
 [:simple-github: Source](https://github.com/kartoza/gisnix){ .kz-cta__secondary }
 </div>
 
@@ -146,7 +147,39 @@ Whole-system, reproducible, and never a partial state.
 
 </div>
 
+<div class="kz-feature" markdown>
+
+### :material-monitor: COSMIC on Wayland
+
+One desktop, tracked close to upstream — System76's Rust compositor on
+Wayland. Modern, GPU-accelerated, tiling-capable, and identical on every
+gisnix machine so muscle memory travels with you.
+
 </div>
+
+<div class="kz-feature" markdown>
+
+### :material-keyboard: Keyboard-first, with speech
+
+kanata is on by default — home-row mods, a nav layer, chords — no vendor
+hardware needed. Hold the Menu key and voxtype types what you say into
+whatever field your cursor is in, anywhere on the desktop.
+
+</div>
+
+<div class="kz-feature" markdown>
+
+### :material-shield-account: Sandboxed AI tools
+
+Claude Code, Gemini CLI, OpenCode and a local Ollama workspace each run in
+a bubblewrap jail, so a compromised assistant cannot reach your SSH agent,
+your keys, or the rest of your home.
+
+</div>
+
+</div>
+
+[What makes gisnix opinionated :material-arrow-right:](why.md){ .md-button .md-button--primary }
 
 ---
 

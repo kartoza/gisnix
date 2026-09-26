@@ -147,6 +147,7 @@ plugins:
 
 nav:
   - Home: index.md
+  - Why gisnix: why.md
   - User guide:
       - user/index.md
       - Quickstart: user/quickstart.md
