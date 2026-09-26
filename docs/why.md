@@ -36,6 +36,15 @@ called a *generation*, and every generation is still there in your boot
 menu. If a change goes wrong, you restart, pick the previous generation,
 and you are exactly where you were. Nothing is ever left half-changed.
 
+![Every change makes a new generation you can roll back to](assets/diagrams/generations.svg){ .kz-figure }
+
+The everyday loop, once a machine is running, is short: change the
+description, run `gisnix update`, and gisnix builds and switches to the new
+generation. If the build fails, the running machine is untouched — you fix
+the description and try again.
+
+![The everyday change loop](assets/diagrams/update-flow.svg){ .kz-figure }
+
 ## Software you ask for by name
 
 Most systems make you manage software one package at a time, and leave you
@@ -48,6 +57,8 @@ it, because the bundle says so. You are describing a capability you want,
 not assembling a parts list. The command `gisnix configure` shows you the
 whole collection as a menu and writes your choices back into that one
 description file.
+
+![Ask for a capability; its dependencies come with it](assets/diagrams/bundles.svg){ .kz-figure }
 
 QGIS sits at the centre of that collection. gisnix carries the current QGIS
 releases and, alongside them, twenty-three older versions going back to
@@ -71,6 +82,8 @@ several disks for resilience, gisnix offers those layouts too. But the
 encrypted single disk is the one a laptop should be running, so it is the
 default.
 
+![The default disk layout: an encrypted ZFS pool with separate datasets](assets/diagrams/storage-zfs.svg){ .kz-figure }
+
 ## Built around the keyboard
 
 gisnix assumes you would rather keep your hands on the keyboard than reach
@@ -87,6 +100,8 @@ map's label field, a terminal. Speech is wired in as just another key the
 keyboard understands, so it works everywhere, without each program needing
 to know about it.
 
+![kanata sits between the keyboard and every application; speech is a held key](assets/diagrams/keyboard.svg){ .kz-figure }
+
 ## Assistants kept in a room of their own
 
 gisnix ships the current crop of AI coding assistants, and treats them with
@@ -96,6 +111,8 @@ runs inside a *sandbox* — a locked room that can see the project you are
 working on but not the keys to your other machines, not your wider home
 directory, not your SSH agent. You get the help without handing over the
 keys to everything.
+
+![Each assistant is jailed: it can see your project, not your keys](assets/diagrams/ai-sandbox.svg){ .kz-figure }
 
 ## The desktop and the shape of the whole thing
 
@@ -110,6 +127,8 @@ the installer you started from. When you are ready to run a fleet of
 machines rather than one, a small flake of your own can build on gisnix's
 foundations while you keep only your own machines' details. Your fleet stays
 yours; the ground it stands on stays gisnix.
+
+![Your own flake builds on gisnix while keeping only your hosts and users](assets/diagrams/downstream.svg){ .kz-figure }
 
 ## Installing, start to finish
 

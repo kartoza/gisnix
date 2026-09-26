@@ -1,0 +1,18 @@
+@startuml update-flow
+!include _theme.puml
+
+title Changing a machine — the everyday loop
+
+start
+:Edit the description\n(gisnix configure, or by hand);
+:gisnix update;
+:gisnix builds the new system;
+if (Builds and activates cleanly?) then (yes)
+  :A new generation is live;
+  stop
+else (no)
+  :Nothing changed on the\nrunning machine;
+  :Fix the description\nand try again;
+  stop
+endif
+@enduml

@@ -11,6 +11,11 @@ picks one).
 | XFS, single disk | None | 1 | Maximum performance, dual-boot friendly |
 | ZFS, multi-disk | Optional (on by default) | 2+ (stripe), 3+ (raidz), 4+ (raidz2) | Redundancy across disks |
 
+The default — an encrypted ZFS pool on a single disk — lays out separate
+datasets for the system, the package store, your home and spare space:
+
+![The default disk layout: an encrypted ZFS pool with separate datasets](../assets/diagrams/storage-zfs.svg){ .kz-figure }
+
 ## The ZFS dataset layout
 
 Every ZFS mode (single or multi-disk) uses the same dataset shape:

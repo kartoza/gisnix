@@ -1,0 +1,23 @@
+@startuml generations
+!include _theme.puml
+
+title Rebuilds and rollbacks — every change is reversible
+
+state "Generation 1\nthe machine as installed" as g1
+state "Generation 2\nafter you add a bundle" as g2
+state "Generation 3\nafter a change that misbehaves" as g3
+
+[*] --> g1 : install
+g1 --> g2 : gisnix update
+g2 --> g3 : gisnix update
+g3 --> g2 : pick generation 2\nin the boot menu
+
+note right of g3
+  A rebuild never edits the running system.
+  It builds a whole new generation and
+  switches to it, keeping the old ones. If a
+  change is wrong, reboot and choose the
+  previous generation — you are exactly
+  where you were.
+end note
+@enduml

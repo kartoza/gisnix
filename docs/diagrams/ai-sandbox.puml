@@ -1,0 +1,27 @@
+@startuml ai-sandbox
+!include _theme.puml
+
+title AI assistants, kept in a room of their own
+
+rectangle "The sandbox (bubblewrap jail)" as jail #FDE9E8 {
+  component "AI assistant\nClaude Code · Gemini CLI ·\nOpenCode · local Ollama" as ai
+  component "The project\nyou are working on" as project #E6F4F4
+}
+
+component "Your SSH agent\nand keys" as ssh #F5F5F2
+component "The rest of\nyour home directory" as home #F5F5F2
+
+ai --> project : can read and write
+
+ai -[#CC0403,dashed]-> ssh : blocked
+ai -[#CC0403,dashed]-> home : blocked
+
+note bottom of jail
+  The assistant runs your project's code on
+  your behalf. Should it misbehave, the jail
+  walls it off from the keys to your other
+  machines and the rest of your files. You
+  get the help without handing over
+  everything.
+end note
+@enduml

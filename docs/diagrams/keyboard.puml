@@ -1,0 +1,24 @@
+@startuml keyboard
+!include _theme.puml
+
+title The keyboard, remapped — and speech on a held key
+
+component "Your keyboard\n(built-in or external)" as kbd #F5F5F2
+component "kanata\nhome-row mods · navigation layer · chords" as kanata #EAF3F8
+component "The application\nyou are typing in" as app
+
+kbd --> kanata : every key press
+kanata --> app : remapped keys
+
+component "voxtype\nspeech to text" as vox #E6F4F4
+kanata ..> vox : hold Menu = record
+vox --> app : the words you spoke,\ntyped where the cursor is
+
+note bottom of app
+  kanata sits between the keyboard and
+  everything else, so the same remapping —
+  and the same hold-to-talk — works in
+  every application without each one
+  needing to know about it.
+end note
+@enduml

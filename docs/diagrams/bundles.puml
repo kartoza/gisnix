@@ -1,0 +1,26 @@
+@startuml bundles
+!include _theme.puml
+
+title Software bundles — you ask for a capability, not a parts list
+
+rectangle "config.nix\nthe bundles this machine has" as config #EAF3F8
+
+package "A bundle" {
+  component "bundle.json\nname · what it needs · what it implies" as meta
+  component "module.nix\nmodule.nix\n...the actual packages" as modules
+}
+
+rectangle "desktop-gis\n(QGIS and the geospatial stack)" as gis
+rectangle "desktop-cosmic\n(the desktop it runs in)" as cosmic
+
+config --> gis : you asked for this
+gis ..> cosmic : implies\n(so it comes too)
+gis --> meta
+meta --> modules
+
+note bottom of cosmic
+  You named one capability. Everything it
+  depends on is pulled in automatically,
+  because each bundle declares what it needs.
+end note
+@enduml

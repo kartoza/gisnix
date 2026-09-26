@@ -1,0 +1,24 @@
+@startuml locale
+!include _theme.puml
+
+title Locale — one preset, three parts you can move on their own
+
+rectangle "Your preset\ne.g. Portugal — English" as preset #EAF3F8 {
+  component "keyboard" as kb
+  component "clock\n(Europe/Lisbon)" as clock
+  component "language\n(English)" as lang
+  component "formatting\n(Portuguese numbers, dates)" as fmt
+}
+
+component "Travelling to Zurich" as travel #FCF3E0
+
+travel ..> clock : override just the clock\n(Europe/Zurich)
+
+note bottom
+  The preset sets all four together. When you
+  travel you can change one part — the clock —
+  and keep your language and number
+  formatting. Coming home is removing that one
+  override. `gisnix locale` does it for you.
+end note
+@enduml

@@ -7,6 +7,11 @@ there is nothing to configure per board unless you plug in something with
 a genuinely different physical layout (see [Adding a second keyboard](#adding-a-second-keyboard)
 below).
 
+kanata sits between the keyboard and every application, so the same
+remapping — and the same hold-to-talk speech-to-text — works everywhere:
+
+![kanata sits between the keyboard and every application; speech is a held key](../assets/diagrams/keyboard.svg){ .kz-figure }
+
 It ships in the `services-device-input-kanata` bundle, which is on by
 default — every gisnix install gets it unless you remove the line from
 `hosts/<name>/config.nix`. It needs no vendor hardware and is a separate

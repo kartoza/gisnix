@@ -1,0 +1,22 @@
+@startuml storage-zfs
+!include _theme.puml
+
+title The default disk layout — ZFS, encrypted
+
+rectangle "Your disk" as disk {
+  component "ESP\nboot partition\n(unencrypted)" as esp #F5F5F2
+  component "Encrypted ZFS pool\nunlocked by your passphrase at boot" as pool #FDE9E8 {
+    component "root\nthe system" as root
+    component "nix\nthe package store" as nix
+    component "home\nyour files (snapshotted)" as home
+    component "overflow\nspare space (snapshotted)" as overflow
+  }
+}
+
+note right of pool
+  Without the passphrase the pool is
+  unreadable. ZFS also snapshots your
+  files and checksums every block, so
+  corruption cannot creep in unnoticed.
+end note
+@enduml

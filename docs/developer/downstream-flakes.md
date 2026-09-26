@@ -10,6 +10,8 @@ For the day-to-day workflow (config picker, rebuilding, adding a second
 machine) see [Building your fleet](../user/fleet.md). This page is the
 underlying API.
 
+![Your own flake builds on gisnix while keeping only your hosts and users](../assets/diagrams/downstream.svg){ .kz-figure }
+
 ## A single host
 
 ```nix

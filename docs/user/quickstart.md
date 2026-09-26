@@ -1,5 +1,11 @@
 # Quickstart
 
+Installing gisnix is four steps: get the ISO, write it to a USB stick, boot
+from it, and answer the setup wizard's questions. Here is the whole journey
+before we walk through it.
+
+![Installing gisnix, from USB stick to a running machine](../assets/diagrams/install-journey.svg){ .kz-figure }
+
 ## 1. Get the ISO
 
 [Download the latest release](https://github.com/kartoza/gisnix/releases/latest)

@@ -13,6 +13,10 @@ bundles = [
 ];
 ```
 
+When a host names a bundle, everything that bundle depends on comes with it:
+
+![Ask for a capability; its dependencies come with it](../assets/diagrams/bundles.svg){ .kz-figure }
+
 That's the installer's default set — a minimal base system plus a minimal
 COSMIC desktop. Everything else in the registry is listed too, commented
 out, right there in the file, so `config.nix` doubles as its own menu. See

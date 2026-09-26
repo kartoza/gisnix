@@ -1,0 +1,27 @@
+@startuml downstream
+!include _theme.puml
+
+title Building a fleet of your own on top of gisnix
+
+package "gisnix" {
+  component "bundles · profiles · overlays" as gcontent
+  component "lib.mkHost" as mkhost
+}
+
+package "Your flake" {
+  rectangle "your hosts\nlaptop-1 · server-1 · ..." as hosts #EAF3F8
+  rectangle "your users\nand their keys" as users #EAF3F8
+}
+
+hosts --> mkhost : built with
+users --> mkhost
+gcontent --> mkhost
+
+note bottom
+  Your flake pins gisnix and calls lib.mkHost
+  for each machine. You keep only your own
+  hosts and users — a few lines — while every
+  bundle, profile and package still comes from
+  gisnix. Your fleet stays yours.
+end note
+@enduml
