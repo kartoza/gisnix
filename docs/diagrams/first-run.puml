@@ -1,0 +1,21 @@
+@startuml first-run
+!include _theme.puml
+
+title Your first login — reaching the gisnix commands
+
+start
+:Log in to the COSMIC desktop;
+:Open a terminal (kitty);
+:Go to your machine's flake\n**cd ~/nixos-config**;
+:Enter the tools\n**nix develop**;
+:Type **gisnix**\nthe command compendium;
+stop
+
+note right
+  From here everything is a `gisnix` command:
+  **gisnix configure** to choose software,
+  **gisnix update** to rebuild, **gisnix locale**
+  to change your timezone, and so on. Typing
+  **gisnix** on its own lists them all.
+end note
+@enduml

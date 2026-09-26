@@ -326,6 +326,11 @@ def render_flake_nix(
     nixosConfigurations.{state.hostname} = gisnix.lib.mkHost "{state.hostname}" {{
       hostPath = ./hosts/{state.hostname};
     }};{install_config}
+
+    # `nix develop` in this directory drops you into gisnix's tools — the
+    # `gisnix` command and everything it lists (configure, update, locale,
+    # ...). See the docs' first-login walkthrough.
+    devShells = gisnix.devShells;
   }};
 }}
 """

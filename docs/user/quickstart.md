@@ -1,15 +1,19 @@
 # Quickstart
 
-Installing gisnix is four steps: get the ISO, write it to a USB stick, boot
-from it, and answer the setup wizard's questions. Here is the whole journey
-before we walk through it.
+Getting gisnix onto a machine is a short journey: you write the installer
+to a USB stick, boot from it, connect to the network, answer a few
+questions, and reboot into a working system. This page walks the whole way,
+from the stick to the moment you have gisnix's commands at your fingertips.
+
+Here is the shape of it before we begin.
 
 ![Installing gisnix, from USB stick to a running machine](../assets/diagrams/install-journey.svg){ .kz-figure }
 
-## 1. Get the ISO
+## 1. Get the installer
 
-[Download the latest release](https://github.com/kartoza/gisnix/releases/latest)
-— or build it yourself:
+Download the ready-made image from the
+[latest release](https://github.com/kartoza/gisnix/releases/latest), or, if
+you already run Nix, build it yourself:
 
 ```bash
 git clone https://github.com/kartoza/gisnix
@@ -17,97 +21,122 @@ cd gisnix
 nix build .#nixosConfigurations.installer.config.system.build.isoImage
 ```
 
-The `.iso` lands in `result/iso/`.
+Either way you end up with a `.iso` file — the installer.
 
-## 2. Boot it
+## 2. Write it to a USB stick
 
-Flash the ISO to a USB drive — see [making a bootable USB
-stick](bootable-usb.md) if you haven't done this before — and boot the
-target machine from it: UEFI required, Secure Boot off. Or try it first
-in a VM: `nix run .#test-install` builds the ISO and boots it in QEMU
-with a persistent test disk. A plain UEFI ISO also boots fine in
-VirtualBox or VMware without any hypervisor-specific variant.
+Copy the ISO onto a USB stick. If you have not done this before,
+[making a bootable USB stick](bootable-usb.md) shows you how on Windows,
+macOS and Linux. The stick becomes the installer you boot from; its own
+contents are replaced, so use one you can spare.
 
-## 3. Run setup
+Want to try the whole thing without any hardware first? `nix run
+.#test-install` builds the installer and boots it in a virtual machine with
+a throwaway disk, so you can rehearse the steps below safely.
 
-You land in `~/gisnix` (the checkout baked onto the ISO), logged in as
-`nixos` — not root. The banner tells you what to type; disk and network
-changes need sudo:
+## 3. Boot from the stick
+
+Start the target machine from the USB stick. Most machines have a key you
+hold at power-on to choose the boot device (often F12, F10 or Esc); on some
+you set the boot order in the firmware settings. gisnix needs **UEFI** boot
+with **Secure Boot turned off**.
+
+You arrive at a plain text screen, logged in and ready. Nothing has been
+written to the machine's disk yet.
+
+## 4. Connect to the network
+
+The installer builds your system from packages it downloads, so it needs a
+working internet connection. If you are on a cable, you may already be
+online. For wireless, open the network chooser:
+
+```bash
+sudo nmtui
+```
+
+Pick *Activate a connection*, choose your network, and enter its password.
+When you leave `nmtui` you should have a connection. (A wired connection
+usually needs nothing at all.)
+
+## 5. Run the installer
+
+Now start the setup wizard:
 
 ```bash
 sudo setup
 ```
 
-and follow the wizard:
+It asks you a handful of questions, one screen at a time:
 
-1. **Welcome** and a network check — the install needs a working
-   connection to fetch packages, so connect before continuing past this
-   step. The welcome screen also has a console font size control — focus
-   it and press ←/→, and the whole display resizes immediately, before
-   you commit to anything. The size you land on carries through to the
-   installed machine's own console, too.
-2. **New host, or an existing profile** — pick a profile if one is already
-   committed somewhere gisnix can see it; otherwise start fresh.
-3. **Hostname, locale, boot theme** (Kartoza or QGIS Plymouth/GRUB splash).
-4. **User account** — username, password, and a way to get your SSH
-   key(s) onto the machine: type a GitHub username and it pulls your
-   public keys from `github.com/<username>.keys`, or paste key(s) in
-   directly if you'd rather. Both are optional.
-5. **Storage** — ZFS single-disk encrypted (recommended, AES-256-GCM
-   passphrase), plain XFS single-disk, or multi-disk ZFS
-   stripe/raidz/raidz2.
-6. **Software** — installs the default bundles: a minimal base system
-   plus a minimal COSMIC desktop. Add anything else afterwards with
-   `gisnix configure`, the same picker used on any installed machine.
-7. **Confirm** — type the hostname back to proceed. This is the point of
-   no return: the selected disk(s) are erased.
-8. **Install** — disko partitions and formats, `nixos-install` builds the
-   system, and a tiny flake pinning gisnix is written to
-   `~/nixos-config` on the new machine. This one build pulls COSMIC from
-   stable nixpkgs rather than the bleeding-edge build every other gisnix
-   host uses, so it's fully cached and doesn't compile a desktop from
-   source — see [Afterwards](#afterwards) for the one command that moves
-   you onto the latest COSMIC once you're booted.
+- **Your account** — your name, a username and a password. You can also
+  have it fetch your SSH public keys from your GitHub username, so you can
+  log in remotely from the first boot.
+- **A name for the machine** — its hostname.
+- **A locale** — your keyboard layout, timezone and language, chosen
+  together as one preset.
+- **How to lay out the disk** — the recommended choice is ZFS on a single
+  disk with encryption, which asks you for a passphrase. (Plain disks and
+  multi-disk layouts are offered too; see [Storage modes](../admin/storage-modes.md).)
 
-Want to see the wizard first without touching a real disk? `setup
---mock` (or `gisnix setup --mock` from a gisnix checkout) fakes disks and
-network and skips every destructive step — no sudo needed either, since
-`--mock` touches nothing privileged.
+When you have answered everything, the wizard asks you to **type the
+hostname back** to confirm. This is the point of no return: from here the
+disk is erased and the install proceeds on its own — it partitions the
+disk, builds your system, installs it, and leaves a copy of the machine's
+description in your home directory. There is nothing more to do but wait.
 
-## 4. First boot
+!!! tip "See it first, safely"
+    `setup --mock` runs the whole wizard without touching a disk or the
+    network — useful for a dry run before you commit.
 
-Remove the USB drive, reboot, type the ZFS passphrase if you chose
-encryption, and log in with the account you created.
+## 6. Reboot into your new machine
 
-## Afterwards {#afterwards}
+Remove the USB stick and restart. If you chose encryption, the machine asks
+for your passphrase as it starts. Then you are looking at a login screen.
 
-`~/nixos-config` is the single source of truth from here. It's a plain
-NixOS flake — the always-working path is:
+What you have now is a **minimal but complete** gisnix machine: an
+encrypted ZFS disk and the COSMIC desktop, ready to grow into whatever you
+need.
+
+## 7. Your first login
+
+Log in with the account you created, and the COSMIC desktop appears. From
+here, everything you do to the machine runs through one command — and this
+is how you reach it.
+
+![Your first login, reaching the gisnix commands](../assets/diagrams/first-run.svg){ .kz-figure }
+
+Open a terminal — gisnix uses **kitty**, which you will find in the
+applications menu. In it, go to your machine's description and step into
+gisnix's tools:
 
 ```bash
 cd ~/nixos-config
-# edit hosts/<name>/config.nix: uncomment a bundle line to add it,
-# comment one out to drop it (every bundle is listed, see
-# references/bundles.md for what each one holds)
-sudo nixos-rebuild switch --flake .#<name>
+nix develop
 ```
 
-The desktop you just booted into is running stable COSMIC (see step 8
-above), so it installed fast and didn't need to compile anything. Once
-you're online, run this to move onto the same bleeding-edge COSMIC every
-other gisnix host tracks:
+The first `nix develop` takes a moment while it fetches those tools. When
+it finishes, type:
 
 ```bash
-gisnix update
+gisnix
 ```
 
-This may compile something nixos-unstable's own cache hasn't built yet,
-so expect it to take longer than a routine update — that cost only shows
-up here, once, instead of during the install itself.
+and you are looking at the **command compendium** — the full list of things
+gisnix can do for this machine. `gisnix configure` opens a menu of software
+to add; `gisnix update` rebuilds after a change; `gisnix locale` moves your
+clock when you travel. Typing `gisnix` on its own always shows the list.
 
-!!! note "The `gisnix configure` menu"
-    `nix run github:kartoza/gisnix#configure -- <name>`, run from inside
-    `~/nixos-config`, gives you the same interactive bundle picker without
-    hand-editing `config.nix` — no separate gisnix checkout needed. See
-    [Building your fleet](fleet.md) for the rest of the day-to-day
-    commands (`bundles`, `update`, adding a second machine).
+!!! note "Onto the latest desktop"
+    The desktop you just booted was installed from a fully-cached *stable*
+    build so the install was quick. Your first `gisnix update`, once you are
+    online, moves the machine onto the same up-to-the-minute COSMIC every
+    other gisnix host tracks. It may take a little longer than a routine
+    update, but only this once.
+
+## What's next?
+
+- [Understanding gisnix](../why.md) — the ideas behind what you just
+  installed.
+- [Software bundles](../admin/software-bundles.md) — choosing what your
+  machine has.
+- [Building your fleet](fleet.md) — going from one machine to many.

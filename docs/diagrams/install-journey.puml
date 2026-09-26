@@ -6,7 +6,8 @@ title Installing gisnix — from USB stick to a running machine
 start
 :Write the ISO to a USB stick;
 :Boot the target machine\nfrom the stick (UEFI);
-:Run **sudo setup**;
+:Connect to the network\n**sudo nmtui**;
+:Start the installer\n**sudo setup**;
 
 partition "The setup wizard asks you" {
   :Your name and account;
@@ -30,15 +31,7 @@ partition "The installer does the rest" {
 }
 
 :Reboot and remove the stick;
-:Log in;
-
-note right
-  From here the machine is one flake at
-  **~/nixos-config**. Change software with
-  **gisnix configure**, rebuild with
-  **gisnix update**, roll back from the
-  boot menu.
-end note
+:A minimal working machine:\nencrypted ZFS + COSMIC desktop;
 
 stop
 @enduml
