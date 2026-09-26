@@ -9,6 +9,14 @@ Here is the shape of it before we begin.
 
 ![Installing gisnix, from USB stick to a running machine](../assets/diagrams/install-journey.svg){ .kz-figure }
 
+!!! danger "Installing gisnix erases the target disk"
+    The installation **completely wipes the disk you install onto**. Every
+    existing partition, operating system and file on it is destroyed, and
+    the data **cannot be recovered** afterwards. Back up anything you care
+    about *before* you start, and be certain you have chosen the right disk.
+    gisnix and Kartoza accept **no responsibility for lost data** — you
+    install at your own risk.
+
 ## 1. Get the installer
 
 Download the ready-made image from the
@@ -77,6 +85,11 @@ It asks you a handful of questions, one screen at a time:
 - **How to lay out the disk** — the recommended choice is ZFS on a single
   disk with encryption, which asks you for a passphrase. (Plain disks and
   multi-disk layouts are offered too; see [Storage modes](../admin/storage-modes.md).)
+
+!!! danger "Point of no return"
+    The next step **erases the disk you selected**. There is no undo. Make
+    sure you picked the right disk and that anything important on it is
+    backed up elsewhere.
 
 When you have answered everything, the wizard asks you to **type the
 hostname back** to confirm. This is the point of no return: from here the

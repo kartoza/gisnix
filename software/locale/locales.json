@@ -448,6 +448,30 @@
     ]
   },
   {
+    "code": "id",
+    "label": "Indonesia — Indonesian",
+    "timeZone": "Asia/Jakarta",
+    "uiLocale": "id_ID.UTF-8",
+    "formatLocale": "id_ID.UTF-8",
+    "xkbLayout": "us",
+    "xkbVariant": "",
+    "aspell": [
+      "en"
+    ]
+  },
+  {
+    "code": "id-en",
+    "label": "Indonesia — English",
+    "timeZone": "Asia/Jakarta",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "id_ID.UTF-8",
+    "xkbLayout": "us",
+    "xkbVariant": "",
+    "aspell": [
+      "en"
+    ]
+  },
+  {
     "code": "ie-en",
     "label": "Ireland — English",
     "timeZone": "Europe/Dublin",

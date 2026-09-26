@@ -116,36 +116,33 @@ back to typing normally.
 
 ## Push-to-talk (voxtype)
 
-Hold the Menu key (between right Alt and right Ctrl on most boards —
-sometimes labelled with a small menu icon) and speak; release it and
-whatever you said gets typed at your cursor. This is
+Hold **physical right Ctrl** and speak; release it and whatever you said
+gets typed at your cursor. This is
 [voxtype](https://github.com/peteonrails/voxtype), installed and running
 by default alongside kanata.
 
-Not every board has a Menu key — the Framework 16's built-in keyboard is
-one that doesn't. **Physical right Ctrl works too**, as a second trigger:
-hold it and speak, same as Menu. Tapping it still sends a normal Ctrl
-press, so it stays usable as a modifier — but a fast `Ctrl+<key>` chord
-typed *specifically* through the right Ctrl key can be read as a hold
-instead (another key pressed while it's down), which starts push-to-talk
-rather than applying the modifier. Left Ctrl is untouched, so every
-shortcut still works through that key; only the right one changed
-character, in exchange for push-to-talk existing on boards with no Menu
-key at all.
+Right Ctrl is the trigger because it is on *every* keyboard, where the
+Menu key is not — the Framework 16's built-in board, for one, has none —
+so the same gesture works on any machine. Tapping right Ctrl still sends a
+normal Ctrl press, so it stays usable as a modifier; only the *hold* is
+repurposed. One trade-off comes with that: a fast `Ctrl+<key>` chord typed
+*specifically* through the right Ctrl key can be read as a hold (another
+key pressed while it's down) and start push-to-talk instead of applying
+the modifier. Left Ctrl is untouched, so every shortcut still works
+through that key — reach for the left one for chords.
 
-Transcription runs entirely on the machine, via whisper.cpp — nothing you
-say is sent anywhere once it's running (voxtype also supports sending
-audio to a remote API, but gisnix doesn't configure that mode, so it's
-never in play here). The speech model itself (`base.en`) is fetched once,
-the first time the machine has network after install — a
-`voxtype-model-loader` service downloads it before the daemon starts, so
-holding Menu on a machine that has never been online yet does nothing
-until that finishes. After the model is cached on disk, everything is
-offline, including on future boots with no network at all.
-
-A tap of Menu still opens the context menu, and a tap of right Ctrl still
-sends Ctrl, unchanged — only the *hold* was repurposed for this, on
-either key.
+Transcription runs **entirely on the machine's CPU**, via
+[whisper.cpp](https://github.com/ggerganov/whisper.cpp). No GPU or NPU is
+needed or used, so it works the same on a plain laptop as on a workstation
+with a graphics card, and nothing you say leaves the machine. (voxtype can
+also send audio to a remote API, but gisnix does not configure that mode,
+so it is never in play here.) The default model, `base.en`, is chosen to
+transcribe quickly on an ordinary CPU while staying accurate enough for
+dictation; it is fetched once, the first time the machine has network
+after install, by a `voxtype-model-loader` service that runs before the
+daemon starts. Holding right Ctrl on a machine that has never been online
+does nothing until that download finishes. After the model is cached,
+everything is offline, including on later boots with no network at all.
 
 A short sound plays on press (recording started) and a different one on
 release (recording stopped) — audible confirmation you don't have to

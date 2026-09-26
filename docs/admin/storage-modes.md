@@ -1,5 +1,11 @@
 # Storage modes
 
+!!! danger "Every storage mode erases the disk"
+    Whichever layout you choose, the installer **wipes the target disk
+    completely** — all existing data is destroyed and cannot be recovered.
+    Back up first, and choose the disk carefully. gisnix and Kartoza accept
+    **no responsibility for lost data**.
+
 The installer offers three storage modes, all built from the same disko
 templates under `templates/disko/` (see
 [Architecture](../developer/architecture.md) for how a host's `disks.nix`

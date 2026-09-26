@@ -5,6 +5,12 @@ page](https://github.com/kartoza/gisnix/releases/latest) or [built
 yourself](quickstart.md#1-get-the-installer)) and a USB drive of 4GB or more —
 everything on it will be erased.
 
+!!! danger "Two disks get erased here — pick the right ones"
+    Writing the ISO **erases the USB stick**, and later the installer
+    **erases the machine's disk** you install onto. Both are irreversible.
+    Double-check the device each time. gisnix and Kartoza accept **no
+    responsibility for lost data**.
+
 === "Linux"
 
     **balenaEtcher** (GUI, works the same on every OS) — download from

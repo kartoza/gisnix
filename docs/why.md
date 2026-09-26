@@ -94,11 +94,12 @@ and cursor movement, so you rarely leave the middle row of the keyboard. It
 is all software, so it works on a laptop's built-in keyboard just as well
 as on an expensive ergonomic one.
 
-There is one more trick worth knowing. Hold the Menu key and speak, and
+There is one more trick worth knowing. Hold **right Ctrl** and speak, and
 gisnix types what you said into whatever you are working in — an email, a
-map's label field, a terminal. Speech is wired in as just another key the
-keyboard understands, so it works everywhere, without each program needing
-to know about it.
+map's label field, a terminal. It runs entirely on the machine's CPU, so
+no graphics card is needed, and it works everywhere: speech is wired in as
+just another key the keyboard understands, without each program needing to
+know about it. (Right Ctrl is the key because every keyboard has one.)
 
 ![kanata sits between the keyboard and every application; speech is a held key](assets/diagrams/keyboard.svg){ .kz-figure }
 

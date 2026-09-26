@@ -42,6 +42,8 @@
     "locale-hr.nix",
     "locale-hu-en.nix",
     "locale-hu.nix",
+    "locale-id-en.nix",
+    "locale-id.nix",
     "locale-ie-en.nix",
     "locale-in-en.nix",
     "locale-is-en.nix",

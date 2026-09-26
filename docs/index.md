@@ -25,6 +25,12 @@ configuration is one flake.
 
 </div>
 
+!!! danger "Installing gisnix erases the target disk"
+    The installer **completely wipes the disk you install onto** — every
+    existing partition and file is destroyed and **cannot be recovered**.
+    Back up anything you need first, and be sure of the disk you choose.
+    gisnix and Kartoza accept **no responsibility for lost data**.
+
 ## Install on Your Machine
 
 Most users want to grab the ISO and install gisnix on real hardware.
@@ -162,8 +168,8 @@ gisnix machine so muscle memory travels with you.
 ### :material-keyboard: Keyboard-first, with speech
 
 kanata is on by default — home-row mods, a nav layer, chords — no vendor
-hardware needed. Hold the Menu key and voxtype types what you say into
-whatever field your cursor is in, anywhere on the desktop.
+hardware needed. Hold right Ctrl and voxtype types what you say into
+whatever field your cursor is in — on the CPU, no graphics card needed.
 
 </div>
 
