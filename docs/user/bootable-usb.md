@@ -2,7 +2,7 @@
 
 You need the `.iso` (from the [downloads
 page](https://github.com/kartoza/gisnix/releases/latest) or [built
-yourself](quickstart.md#1-get-the-iso)) and a USB drive of 4GB or more —
+yourself](quickstart.md#1-get-the-installer)) and a USB drive of 4GB or more —
 everything on it will be erased.
 
 === "Linux"
