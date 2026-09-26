@@ -3,6 +3,31 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.19.0] - 2026-09-26
+
+### Added
+
+- Linux 7.2 is now the default kernel, on both the installer ISO and every
+  installed machine, so current hardware works out of the box — the
+  MediaTek MT7925 (Wi-Fi 7) radio and AMD Strix Halo graphics/NPU platforms
+  need a recent kernel before the installer's `nmtui` can even see the wifi.
+  This is only safe because gisnix's nixpkgs now carries ZFS 2.4.4, the
+  first OpenZFS release to support the 7.x series; a ZFS root on 7.2 was
+  verified to build. The default is `mkDefault` (`profiles/kernel.nix`), so
+  a host can still pin a different kernel in its own `hardware.nix`.
+
+### Fixed
+
+- Push-to-talk (voxtype on right-Ctrl hold) is now audible and coherent.
+  voxtype's config is written by gisnix (`voxtype-config` user service):
+  its own key detection is turned off — it defaulted to Scroll Lock, a key
+  many boards, including the Framework 16, don't have — so kanata is the
+  single trigger, and its start/stop beep is turned on. The beep now plays
+  from voxtype's own user session (where it can reach PipeWire) instead of
+  from kanata's system-scope service (where it never could), which is why
+  holding right Ctrl felt like nothing was happening even while it was
+  recording. The now-redundant kanata-side sound cues were removed.
+
 ## [0.18.0] - 2026-09-26
 
 ### Added
