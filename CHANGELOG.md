@@ -29,6 +29,9 @@ All notable changes to gisnix are documented here. Format follows
   (home-row modifiers), navigation and herdr — generated from the same key
   tables kanata uses, in the Kartoza palette, and regenerated as part of
   the docs build so they can't drift.
+- `gisnix update --flake` updates flake.lock before rebuilding (every
+  input, or just one with `--flake=<input>`), so bumping an input and
+  applying it is one command.
 
 ### Changed
 

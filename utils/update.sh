@@ -24,6 +24,8 @@
 #   gisnix update --check       # dry-activate; changes nothing
 #   gisnix update --boot        # apply on next boot, not now
 #   gisnix update --no-gc       # skip the cleanup prompt (local only)
+#   gisnix update --flake       # update every flake input, then rebuild
+#   gisnix update --flake=nixpkgs abyss   # bump just one input, rebuild abyss
 #
 # The remote paths need your key in ssh-agent and the target reachable —
 # `gisnix inventory` will tell you which hosts are answering.
@@ -55,6 +57,8 @@ case "$(basename "$0")" in
 esac
 MODE=switch
 DO_GC=1
+FLAKE_UPDATE=0
+FLAKE_INPUT=""
 
 while (($# > 0)); do
   case "$1" in
@@ -66,6 +70,14 @@ while (($# > 0)); do
     --check) MODE=dry-activate ;;
     --boot) MODE=boot ;;
     --no-gc) DO_GC=0 ;;
+    # --flake updates flake.lock before rebuilding — every input, or just
+    # one with --flake=<input> (e.g. --flake=gisnix). The lock change is
+    # left staged for you to review and commit; it is not committed here.
+    --flake) FLAKE_UPDATE=1 ;;
+    --flake=*)
+      FLAKE_UPDATE=1
+      FLAKE_INPUT="${1#--flake=}"
+      ;;
     -*)
       err "unknown flag: $1"
       exit 1
@@ -309,6 +321,26 @@ deploy_rsync() { # $1=host
 
 echo
 echo "${BOLD}update${NC}  ${DIM}mode: ${MODE}   ·   targets: ${TARGETS[*]}${NC}"
+
+# Refresh the lock first if asked, so the rebuild below sees the new inputs.
+if ((FLAKE_UPDATE)); then
+  if [[ -n "$FLAKE_INPUT" ]]; then
+    step "updating flake input: ${FLAKE_INPUT}"
+    cmd "nix flake update ${FLAKE_INPUT}"
+    "${NIX[@]}" flake update "$FLAKE_INPUT" || {
+      err "flake update failed"
+      exit 1
+    }
+  else
+    step "updating all flake inputs"
+    cmd "nix flake update"
+    "${NIX[@]}" flake update || {
+      err "flake update failed"
+      exit 1
+    }
+  fi
+  info "flake.lock updated — review and commit it separately once the rebuild looks good."
+fi
 
 failed=()
 for host in "${TARGETS[@]}"; do
