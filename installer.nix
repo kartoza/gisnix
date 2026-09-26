@@ -11,6 +11,16 @@
 {
   imports = [ (modulesPath + "/installer/cd-dvd/installation-cd-minimal.nix") ];
 
+  # Linux 7.2 on the installer, for current hardware — the MediaTek MT7925
+  # (Wi-Fi 7) and AMD Strix Halo platforms need a recent kernel before
+  # nmtui can even see the radio. Safe on the installer specifically because
+  # the ISO's own root is squashfs, not ZFS; but disko still creates the
+  # TARGET's ZFS pool with this kernel's module, so this only works because
+  # gisnix's nixpkgs now carries ZFS 2.4.4, the first release to support the
+  # 7.x series. The installed system defaults to the same 7.2 (profiles/
+  # kernel.nix).
+  boot.kernelPackages = lib.mkForce pkgs.linuxKernel.packages.linux_7_2;
+
   image.baseName = lib.mkForce "gisnix-installer-x86_64";
 
   # The default Linux virtual console font has no glyphs for the box-drawing

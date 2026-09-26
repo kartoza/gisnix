@@ -7,6 +7,9 @@
 }:
 {
   imports = [
+    # Default kernel: Linux 7.2 (mkDefault), for current wifi/GPU/NPU
+    # hardware. Paired with the ZFS 2.4.4 that gisnix's nixpkgs now carries.
+    ./kernel.nix
     # Optional locale overrides (timeZone / language / formatLocale in the
     # host's config.nix) layered on top of the preset locale module. Inert
     # unless a host sets one of them — see the module for the travelling
