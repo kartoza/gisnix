@@ -74,6 +74,40 @@ let
     exit 0
   '';
 
+  # gisnix-managed voxtype config. Two things matter here, and both were
+  # wrong on a first-run default:
+  #   - [hotkey] enabled = false: voxtype's OWN key detection is OFF, so it
+  #     stops listening on its default SCROLLLOCK (a key many boards, incl.
+  #     the Framework 16, don't even have). kanata is the single trigger —
+  #     right Ctrl held runs `voxtype record start/stop` (see kanata-config).
+  #   - [audio.feedback] enabled = true: voxtype plays the start/stop beep
+  #     ITSELF, from the user session where it actually reaches PipeWire.
+  #     kanata's own cue can't — it fires from a system service with no
+  #     audio socket — which is why right-Ctrl push-to-talk felt silent even
+  #     when it was recording.
+  voxtypeManagedConfig = pkgs.writeText "voxtype-config.toml" ''
+    # Managed by gisnix (software/services/device/input-kanata/
+    # kanata-keyboard.nix). Overwritten on every rebuild — edit there.
+    state_file = "auto"
+
+    [hotkey]
+    enabled = false
+
+    [audio.feedback]
+    enabled = true
+    theme = "default"
+    volume = 0.7
+
+    [whisper]
+    backend = "local"
+    model = "base.en"
+    language = "en"
+
+    [output]
+    mode = "type"
+    fallback_to_clipboard = true
+  '';
+
   cfg = config.kartoza.kanata;
 in
 {
@@ -163,12 +197,14 @@ in
             # dualMode gate decides whether it's ever used).
             beepPlayer = "${kanataPlaySound}/bin/kanata-play-sound";
             beepSound = "${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo/bell.oga";
-            # Voxtype push-to-talk cues: a short rising sound when
-            # recording starts, a short falling one when it stops —
-            # device-added/-removed rather than bell.oga, so this reads
-            # as a distinct cue from the mode-toggle beep above.
-            voxtypeStartSound = "${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo/device-added.oga";
-            voxtypeStopSound = "${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo/device-removed.oga";
+            # No voxtype start/stop cues from kanata: those `cmd`s fire from
+            # the SYSTEM-scope kanata service, which has no PipeWire socket, so
+            # they never made a sound — that silence is exactly why push-to-talk
+            # felt dead even while it was recording. The beep now comes from
+            # voxtype itself ([audio.feedback] in voxtypeManagedConfig), played
+            # from the user session where it can actually reach PipeWire. Left
+            # unset (null), so kanata's rctl-ptt runs a clean `voxtype record
+            # start`/`stop` with no dead cue riding along.
             # herdr's macro-record toggle click — camera-shutter, not
             # bell.oga or the voxtype pair, so all three stay distinct.
             recordToggleSound = "${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo/camera-shutter.oga";
@@ -241,11 +277,39 @@ in
       };
     };
 
+    # voxtype writes its config on first `setup` with defaults that are wrong
+    # for a kanata-driven, headless-hardware setup: its own hotkey detection
+    # armed on SCROLLLOCK (a key the Framework 16 and many others don't have),
+    # and the start/stop beep off. We overwrite it with a gisnix-managed copy
+    # (voxtypeManagedConfig, above) after the model download and before the
+    # daemon starts, so the daemon always reads the settings we want. Runs as
+    # the user, so $HOME is theirs — install into ~/.config/voxtype.
+    systemd.user.services.voxtype-config = {
+      description = "Write gisnix-managed voxtype config";
+      before = [ "voxtype.service" ];
+      after = [ "voxtype-model-loader.service" ];
+      unitConfig.ConditionUser = "!@system";
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        ExecStart = pkgs.writeShellScript "voxtype-write-config" ''
+          set -eu
+          install -Dm644 ${voxtypeManagedConfig} "$HOME/.config/voxtype/config.toml"
+        '';
+      };
+    };
+
     systemd.user.services.voxtype = {
       description = "voxtype push-to-talk voice-to-text daemon";
       wantedBy = [ "default.target" ];
-      wants = [ "voxtype-model-loader.service" ];
-      after = [ "voxtype-model-loader.service" ];
+      wants = [
+        "voxtype-model-loader.service"
+        "voxtype-config.service"
+      ];
+      after = [
+        "voxtype-model-loader.service"
+        "voxtype-config.service"
+      ];
       unitConfig.ConditionUser = "!@system";
       serviceConfig = {
         Type = "simple";
