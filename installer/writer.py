@@ -54,6 +54,13 @@ def render_config_nix(state: InstallState) -> str:
         "",
         f'  locale = "{state.locale}";',
         f'  bootTheme = "{state.boot_theme}";',
+        "",
+        "  # Optional locale overrides, layered on top of the preset above —",
+        "  # change one axis without the others. `gisnix locale` manages these;",
+        "  # uncomment to set by hand. See profiles/locale-overrides.nix.",
+        '  # timeZone = "Europe/Zurich";        # just the clock (e.g. travelling)',
+        '  # language = "en_GB.UTF-8";          # just the desktop language',
+        '  # formatLocale = "pt_PT.UTF-8";      # just dates/money/measurements/paper',
         "}",
     ]
     return "\n".join(lines) + "\n"
@@ -64,6 +71,7 @@ def render_default_nix(state: InstallState) -> str:
   lib,
   hostname,
   gisnixRoot,
+  hostConfig,
   ...
 }}:
 {{
@@ -75,7 +83,10 @@ def render_default_nix(state: InstallState) -> str:
 
     ../../users/{state.username}.nix
 
-    (gisnixRoot + "/software/locale/locale-{state.locale}.nix")
+    # Preset locale, driven by `locale` in config.nix (not hardcoded) so
+    # `gisnix locale`/`gisnix configure` can change it and a rebuild picks
+    # it up. Per-axis overrides layer on via profiles/locale-overrides.nix.
+    (gisnixRoot + "/software/locale/locale-${{hostConfig.locale}}.nix")
 
     (gisnixRoot + "/profiles/common.nix")
     (gisnixRoot + "/profiles/cosmic-desktop.nix")

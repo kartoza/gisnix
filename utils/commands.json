@@ -846,6 +846,28 @@
         "python3",
         "gawk"
       ]
+    },
+    {
+      "name": "locale",
+      "file": "locale.sh",
+      "key": "L",
+      "group": "software",
+      "order": 2,
+      "desc": "Change this machine's locale — the preset, or a per-axis override (clock/language/formatting) for travelling — then rebuild",
+      "terse": "change locale / timezone",
+      "deps": [
+        "coreutils",
+        "git",
+        "findutils",
+        "gnugrep",
+        "gawk",
+        "nettools",
+        "python3",
+        "jq",
+        "gum",
+        "systemd"
+      ],
+      "usage": "gisnix locale [--show]"
     }
   ]
 }

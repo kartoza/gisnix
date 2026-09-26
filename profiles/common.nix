@@ -7,6 +7,11 @@
 }:
 {
   imports = [
+    # Optional locale overrides (timeZone / language / formatLocale in the
+    # host's config.nix) layered on top of the preset locale module. Inert
+    # unless a host sets one of them — see the module for the travelling
+    # use case it exists for.
+    ./locale-overrides.nix
     # Memory-pressure guard, fleet-wide. Every host here has
     # swapDevices = [ ], so there is no cushion when something allocates hard.
     # The other half of that guard — capping the ZFS ARC, which OpenZFS

@@ -2,6 +2,7 @@
   lib,
   hostname,
   gisnixRoot,
+  hostConfig,
   ...
 }:
 {
@@ -25,7 +26,11 @@
     # host directory also works unmodified inside a downstream flake that
     # pins gisnix as an input and points hostPath at a copy of this
     # directory in ITS OWN tree (see flake.nix's mkHost).
-    (gisnixRoot + "/software/locale/locale-za-en.nix")
+    # Preset locale, chosen by `locale` in config.nix — driven from there
+    # (not a hardcoded name) so `gisnix locale`/`gisnix configure` can
+    # change it and a rebuild picks it up. Optional per-axis overrides
+    # (timeZone/language/formatLocale) layer on via profiles/locale-overrides.nix.
+    (gisnixRoot + "/software/locale/locale-${hostConfig.locale or "za-en"}.nix")
 
     # Always-on core, independent of the optional software/ bundles in
     # config.nix: Nix settings/hardening, the desktop, Kartoza branding

@@ -413,6 +413,13 @@
     # "security"
   ];
 
+  # Preset locale: keyboard, timezone, desktop language and regional
+  # formatting as one choice (software/locale/locales.json, the `code`
+  # field). Change it with `gisnix configure` or `gisnix locale`. Per-axis
+  # overrides — timeZone / language / formatLocale — layer on top; see
+  # profiles/locale-overrides.nix for the travelling use case.
+  locale = "za-en";
+
   # GRUB and Plymouth branding. Alternatives — a host boots with one splash,
   # and its GRUB menu matches it. Each member is the Plymouth/GRUB pair,
   # because a Kartoza menu handing over to a QGIS splash reads as a fault.

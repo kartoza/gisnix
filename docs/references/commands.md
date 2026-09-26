@@ -19,7 +19,7 @@ Every command this flake provides. One row in `utils/commands.json` mints all of
 
 This page is the sixth, generated from the same row.
 
-**37 implemented**, 5 declared but not yet written. Commands still to be built are listed rather than hidden: the manifest describes the intended lifecycle, not only the part of it that exists.
+**38 implemented**, 5 declared but not yet written. Commands still to be built are listed rather than hidden: the manifest describes the intended lifecycle, not only the part of it that exists.
 
 ## The life of a host
 
@@ -113,6 +113,7 @@ graph LR
 | --- | --- | --- |
 | [`configure`](#configure) | `<leader>pE` | choose a host's software bundles |
 | [`bundles`](#bundles) | `<leader>pW` | software bundles, read-only |
+| [`locale`](#locale) | `<leader>pL` | change locale / timezone |
 
 **🧪 qa** — Checks that run before a change lands.
 
@@ -644,6 +645,20 @@ gisnix bundles
 | Implementation | `utils/bundles.sh` |
 | Neovim | `<leader>pW` |
 | On PATH | `coreutils`, `python3`, `gawk` |
+
+### locale
+
+Change this machine's locale — the preset, or a per-axis override (clock/language/formatting) for travelling — then rebuild.
+
+```bash
+gisnix locale [--show]
+```
+
+| | |
+| --- | --- |
+| Implementation | `utils/locale.sh` |
+| Neovim | `<leader>pL` |
+| On PATH | `coreutils`, `git`, `findutils`, `gnugrep`, `gawk`, `nettools`, `python3`, `jq`, `gum`, `systemd` |
 
 ## Quality checks
 
