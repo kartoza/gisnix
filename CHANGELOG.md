@@ -3,6 +3,21 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.17.1] - 2026-09-26
+
+### Fixed
+
+- The install completed the real work — disko, the closure copy,
+  `nixos-install`, GRUB — and then failed at the very last step, "copying
+  the flake into the new machine", because the system build left a
+  `system-toplevel` symlink in the flake work directory and the copy
+  followed it into the Nix store. The build now uses `--no-link
+  --print-out-paths`, so no symlink is left behind and the install runs
+  clean to the end.
+- The Docs (GitHub Pages) build no longer fails trying to write a
+  regenerated `.mmd` into the read-only Nix store during `nix run
+  .#docs-build`; the write is now conditional and non-fatal.
+
 ## [0.17.0] - 2026-09-26
 
 ### Fixed
