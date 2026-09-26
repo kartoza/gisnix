@@ -1,0 +1,998 @@
+[
+  {
+    "code": "at",
+    "label": "Austria — German",
+    "timeZone": "Europe/Vienna",
+    "uiLocale": "de_AT.UTF-8",
+    "formatLocale": "de_AT.UTF-8",
+    "xkbLayout": "de",
+    "xkbVariant": "",
+    "aspell": [
+      "de",
+      "en"
+    ]
+  },
+  {
+    "code": "at-en",
+    "label": "Austria — English",
+    "timeZone": "Europe/Vienna",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "de_AT.UTF-8",
+    "xkbLayout": "de",
+    "xkbVariant": "",
+    "aspell": [
+      "en",
+      "de"
+    ]
+  },
+  {
+    "code": "au-en",
+    "label": "Australia — English",
+    "timeZone": "Australia/Sydney",
+    "uiLocale": "en_AU.UTF-8",
+    "formatLocale": "en_AU.UTF-8",
+    "xkbLayout": "us",
+    "xkbVariant": "",
+    "aspell": [
+      "en"
+    ]
+  },
+  {
+    "code": "be",
+    "label": "Belgium — Dutch",
+    "timeZone": "Europe/Brussels",
+    "uiLocale": "nl_BE.UTF-8",
+    "formatLocale": "nl_BE.UTF-8",
+    "xkbLayout": "be",
+    "xkbVariant": "",
+    "aspell": [
+      "nl",
+      "en"
+    ]
+  },
+  {
+    "code": "be-en",
+    "label": "Belgium — English",
+    "timeZone": "Europe/Brussels",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "nl_BE.UTF-8",
+    "xkbLayout": "be",
+    "xkbVariant": "",
+    "aspell": [
+      "en",
+      "nl"
+    ]
+  },
+  {
+    "code": "bg",
+    "label": "Bulgaria — Bulgarian",
+    "timeZone": "Europe/Sofia",
+    "uiLocale": "bg_BG.UTF-8",
+    "formatLocale": "bg_BG.UTF-8",
+    "xkbLayout": "bg",
+    "xkbVariant": "",
+    "aspell": [
+      "bg",
+      "en"
+    ]
+  },
+  {
+    "code": "bg-en",
+    "label": "Bulgaria — English",
+    "timeZone": "Europe/Sofia",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "bg_BG.UTF-8",
+    "xkbLayout": "bg",
+    "xkbVariant": "",
+    "aspell": [
+      "en",
+      "bg"
+    ]
+  },
+  {
+    "code": "br",
+    "label": "Brazil — Portuguese",
+    "timeZone": "America/Sao_Paulo",
+    "uiLocale": "pt_BR.UTF-8",
+    "formatLocale": "pt_BR.UTF-8",
+    "xkbLayout": "br",
+    "xkbVariant": "",
+    "aspell": [
+      "en"
+    ]
+  },
+  {
+    "code": "br-en",
+    "label": "Brazil — English",
+    "timeZone": "America/Sao_Paulo",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "pt_BR.UTF-8",
+    "xkbLayout": "br",
+    "xkbVariant": "",
+    "aspell": [
+      "en"
+    ]
+  },
+  {
+    "code": "ca-en",
+    "label": "Canada — English",
+    "timeZone": "America/Toronto",
+    "uiLocale": "en_CA.UTF-8",
+    "formatLocale": "en_CA.UTF-8",
+    "xkbLayout": "us",
+    "xkbVariant": "",
+    "aspell": [
+      "en"
+    ]
+  },
+  {
+    "code": "ch",
+    "label": "Switzerland — German",
+    "timeZone": "Europe/Zurich",
+    "uiLocale": "de_CH.UTF-8",
+    "formatLocale": "de_CH.UTF-8",
+    "xkbLayout": "ch",
+    "xkbVariant": "",
+    "aspell": [
+      "de",
+      "en"
+    ]
+  },
+  {
+    "code": "ch-en",
+    "label": "Switzerland — English",
+    "timeZone": "Europe/Zurich",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "de_CH.UTF-8",
+    "xkbLayout": "ch",
+    "xkbVariant": "",
+    "aspell": [
+      "en",
+      "de"
+    ]
+  },
+  {
+    "code": "cn",
+    "label": "China — Chinese",
+    "timeZone": "Asia/Shanghai",
+    "uiLocale": "zh_CN.UTF-8",
+    "formatLocale": "zh_CN.UTF-8",
+    "xkbLayout": "us",
+    "xkbVariant": "",
+    "aspell": [
+      "en"
+    ]
+  },
+  {
+    "code": "cn-en",
+    "label": "China — English",
+    "timeZone": "Asia/Shanghai",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "zh_CN.UTF-8",
+    "xkbLayout": "us",
+    "xkbVariant": "",
+    "aspell": [
+      "en"
+    ]
+  },
+  {
+    "code": "cz",
+    "label": "Czechia — Czech",
+    "timeZone": "Europe/Prague",
+    "uiLocale": "cs_CZ.UTF-8",
+    "formatLocale": "cs_CZ.UTF-8",
+    "xkbLayout": "cz",
+    "xkbVariant": "",
+    "aspell": [
+      "cs",
+      "en"
+    ]
+  },
+  {
+    "code": "cz-en",
+    "label": "Czechia — English",
+    "timeZone": "Europe/Prague",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "cs_CZ.UTF-8",
+    "xkbLayout": "cz",
+    "xkbVariant": "",
+    "aspell": [
+      "en",
+      "cs"
+    ]
+  },
+  {
+    "code": "de",
+    "label": "Germany — German",
+    "timeZone": "Europe/Berlin",
+    "uiLocale": "de_DE.UTF-8",
+    "formatLocale": "de_DE.UTF-8",
+    "xkbLayout": "de",
+    "xkbVariant": "",
+    "aspell": [
+      "de",
+      "en"
+    ]
+  },
+  {
+    "code": "de-en",
+    "label": "Germany — English",
+    "timeZone": "Europe/Berlin",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "de_DE.UTF-8",
+    "xkbLayout": "de",
+    "xkbVariant": "",
+    "aspell": [
+      "en",
+      "de"
+    ]
+  },
+  {
+    "code": "dk",
+    "label": "Denmark — Danish",
+    "timeZone": "Europe/Copenhagen",
+    "uiLocale": "da_DK.UTF-8",
+    "formatLocale": "da_DK.UTF-8",
+    "xkbLayout": "dk",
+    "xkbVariant": "",
+    "aspell": [
+      "da",
+      "en"
+    ]
+  },
+  {
+    "code": "dk-en",
+    "label": "Denmark — English",
+    "timeZone": "Europe/Copenhagen",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "da_DK.UTF-8",
+    "xkbLayout": "dk",
+    "xkbVariant": "",
+    "aspell": [
+      "en",
+      "da"
+    ]
+  },
+  {
+    "code": "ee",
+    "label": "Estonia — Estonian",
+    "timeZone": "Europe/Tallinn",
+    "uiLocale": "et_EE.UTF-8",
+    "formatLocale": "et_EE.UTF-8",
+    "xkbLayout": "ee",
+    "xkbVariant": "",
+    "aspell": [
+      "et",
+      "en"
+    ]
+  },
+  {
+    "code": "ee-en",
+    "label": "Estonia — English",
+    "timeZone": "Europe/Tallinn",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "et_EE.UTF-8",
+    "xkbLayout": "ee",
+    "xkbVariant": "",
+    "aspell": [
+      "en",
+      "et"
+    ]
+  },
+  {
+    "code": "es",
+    "label": "Spain — Spanish",
+    "timeZone": "Europe/Madrid",
+    "uiLocale": "es_ES.UTF-8",
+    "formatLocale": "es_ES.UTF-8",
+    "xkbLayout": "es",
+    "xkbVariant": "",
+    "aspell": [
+      "es",
+      "en"
+    ]
+  },
+  {
+    "code": "es-en",
+    "label": "Spain — English",
+    "timeZone": "Europe/Madrid",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "es_ES.UTF-8",
+    "xkbLayout": "es",
+    "xkbVariant": "",
+    "aspell": [
+      "en",
+      "es"
+    ]
+  },
+  {
+    "code": "fi",
+    "label": "Finland — Finnish",
+    "timeZone": "Europe/Helsinki",
+    "uiLocale": "fi_FI.UTF-8",
+    "formatLocale": "fi_FI.UTF-8",
+    "xkbLayout": "fi",
+    "xkbVariant": "",
+    "aspell": [
+      "fi",
+      "en"
+    ]
+  },
+  {
+    "code": "fi-en",
+    "label": "Finland — English",
+    "timeZone": "Europe/Helsinki",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "fi_FI.UTF-8",
+    "xkbLayout": "fi",
+    "xkbVariant": "",
+    "aspell": [
+      "en",
+      "fi"
+    ]
+  },
+  {
+    "code": "fr",
+    "label": "France — French",
+    "timeZone": "Europe/Paris",
+    "uiLocale": "fr_FR.UTF-8",
+    "formatLocale": "fr_FR.UTF-8",
+    "xkbLayout": "fr",
+    "xkbVariant": "",
+    "aspell": [
+      "fr",
+      "en"
+    ]
+  },
+  {
+    "code": "fr-en",
+    "label": "France — English",
+    "timeZone": "Europe/Paris",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "fr_FR.UTF-8",
+    "xkbLayout": "fr",
+    "xkbVariant": "",
+    "aspell": [
+      "en",
+      "fr"
+    ]
+  },
+  {
+    "code": "gb-en",
+    "label": "United Kingdom — English",
+    "timeZone": "Europe/London",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "en_GB.UTF-8",
+    "xkbLayout": "gb",
+    "xkbVariant": "",
+    "aspell": [
+      "en"
+    ]
+  },
+  {
+    "code": "gr",
+    "label": "Greece — Greek",
+    "timeZone": "Europe/Athens",
+    "uiLocale": "el_GR.UTF-8",
+    "formatLocale": "el_GR.UTF-8",
+    "xkbLayout": "gr",
+    "xkbVariant": "",
+    "aspell": [
+      "el",
+      "en"
+    ]
+  },
+  {
+    "code": "gr-en",
+    "label": "Greece — English",
+    "timeZone": "Europe/Athens",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "el_GR.UTF-8",
+    "xkbLayout": "gr",
+    "xkbVariant": "",
+    "aspell": [
+      "en",
+      "el"
+    ]
+  },
+  {
+    "code": "hr",
+    "label": "Croatia — Croatian",
+    "timeZone": "Europe/Zagreb",
+    "uiLocale": "hr_HR.UTF-8",
+    "formatLocale": "hr_HR.UTF-8",
+    "xkbLayout": "hr",
+    "xkbVariant": "",
+    "aspell": [
+      "hr",
+      "en"
+    ]
+  },
+  {
+    "code": "hr-en",
+    "label": "Croatia — English",
+    "timeZone": "Europe/Zagreb",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "hr_HR.UTF-8",
+    "xkbLayout": "hr",
+    "xkbVariant": "",
+    "aspell": [
+      "en",
+      "hr"
+    ]
+  },
+  {
+    "code": "hu",
+    "label": "Hungary — Hungarian",
+    "timeZone": "Europe/Budapest",
+    "uiLocale": "hu_HU.UTF-8",
+    "formatLocale": "hu_HU.UTF-8",
+    "xkbLayout": "hu",
+    "xkbVariant": "",
+    "aspell": [
+      "hu",
+      "en"
+    ]
+  },
+  {
+    "code": "hu-en",
+    "label": "Hungary — English",
+    "timeZone": "Europe/Budapest",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "hu_HU.UTF-8",
+    "xkbLayout": "hu",
+    "xkbVariant": "",
+    "aspell": [
+      "en",
+      "hu"
+    ]
+  },
+  {
+    "code": "ie-en",
+    "label": "Ireland — English",
+    "timeZone": "Europe/Dublin",
+    "uiLocale": "en_IE.UTF-8",
+    "formatLocale": "en_IE.UTF-8",
+    "xkbLayout": "ie",
+    "xkbVariant": "",
+    "aspell": [
+      "en"
+    ]
+  },
+  {
+    "code": "in-en",
+    "label": "India — English",
+    "timeZone": "Asia/Kolkata",
+    "uiLocale": "en_IN",
+    "formatLocale": "en_IN",
+    "xkbLayout": "us",
+    "xkbVariant": "",
+    "aspell": [
+      "en"
+    ]
+  },
+  {
+    "code": "is",
+    "label": "Iceland — Icelandic",
+    "timeZone": "Atlantic/Reykjavik",
+    "uiLocale": "is_IS.UTF-8",
+    "formatLocale": "is_IS.UTF-8",
+    "xkbLayout": "is",
+    "xkbVariant": "",
+    "aspell": [
+      "is",
+      "en"
+    ]
+  },
+  {
+    "code": "is-en",
+    "label": "Iceland — English",
+    "timeZone": "Atlantic/Reykjavik",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "is_IS.UTF-8",
+    "xkbLayout": "is",
+    "xkbVariant": "",
+    "aspell": [
+      "en",
+      "is"
+    ]
+  },
+  {
+    "code": "it",
+    "label": "Italy — Italian",
+    "timeZone": "Europe/Rome",
+    "uiLocale": "it_IT.UTF-8",
+    "formatLocale": "it_IT.UTF-8",
+    "xkbLayout": "it",
+    "xkbVariant": "",
+    "aspell": [
+      "it",
+      "en"
+    ]
+  },
+  {
+    "code": "it-en",
+    "label": "Italy — English",
+    "timeZone": "Europe/Rome",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "it_IT.UTF-8",
+    "xkbLayout": "it",
+    "xkbVariant": "",
+    "aspell": [
+      "en",
+      "it"
+    ]
+  },
+  {
+    "code": "jp",
+    "label": "Japan — Japanese",
+    "timeZone": "Asia/Tokyo",
+    "uiLocale": "ja_JP.UTF-8",
+    "formatLocale": "ja_JP.UTF-8",
+    "xkbLayout": "jp",
+    "xkbVariant": "",
+    "aspell": [
+      "en"
+    ]
+  },
+  {
+    "code": "jp-en",
+    "label": "Japan — English",
+    "timeZone": "Asia/Tokyo",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "ja_JP.UTF-8",
+    "xkbLayout": "jp",
+    "xkbVariant": "",
+    "aspell": [
+      "en"
+    ]
+  },
+  {
+    "code": "ke-en",
+    "label": "Kenya — English",
+    "timeZone": "Africa/Nairobi",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "en_GB.UTF-8",
+    "xkbLayout": "us",
+    "xkbVariant": "",
+    "aspell": [
+      "en"
+    ]
+  },
+  {
+    "code": "lt",
+    "label": "Lithuania — Lithuanian",
+    "timeZone": "Europe/Vilnius",
+    "uiLocale": "lt_LT.UTF-8",
+    "formatLocale": "lt_LT.UTF-8",
+    "xkbLayout": "lt",
+    "xkbVariant": "",
+    "aspell": [
+      "lt",
+      "en"
+    ]
+  },
+  {
+    "code": "lt-en",
+    "label": "Lithuania — English",
+    "timeZone": "Europe/Vilnius",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "lt_LT.UTF-8",
+    "xkbLayout": "lt",
+    "xkbVariant": "",
+    "aspell": [
+      "en",
+      "lt"
+    ]
+  },
+  {
+    "code": "lv",
+    "label": "Latvia — Latvian",
+    "timeZone": "Europe/Riga",
+    "uiLocale": "lv_LV.UTF-8",
+    "formatLocale": "lv_LV.UTF-8",
+    "xkbLayout": "lv",
+    "xkbVariant": "",
+    "aspell": [
+      "lv",
+      "en"
+    ]
+  },
+  {
+    "code": "lv-en",
+    "label": "Latvia — English",
+    "timeZone": "Europe/Riga",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "lv_LV.UTF-8",
+    "xkbLayout": "lv",
+    "xkbVariant": "",
+    "aspell": [
+      "en",
+      "lv"
+    ]
+  },
+  {
+    "code": "mx",
+    "label": "Mexico — Spanish",
+    "timeZone": "America/Mexico_City",
+    "uiLocale": "es_MX.UTF-8",
+    "formatLocale": "es_MX.UTF-8",
+    "xkbLayout": "latam",
+    "xkbVariant": "",
+    "aspell": [
+      "es",
+      "en"
+    ]
+  },
+  {
+    "code": "mx-en",
+    "label": "Mexico — English",
+    "timeZone": "America/Mexico_City",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "es_MX.UTF-8",
+    "xkbLayout": "latam",
+    "xkbVariant": "",
+    "aspell": [
+      "en",
+      "es"
+    ]
+  },
+  {
+    "code": "ng-en",
+    "label": "Nigeria — English",
+    "timeZone": "Africa/Lagos",
+    "uiLocale": "en_NG",
+    "formatLocale": "en_NG",
+    "xkbLayout": "us",
+    "xkbVariant": "",
+    "aspell": [
+      "en"
+    ]
+  },
+  {
+    "code": "nl",
+    "label": "Netherlands — Dutch",
+    "timeZone": "Europe/Amsterdam",
+    "uiLocale": "nl_NL.UTF-8",
+    "formatLocale": "nl_NL.UTF-8",
+    "xkbLayout": "us",
+    "xkbVariant": "",
+    "aspell": [
+      "nl",
+      "en"
+    ]
+  },
+  {
+    "code": "nl-en",
+    "label": "Netherlands — English",
+    "timeZone": "Europe/Amsterdam",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "nl_NL.UTF-8",
+    "xkbLayout": "us",
+    "xkbVariant": "",
+    "aspell": [
+      "en",
+      "nl"
+    ]
+  },
+  {
+    "code": "no",
+    "label": "Norway — Norwegian",
+    "timeZone": "Europe/Oslo",
+    "uiLocale": "nb_NO.UTF-8",
+    "formatLocale": "nb_NO.UTF-8",
+    "xkbLayout": "no",
+    "xkbVariant": "",
+    "aspell": [
+      "nb",
+      "en"
+    ]
+  },
+  {
+    "code": "no-en",
+    "label": "Norway — English",
+    "timeZone": "Europe/Oslo",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "nb_NO.UTF-8",
+    "xkbLayout": "no",
+    "xkbVariant": "",
+    "aspell": [
+      "en",
+      "nb"
+    ]
+  },
+  {
+    "code": "nz-en",
+    "label": "New Zealand — English",
+    "timeZone": "Pacific/Auckland",
+    "uiLocale": "en_NZ.UTF-8",
+    "formatLocale": "en_NZ.UTF-8",
+    "xkbLayout": "us",
+    "xkbVariant": "",
+    "aspell": [
+      "en"
+    ]
+  },
+  {
+    "code": "pl",
+    "label": "Poland — Polish",
+    "timeZone": "Europe/Warsaw",
+    "uiLocale": "pl_PL.UTF-8",
+    "formatLocale": "pl_PL.UTF-8",
+    "xkbLayout": "pl",
+    "xkbVariant": "",
+    "aspell": [
+      "pl",
+      "en"
+    ]
+  },
+  {
+    "code": "pl-en",
+    "label": "Poland — English",
+    "timeZone": "Europe/Warsaw",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "pl_PL.UTF-8",
+    "xkbLayout": "pl",
+    "xkbVariant": "",
+    "aspell": [
+      "en",
+      "pl"
+    ]
+  },
+  {
+    "code": "pt",
+    "label": "Portugal — Portuguese",
+    "timeZone": "Europe/Lisbon",
+    "uiLocale": "pt_PT.UTF-8",
+    "formatLocale": "pt_PT.UTF-8",
+    "xkbLayout": "pt",
+    "xkbVariant": "",
+    "aspell": [
+      "en"
+    ]
+  },
+  {
+    "code": "pt-en",
+    "label": "Portugal — English",
+    "timeZone": "Europe/Lisbon",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "pt_PT.UTF-8",
+    "xkbLayout": "pt",
+    "xkbVariant": "",
+    "aspell": [
+      "en"
+    ]
+  },
+  {
+    "code": "ro",
+    "label": "Romania — Romanian",
+    "timeZone": "Europe/Bucharest",
+    "uiLocale": "ro_RO.UTF-8",
+    "formatLocale": "ro_RO.UTF-8",
+    "xkbLayout": "ro",
+    "xkbVariant": "",
+    "aspell": [
+      "ro",
+      "en"
+    ]
+  },
+  {
+    "code": "ro-en",
+    "label": "Romania — English",
+    "timeZone": "Europe/Bucharest",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "ro_RO.UTF-8",
+    "xkbLayout": "ro",
+    "xkbVariant": "",
+    "aspell": [
+      "en",
+      "ro"
+    ]
+  },
+  {
+    "code": "rs",
+    "label": "Serbia — Serbian",
+    "timeZone": "Europe/Belgrade",
+    "uiLocale": "sr_RS",
+    "formatLocale": "sr_RS",
+    "xkbLayout": "rs",
+    "xkbVariant": "",
+    "aspell": [
+      "sr",
+      "en"
+    ]
+  },
+  {
+    "code": "rs-en",
+    "label": "Serbia — English",
+    "timeZone": "Europe/Belgrade",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "sr_RS",
+    "xkbLayout": "rs",
+    "xkbVariant": "",
+    "aspell": [
+      "en",
+      "sr"
+    ]
+  },
+  {
+    "code": "ru",
+    "label": "Russia — Russian",
+    "timeZone": "Europe/Moscow",
+    "uiLocale": "ru_RU.UTF-8",
+    "formatLocale": "ru_RU.UTF-8",
+    "xkbLayout": "ru",
+    "xkbVariant": "",
+    "aspell": [
+      "ru",
+      "en"
+    ]
+  },
+  {
+    "code": "ru-en",
+    "label": "Russia — English",
+    "timeZone": "Europe/Moscow",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "ru_RU.UTF-8",
+    "xkbLayout": "ru",
+    "xkbVariant": "",
+    "aspell": [
+      "en",
+      "ru"
+    ]
+  },
+  {
+    "code": "se",
+    "label": "Sweden — Swedish",
+    "timeZone": "Europe/Stockholm",
+    "uiLocale": "sv_SE.UTF-8",
+    "formatLocale": "sv_SE.UTF-8",
+    "xkbLayout": "se",
+    "xkbVariant": "",
+    "aspell": [
+      "sv",
+      "en"
+    ]
+  },
+  {
+    "code": "se-en",
+    "label": "Sweden — English",
+    "timeZone": "Europe/Stockholm",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "sv_SE.UTF-8",
+    "xkbLayout": "se",
+    "xkbVariant": "",
+    "aspell": [
+      "en",
+      "sv"
+    ]
+  },
+  {
+    "code": "si",
+    "label": "Slovenia — Slovenian",
+    "timeZone": "Europe/Ljubljana",
+    "uiLocale": "sl_SI.UTF-8",
+    "formatLocale": "sl_SI.UTF-8",
+    "xkbLayout": "si",
+    "xkbVariant": "",
+    "aspell": [
+      "sl",
+      "en"
+    ]
+  },
+  {
+    "code": "si-en",
+    "label": "Slovenia — English",
+    "timeZone": "Europe/Ljubljana",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "sl_SI.UTF-8",
+    "xkbLayout": "si",
+    "xkbVariant": "",
+    "aspell": [
+      "en",
+      "sl"
+    ]
+  },
+  {
+    "code": "sk",
+    "label": "Slovakia — Slovak",
+    "timeZone": "Europe/Bratislava",
+    "uiLocale": "sk_SK.UTF-8",
+    "formatLocale": "sk_SK.UTF-8",
+    "xkbLayout": "sk",
+    "xkbVariant": "",
+    "aspell": [
+      "sk",
+      "en"
+    ]
+  },
+  {
+    "code": "sk-en",
+    "label": "Slovakia — English",
+    "timeZone": "Europe/Bratislava",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "sk_SK.UTF-8",
+    "xkbLayout": "sk",
+    "xkbVariant": "",
+    "aspell": [
+      "en",
+      "sk"
+    ]
+  },
+  {
+    "code": "tr",
+    "label": "Turkey — Turkish",
+    "timeZone": "Europe/Istanbul",
+    "uiLocale": "tr_TR.UTF-8",
+    "formatLocale": "tr_TR.UTF-8",
+    "xkbLayout": "tr",
+    "xkbVariant": "",
+    "aspell": [
+      "tr",
+      "en"
+    ]
+  },
+  {
+    "code": "tr-en",
+    "label": "Turkey — English",
+    "timeZone": "Europe/Istanbul",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "tr_TR.UTF-8",
+    "xkbLayout": "tr",
+    "xkbVariant": "",
+    "aspell": [
+      "en",
+      "tr"
+    ]
+  },
+  {
+    "code": "ua",
+    "label": "Ukraine — Ukrainian",
+    "timeZone": "Europe/Kyiv",
+    "uiLocale": "uk_UA.UTF-8",
+    "formatLocale": "uk_UA.UTF-8",
+    "xkbLayout": "ua",
+    "xkbVariant": "",
+    "aspell": [
+      "uk",
+      "en"
+    ]
+  },
+  {
+    "code": "ua-en",
+    "label": "Ukraine — English",
+    "timeZone": "Europe/Kyiv",
+    "uiLocale": "en_GB.UTF-8",
+    "formatLocale": "uk_UA.UTF-8",
+    "xkbLayout": "ua",
+    "xkbVariant": "",
+    "aspell": [
+      "en",
+      "uk"
+    ]
+  },
+  {
+    "code": "us-en",
+    "label": "United States — English",
+    "timeZone": "America/New_York",
+    "uiLocale": "en_US.UTF-8",
+    "formatLocale": "en_US.UTF-8",
+    "xkbLayout": "us",
+    "xkbVariant": "",
+    "aspell": [
+      "en"
+    ]
+  },
+  {
+    "code": "za-en",
+    "label": "South Africa — English",
+    "timeZone": "Africa/Johannesburg",
+    "uiLocale": "en_ZA.UTF-8",
+    "formatLocale": "en_ZA.UTF-8",
+    "xkbLayout": "za",
+    "xkbVariant": "",
+    "aspell": [
+      "en"
+    ]
+  }
+]

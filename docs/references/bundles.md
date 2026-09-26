@@ -389,7 +389,7 @@ graph LR
 | [`services-system-power`](#services-system-power)  | 3 | `services-system` | — |
 | [`services-system-storage`](#services-system-storage)  | 3 | `services-system` | — |
 | [`security`](#security)  | 4 | — | — |
-| [`locale`](#locale)  *(choice)* | 8 | — | — |
+| [`locale`](#locale)  *(choice)* | 78 | — | — |
 
 ### base
 
@@ -1162,17 +1162,87 @@ Taking this also brings in `services-system`.
 
 | Module | What it is |
 | --- | --- |
-| `locale-ba-en.nix` | — |
-| `locale-eu-en-bosnia.nix` | — |
-| `locale-eu-en-madagascar.nix` | — |
-| `locale-in-en.nix` | India — English working locale |
-| `locale-ke-en.nix` | — |
-| `locale-pt-en.nix` | — |
-| `locale-pt.nix` | — |
-| `locale-za-en.nix` | — |
+| `locale-at-en.nix` | Austria — English |
+| `locale-at.nix` | Austria — German |
+| `locale-au-en.nix` | Australia — English |
+| `locale-be-en.nix` | Belgium — English |
+| `locale-be.nix` | Belgium — Dutch |
+| `locale-bg-en.nix` | Bulgaria — English |
+| `locale-bg.nix` | Bulgaria — Bulgarian |
+| `locale-br-en.nix` | Brazil — English |
+| `locale-br.nix` | Brazil — Portuguese |
+| `locale-ca-en.nix` | Canada — English |
+| `locale-ch-en.nix` | Switzerland — English |
+| `locale-ch.nix` | Switzerland — German |
+| `locale-cn-en.nix` | China — English |
+| `locale-cn.nix` | China — Chinese |
+| `locale-cz-en.nix` | Czechia — English |
+| `locale-cz.nix` | Czechia — Czech |
+| `locale-de-en.nix` | Germany — English |
+| `locale-de.nix` | Germany — German |
+| `locale-dk-en.nix` | Denmark — English |
+| `locale-dk.nix` | Denmark — Danish |
+| `locale-ee-en.nix` | Estonia — English |
+| `locale-ee.nix` | Estonia — Estonian |
+| `locale-es-en.nix` | Spain — English |
+| `locale-es.nix` | Spain — Spanish |
+| `locale-fi-en.nix` | Finland — English |
+| `locale-fi.nix` | Finland — Finnish |
+| `locale-fr-en.nix` | France — English |
+| `locale-fr.nix` | France — French |
+| `locale-gb-en.nix` | United Kingdom — English |
+| `locale-gr-en.nix` | Greece — English |
+| `locale-gr.nix` | Greece — Greek |
+| `locale-hr-en.nix` | Croatia — English |
+| `locale-hr.nix` | Croatia — Croatian |
+| `locale-hu-en.nix` | Hungary — English |
+| `locale-hu.nix` | Hungary — Hungarian |
+| `locale-ie-en.nix` | Ireland — English |
+| `locale-in-en.nix` | India — English |
+| `locale-is-en.nix` | Iceland — English |
+| `locale-is.nix` | Iceland — Icelandic |
+| `locale-it-en.nix` | Italy — English |
+| `locale-it.nix` | Italy — Italian |
+| `locale-jp-en.nix` | Japan — English |
+| `locale-jp.nix` | Japan — Japanese |
+| `locale-ke-en.nix` | Kenya — English |
+| `locale-lt-en.nix` | Lithuania — English |
+| `locale-lt.nix` | Lithuania — Lithuanian |
+| `locale-lv-en.nix` | Latvia — English |
+| `locale-lv.nix` | Latvia — Latvian |
+| `locale-mx-en.nix` | Mexico — English |
+| `locale-mx.nix` | Mexico — Spanish |
+| `locale-ng-en.nix` | Nigeria — English |
+| `locale-nl-en.nix` | Netherlands — English |
+| `locale-nl.nix` | Netherlands — Dutch |
+| `locale-no-en.nix` | Norway — English |
+| `locale-no.nix` | Norway — Norwegian |
+| `locale-nz-en.nix` | New Zealand — English |
+| `locale-pl-en.nix` | Poland — English |
+| `locale-pl.nix` | Poland — Polish |
+| `locale-pt-en.nix` | Portugal — English |
+| `locale-pt.nix` | Portugal — Portuguese |
+| `locale-ro-en.nix` | Romania — English |
+| `locale-ro.nix` | Romania — Romanian |
+| `locale-rs-en.nix` | Serbia — English |
+| `locale-rs.nix` | Serbia — Serbian |
+| `locale-ru-en.nix` | Russia — English |
+| `locale-ru.nix` | Russia — Russian |
+| `locale-se-en.nix` | Sweden — English |
+| `locale-se.nix` | Sweden — Swedish |
+| `locale-si-en.nix` | Slovenia — English |
+| `locale-si.nix` | Slovenia — Slovenian |
+| `locale-sk-en.nix` | Slovakia — English |
+| `locale-sk.nix` | Slovakia — Slovak |
+| `locale-tr-en.nix` | Turkey — English |
+| `locale-tr.nix` | Turkey — Turkish |
+| `locale-ua-en.nix` | Ukraine — English |
+| `locale-ua.nix` | Ukraine — Ukrainian |
+| `locale-us-en.nix` | United States — English |
+| `locale-za-en.nix` | South Africa — English |
 
 ---
 
-61 bundles, 153 modules.
+61 bundles, 223 modules.
 
 Made with love by [Kartoza](https://kartoza.com) | [Donate](https://github.com/sponsors/timlinux) | [GitHub](https://github.com/kartoza/gisnix)

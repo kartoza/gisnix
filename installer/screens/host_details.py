@@ -1,22 +1,33 @@
 from __future__ import annotations
 
+import json
+
 from textual.containers import VerticalGroup
 from textual.widgets import Input, Label, RadioButton, RadioSet, Select
 
-from ..repo import valid_hostname
+from ..repo import GISNIX_ROOT, valid_hostname
 from .base import WizardScreen
 
-#: Locale bundles gisnix ships (software/locale/locale-*.nix). Kept as a
-#: short list here rather than scanning the filesystem — same set the
-#: bundle registry documents.
-#: Select() options are (label, value) pairs.
-LOCALES = [
-    ("South Africa (English)", "za-en"),
-    ("Portugal (English)", "pt-en"),
-    ("India (English)", "in-en"),
-    ("Kenya (English)", "ke-en"),
-    ("Bosnia (English)", "ba-en"),
-]
+
+def _load_locales() -> list[tuple[str, str]]:
+    """Every locale gisnix ships, read from software/locale/locales.json —
+    the same manifest utils/gen-locales.py builds the modules from, so the
+    installer menu and the bundle registry can't drift. Select() options
+    are (label, value) pairs; the value is the `locale = "<code>";` string.
+    """
+    fallback = [("South Africa — English", "za-en")]
+    if GISNIX_ROOT is None:
+        return fallback
+    manifest = GISNIX_ROOT / "software" / "locale" / "locales.json"
+    try:
+        entries = json.loads(manifest.read_text())
+    except (OSError, ValueError):
+        return fallback
+    return [(e["label"], e["code"]) for e in sorted(entries, key=lambda e: e["label"])]
+
+
+#: (label, code) for every shipped locale, default first.
+LOCALES = _load_locales()
 
 
 class HostDetailsScreen(WizardScreen):
