@@ -3,6 +3,44 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.18.0] - 2026-09-26
+
+### Added
+
+- A full documentation refresh. The site is rewritten in the voice of
+  QGIS's *Gentle Introduction to GIS* — approachable and concept-led — with
+  eleven brand-coloured PlantUML diagrams illustrating every key idea
+  (architecture, the install journey, first login, bundles, encrypted ZFS,
+  generations and rollback, the keyboard and speech pipeline, the AI
+  sandbox, locale, downstream fleets). Diagrams render from committed
+  `.puml` sources via `gisnix docs-diagrams`.
+- The whole install-to-first-command journey is now documented and
+  diagrammed: write the ISO, boot, connect the network with `sudo nmtui`,
+  run `sudo setup`, reboot into a minimal encrypted-ZFS + COSMIC machine,
+  log in, open kitty, `cd ~/nixos-config`, `nix develop`, and reach the
+  `gisnix` command compendium. The per-machine flake the installer writes
+  now re-exports gisnix's devShells, so that `nix develop` works.
+- A single-file PDF of the documentation, built by `gisnix docs-pdf` and
+  attached to every GitHub release alongside the ISO.
+- Indonesia added to the locale library (80 locales total).
+- Loud "this erases your disk / no responsibility for lost data" warnings
+  across the install docs.
+
+### Changed
+
+- voxtype push-to-talk moved from the Menu key to **physical right Ctrl**,
+  which exists on every keyboard (Menu does not), so the gesture is the
+  same on any host. Documented that transcription runs entirely on the CPU
+  via whisper.cpp — no GPU or NPU needed.
+- The installer ISO now carries the full `linux-firmware` set (not only the
+  redistributable subset), so `nmtui` can see wifi radios whose firmware
+  isn't redistributable.
+
+### Fixed
+
+- The docs build no longer fails rendering diagrams into the read-only Nix
+  store, and the PDF plugin no longer trips `mkdocs build --strict`.
+
 ## [0.17.1] - 2026-09-26
 
 ### Fixed
