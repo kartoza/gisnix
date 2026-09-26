@@ -16,6 +16,16 @@ All notable changes to gisnix are documented here. Format follows
   belongs) and mirrors voxtype's own generated defaults for the other required
   fields.
 
+### Changed
+
+- The daemon now reads the gisnix-managed config directly from the Nix store
+  (`voxtype --config <store path>`) instead of a copy written into
+  `~/.config/voxtype`. The previous write-a-copy step was a `RemainAfterExit`
+  oneshot, which does not reliably re-run on `nixos-rebuild switch` — so a
+  corrected config could fail to reach the machine on the very rebuild meant
+  to deliver it. With the path baked into the service, every rebuild applies
+  the current config and there is no on-disk copy to go stale.
+
 ## [0.19.0] - 2026-09-26
 
 ### Added

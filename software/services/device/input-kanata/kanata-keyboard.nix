@@ -303,43 +303,27 @@ in
       };
     };
 
-    # voxtype writes its config on first `setup` with defaults that are wrong
-    # for a kanata-driven, headless-hardware setup: its own hotkey detection
-    # armed on SCROLLLOCK (a key the Framework 16 and many others don't have),
-    # and the start/stop beep off. We overwrite it with a gisnix-managed copy
-    # (voxtypeManagedConfig, above) after the model download and before the
-    # daemon starts, so the daemon always reads the settings we want. Runs as
-    # the user, so $HOME is theirs — install into ~/.config/voxtype.
-    systemd.user.services.voxtype-config = {
-      description = "Write gisnix-managed voxtype config";
-      before = [ "voxtype.service" ];
-      after = [ "voxtype-model-loader.service" ];
-      unitConfig.ConditionUser = "!@system";
-      serviceConfig = {
-        Type = "oneshot";
-        RemainAfterExit = true;
-        ExecStart = pkgs.writeShellScript "voxtype-write-config" ''
-          set -eu
-          install -Dm644 ${voxtypeManagedConfig} "$HOME/.config/voxtype/config.toml"
-        '';
-      };
-    };
-
+    # The daemon reads the gisnix-managed config STRAIGHT FROM THE NIX STORE
+    # (`voxtype --config <store path>`), rather than us writing a copy into
+    # ~/.config/voxtype. This is deliberate, and it is what an earlier
+    # write-a-copy oneshot got wrong: a `RemainAfterExit` oneshot that has
+    # already succeeded does not reliably re-run on `nixos-rebuild switch`, so
+    # a changed config never reached ~/.config and the daemon kept parsing the
+    # stale file (which is exactly how a bad config survived a rebuild that was
+    # supposed to fix it). With the path baked into ExecStart, a config change
+    # changes the unit, systemd restarts the daemon, and the new config is in
+    # force the moment the switch completes — no on-disk copy to go stale, and
+    # voxtype's own first-run `setup` defaults (SCROLLLOCK hotkey, beep off)
+    # are simply never read.
     systemd.user.services.voxtype = {
       description = "voxtype push-to-talk voice-to-text daemon";
       wantedBy = [ "default.target" ];
-      wants = [
-        "voxtype-model-loader.service"
-        "voxtype-config.service"
-      ];
-      after = [
-        "voxtype-model-loader.service"
-        "voxtype-config.service"
-      ];
+      wants = [ "voxtype-model-loader.service" ];
+      after = [ "voxtype-model-loader.service" ];
       unitConfig.ConditionUser = "!@system";
       serviceConfig = {
         Type = "simple";
-        ExecStart = "${pkgs.voxtype}/bin/voxtype";
+        ExecStart = "${pkgs.voxtype}/bin/voxtype --config ${voxtypeManagedConfig}";
         Restart = "on-failure";
         RestartSec = 3;
       };
