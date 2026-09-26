@@ -419,6 +419,7 @@
         "docs-generate-hosts"
         "docs-generate-software"
         "docs-diagrams"
+        "docs-pdf"
         # test-install/test-boot are NOT here — they're commands.json rows
         # now (utils/test-install.sh, utils/test-boot.sh) that just exec
         # these same apps, so they show up in the `gisnix` table. Listing
@@ -437,6 +438,35 @@
       # environment and store paths that don't fit the manifest's plain
       # deps/pythonDeps shape as cleanly; `gisnix docs-serve` etc. still reach
       # them, via extraAppNames rather than a commandApps row.
+      # mkdocs-with-pdf isn't in nixpkgs on this channel; build it from
+      # PyPI. Pure-Python; the real cost is weasyprint's Pango/Cairo chain.
+      # gisnix's diagrams are static PlantUML SVGs, so — unlike nix-config's
+      # mermaid setup — the PDF needs no headless browser to render them.
+      mkdocsWithPdf = defaultPkgs.python3Packages.buildPythonPackage rec {
+        pname = "mkdocs-with-pdf";
+        version = "0.9.3";
+        pyproject = true;
+        src = defaultPkgs.fetchPypi {
+          inherit pname version;
+          hash = "sha256-vaM3XXBA0biHHaF8bXHqc2vcpsZpYI8o7WJ3EDHS4MY=";
+        };
+        build-system = [ defaultPkgs.python3Packages.setuptools ];
+        # bs4 4.13+ made Tag.text read-only; upstream 0.9.3 still assigns it.
+        postPatch = ''
+          substituteInPlace mkdocs_with_pdf/generator.py \
+            --replace-fail "tag.text = self._mixed_script" \
+                           "tag.string = self._mixed_script"
+        '';
+        propagatedBuildInputs = with defaultPkgs.python3Packages; [
+          mkdocs
+          weasyprint
+          beautifulsoup4
+          libsass
+          qrcode
+        ];
+        doCheck = false; # upstream tests fetch a theme over the network
+      };
+
       docsPython = defaultPkgs.python3.withPackages (
         ps: with ps; [
           mkdocs
@@ -445,6 +475,7 @@
           mkdocs-git-revision-date-localized-plugin
           pymdown-extensions
           pygments
+          mkdocsWithPdf
         ]
       );
 
@@ -871,6 +902,23 @@
             body = ''
               ${regenerateDocs}
               exec mkdocs build --strict "$@"
+            '';
+          };
+          docs-pdf = mkDocsApp {
+            name = "docs-pdf";
+            description = "Build a single-file PDF of the whole docs site (site/pdf/gisnix.pdf)";
+            extraInputs = [
+              defaultPkgs.plantuml
+              defaultPkgs.librsvg
+            ];
+            # ENABLE_PDF_EXPORT turns on the with-pdf plugin (see mkdocs.yml),
+            # which is off for the normal HTML build so it isn't slowed by
+            # WeasyPrint. The PlantUML SVGs are static, so WeasyPrint renders
+            # them directly — no headless browser needed.
+            body = ''
+              ${regenerateDocs}
+              ENABLE_PDF_EXPORT=1 mkdocs build
+              echo "PDF written to site/pdf/gisnix.pdf"
             '';
           };
           docs-generate-bundles = mkDocsApp {

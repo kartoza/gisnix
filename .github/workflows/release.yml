@@ -90,6 +90,16 @@ jobs:
           sha256sum "dist/gisnix-installer-${{ steps.version.outputs.tag }}.iso" \
             > "dist/gisnix-installer-${{ steps.version.outputs.tag }}.iso.sha256"
 
+      # A single-file PDF of the whole documentation site, attached to the
+      # release so the docs travel with the ISO. The diagrams are rendered
+      # from their PlantUML sources as part of the build.
+      - name: Build docs PDF
+        run: |
+          nix run .#docs-pdf
+          cp site/pdf/gisnix.pdf "dist/gisnix-docs-${{ steps.version.outputs.tag }}.pdf"
+          sha256sum "dist/gisnix-docs-${{ steps.version.outputs.tag }}.pdf" \
+            > "dist/gisnix-docs-${{ steps.version.outputs.tag }}.pdf.sha256"
+
       # CHANGELOG.md sections are "## [X.Y.Z] - date"; the release body is
       # everything between this version's heading and the next "## [" line
       # (or end of file for the very first release).
@@ -118,3 +128,5 @@ jobs:
             dist/gisnix-installer.iso.sha256
             dist/gisnix-installer-${{ steps.version.outputs.tag }}.iso
             dist/gisnix-installer-${{ steps.version.outputs.tag }}.iso.sha256
+            dist/gisnix-docs-${{ steps.version.outputs.tag }}.pdf
+            dist/gisnix-docs-${{ steps.version.outputs.tag }}.pdf.sha256
