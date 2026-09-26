@@ -99,11 +99,26 @@ def render(
     """
     diagram_dir = diagram_dir if diagram_dir is not None else DIAGRAM_DIR
     source = source.rstrip("\n") + "\n"
-    diagram_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        diagram_dir.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        pass
 
     # Keep the source beside the SVG: it is reviewable in a diff, whereas the
     # generated SVG is not, and it lets anyone re-render without this script.
-    (diagram_dir / f"{slug}.mmd").write_text(source)
+    #
+    # Written only when it actually changed, and never fatally: `nix run
+    # .#docs-build` resolves this module — and therefore DIAGRAM_DIR — inside
+    # the read-only Nix store (GISNIX_ROOT points there), so a write here is a
+    # PermissionError. That is fine: the committed .mmd is what ships, and the
+    # page still renders from the committed SVG or the fenced-block fallback
+    # below. This mirrors the rest of render()'s "degrade, don't crash" contract.
+    mmd_path = diagram_dir / f"{slug}.mmd"
+    try:
+        if not mmd_path.exists() or mmd_path.read_text() != source:
+            mmd_path.write_text(source)
+    except OSError:
+        pass
 
     svg_path = diagram_dir / f"{slug}.svg"
 
