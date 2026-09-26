@@ -163,11 +163,19 @@
 
   # The installation-cd-minimal profile this ISO is built from ships no
   # firmware blobs — fine for the kernel's own drivers, not fine for wifi:
-  # Framework 13's Intel/MediaTek radios (like most laptop wifi/bluetooth
-  # chips) need a redistributable firmware blob loaded before the device
-  # shows up at all, which is why nmtui saw no radio to configure rather
-  # than a radio it couldn't connect with.
+  # most laptop wifi/bluetooth chips need a firmware blob loaded before the
+  # device shows up at all, which is why nmtui sees no radio to configure
+  # rather than a radio it can't connect with.
+  #
+  # enableAllFirmware, not just enableRedistributableFirmware: the
+  # redistributable set covers most Intel/MediaTek radios, but not all wifi
+  # chips — some need firmware that only ships in the full (partly unfree)
+  # linux-firmware. An installer that can't see the wifi is useless, so the
+  # ISO carries the lot; hence allowUnfree here too (this is the live
+  # installer image, not an installed machine).
+  nixpkgs.config.allowUnfree = true;
   hardware.enableRedistributableFirmware = true;
+  hardware.enableAllFirmware = true;
 
   # SSH: installed for rescue use but NOT started by default on real
   # hardware — the live ISO has a well-known root password, so exposing

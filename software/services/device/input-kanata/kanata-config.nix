@@ -39,17 +39,15 @@
   # default, so unlike herdr this stays off unless a caller both runs
   # aerc and asks for it.
   aercLayer ? false,
-  # Hold the Menu key (between right Alt and right Ctrl) — or, on a board
-  # with no Menu key, physical right Ctrl instead (see rctlSrc/rctlAlias
-  # below) — to talk to voxtype instead of raising the navigation/mouse
-  # layer. That layer is still reachable by holding space (see spc-nav
-  # below), so nothing is lost, just moved off its second trigger.
-  # `on-press-fakekey`/`on-release-fakekey` tap a virtual key at the
-  # moment the REAL key is pressed and again when it's released, and
-  # those virtual keys run `voxtype record start`/`stop` — see the
-  # defvirtualkeys block below. Tapping either key still does its normal
-  # thing (Menu opens the context menu, right Ctrl is still Ctrl); only
-  # the hold changes.
+  # Hold **physical right Ctrl** to talk to voxtype (push-to-talk). Right
+  # Ctrl is the trigger because it exists on every keyboard, where the Menu
+  # key does not (the Framework 16's built-in board has none) — so the same
+  # gesture works on any host. See rctlSrc/rctlAlias below for the binding.
+  # `on-press-fakekey`/`on-release-fakekey` tap a virtual key when the real
+  # key is pressed and again when released, and those virtual keys run
+  # `voxtype record start`/`stop` — see the defvirtualkeys block below.
+  # Tapping right Ctrl still gives a normal Ctrl press; only the hold talks
+  # to voxtype.
   voxtypePtt ? false,
   # The voxtype package — needed only when voxtypePtt is true, to give the
   # `cmd voxtype record start`/`stop` actions below an ABSOLUTE path.
@@ -182,10 +180,9 @@ let
   herdrDefault = if herdrLayer then " @herdr-nav" else "";
   herdrPass = if herdrLayer then " _" else "";
 
-  # Right Ctrl (physical) — a second, always-reachable push-to-talk trigger
-  # alongside Menu. Menu doesn't exist on every board (the Framework 16's
-  # built-in keyboard has none), but right Ctrl does. Governed by the same
-  # voxtypePtt flag as Menu, not a separate one — one switch, two keys.
+  # Right Ctrl (physical) — the push-to-talk trigger. Present on every
+  # keyboard, unlike Menu, so the gesture is the same on any host. Governed
+  # by the voxtypePtt flag.
   #
   # Cost: this key is not in defsrc by default, so kanata never touches it
   # and it passes through as an ordinary Ctrl modifier. Adding it to
@@ -207,8 +204,8 @@ let
       ''
 
         ;; Right Ctrl: tap for a normal Ctrl press (still usable as a
-        ;; modifier — see the trade-off noted above), hold for the same
-        ;; voxtype push-to-talk Menu already triggers.
+        ;; modifier — see the trade-off noted above), hold for voxtype
+        ;; push-to-talk. This is the push-to-talk key on every host.
         rctl-ptt (tap-hold ${toString tapTimeout} ${toString holdTimeout} rctl (multi (on-press-fakekey voxtype-start tap) (on-release-fakekey voxtype-stop tap)))
       '';
 
@@ -692,16 +689,12 @@ in
     ;; Space: tap for space, hold for navigation layer
     spc-nav (tap-hold ${toString tapTimeout} ${toString holdTimeout} spc (layer-while-held navigation))
 
-    ;; Menu key: tap for context menu always. Hold does voxtype push-to-talk
-    ;; when voxtypePtt is on (the default — see that parameter's own
-    ;; comment), or the navigation/mouse layer otherwise, matching what
-    ;; this key did before voxtype existed.
-    menu-nav (tap-hold ${toString tapTimeout} ${toString holdTimeout} menu ${
-      if voxtypePtt then
-        "(multi (on-press-fakekey voxtype-start tap) (on-release-fakekey voxtype-stop tap))"
-      else
-        "(layer-while-held navigation)"
-    })
+    ;; Menu key: tap for context menu, hold for the navigation/mouse layer.
+    ;; It no longer triggers voxtype push-to-talk — that lives on right Ctrl
+    ;; (see rctl-ptt), which is present on every keyboard whereas Menu is
+    ;; not (the Framework 16's built-in board has none). Holding Menu here
+    ;; is just a second way into the navigation layer, alongside space.
+    menu-nav (tap-hold ${toString tapTimeout} ${toString holdTimeout} menu (layer-while-held navigation))
 
     ;; Physical Super: modifier as normal + the meta lighting layer
     met (multi lmet (layer-while-held meta))
