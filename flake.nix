@@ -456,6 +456,8 @@
         python3 docs/scripts/generate-bundle-docs.py
         echo "Regenerating command reference..."
         python3 docs/scripts/generate-commands-docs.py
+        echo "Rendering diagrams..."
+        python3 docs/scripts/generate-diagrams.py
       '';
 
       mkDocsApp =
@@ -841,6 +843,8 @@
             extraInputs = [
               defaultPkgs.xdg-utils
               defaultPkgs.coreutils
+              defaultPkgs.plantuml
+              defaultPkgs.librsvg
             ];
             body = ''
               ${regenerateDocs}
@@ -860,6 +864,10 @@
           docs-build = mkDocsApp {
             name = "docs-build";
             description = "Build the static docs site (mkdocs build --strict)";
+            extraInputs = [
+              defaultPkgs.plantuml
+              defaultPkgs.librsvg
+            ];
             body = ''
               ${regenerateDocs}
               exec mkdocs build --strict "$@"
