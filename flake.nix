@@ -917,7 +917,7 @@
             # them directly — no headless browser needed.
             body = ''
               ${regenerateDocs}
-              ENABLE_PDF_EXPORT=1 mkdocs build
+              ENABLE_PDF_EXPORT=1 mkdocs build -f mkdocs.pdf.yml
               echo "PDF written to site/pdf/gisnix.pdf"
             '';
           };

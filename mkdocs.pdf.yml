@@ -1,0 +1,41 @@
+# PDF build config — inherits the site config and adds the with-pdf plugin.
+# Kept separate because with-pdf logs a warning when disabled that
+# `mkdocs build --strict` (the HTML build) treats as an error. Built by
+# `nix run .#docs-pdf`, which sets ENABLE_PDF_EXPORT=1.
+#
+# mkdocs replaces (does not merge) the `plugins` list on inherit, so the
+# site's plugins are repeated here with with-pdf appended.
+INHERIT: mkdocs.yml
+
+plugins:
+  - search:
+      lang: en
+  - glightbox:
+      touchNavigation: true
+      loop: false
+      effect: zoom
+      slide_effect: slide
+      width: 100%
+      height: auto
+      zoomable: true
+      draggable: true
+      skip_classes:
+        - no-lightbox
+  - git-revision-date-localized:
+      enable_creation_date: true
+      type: timeago
+      fallback_to_build_date: true
+      strict: false
+  - with-pdf:
+      enabled_if_env: ENABLE_PDF_EXPORT
+      author: Kartoza
+      copyright: Made with 💗 by Kartoza
+      cover: true
+      cover_title: gisnix
+      cover_subtitle: A reproducible NixOS distribution for GIS workstations
+      cover_logo: assets/brand/kartoza-symbol-color.svg
+      toc_title: Contents
+      toc_level: 3
+      ordered_chapter_level: 2
+      output_path: pdf/gisnix.pdf
+      verbose: false

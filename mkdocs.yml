@@ -144,24 +144,10 @@ plugins:
       type: timeago
       fallback_to_build_date: true
       strict: false
-  # Single-file PDF of the whole site. Off unless ENABLE_PDF_EXPORT is set,
-  # so the normal HTML build and `mkdocs serve` aren't slowed by WeasyPrint.
-  # Built by `nix run .#docs-pdf` and attached to each GitHub release.
-  # gisnix's diagrams are static PlantUML SVGs, so no headless browser is
-  # needed to render them into the PDF.
-  - with-pdf:
-      enabled_if_env: ENABLE_PDF_EXPORT
-      author: Kartoza
-      copyright: Made with 💗 by Kartoza
-      cover: true
-      cover_title: gisnix
-      cover_subtitle: A reproducible NixOS distribution for GIS workstations
-      cover_logo: assets/brand/kartoza-symbol-color.svg
-      toc_title: Contents
-      toc_level: 3
-      ordered_chapter_level: 2
-      output_path: pdf/gisnix.pdf
-      verbose: false
+  # The PDF export (mkdocs with-pdf) is NOT here on purpose: when disabled it
+  # logs a warning that `mkdocs build --strict` treats as an error. It lives
+  # in mkdocs.pdf.yml, which inherits this file and adds the plugin — built
+  # by `nix run .#docs-pdf`.
 
 nav:
   - Home: index.md
