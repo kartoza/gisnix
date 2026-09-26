@@ -1,139 +1,150 @@
+# Understanding gisnix
+
+If you have ever set up a computer for serious geospatial work, you know
+how much of the effort goes into things that have nothing to do with maps.
+You install an operating system, then a desktop, then QGIS, then the dozen
+smaller tools you have come to rely on. You configure the disk, the
+keyboard, the backups. A year later you buy a new laptop and do the whole
+thing again from memory, and it never comes out quite the same.
+
+gisnix exists to make that setup a description rather than a chore. It is a
+version of the Linux operating system, built on NixOS, that already knows
+what a geospatial workstation needs and writes the whole machine down in a
+single file you can keep, copy and change. This page explains the ideas
+behind it, so that the rest of the documentation makes sense.
+
+## A machine described in a file
+
+Think of a recipe. A recipe does not *contain* a cake; it contains
+everything needed to produce the same cake again and again. gisnix treats a
+computer the same way. Instead of a machine you have installed and tinkered
+with until it works, you have a short description — which software, which
+disk layout, which keyboard — and gisnix builds the machine from it.
+
+![How one machine is described in gisnix](assets/diagrams/architecture.svg){ .kz-figure }
+
+You write two kinds of thing. The first is what makes this machine *this*
+machine: its name, its hardware, how its disk is laid out. The second is
+what software it should have, chosen from gisnix's collection. gisnix
+supplies the rest — the desktop, the system services, its own packages —
+and assembles them into a running system.
+
+The important part is what happens when you change that description. gisnix
+does not edit your machine in place. It builds a new version of the whole
+system and switches to it, keeping the previous one. That new version is
+called a *generation*, and every generation is still there in your boot
+menu. If a change goes wrong, you restart, pick the previous generation,
+and you are exactly where you were. Nothing is ever left half-changed.
+
+## Software you ask for by name
+
+Most systems make you manage software one package at a time, and leave you
+to remember that this tool needs that library which needs a particular
+service running. gisnix groups software into **bundles** — named sets like
+`desktop-gis` or `terminal-ai` — and each bundle knows what it depends on.
+
+When you ask for the GIS bundle, the desktop it needs to run in comes with
+it, because the bundle says so. You are describing a capability you want,
+not assembling a parts list. The command `gisnix configure` shows you the
+whole collection as a menu and writes your choices back into that one
+description file.
+
+QGIS sits at the centre of that collection. gisnix carries the current QGIS
+releases and, alongside them, twenty-three older versions going back to
+1.8 — each built in its own isolated way, so an old project that needs an
+old QGIS can have it on the same machine as your current work without the
+two interfering. A geospatial distribution should treat QGIS as a
+first-class citizen, and gisnix does.
+
+## Storage you can trust, encrypted by default
+
+A field laptop carries client data, and laptops get lost. So when gisnix
+installs a machine, its recommended disk layout is ZFS with encryption
+switched on: the disk is scrambled, and it asks for your passphrase each
+time the machine starts. Without the passphrase the disk is unreadable.
+
+ZFS gives you more than encryption. It takes snapshots — frozen pictures of
+your files at a moment in time — that you can roll back to, and it checks
+every block it reads so quiet corruption cannot creep into your data
+unnoticed. If you would rather use a plain disk, or spread your data across
+several disks for resilience, gisnix offers those layouts too. But the
+encrypted single disk is the one a laptop should be running, so it is the
+default.
+
+## Built around the keyboard
+
+gisnix assumes you would rather keep your hands on the keyboard than reach
+for the mouse, and it sets the machine up that way from the start. A tool
+called kanata gives you *home-row modifiers* — hold a letter key and it
+acts as Control or Shift — along with a navigation layer for the arrow keys
+and cursor movement, so you rarely leave the middle row of the keyboard. It
+is all software, so it works on a laptop's built-in keyboard just as well
+as on an expensive ergonomic one.
+
+There is one more trick worth knowing. Hold the Menu key and speak, and
+gisnix types what you said into whatever you are working in — an email, a
+map's label field, a terminal. Speech is wired in as just another key the
+keyboard understands, so it works everywhere, without each program needing
+to know about it.
+
+## Assistants kept in a room of their own
+
+gisnix ships the current crop of AI coding assistants, and treats them with
+appropriate caution. An assistant runs commands and reads files on your
+behalf, which is useful right up until one misbehaves. So each assistant
+runs inside a *sandbox* — a locked room that can see the project you are
+working on but not the keys to your other machines, not your wider home
+directory, not your SSH agent. You get the help without handing over the
+keys to everything.
+
+## The desktop and the shape of the whole thing
+
+The desktop is COSMIC, a modern environment built on Wayland, and it is the
+same on every gisnix machine. That sameness is the point: what you learn on
+one gisnix computer, you already know on the next.
+
+Underneath, everything you have read about here is one flake — the Nix term
+for a self-contained, reproducible description. The same description builds
+your machine, builds a test version of it in a virtual machine, and builds
+the installer you started from. When you are ready to run a fleet of
+machines rather than one, a small flake of your own can build on gisnix's
+foundations while you keep only your own machines' details. Your fleet stays
+yours; the ground it stands on stays gisnix.
+
+## Installing, start to finish
+
+When you install gisnix, the journey looks like this. You answer a handful
+of questions, confirm once, and the installer does the rest — partitions the
+disk, builds the system, installs it, and leaves the machine's description
+in your home directory so you can change it later.
+
+![Installing gisnix, from USB stick to a running machine](assets/diagrams/install-journey.svg){ .kz-figure }
+
+## What have we learned?
+
+- gisnix describes a whole machine in one file and *builds* it from that
+  description, rather than being installed and tinkered with by hand.
+- Every rebuild is a new generation you can roll back to from the boot
+  menu, so a bad change is never a dead end.
+- Software comes in bundles you ask for by name, with QGIS and the
+  geospatial stack at the centre.
+- The default disk layout is ZFS, encrypted with a passphrase at boot, with
+  snapshots and integrity checking.
+- The machine is built around the keyboard — home-row modifiers, a
+  navigation layer, and speech-to-text on a held key.
+- AI assistants run sandboxed, able to help without reaching your keys.
+- It is all one reproducible flake, and you can build your own fleet on top
+  of it.
+
+## What's next?
+
+- [Quickstart](user/quickstart.md) — put gisnix on a real machine.
+- [Software bundles](admin/software-bundles.md) — the collection, in detail.
+- [Storage modes](admin/storage-modes.md) — ZFS, encryption and the
+  alternatives.
+- [Building on gisnix](developer/downstream-flakes.md) — a fleet of your
+  own.
+
 ---
-hide:
-  - toc
----
-
-<span class="kz-eyebrow">DESIGN</span>
-
-# Why gisnix
-
-gisnix is a NixOS distribution built for one kind of machine: a geospatial
-workstation. It is opinionated on purpose. Where a general-purpose distro
-hands you a menu and a shrug, gisnix has already made most of the choices —
-the ones that a working GIS professional would otherwise spend a weekend
-making, then remaking on the next machine. What it keeps configurable, it
-keeps configurable deliberately, in one flake, with one command.
-
-This page is the long version of what that means.
-
-## GIS-centred, and open source about it
-
-The distribution is organised around QGIS and the geospatial stack, not
-around a general desktop that happens to have QGIS available in it. The
-current QGIS release channels are here, and so are **23 pinned historical
-QGIS releases** going back to 1.8 — each built from its own pinned nixpkgs,
-so an old version and a current one can sit on the same machine without
-fighting over shared library versions. A project that needs QGIS 3.28 to
-reproduce a client's exact output does not force the whole workstation back
-to 2022.
-
-Everything in gisnix is open source, and buildable from source. The ISO
-itself is one `nix build` away; nothing about the distribution is a binary
-you have to take on trust.
-
-## Opinionated, in a way you can override
-
-gisnix ships one desktop, one storage default, one keyboard philosophy and
-one way of describing a machine. That is the opinion. The escape hatch is
-that all of it is declarative — every choice is a line in a flake you own,
-so disagreeing with gisnix is editing a file and rebuilding, not fighting
-the distribution. The defaults are a starting point that already works, not
-a cage.
-
-## Software as bundles, not a package list
-
-Software is organised into **bundles** — named sets under `software/`, each
-with a `bundle.json` describing what it is and what it depends on. You do
-not manage a flat list of packages; you say `desktop-gis` and the desktop it
-needs to run in comes with it, because the bundle declares that dependency.
-`gisnix configure` gives you a menu over the whole catalogue and writes your
-answers back to one file. A bundle is the unit of "I want this capability",
-and the machinery works out the packages.
-
-[Software bundles →](admin/software-bundles.md)
-
-## COSMIC on Wayland
-
-The desktop is **COSMIC**, System76's Rust compositor, running on Wayland.
-One desktop, tracked close to upstream — not three half-maintained ones. It
-is a modern, GPU-accelerated, tiling-capable environment rather than a
-museum piece kept alive for compatibility, and it is the same on every
-gisnix machine, so muscle memory moves with you.
-
-## ZFS, encrypted by default
-
-The installer's default layout is **ZFS on a single disk with AES-256-GCM
-encryption** — a passphrase prompted at boot, the disk unreadable without
-it. ZFS is not incidental here: it is what makes the snapshots,
-send/receive backups, checksummed integrity and instant rollbacks real.
-Plain XFS and multi-disk ZFS (stripe, RAIDZ, RAIDZ2) are there for machines
-that want them, but the encrypted-single-disk default is the one a field
-laptop with client data on it should be running.
-
-[Storage modes →](admin/storage-modes.md)
-
-## Keyboard-centric: kanata, and speech where a key would be
-
-gisnix treats the keyboard as the primary instrument. **kanata** is on by
-default: home-row modifiers, a navigation layer, chords — the ergonomics
-that keep your hands on the home row instead of reaching for arrow keys and
-a mouse. It needs no vendor hardware; it is a software remap that works on a
-laptop's built-in keyboard as readily as on a split ergonomic board.
-
-Held on top of that is **voxtype push-to-talk speech-to-text**: hold the
-Menu key and talk, and the transcription lands wherever your cursor is —
-any application, any text field, no per-app integration. Speech is wired in
-as just another key kanata knows how to hold, so it is available everywhere
-the keyboard is.
-
-[Keyboard remapping →](user/keyboard.md)
-
-## LLM tools, each in a jail
-
-The AI assistants gisnix ships — Claude Code, Gemini CLI, OpenCode, a
-local Ollama workspace — each run **inside a bubblewrap sandbox**. The point
-is blunt: an LLM agent runs code and reads files on your behalf, and a
-compromised or over-eager one should not be able to reach your SSH agent,
-your keys, or the rest of your home directory. The sandbox draws that line.
-The local-LLM workspace goes further and runs the model server, its weights
-and the agent together in one jail that shares only a loopback network, so
-the agent can reach the model without either being able to see your files.
-
-This is opt-in — the bundle pulls a real stack into the closure — but when
-you take it, the isolation is the default, not a flag you have to remember.
-
-## One flake, reproducible, with real rollbacks
-
-A gisnix machine is one flake. Rebuild it and you get a new generation,
-selectable from the bootloader menu; the change is whole-system and
-reproducible, never a half-applied state. Roll back by picking the previous
-generation at boot. The same flake builds a VM of the machine for testing,
-and the same `nix build` produces the installer ISO. Reproducibility is not
-a slogan here — it is the reason the distribution is shaped the way it is.
-
-## Locale that travels with you
-
-A machine picks one locale preset — keyboard, timezone, language and
-regional formatting as a single choice from a library covering the major
-GIS-using countries, in both native-language and English-desktop variants.
-But the three axes come apart when you need them to: `gisnix locale` lets
-you keep your language and number formatting while moving just the clock, so
-a week in Zurich is one command, and coming home is one more.
-
-## Built to be built on
-
-gisnix exposes `lib.mkHost`. A separate flake can pin gisnix and build its
-own machines against gisnix's bundles, profiles and overlays while keeping
-only its own host and user files — a few lines, not a fork. Your fleet stays
-yours; the distribution underneath it stays gisnix.
-
-[Building on gisnix →](developer/downstream-flakes.md)
-
----
-
-<div class="kz-cta" markdown>
-[:material-download: Download the ISO](https://github.com/kartoza/gisnix/releases/latest/download/gisnix-installer.iso){ .kz-cta__primary }
-[:material-book-open-variant: Quickstart](user/quickstart.md){ .kz-cta__secondary }
-</div>
 
 Made with 💗 by [Kartoza](https://kartoza.com) | [Donate!](https://github.com/sponsors/timlinux) | [GitHub](https://github.com/kartoza/gisnix)

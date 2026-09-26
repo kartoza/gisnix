@@ -1,0 +1,34 @@
+@startuml architecture
+!include _theme.puml
+
+title How one machine is described in gisnix
+
+package "What you write" {
+  rectangle "config.nix\nthe software bundles this\nmachine should have" as config #EAF3F8
+  rectangle "hardware.nix · disks.nix\nwhat this machine is\nand how its disk is laid out" as hardware #EAF3F8
+}
+
+package "What gisnix provides" {
+  component "bundles\nnamed sets of software" as bundles
+  component "profiles\ndesktop, common, services" as profiles
+  component "overlays\ngisnix's own packages" as overlays
+}
+
+rectangle "lib.mkHost\nassembles the machine" as mkhost #FCF3E0
+
+rectangle "A NixOS system\n(one build = one generation)" as system #E6F4F4
+
+config --> mkhost
+hardware --> mkhost
+bundles --> mkhost
+profiles --> mkhost
+overlays --> mkhost
+mkhost --> system
+
+note bottom of system
+  Every rebuild makes a new generation you can
+  boot into or roll back to. Nothing is changed
+  in place; the whole machine is rebuilt from
+  these files.
+end note
+@enduml
