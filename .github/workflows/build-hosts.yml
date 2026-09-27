@@ -1,9 +1,9 @@
-# Build the example host toplevel — the same thing a real `sudo setup`
-# install builds — on every push to main and every PR. This catches
-# host-config breaks (e.g. a kanata .kdb that fails `kanata --check`) BEFORE
-# they reach a release tag. eval is not build; this workflow builds.
-# See AGENTS.md, "eval is NOT build".
-name: build-hosts
+# CI for every push to main and every pull request: run the fast pre-commit
+# checks, then the heavy build/eval gates. Both are the SAME hooks/scripts a
+# developer runs locally (.pre-commit-config.yaml) — CI just enforces them for
+# PRs where the author may not have installed the hooks. eval is not build;
+# the gate job builds. See AGENTS.md, "eval is NOT build".
+name: ci
 
 on:
   push:
@@ -12,11 +12,35 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: build-hosts-${{ github.ref }}
+  group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build-example-host:
+  # Fast, daemon-free checks — the pre-commit stage of .pre-commit-config.yaml,
+  # run through pre-commit itself so CI and the local hook can't drift.
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v27
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            accept-flake-config = true
+
+      - name: Pre-commit checks (nixfmt, shellcheck, gitleaks, check-*.py)
+        run: nix develop -c pre-commit run --all-files --show-diff-on-failure --hook-stage pre-commit
+
+  # The heavy gates — the pre-push stage — from the same scripts the hook and
+  # release.yml use. A full example-host build; eval-of-every-bundle; every
+  # command app evaluates.
+  gates:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -43,9 +67,6 @@ jobs:
             experimental-features = nix-command flakes
             accept-flake-config = true
 
-      # The same three gates the pre-push git hook runs (see
-      # .pre-commit-config.yaml), from the same scripts — one implementation,
-      # enforced both locally and in CI. See AGENTS.md "eval is NOT build".
       - name: Build example host (install-equivalent)
         run: ./utils/check-example-builds.sh
 
