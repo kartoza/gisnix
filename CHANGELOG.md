@@ -3,7 +3,7 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [0.20.0] - 2026-09-27
+## [0.21.0] - 2026-09-27
 
 ### Added
 
@@ -39,6 +39,11 @@ All notable changes to gisnix are documented here. Format follows
   was impossible. `update` now detects the single-host flake and rebuilds this
   machine in place; fleet checkouts are unchanged, and `gisnix update --flake`
   works there too.
+
+## [0.20.0] - 2026-09-27
+
+### Fixed
+
 - The installer's Wi-Fi didn't appear in `nmtui` on MediaTek MT7925 (Wi-Fi 7)
   laptops. The driver, firmware and interface (`wlp192s0`) all came up
   correctly on the 7.2 kernel, and rfkill was clear — but NetworkManager had
