@@ -3,6 +3,34 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.22.0] - 2026-09-27
+
+### Added
+
+- **`gisnix adduser`** — add a user account to your flake the way the installer
+  wizard does: username, full name, a password hashed with `mkpasswd` into the
+  user's own `.nix` (never plaintext), and SSH keys fetched from a GitHub
+  username. Then pick which hosts get the user; each chosen host's `default.nix`
+  gains an import of the new `users/<name>.nix`. Every file is parse-checked
+  before anything is written, and it runs from a downstream flake, not just a
+  gisnix checkout. New guide: **Administration → Managing users** (which also
+  documents the SSH model — public-key only, port 22 limited to LAN + VPN).
+- **`gisnix set-timezone`** — set a host's clock by picking a Region/City;
+  written as a `timeZone` override and applied on the next `gisnix update`. A
+  focused shortcut for the clock axis of `gisnix locale`, sharing the same
+  editor. New guide: **Administration → Locale and timezone**.
+
+### Fixed
+
+- `nix develop` on an installed (downstream) flake printed
+  `shell-banner.sh: no such file or directory`: the shell read the banner from
+  `$PWD/utils/`, which a consumer flake doesn't have. It now reads gisnix's own
+  tree. Harmless (the error was swallowed) but shown on every dev-shell entry.
+- `check-manifest.py` crashed wherever the optional `.nvim.lua`/`.exrc` editor
+  files are absent (every gisnix checkout, and any downstream flake) — it now
+  skips them. That crash had been hiding a duplicate `<leader>p` key (`D`),
+  now resolved.
+
 ## [0.21.1] - 2026-09-27
 
 ### Fixed
