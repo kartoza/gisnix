@@ -7,6 +7,14 @@ All notable changes to gisnix are documented here. Format follows
 
 ### Added
 
+- **direnv out of the box.** The installer now writes a `.envrc` (`use flake`)
+  beside the generated flake, and nix-direnv is wired into every user's direnv
+  lib dir, so `cd`-ing into `~/nixos-config` drops you straight into the gisnix
+  dev shell (the `gisnix` command and friends) with no manual `nix develop`.
+  (First entry needs a one-time `direnv allow`.)
+- An **at-a-glance bundle list** on the admin Software bundles page: every
+  bundle and its one-line description, generated from the registry, so you can
+  see what's available without reading each bundle's full contents.
 - A **Supported hardware** page in the user guide: gisnix is well tested on the
   Framework Laptop 16 and 14; on other machines your mileage may vary,
   especially with esoteric hardware or Wi-Fi adapters. It also documents
