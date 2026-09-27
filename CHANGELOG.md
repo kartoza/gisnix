@@ -7,6 +7,10 @@ All notable changes to gisnix are documented here. Format follows
 
 ### Added
 
+- An **after-install / updating** page in the user guide: where an installed
+  machine is described, how to pull gisnix updates when fixes ship upstream
+  (`gisnix update --flake`, and how that differs when pinned to a version
+  versus tracking main), applying changes, and rolling back via generations.
 - **direnv out of the box.** The installer now writes a `.envrc` (`use flake`)
   beside the generated flake, and nix-direnv is wired into every user's direnv
   lib dir, so `cd`-ing into `~/nixos-config` drops you straight into the gisnix
@@ -25,6 +29,16 @@ All notable changes to gisnix are documented here. Format follows
 
 ### Fixed
 
+- `googleearth-pro` (in the `desktop-gis` bundle) is unfree but was never added
+  to the allow-list, so any host taking that bundle failed to *evaluate* ("has
+  an unfree license, refusing to evaluate") — a broken bare-metal install. It's
+  now allow-listed beside the package.
+- `gisnix update` failed on a normal installed machine with "run from the repo
+  root (hosts/fleet.nix missing)". The per-machine flake in `~/nixos-config` is
+  a single host with no `hosts/fleet.nix`, so enabling a bundle and rebuilding
+  was impossible. `update` now detects the single-host flake and rebuilds this
+  machine in place; fleet checkouts are unchanged, and `gisnix update --flake`
+  works there too.
 - The installer's Wi-Fi didn't appear in `nmtui` on MediaTek MT7925 (Wi-Fi 7)
   laptops. The driver, firmware and interface (`wlp192s0`) all came up
   correctly on the 7.2 kernel, and rfkill was clear — but NetworkManager had
