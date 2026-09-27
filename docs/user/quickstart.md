@@ -157,6 +157,8 @@ clock when you travel. Typing `gisnix` on its own always shows the list.
 
 ## What's next?
 
+- [After the install](after-install.md) — where your machine is described,
+  how to pull gisnix updates, and pinning versus tracking the latest.
 - [Understanding gisnix](../why.md) — the ideas behind what you just
   installed.
 - [Software bundles](../admin/software-bundles.md) — choosing what your

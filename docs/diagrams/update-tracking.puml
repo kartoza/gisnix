@@ -1,0 +1,28 @@
+@startuml update-tracking
+!include _theme.puml
+
+title Two ways to follow gisnix — your flake.nix decides
+
+rectangle "Your machine's **flake.nix**\n(the gisnix input line)" as flake #F5F5F2
+
+rectangle "**Pinned to a version**\n`url = \"github:kartoza/gisnix/v0.19.0\"`" as pin
+rectangle "**Tracking main**\n`url = \"github:kartoza/gisnix\"`" as main
+
+flake --> pin
+flake --> main
+
+note bottom of pin
+  A tag never moves, so `nix flake update`
+  changes nothing until **you** edit the
+  version. You decide when to step forward.
+  Reproducible and calm — the safer choice.
+end note
+
+note bottom of main
+  main moves with every commit, so
+  `nix flake update` jumps to the newest
+  gisnix — released or not. Newest features,
+  the occasional rough edge. For the bold.
+end note
+
+@enduml

@@ -157,6 +157,7 @@ nav:
       - Quickstart: user/quickstart.md
       - Supported hardware: user/hardware.md
       - Making a bootable USB stick: user/bootable-usb.md
+      - After the install: user/after-install.md
       - Building your fleet: user/fleet.md
       - Keyboard remapping: user/keyboard.md
   - Administration:
