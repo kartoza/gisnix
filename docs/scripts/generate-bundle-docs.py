@@ -538,7 +538,49 @@ def main() -> int:
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text("\n".join(lines))
     print(f"  wrote {OUT.relative_to(REPO_ROOT)}  ({len(all_bundles)} bundles)")
+
+    _inject_glance(all_bundles)
     return 0
+
+
+GLANCE = REPO_ROOT / "docs" / "admin" / "software-bundles.md"
+GLANCE_BEGIN = "<!-- BEGIN bundles-at-a-glance (generated — do not edit by hand) -->"
+GLANCE_END = "<!-- END bundles-at-a-glance -->"
+
+
+def _inject_glance(all_bundles: list[dict]) -> None:
+    """Refresh the data-driven at-a-glance list on the admin bundles page,
+    between the marker comments. Every bundle and its one-line description —
+    no per-bundle contents, so a reader can see at a glance what is available —
+    in registry order (which groups related bundles), each linking to its full
+    entry in the reference. Same registry as the reference page, so the two
+    can't disagree and neither can miss a bundle."""
+    rows = ["| Bundle | What it is |", "| --- | --- |"]
+    for b in all_bundles:
+        marks = []
+        if b.get("selection") == "one-of":
+            marks.append("choice")
+        if b.get("required"):
+            marks.append("required")
+        if b.get("optIn"):
+            marks.append("opt-in")
+        tag = f" *({', '.join(marks)})*" if marks else ""
+        desc = b["description"].replace("|", "\\|")
+        rows.append(
+            f"| [`{b['name']}`](../references/bundles.md#{b['name']}){tag} | {desc} |"
+        )
+    block = GLANCE_BEGIN + "\n" + "\n".join(rows) + "\n" + GLANCE_END
+
+    text = GLANCE.read_text()
+    if GLANCE_BEGIN not in text or GLANCE_END not in text:
+        raise SystemExit(
+            f"{GLANCE.relative_to(REPO_ROOT)}: missing at-a-glance markers "
+            f"{GLANCE_BEGIN!r} / {GLANCE_END!r}"
+        )
+    pre = text.split(GLANCE_BEGIN)[0]
+    post = text.split(GLANCE_END, 1)[1]
+    GLANCE.write_text(pre + block + post)
+    print(f"  refreshed at-a-glance list in {GLANCE.relative_to(REPO_ROOT)}")
 
 
 def _first_comment(module: Path) -> str:
