@@ -23,6 +23,47 @@ Run the checks above instead and say plainly which kind of verification
 you actually did — don't imply a build succeeded when all you ran was a
 syntax check.
 
+## eval is NOT build — build the install target before every release
+
+This is the rule that keeps getting broken, each time shipping a release
+that fails on real hardware at `sudo setup`.
+
+`nix eval .#nixosConfigurations.<host>.config.system.build.toplevel.drvPath`
+proves the configuration **evaluates**. It does **not** prove it **builds**.
+Many derivations only fail when actually built — the biggest offender is the
+kanata config `.kdb`, which is validated by running `kanata --check` inside a
+build, so a config that uses a `cmd` action without `danger-enable-cmd yes`
+evaluates perfectly and then fails the build with:
+
+    [ERROR] Error in configuration ...kanata-keyboard-config.kdb
+    help: To use cmd you must put in defcfg: danger-enable-cmd yes.
+    INSTALL FAILED: building the system failed
+
+An install runs `nix build` of the host toplevel; the release workflow only
+built the *ISO* (which does not build any host), so this class of break
+sailed straight through. It has now shipped more than once.
+
+Rules:
+
+- **Before tagging any release, BUILD — not eval — the example host
+  toplevel**, which is what a default install builds:
+
+  ```bash
+  nix build .#nixosConfigurations.example.config.system.build.toplevel
+  ```
+
+  CI does this too (`.github/workflows/build-hosts.yml`, and a gate in
+  `release.yml`), but run it locally before you push a tag. A green
+  `nix eval` / `nix flake check` / `nix-instantiate --parse` is NOT enough.
+- If a change touches any host's software (a bundle, a module, the kanata
+  config, a service), the build above is mandatory evidence before you claim
+  it works or cut a release. Say which you ran: eval or build.
+- **`danger-enable-cmd yes` in the default kanata config
+  (`software/services/device/input-kanata/kanata-keyboard.nix`) is
+  unconditional and must stay so** — that config always emits a `cmd` (the
+  herdr record-toggle sound). It was once gated on `voxtypePtt || emailScript`
+  and flipping `voxtypePtt` to false broke every install. Do not re-narrow it.
+
 ## Bundles
 
 A bundle is a directory under `software/` with a `bundle.json`.

@@ -194,15 +194,25 @@ in
           devices = [ ]; # match every keyboard
 
           # concurrent-tap-hold is required by defchordsv2 whenever a chord
-          # file is in use; harmless when none is. danger-enable-cmd is
-          # needed for the email macro's cmd-output-keys AND for voxtype's
-          # push-to-talk cmd actions below — either one turns it on, so a
-          # host with neither carries no extra capability.
+          # file is in use; harmless when none is.
+          #
+          # danger-enable-cmd is UNCONDITIONAL here, and must stay that way:
+          # this config ALWAYS emits at least one `cmd` action, because the
+          # herdr macro-record toggle plays a sound (recordToggleSound +
+          # beepPlayer, both passed unconditionally below) and kanata rejects a
+          # config that uses `cmd` without it ("To use cmd you must put in
+          # defcfg: danger-enable-cmd yes"), failing the BUILD — not eval.
+          # This was previously gated on `emailScript != null || voxtypePtt`,
+          # which broke every install the moment voxtypePtt went to false:
+          # eval still passed, the kanata-config .kdb build did not. If you
+          # ever make this conditional again, the gate must cover the sound
+          # cmds (beepPlayer + recordToggleSound/beepSound), not just email and
+          # voxtype — see tests/kanata-config-builds.nix, which guards this.
           extraDefCfg = ''
             process-unmapped-keys yes
             concurrent-tap-hold yes
-          ''
-          + lib.optionalString (emailScript != null || voxtypePtt) "danger-enable-cmd yes\n";
+            danger-enable-cmd yes
+          '';
 
           config = import ./kanata-config.nix {
             inherit

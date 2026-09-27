@@ -1,0 +1,49 @@
+# Build the example host toplevel — the same thing a real `sudo setup`
+# install builds — on every push to main and every PR. This catches
+# host-config breaks (e.g. a kanata .kdb that fails `kanata --check`) BEFORE
+# they reach a release tag. eval is not build; this workflow builds.
+# See AGENTS.md, "eval is NOT build".
+name: build-hosts
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: build-hosts-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-example-host:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Free disk space
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: true
+          swap-storage: false
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v27
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            accept-flake-config = true
+
+      # The whole point: BUILD, not eval. A kanata .kdb (and other
+      # build-time-validated derivations) only fails here, never at eval.
+      - name: Build example host toplevel (install-equivalent)
+        run: nix build .#nixosConfigurations.example.config.system.build.toplevel --print-build-logs

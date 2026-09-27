@@ -70,6 +70,15 @@ jobs:
           echo "tag=${tag}" >> "$GITHUB_OUTPUT"
           echo "version=${tag#v}" >> "$GITHUB_OUTPUT"
 
+      # Release gate: BUILD the example host toplevel — the same thing a real
+      # `sudo setup` install builds. The ISO build below does NOT build any
+      # host, so a host-config break (e.g. a kanata .kdb that fails
+      # `kanata --check`) would otherwise ship in a release and only surface
+      # on bare metal. eval is not build; this step is build. If it fails, the
+      # whole job fails and no release is published. See AGENTS.md.
+      - name: Build example host (install-equivalent) — release gate
+        run: nix build .#nixosConfigurations.example.config.system.build.toplevel --print-build-logs
+
       - name: Build installer ISO
         run: nix build .#nixosConfigurations.installer.config.system.build.isoImage --print-build-logs
 

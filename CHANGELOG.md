@@ -7,6 +7,16 @@ All notable changes to gisnix are documented here. Format follows
 
 ### Fixed
 
+- Installs failed building the kanata config (`kanata-keyboard-config.kdb`:
+  "To use cmd you must put in defcfg: danger-enable-cmd yes"). The default
+  kanata config always emits a `cmd` (the herdr record-toggle sound), but
+  `danger-enable-cmd yes` was gated on `voxtypePtt || emailScript` — so
+  turning `voxtypePtt` off (for the push-to-talk change below) dropped it and
+  every install broke at `sudo setup`. It is now unconditional, which is what
+  it always needed to be. This slipped through because the pre-release check
+  only *evaluated* the config; the `.kdb` is validated at *build* time.
+  Guards added so it cannot recur: a `build-hosts` CI workflow builds the
+  example host on every push, and `release.yml` builds it as a release gate.
 - voxtype push-to-talk now actually works. It is driven by voxtype's **own**
   right-Ctrl hotkey, not by kanata running `voxtype record start/stop`. kanata
   is a system (root) service, and the record client it invoked could neither
