@@ -164,6 +164,8 @@ nav:
   - Administration:
       - admin/index.md
       - Software bundles: admin/software-bundles.md
+      - Managing users: admin/users.md
+      - Locale and timezone: admin/locale.md
       - Storage modes: admin/storage-modes.md
   - Developer guide:
       - developer/index.md
