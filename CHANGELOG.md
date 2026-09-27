@@ -37,10 +37,11 @@ All notable changes to gisnix are documented here. Format follows
 
 ### Fixed
 
-- `googleearth-pro` (in the `desktop-gis` bundle) is unfree but was never added
-  to the allow-list, so any host taking that bundle failed to *evaluate* ("has
-  an unfree license, refusing to evaluate") — a broken bare-metal install. It's
-  now allow-listed beside the package.
+- `googleearth-pro` (in the `desktop-gis` bundle) is both unfree and marked
+  insecure, but was named in neither allow-list — so any host taking that
+  bundle failed to *evaluate* ("has an unfree license" / "is marked as
+  insecure"), a broken bare-metal install. It's now in both
+  `kartoza.unfreePackages` and `kartoza.insecurePackages` beside the package.
 - `gisnix update` failed on a normal installed machine with "run from the repo
   root (hosts/fleet.nix missing)". The per-machine flake in `~/nixos-config` is
   a single host with no `hosts/fleet.nix`, so enabling a bundle and rebuilding
