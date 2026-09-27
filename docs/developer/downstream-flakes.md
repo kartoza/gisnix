@@ -210,14 +210,12 @@ bundle name.
   predating disko) — see the gotchas above, both found and fixed this way.
 - `nix run github:kartoza/gisnix#configure -- <host>` and `#bundles`,
   run from inside a downstream flake's own directory with no gisnix
-  checkout present at all — verified against a scratch directory outside
-  any gisnix checkout. `configure.py`/`hostconfig.py` split "where the
+  checkout present at all. `configure.py`/`hostconfig.py` split "where the
   bundle catalogue lives" (gisnix's own tree, via a `GISNIX_ROOT`
   environment variable the nix-packaged command sets) from "where the
-  target host's files live" (the caller's own working directory) —
-  previously conflated under one path, computed from the script's own
-  file location, which only worked by accident when both happened to be
-  the same checkout.
+  target host's files live" (the caller's own working directory), so the
+  chooser edits your flake's `hosts/<name>/config.nix` while reading the
+  bundle registry from gisnix itself.
 - `docs-generate-hosts` (per-host reference pages) the same way — reads
   gisnix's published `docs/references/software.json` for package
   metadata, but runs `nix eval` and writes generated pages against the

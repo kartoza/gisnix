@@ -68,12 +68,10 @@ genuine press-together inside the window fires the bracket.
 
 The chord *lines* live in `chords-us.kbd` / `chords-pt.kbd` next to
 `kanata-keyboard.nix`, which picks between them by the host's
-`kanataLayout`. What does **not** ship is the other kind of chord kanata
-supports — bigram-to-word expansion, where typing `io` fires a macro that
-finishes it as `ion` — because that fires mid-word, on ordinary typing, and
-is exactly the kind of surprise a shared default should not spring on
-someone. Pass your own `expansionsFile` to `kanata-config.nix` if you want
-it — there's no built-in set to turn on.
+`kanataLayout`. Bigram-to-word expansion — another chord type kanata
+supports, where typing `io` finishes it as `ion` — is not enabled by
+default, since it fires mid-word on ordinary typing. Pass your own
+`expansionsFile` to `kanata-config.nix` if you want it.
 
 ## Clipboard holds
 
@@ -237,11 +235,6 @@ anything about the *current* hold; it changes which layer the trigger
 key reaches the *next* time you hold it, and plays a short beep so the
 switch has feedback beyond memory. Toggle again (same gesture, from
 inside the other layer) to go back.
-
-This replaced an earlier design where aerc lived on its own Tab hold —
-sharing the trigger key with a manual toggle means one key to remember
-instead of two, at the cost of that key doing different things
-depending on state.
 
 ## Layout diagrams
 

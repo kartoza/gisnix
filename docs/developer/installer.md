@@ -88,9 +88,9 @@ components with no cache hit. nixos-26.05 (stable) already carries
 `nixpkgs-unstable` to `prev` (the stable nixpkgs already underneath
 everything else) when set. It defaults to `false` — every host built by
 `nix run .#<host>-vm`, every real fleet machine, and `gisnix update` on an
-already-installed one all still pull COSMIC from `nixpkgs-unstable`, same
-as before this existed. Only the installer's own `-install` output sets
-it, and only for the one `nixos-install` run that needs to finish fast.
+already-installed one all pull COSMIC from `nixpkgs-unstable`. Only the
+installer's own `-install` output sets it, and only for the one
+`nixos-install` run that needs to finish fast.
 
 First boot is on stable COSMIC 1.2.0, already built. The first `gisnix
 update` from `~/nixos-config` afterward moves the machine to bleeding-edge
