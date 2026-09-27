@@ -19,7 +19,7 @@ Every command this flake provides. One row in `utils/commands.json` mints all of
 
 This page is the sixth, generated from the same row.
 
-**38 implemented**, 5 declared but not yet written. Commands still to be built are listed rather than hidden: the manifest describes the intended lifecycle, not only the part of it that exists.
+**40 implemented**, 5 declared but not yet written. Commands still to be built are listed rather than hidden: the manifest describes the intended lifecycle, not only the part of it that exists.
 
 ## The life of a host
 
@@ -114,6 +114,8 @@ graph LR
 | [`configure`](#configure) | `<leader>pE` | choose a host's software bundles |
 | [`bundles`](#bundles) | `<leader>pW` | software bundles, read-only |
 | [`locale`](#locale) | `<leader>pL` | change locale / timezone |
+| [`adduser`](#adduser) | `<leader>pC` | add a user account |
+| [`set-timezone`](#set-timezone) | `<leader>pV` | set the timezone |
 
 **🧪 qa** — Checks that run before a change lands.
 
@@ -136,7 +138,7 @@ graph LR
 | --- | --- | --- |
 | [`add-keyboard`](#add-keyboard) | `<leader>pK` | wire up a new keyboard for kanata |
 | [`power`](#power) | `<leader>pF` | why is this machine hot? |
-| [`keyboard-diagrams`](#keyboard-diagrams) | `<leader>pD` | regenerate keyboard diagrams |
+| [`keyboard-diagrams`](#keyboard-diagrams) | `<leader>pG` | regenerate keyboard diagrams |
 
 **💻 vm** — Virtual machines, for testing and for Windows.
 
@@ -660,6 +662,34 @@ gisnix locale [--show]
 | Neovim | `<leader>pL` |
 | On PATH | `coreutils`, `git`, `findutils`, `gnugrep`, `gawk`, `nettools`, `python3`, `jq`, `gum`, `systemd` |
 
+### adduser
+
+Add a user account to this flake — username, full name, a hashed password, and SSH keys fetched from a GitHub username — then wire it into chosen hosts.
+
+```bash
+gisnix adduser
+```
+
+| | |
+| --- | --- |
+| Implementation | `utils/adduser.sh` |
+| Neovim | `<leader>pC` |
+| On PATH | `coreutils`, `curl`, `gum`, `mkpasswd`, `nix`, `python3` |
+
+### set-timezone
+
+Set this host's timezone by picking a Region/City; applied on the next rebuild. A focused shortcut for the clock axis of `gisnix locale`.
+
+```bash
+gisnix set-timezone
+```
+
+| | |
+| --- | --- |
+| Implementation | `utils/set-timezone.sh` |
+| Neovim | `<leader>pV` |
+| On PATH | `coreutils`, `findutils`, `gnugrep`, `nettools`, `python3`, `gum`, `systemd` |
+
 ## Quality checks
 
 *Checks that run before a change lands.*
@@ -787,7 +817,7 @@ gisnix keyboard-diagrams
 | | |
 | --- | --- |
 | Implementation | `utils/keyboard-diagrams.sh` |
-| Neovim | `<leader>pD` |
+| Neovim | `<leader>pG` |
 | On PATH | `coreutils`, `nix`, `python3`, `findutils`, `xdg-utils` |
 
 ## Virtual machines

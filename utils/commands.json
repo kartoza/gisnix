@@ -43,7 +43,7 @@
     "out. `hp` marks those rows rather than hiding them.",
     "",
     "`groups` fixes the order sections appear in. Without it the cheat-sheet",
-    "sorted them alphabetically \u2014 dns first, host fifth \u2014 which destroys the",
+    "sorted them alphabetically — dns first, host fifth — which destroys the",
     "lifecycle reading the grouping exists to give."
   ],
   "groups": [
@@ -201,7 +201,7 @@
       "key": "d",
       "group": "host",
       "order": 6,
-      "desc": "Create a Hetzner cloud server from hosts/<name>/server.nix and install onto it \u2014 the cloud path; gisnix install is the physical one",
+      "desc": "Create a Hetzner cloud server from hosts/<name>/server.nix and install onto it — the cloud path; gisnix install is the physical one",
       "terse": "create a cloud server and install",
       "deps": [
         "coreutils",
@@ -397,7 +397,7 @@
       "key": "X",
       "group": "host",
       "order": 13,
-      "desc": "Destroy a host and reinstall it from scratch \u2014 guarded, irreversible",
+      "desc": "Destroy a host and reinstall it from scratch — guarded, irreversible",
       "terse": "wipe and reinstall a host",
       "deps": [
         "coreutils",
@@ -542,7 +542,7 @@
       "key": "D",
       "group": "dns",
       "order": 2,
-      "desc": "Pause ad filtering for a while \u2014 it restores itself automatically",
+      "desc": "Pause ad filtering for a while — it restores itself automatically",
       "terse": "pause blocky, time-boxed",
       "deps": [
         "coreutils",
@@ -688,7 +688,7 @@
     {
       "name": "keyboard-diagrams",
       "file": "keyboard-diagrams.sh",
-      "key": "D",
+      "key": "G",
       "group": "hardware",
       "order": 2,
       "desc": "Redraw the default kanata layout diagrams (base + navigation, one set per kanataLayout), then open the folder",
@@ -707,7 +707,7 @@
       "key": "Q",
       "group": "vm",
       "order": 0,
-      "desc": "Run any host's configuration in QEMU, quick boot (kernel+initrd direct, no GRUB/Plymouth) \u2014 --boot is disabled for now, see project_virtiofsd_zfs_eperm memory",
+      "desc": "Run any host's configuration in QEMU, quick boot (kernel+initrd direct, no GRUB/Plymouth) — --boot is disabled for now, see project_virtiofsd_zfs_eperm memory",
       "terse": "run a host in a VM",
       "deps": [
         "coreutils",
@@ -755,7 +755,9 @@
       "order": 3,
       "desc": "SSH into the running `gisnix test-install`/`test-boot` QEMU VM (host-key checking off, password auto-supplied — throwaway, localhost-only)",
       "terse": "ssh into the test-install VM",
-      "prelude": [ "test-vm.sh" ],
+      "prelude": [
+        "test-vm.sh"
+      ],
       "deps": [
         "coreutils",
         "openssh",
@@ -770,7 +772,9 @@
       "order": 4,
       "desc": "Copy /mnt/gisnix-install.log off the running test-install VM to gisnix-install.log in the repo root (gitignored)",
       "terse": "fetch the test-install log",
-      "prelude": [ "test-vm.sh" ],
+      "prelude": [
+        "test-vm.sh"
+      ],
       "deps": [
         "coreutils",
         "git",
@@ -868,6 +872,43 @@
         "systemd"
       ],
       "usage": "gisnix locale [--show]"
+    },
+    {
+      "name": "adduser",
+      "file": "adduser.sh",
+      "key": "C",
+      "group": "software",
+      "order": 3,
+      "desc": "Add a user account to this flake — username, full name, a hashed password, and SSH keys fetched from a GitHub username — then wire it into chosen hosts",
+      "terse": "add a user account",
+      "deps": [
+        "coreutils",
+        "curl",
+        "gum",
+        "mkpasswd",
+        "nix",
+        "python3"
+      ],
+      "usage": "gisnix adduser"
+    },
+    {
+      "name": "set-timezone",
+      "file": "set-timezone.sh",
+      "key": "V",
+      "group": "software",
+      "order": 4,
+      "desc": "Set this host's timezone by picking a Region/City; applied on the next rebuild. A focused shortcut for the clock axis of `gisnix locale`",
+      "terse": "set the timezone",
+      "deps": [
+        "coreutils",
+        "findutils",
+        "gnugrep",
+        "nettools",
+        "python3",
+        "gum",
+        "systemd"
+      ],
+      "usage": "gisnix set-timezone"
     }
   ]
 }
