@@ -3,6 +3,24 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.21.1] - 2026-09-27
+
+### Fixed
+
+- Allow-list the unfree AI assistants (`claude-code`, `antigravity`,
+  `google-antigravity-cli`) and Steam (`steam`, `steam-unwrapped`). None were
+  named in the allow-list, so a host taking `terminal-ai` or `desktop-games`
+  failed to *evaluate* at install ("has an unfree license, refusing to
+  evaluate") — the same class as the 0.21.0 Google Earth fix.
+
+### Added
+
+- A CI check (`utils/check-bundle-eval.sh`) that evaluates the example host
+  with every non-opt-in bundle enabled, so unfree/insecure/eval failures in a
+  bundle the example host doesn't normally build are caught in CI rather than
+  on someone's install. Runs on every push (`build-hosts.yml`) and gates
+  releases (`release.yml`). It is what surfaced the fixes above.
+
 ## [0.21.0] - 2026-09-27
 
 ### Added
