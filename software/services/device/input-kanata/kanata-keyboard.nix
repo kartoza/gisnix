@@ -43,10 +43,15 @@ let
   # `kartoza.userEmails.<name>` — null until at least one has.
   emailScript = config.kartoza.kanataEmailScript;
 
-  # Hold Menu for voxtype push-to-talk (see docs/user/keyboard.md). On by
-  # default, matching voxtype itself shipping in environment.systemPackages
-  # below — the two only make sense together.
-  voxtypePtt = true;
+  # Right Ctrl is voxtype's push-to-talk key (see docs/user/keyboard.md), but
+  # voxtype detects it ITSELF (voxtypeManagedConfig above sets [hotkey] key =
+  # "RIGHTCTRL", enabled = true) rather than kanata driving it. So kanata must
+  # NOT bind right Ctrl — false leaves it out of defsrc, passing it straight
+  # through to kanata's virtual output where the voxtype daemon can see it.
+  # Kanata driving voxtype was tried and abandoned: kanata is a ROOT service,
+  # so the `voxtype record` client it ran could not reach the user daemon's
+  # socket or its config. See the [hotkey] comment in voxtypeManagedConfig.
+  voxtypePtt = false;
 
   # kanata's own systemd unit is a SYSTEM service (it needs /dev/uinput and
   # /dev/input, which is also why it carries the uinput/openrazer
@@ -96,15 +101,18 @@ let
     state_file = "auto"
 
     [hotkey]
-    # kanata owns the keyboards on a gisnix machine and drives recording via
-    # `voxtype record start/stop` on right-Ctrl hold (see kanata-config.nix),
-    # so voxtype's own detection is OFF — one trigger, no contention with the
-    # grab kanata holds on the input devices. key/modifiers are still required
-    # fields even when detection is off; key names what voxtype would listen
-    # for if you ever flipped `enabled` back on.
+    # voxtype detects the push-to-talk key ITSELF, via evdev, on right Ctrl.
+    # This is the reliable path here: kanata driving voxtype meant a `voxtype
+    # record start` CLIENT run from kanata's ROOT service, which could neither
+    # reach the daemon's per-user socket (/run/user/UID/voxtype) nor read the
+    # daemon's store config — it read the stale ~/.config copy and crashed. By
+    # detecting the key itself, the running daemon (user session, in the
+    # `input` group) sees right Ctrl on kanata's virtual output — so kanata is
+    # set NOT to bind right Ctrl (voxtypePtt = false), passing it straight
+    # through. Hold to record, release to transcribe.
     key = "RIGHTCTRL"
     modifiers = []
-    enabled = false
+    enabled = true
 
     [audio]
     # device has no default — leaving the whole [audio] table out is what made

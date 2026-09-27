@@ -18,6 +18,15 @@ All notable changes to gisnix are documented here. Format follows
 
 ### Changed
 
+- Push-to-talk is now driven by voxtype's **own** right-Ctrl hotkey, not by
+  kanata running `voxtype record start/stop`. kanata is a system (root)
+  service, and the record client it invoked could neither reach the daemon's
+  per-user socket (`/run/user/UID/voxtype`) nor read the daemon's config — it
+  read a stale `~/.config` copy and crashed, so the key did nothing. voxtype
+  now watches for `RIGHTCTRL` itself via evdev (the user is in the `input`
+  group), and kanata passes right Ctrl straight through (`voxtypePtt = false`).
+  Verified end to end on real hardware: hold right Ctrl, speak, release,
+  transcribed text is typed, with a start/stop beep.
 - The daemon now reads the gisnix-managed config directly from the Nix store
   (`voxtype --config <store path>`) instead of a copy written into
   `~/.config/voxtype`. The previous write-a-copy step was a `RemainAfterExit`
