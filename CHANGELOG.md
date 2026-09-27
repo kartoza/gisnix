@@ -5,6 +5,16 @@ All notable changes to gisnix are documented here. Format follows
 
 ## [0.20.0] - 2026-09-27
 
+### Added
+
+- A **Supported hardware** page in the user guide: gisnix is well tested on the
+  Framework Laptop 16 and 14; on other machines your mileage may vary,
+  especially with esoteric hardware or Wi-Fi adapters. It also documents
+  **iPhone USB tethering** as a network option during setup — plug in the
+  phone, enable Personal Hotspot, and it works out of the box (via `usbmuxd`)
+  on both the installer and the installed system. Cross-linked from the
+  quickstart's network step.
+
 ### Fixed
 
 - The installer's Wi-Fi didn't appear in `nmtui` on MediaTek MT7925 (Wi-Fi 7)

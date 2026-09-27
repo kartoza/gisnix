@@ -66,6 +66,15 @@ Pick *Activate a connection*, choose your network, and enter its password.
 When you leave `nmtui` you should have a connection. (A wired connection
 usually needs nothing at all.)
 
+!!! tip "No network? Tether an iPhone over USB"
+    If the only internet you have is your phone, an iPhone will do. Plug it
+    into the machine with a cable and turn on **Personal Hotspot** on the
+    phone. The installer already runs the pairing service that makes this
+    work, so the phone shows up as a wired connection — tap **Trust** on the
+    phone when it asks, then activate that connection in `nmtui`. Nothing to
+    install or configure; it works on the installer and on the machine you go
+    on to install. See [Supported hardware](hardware.md#tethering-from-an-iphone).
+
 ## 5. Run the installer
 
 Now start the setup wizard:
