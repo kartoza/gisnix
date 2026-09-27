@@ -79,6 +79,12 @@ jobs:
       - name: Build example host (install-equivalent) — release gate
         run: nix build .#nixosConfigurations.example.config.system.build.toplevel --print-build-logs
 
+      # Eval a max-bundle host so an unfree/insecure package in a bundle the
+      # example host doesn't enable (e.g. googleearth-pro in desktop-gis) can't
+      # ship a release that fails to evaluate on install. See AGENTS.md.
+      - name: Eval example host with all non-opt-in bundles — release gate
+        run: ./utils/check-bundle-eval.sh
+
       - name: Build installer ISO
         run: nix build .#nixosConfigurations.installer.config.system.build.isoImage --print-build-logs
 

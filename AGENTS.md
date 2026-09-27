@@ -55,6 +55,15 @@ Rules:
   CI does this too (`.github/workflows/build-hosts.yml`, and a gate in
   `release.yml`), but run it locally before you push a tag. A green
   `nix eval` / `nix flake check` / `nix-instantiate --parse` is NOT enough.
+- **The other direction: build is not eval-of-everything.** The example host
+  builds, but it enables only a minimal bundle set — so an unfree or insecure
+  package in a bundle it does NOT take (e.g. `googleearth-pro` in `desktop-gis`,
+  which is both) never gets evaluated by the build above and breaks the install
+  instead. unfree/insecure/assertion errors throw at EVAL, so
+  `utils/check-bundle-eval.sh` evaluates the example host with every non-opt-in
+  bundle enabled — a cheap, comprehensive net for that class. It runs in
+  `build-hosts.yml` on every push and gates `release.yml`; run it locally too
+  when you touch a bundle that carries unfree/insecure packages.
 - If a change touches any host's software (a bundle, a module, the kanata
   config, a service), the build above is mandatory evidence before you claim
   it works or cut a release. Say which you ran: eval or build.
