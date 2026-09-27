@@ -64,8 +64,17 @@ QGIS sits at the centre of that collection. gisnix carries the current QGIS
 releases and, alongside them, twenty-three older versions going back to
 1.8 — each built in its own isolated way, so an old project that needs an
 old QGIS can have it on the same machine as your current work without the
-two interfering. A geospatial distribution should treat QGIS as a
-first-class citizen, and gisnix does.
+two interfering. Some of the very oldest are still rough — a handful need a
+long-obsolete WebKit that is awkward to build, and smoothing those over is
+ongoing work — but the recent releases are solid.
+
+Treating QGIS as a first-class citizen has two more consequences worth
+knowing. If you want to try a fix before it is released, building QGIS from
+its development (`master`) branch is a single command. And if you want to
+work *on* QGIS rather than only with it, a companion project,
+[qgis-dev-env](https://timlinux.github.io/qgis-dev-env/), sets up a complete
+development environment — formatting to QGIS's own coding standards,
+compiler caching, and the build tooling that goes with it.
 
 ## Storage you can trust, encrypted by default
 
@@ -120,6 +129,13 @@ keys to everything.
 The desktop is COSMIC, a modern environment built on Wayland, and it is the
 same on every gisnix machine. That sameness is the point: what you learn on
 one gisnix computer, you already know on the next.
+
+Small things are set up so you do not have to hunt for them. Capturing the
+screen is one: take a still or a short GIF and, for a still, mark it up
+before you share — arrows, numbered circles, a blur over anything private —
+using satty, a capture tool built for Wayland. It is the kind of thing every
+GIS professional reaches for when explaining a map or filing a bug, so it is
+there from the start.
 
 Underneath, everything you have read about here is one flake — the Nix term
 for a self-contained, reproducible description. The same description builds

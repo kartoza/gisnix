@@ -7,6 +7,14 @@ All notable changes to gisnix are documented here. Format follows
 
 ### Added
 
+- A **"The workflow it unlocks"** page in the user guide: how flakes and direnv
+  give each project its own toolset that loads on `cd` and unloads when you
+  leave, and how changing a machine by description gives you a reviewable diff
+  before anything is applied (paired with the sandboxed AI assistants).
+- The **Understanding gisnix** page now notes that older QGIS versions can be
+  rough (a few need an obsolete WebKit — work is ongoing), that building QGIS
+  `master` is a one-line command, and points to the companion `qgis-dev-env`
+  project; plus a short mention of screen capture and annotation with satty.
 - An **after-install / updating** page in the user guide: where an installed
   machine is described, how to pull gisnix updates when fixes ship upstream
   (`gisnix update --flake`, and how that differs when pinned to a version
