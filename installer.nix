@@ -220,6 +220,17 @@
   };
 
   networking.networkmanager.enable = true;
+  # NetworkManager needs a wifi backend, and on this minimal ISO it had none:
+  # the standalone wpa_supplicant service (networking.wireless) is force-
+  # disabled just below so it can't fight NM — but that left NM with nothing to
+  # drive the radio, so a perfectly-working device (mt7925e wlp192s0, firmware
+  # loaded, rfkill clear) sat in NetworkManager state `unavailable` and never
+  # appeared in nmtui. iwd is a self-contained backend NM enables and manages
+  # itself (no separate wpa_supplicant, no conflict with the disabled service),
+  # with strong support for current Wi-Fi 7 chips like the MediaTek MT7925.
+  # Confirmed on bare metal: driver + firmware + interface all came up on 7.2;
+  # only the missing supplicant was left. See untracked_screenshots/IMG_8266-7.
+  networking.networkmanager.wifi.backend = "iwd";
   networking.wireless.enable = lib.mkForce false;
   networking.firewall.enable = lib.mkForce false;
 

@@ -7,6 +7,15 @@ All notable changes to gisnix are documented here. Format follows
 
 ### Fixed
 
+- The installer's Wi-Fi didn't appear in `nmtui` on MediaTek MT7925 (Wi-Fi 7)
+  laptops. The driver, firmware and interface (`wlp192s0`) all came up
+  correctly on the 7.2 kernel, and rfkill was clear — but NetworkManager had
+  **no wifi backend**: the standalone `wpa_supplicant` is disabled on the ISO
+  so it can't fight NM, which left the radio with nothing to drive it, so the
+  device sat in state `unavailable`. The installer now sets
+  `networking.networkmanager.wifi.backend = "iwd"` — a self-contained backend
+  NM manages itself, with strong support for current Wi-Fi 7 chips. Verified
+  on bare metal: the device now comes up and `nmtui` can connect.
 - Installs failed building the kanata config (`kanata-keyboard-config.kdb`:
   "To use cmd you must put in defcfg: danger-enable-cmd yes"). The default
   kanata config always emits a `cmd` (the herdr record-toggle sound), but
