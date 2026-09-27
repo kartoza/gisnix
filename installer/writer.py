@@ -359,6 +359,18 @@ def write_existing_host(state: InstallState, target_root: Path) -> None:
 
     state.hostname = state.existing_host_name
     (target_root / "flake.nix").write_text(render_flake_nix(state, install=True))
+    _write_envrc(target_root)
+
+
+def _write_envrc(target_root: Path) -> None:
+    """Drop a direnv `.envrc` beside the generated flake so that `cd`-ing into
+    ~/nixos-config auto-enters the gisnix dev shell (the `gisnix` command and
+    friends) without a manual `nix develop`. `use flake` is provided by
+    nix-direnv, which software/base/utilities.nix wires into every user's
+    direnv lib dir; the fish hook that activates direnv is in
+    software/base/fish.nix. All three are needed for this to work on first
+    boot."""
+    (target_root / ".envrc").write_text("use flake\n")
 
 
 def write_new_host(state: InstallState, target_root: Path) -> None:
@@ -377,3 +389,4 @@ def write_new_host(state: InstallState, target_root: Path) -> None:
     (host_dir / "disks.nix").write_text(render_disks_nix(state))
     (target_root / "users" / f"{state.username}.nix").write_text(render_user_nix(state))
     (target_root / "flake.nix").write_text(render_flake_nix(state, install=True))
+    _write_envrc(target_root)

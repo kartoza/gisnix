@@ -42,4 +42,17 @@
     usbutils # lsusb etc
     wget # fetch files over http
   ];
+
+  # nix-direnv is installed above, but direnv doesn't know about its `use flake`
+  # function until nix-direnv is sourced. direnv sources every file in
+  # ~/.config/direnv/lib/*.sh before evaluating an .envrc, so linking
+  # nix-direnv's rc in there makes `use flake` available to every user without
+  # touching (or requiring) a hand-written ~/.config/direnv/direnvrc. This is
+  # what makes the `.envrc` the installer drops in ~/nixos-config (`use flake`)
+  # actually spin up the gisnix dev shell on `cd` — paired with the
+  # `direnv hook fish` line in fish.nix. L+ keeps the symlink pointing at the
+  # current nix-direnv across rebuilds.
+  systemd.user.tmpfiles.rules = [
+    "L+ %h/.config/direnv/lib/nix-direnv.sh - - - - ${pkgs.nix-direnv}/share/nix-direnv/direnvrc"
+  ];
 }
