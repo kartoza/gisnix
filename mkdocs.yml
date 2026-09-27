@@ -171,6 +171,7 @@ nav:
       - developer/index.md
       - Architecture: developer/architecture.md
       - Working on gisnix: developer/hacking.md
+      - Checks and hooks: developer/checks.md
       - Adding a host: developer/adding-a-host.md
       - The installer: developer/installer.md
       - Building on gisnix (lib.mkHost): developer/downstream-flakes.md

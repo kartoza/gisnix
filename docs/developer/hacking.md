@@ -90,6 +90,8 @@ touches GitHub, and you only reach it when the change is proven:
 
 ## See also
 
+- [Checks and hooks](checks.md) — every check that runs on commit, on push and
+  at release, and what each one verifies.
 - [Architecture](architecture.md) — how the pieces fit together.
 - [Building on gisnix](downstream-flakes.md) — consuming gisnix from your own
   flake.
