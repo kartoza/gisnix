@@ -87,11 +87,6 @@ while (($# > 0)); do
   shift
 done
 
-[[ -f ./hosts/fleet.nix ]] || {
-  err "run from the repo root (hosts/fleet.nix missing)."
-  exit 1
-}
-
 NIX=(nix --extra-experimental-features 'nix-command flakes')
 
 host_field() { # $1=host $2=field $3=default
@@ -100,42 +95,67 @@ host_field() { # $1=host $2=field $3=default
      in if v == null then \"$3\" else v" 2>/dev/null || echo "$3"
 }
 
-mapfile -t ALL_HOSTS < <(
-  "${NIX[@]}" eval --impure --raw --expr \
-    'builtins.concatStringsSep "\n" (builtins.attrNames (import ./hosts/fleet.nix).hosts)' 2>/dev/null
-)
-[[ ${#ALL_HOSTS[@]} -gt 0 ]] || {
-  err "could not read the host list from hosts/fleet.nix"
-  exit 1
-}
+# A full fleet checkout carries hosts/fleet.nix — many hosts, each with its own
+# deploy mechanism. The tiny per-machine flake the installer writes to
+# ~/nixos-config does NOT: it is a single host, THIS machine, always rebuilt in
+# place. Detect that and take the simple local path, rather than demanding a
+# fleet that a freshly-installed system does not have. This is what `gisnix
+# update` runs after you enable a bundle on a normal install.
+if [[ -f ./hosts/fleet.nix ]]; then
+  mapfile -t ALL_HOSTS < <(
+    "${NIX[@]}" eval --impure --raw --expr \
+      'builtins.concatStringsSep "\n" (builtins.attrNames (import ./hosts/fleet.nix).hosts)' 2>/dev/null
+  )
+  [[ ${#ALL_HOSTS[@]} -gt 0 ]] || {
+    err "could not read the host list from hosts/fleet.nix"
+    exit 1
+  }
 
-if ((ALL)); then
-  TARGETS=()
-  for h in "${ALL_HOSTS[@]}"; do
-    [[ "$(host_field "$h" deploy ssh)" == "none" ]] || TARGETS+=("$h")
+  if ((ALL)); then
+    TARGETS=()
+    for h in "${ALL_HOSTS[@]}"; do
+      [[ "$(host_field "$h" deploy ssh)" == "none" ]] || TARGETS+=("$h")
+    done
+  elif [[ ${#TARGETS[@]} -eq 0 ]]; then
+    self="$(hostname -s 2>/dev/null || true)"
+    for h in "${ALL_HOSTS[@]}"; do [[ "$h" == "$self" ]] && TARGETS=("$h"); done
+    [[ ${#TARGETS[@]} -gt 0 ]] || {
+      err "this machine (${self:-unknown}) is not a host in hosts/fleet.nix."
+      info "name a host explicitly, or use --all. Known hosts: ${ALL_HOSTS[*]}"
+      exit 1
+    }
+    info "no host given — defaulting to this machine: ${BOLD}${TARGETS[0]}${NC}"
+  fi
+
+  # Validate before doing anything, so a typo in a multi-host run fails fast
+  # rather than after the first host has already switched.
+  for h in "${TARGETS[@]}"; do
+    found=0
+    for known in "${ALL_HOSTS[@]}"; do [[ "$h" == "$known" ]] && found=1; done
+    ((found)) || {
+      err "'$h' is not a host in hosts/fleet.nix"
+      info "known hosts: ${ALL_HOSTS[*]}"
+      exit 1
+    }
   done
-elif [[ ${#TARGETS[@]} -eq 0 ]]; then
+else
+  # Single-host flake: no fleet.nix, so this machine is the only target and it
+  # is always built in place (the dispatch loop below forces `local` when the
+  # host is the machine you are on).
   self="$(hostname -s 2>/dev/null || true)"
-  for h in "${ALL_HOSTS[@]}"; do [[ "$h" == "$self" ]] && TARGETS=("$h"); done
-  [[ ${#TARGETS[@]} -gt 0 ]] || {
-    err "this machine (${self:-unknown}) is not a host in hosts/fleet.nix."
-    info "name a host explicitly, or use --all. Known hosts: ${ALL_HOSTS[*]}"
+  [[ -n "$self" ]] || {
+    err "cannot determine this machine's hostname to rebuild"
     exit 1
   }
-  info "no host given — defaulting to this machine: ${BOLD}${TARGETS[0]}${NC}"
+  ((ALL)) && warn "--all has no meaning for a single-host flake — rebuilding this machine"
+  [[ ${#TARGETS[@]} -eq 0 ]] && TARGETS=("$self")
+  if [[ ${#TARGETS[@]} -ne 1 || "${TARGETS[0]}" != "$self" ]]; then
+    err "this flake builds only ${BOLD}${self}${NC} — it has no hosts/fleet.nix for other hosts."
+    info "run 'gisnix update' with no host argument."
+    exit 1
+  fi
+  info "single-host flake — rebuilding this machine in place: ${BOLD}${self}${NC}"
 fi
-
-# Validate before doing anything, so a typo in a multi-host run fails fast
-# rather than after the first host has already switched.
-for h in "${TARGETS[@]}"; do
-  found=0
-  for known in "${ALL_HOSTS[@]}"; do [[ "$h" == "$known" ]] && found=1; done
-  ((found)) || {
-    err "'$h' is not a host in hosts/fleet.nix"
-    info "known hosts: ${ALL_HOSTS[*]}"
-    exit 1
-  }
-done
 
 # ── The three deployment mechanisms ────────────────────────────────────────
 
