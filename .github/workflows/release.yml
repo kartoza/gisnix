@@ -76,14 +76,17 @@ jobs:
       # `kanata --check`) would otherwise ship in a release and only surface
       # on bare metal. eval is not build; this step is build. If it fails, the
       # whole job fails and no release is published. See AGENTS.md.
+      # The same gates as the pre-push hook and build-hosts.yml, from the same
+      # scripts — a release cannot ship a host that doesn't build, a bundle that
+      # doesn't evaluate, or a command app that doesn't. See AGENTS.md.
       - name: Build example host (install-equivalent) — release gate
-        run: nix build .#nixosConfigurations.example.config.system.build.toplevel --print-build-logs
+        run: ./utils/check-example-builds.sh
 
-      # Eval a max-bundle host so an unfree/insecure package in a bundle the
-      # example host doesn't enable (e.g. googleearth-pro in desktop-gis) can't
-      # ship a release that fails to evaluate on install. See AGENTS.md.
       - name: Eval example host with all non-opt-in bundles — release gate
         run: ./utils/check-bundle-eval.sh
+
+      - name: Eval every command app — release gate
+        run: ./utils/check-commands-eval.sh
 
       - name: Build installer ISO
         run: nix build .#nixosConfigurations.installer.config.system.build.isoImage --print-build-logs

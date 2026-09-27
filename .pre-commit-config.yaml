@@ -1,0 +1,138 @@
+# Pre-commit configuration for gisnix.
+#
+# Every hook is `repo: local` with `language: system`: the tool comes from the
+# dev shell (nix develop), never fetched by pre-commit itself — a supply-chain
+# rule that matters for a public project. `gisnix hooks` installs both stages.
+#
+# Two stages:
+#   pre-commit — fast, daemon-free checks, on every commit.
+#   pre-push   — the heavy build/eval gates, on `git push` (the publish moment).
+#                A full example-host build is minutes; it has no business
+#                running on every commit, but nothing broken should reach the
+#                remote. CI (build-hosts.yml / release.yml) runs the same
+#                scripts, so the gate is enforced in both places from one
+#                implementation.
+default_install_hook_types: [pre-commit, pre-push]
+
+repos:
+  - repo: local
+    hooks:
+      # ── fast, on every commit ───────────────────────────────────────────
+      - id: nixfmt
+        name: "🎯 Format Nix files (nixfmt-rfc-style)"
+        entry: nixfmt
+        language: system
+        files: '\.nix$'
+        stages: [pre-commit]
+
+      - id: shellcheck
+        name: "🐚 ShellCheck — utils scripts"
+        entry: shellcheck
+        language: system
+        files: '^utils/.*\.(sh|bash)$'
+        stages: [pre-commit]
+
+      - id: actionlint
+        name: "🤖 actionlint — GitHub Actions workflows"
+        entry: actionlint
+        language: system
+        files: '^\.github/workflows/.*\.ya?ml$'
+        stages: [pre-commit]
+
+      - id: gitleaks
+        name: "🔒 gitleaks — secret scan (staged)"
+        # --config, always: a bare scan walks gitignored build artefacts
+        # (multi-GB VM test disks) and hangs. The config's allowlist scopes it.
+        entry: gitleaks protect --staged --redact --no-banner --config .gitleaks.toml
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+
+      - id: bundles-consistent
+        name: "📦 Bundles — membership and imports"
+        entry: python3 utils/check-bundles.py
+        language: system
+        files: '^software/.*\.(nix|json)$'
+        pass_filenames: false
+        stages: [pre-commit]
+
+      - id: iso-contents
+        name: "🗂  ISO — every baked relative reference resolves"
+        entry: python3 utils/check-iso-contents.py
+        language: system
+        files: '^(installer\.nix|(software|overlays|profiles|users|hosts|templates)/.*)$'
+        pass_filenames: false
+        stages: [pre-commit]
+
+      - id: resources-consistent
+        name: "🖼  Resources — naming and references"
+        entry: python3 utils/check-resources.py
+        language: system
+        files: '^(resources/|.*\.nix$|utils/.*\.sh$)'
+        pass_filenames: false
+        stages: [pre-commit]
+
+      - id: locales-supported
+        name: "🌍 Locales — names glibc will generate"
+        entry: python3 utils/check-locales.py
+        language: system
+        files: '^software/locale/.*\.nix$'
+        pass_filenames: false
+        stages: [pre-commit]
+
+      - id: brand-contrast
+        name: "🎨 Brand — pairings meet WCAG 2.2 AA"
+        entry: python3 utils/check-brand.py
+        language: system
+        files: '^(brand\.nix|docs/scripts/brand\.py|utils/check-brand\.py)$'
+        pass_filenames: false
+        stages: [pre-commit]
+
+      - id: no-duplicate-packages
+        name: "🔁 Packages — declared once per host"
+        entry: python3 utils/check-duplicates.py
+        language: system
+        files: '^(software/.*\.nix|software/.*/bundle\.json|hosts/.*\.nix)$'
+        pass_filenames: false
+        stages: [pre-commit]
+
+      - id: hostconfig-editor
+        name: "🎛  Host config editor — parses and round-trips"
+        entry: python3 utils/check-hostconfig.py
+        language: system
+        files: '^(utils/(configure|gen-host-config|check-hostconfig)\.py|utils/lib/hostconfig\.py|hosts/[^/]+/config\.nix|software/.*/bundle\.json)$'
+        pass_filenames: false
+        stages: [pre-commit]
+
+      - id: command-manifest
+        name: "🧭 Command manifest — surfaces agree"
+        entry: python3 utils/check-manifest.py
+        language: system
+        files: '^(utils/commands\.json|utils/.*\.(sh|py)|docs/scripts/generate-commands-docs\.py|\.nvim\.lua|\.exrc)$'
+        pass_filenames: false
+        stages: [pre-commit]
+
+      # ── heavy build/eval gates, on push only ────────────────────────────
+      - id: example-host-builds
+        name: "🏗  Example host builds (install-equivalent)"
+        entry: utils/check-example-builds.sh
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+
+      - id: bundle-eval
+        name: "🧪 Every non-opt-in bundle evaluates (unfree/insecure net)"
+        entry: utils/check-bundle-eval.sh
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+
+      - id: commands-eval
+        name: "🧰 Every command app evaluates"
+        entry: utils/check-commands-eval.sh
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]

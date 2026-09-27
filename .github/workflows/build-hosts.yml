@@ -43,15 +43,14 @@ jobs:
             experimental-features = nix-command flakes
             accept-flake-config = true
 
-      # The whole point: BUILD, not eval. A kanata .kdb (and other
-      # build-time-validated derivations) only fails here, never at eval.
-      - name: Build example host toplevel (install-equivalent)
-        run: nix build .#nixosConfigurations.example.config.system.build.toplevel --print-build-logs
+      # The same three gates the pre-push git hook runs (see
+      # .pre-commit-config.yaml), from the same scripts — one implementation,
+      # enforced both locally and in CI. See AGENTS.md "eval is NOT build".
+      - name: Build example host (install-equivalent)
+        run: ./utils/check-example-builds.sh
 
-      # The example host enables only a minimal bundle set, so an unfree or
-      # insecure package in a bundle it doesn't take (e.g. googleearth-pro in
-      # desktop-gis — both) never shows up above and breaks a real install
-      # instead. unfree/insecure/assertion errors throw at EVAL, so evaluate a
-      # max-bundle host to catch that whole class cheaply. See AGENTS.md.
       - name: Eval example host with all non-opt-in bundles
         run: ./utils/check-bundle-eval.sh
+
+      - name: Eval every command app
+        run: ./utils/check-commands-eval.sh

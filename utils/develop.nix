@@ -57,6 +57,7 @@ pkgs.mkShell {
     pkgs.actionlint
     pkgs.shellcheck
     pkgs.cspell
+    pkgs.gitleaks # secret scanning — the gitleaks pre-commit hook (uses .gitleaks.toml)
     # Deployment
     pkgs.hcloud
     pkgs.catimg # For generating banners for the alpha neovim start banner
