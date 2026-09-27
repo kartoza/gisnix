@@ -88,10 +88,15 @@ def main() -> int:
                 problems.append(f"{c['name']}: utils/{c['file']} is not executable")
 
     # Editor surfaces must not claim a single-character key the manifest owns.
-    surfaces = [
-        (".nvim.lua", strip_lua_comments((ROOT / ".nvim.lua").read_text())),
-        (".exrc", strip_vim_comments((ROOT / ".exrc").read_text())),
-    ]
+    # These are optional integrations — a downstream flake (or gisnix itself)
+    # need not ship them — so skip any that are absent rather than crash.
+    surfaces = []
+    nvim = ROOT / ".nvim.lua"
+    if nvim.exists():
+        surfaces.append((".nvim.lua", strip_lua_comments(nvim.read_text())))
+    exrc = ROOT / ".exrc"
+    if exrc.exists():
+        surfaces.append((".exrc", strip_vim_comments(exrc.read_text())))
     for name, text in surfaces:
         for key in re.findall(r"<leader>p(.)(?![A-Za-z])", text):
             if key in seen:
@@ -132,7 +137,7 @@ def main() -> int:
         for p in problems:
             print(f"  ✗ {p}")
         return 1
-    print("✓ manifest, .nvim.lua and .exrc agree")
+    print("✓ manifest, editor surfaces and generated docs agree")
     return 0
 
 
