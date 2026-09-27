@@ -3,7 +3,7 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [0.19.2] - 2026-09-27
+## [0.20.0] - 2026-09-27
 
 ### Fixed
 
