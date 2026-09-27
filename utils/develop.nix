@@ -1,4 +1,12 @@
 {
+  # gisnix's own source, as a store path. `self` resolves to gisnix's tree
+  # whether this shell is entered from gisnix's own checkout or from a
+  # downstream flake that consumes gisnix as an input — so the banner and any
+  # other gisnix asset are found either way. Without this the shell read
+  # `$PWD/utils/shell-banner.sh`, which does not exist in a consumer's flake
+  # (only gisnix has utils/), and printed a "no such file" error on every
+  # `nix develop` on an installed host.
+  self,
   inputs,
   pkgs,
   # The `gisnix` dispatcher, built from utils/commands.json by flake.nix.
@@ -88,8 +96,12 @@ pkgs.mkShell {
   ];
 
   shellHook = ''
-    # Repo root, so `gisnix` and the banner find utils/ from any subdirectory.
+    # $PWD is the TARGET flake (the caller's own config) — what `gisnix`
+    # commands edit. GISNIX_ROOT is gisnix's OWN source, where its assets and
+    # scripts live; on a downstream flake these are two different places, so
+    # the banner (a gisnix asset) must be read from GISNIX_ROOT, not $PWD.
     export NIX_CONFIG_ROOT="$PWD"
+    export GISNIX_ROOT="${self}"
 
     # Point glibc at a locale archive so en_GB.UTF-8 (and friends) resolve
     # inside the dev shell — otherwise bash warns "cannot change locale".
@@ -101,6 +113,6 @@ pkgs.mkShell {
     # output, so anyone entering through direnv never saw it. .envrc calls the
     # same script directly.
     clear
-    bash "$NIX_CONFIG_ROOT/utils/shell-banner.sh" || true
+    bash "$GISNIX_ROOT/utils/shell-banner.sh" || true
   '';
 }

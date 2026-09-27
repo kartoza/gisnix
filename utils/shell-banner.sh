@@ -26,7 +26,11 @@ GRAY=$'\033[90m'
 BOLD=$'\033[1m'
 RESET=$'\033[0m'
 
-BANNER="$ROOT/resources/kartoza-nixos-configuration.png"
+# The logo is a gisnix asset, so it comes from gisnix's own tree (GISNIX_ROOT),
+# not the caller's checkout — a downstream flake has no resources/ of its own.
+# The fleet dashboard below stays relative to ROOT (the caller's flake), so a
+# fleet still sees its own hosts and a single-host install simply shows none.
+BANNER="${GISNIX_ROOT:-$ROOT}/resources/kartoza-nixos-configuration.png"
 
 # Cache directory, used for the fleet dashboard below.
 CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/gisnix"

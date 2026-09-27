@@ -1004,6 +1004,7 @@
         {
           default = import ./utils/develop.nix {
             inherit
+              self
               inputs
               system
               pkgs
