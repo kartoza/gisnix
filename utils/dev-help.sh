@@ -22,8 +22,13 @@ command -v jq > /dev/null 2>&1 || {
   echo "gisnix: jq is not on PATH — enter the dev shell first:  nix develop" >&2
   exit 0
 }
-[ -f utils/commands.json ] || {
-  echo "gisnix: run from the repo root (utils/commands.json missing)" >&2
+# gisnix's OWN manifest, from GISNIX_ROOT when the dispatcher exports it (which
+# it does, including when a downstream flake consumes this dispatcher from a
+# repo that has its own, smaller commands.json). Falls back to cwd for a direct
+# `bash utils/dev-help.sh` run inside gisnix's own checkout.
+MANIFEST="${GISNIX_ROOT:-.}/utils/commands.json"
+[ -f "$MANIFEST" ] || {
+  echo "gisnix: manifest not found ($MANIFEST)" >&2
   exit 0
 }
 
@@ -146,7 +151,7 @@ if ROWS="$(
     | sort_by(.rank, .order)
     | .[]
     | [ .group, .name, (.terse // .desc), .file, ((.prelude // []) | join(",")) ]
-    | @tsv' utils/commands.json 2>&1
+    | @tsv' "$MANIFEST" 2>&1
 )"; then
   :
 else
@@ -172,10 +177,11 @@ if [ -z "$ROWS" ]; then printf ''; else printf '%s\n' "$ROWS"; fi |
     ready=0
     while IFS=$'\t' read -r g name desc file prelude; do
       present=1
-      [ -f "utils/${file}" ] || present=0
+      root_dir="${GISNIX_ROOT:-.}"
+      [ -f "$root_dir/utils/${file}" ] || present=0
       if [ -n "$prelude" ]; then
         IFS=',' read -ra libs <<< "$prelude"
-        for lib in "${libs[@]}"; do [ -f "utils/lib/${lib}" ] || present=0; done
+        for lib in "${libs[@]}"; do [ -f "$root_dir/utils/lib/${lib}" ] || present=0; done
       fi
       total=$((total + 1))
       [ "$present" = "1" ] && ready=$((ready + 1))

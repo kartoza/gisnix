@@ -545,6 +545,13 @@
         text = ''
           set -uo pipefail
 
+          # gisnix's OWN source tree, so its UI scripts (the cheat-sheet, the
+          # fleet dashboard) are found even when a downstream flake consumes
+          # this dispatcher from a repo that does not ship them. The command
+          # LOGIC still runs against the caller's cwd (the `cd` below); only
+          # gisnix's own assets come from here. Mirrors mkCommandDrv.
+          export GISNIX_ROOT="${self}"
+
           root="$(git rev-parse --show-toplevel 2>/dev/null || true)"
           if [ -n "$root" ]; then cd "$root"; fi
 
@@ -583,10 +590,10 @@
 
           case "$cmd" in
             "" | -h | --help | help)
-              exec bash utils/dev-help.sh
+              exec bash "$GISNIX_ROOT/utils/dev-help.sh"
               ;;
             fleet)
-              exec bash utils/fleet-status.sh "$@"
+              exec bash "$GISNIX_ROOT/utils/fleet-status.sh" "$@"
               ;;
             --list)
               cat <<'GISNIX_LIST'
