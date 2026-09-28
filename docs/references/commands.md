@@ -19,7 +19,7 @@ Every command this flake provides. One row in `utils/commands.json` mints all of
 
 This page is the sixth, generated from the same row.
 
-**40 implemented**, 5 declared but not yet written. Commands still to be built are listed rather than hidden: the manifest describes the intended lifecycle, not only the part of it that exists.
+**42 implemented**, 5 declared but not yet written. Commands still to be built are listed rather than hidden: the manifest describes the intended lifecycle, not only the part of it that exists.
 
 ## The life of a host
 
@@ -131,6 +131,7 @@ graph LR
 | Command | Key | What it does |
 | --- | --- | --- |
 | [`cleanup-orphans`](#cleanup-orphans) | `<leader>pZ` | prune orphaned zfs-backup snapshots |
+| [`gc`](#gc) | `<leader>pO` | free up disk space (old generations + nix-collect-garbage) |
 
 **🖨 hardware** — Reading a machine's hardware into configuration.
 
@@ -151,6 +152,7 @@ graph LR
 | [`test-logs`](#test-logs) | `<leader>pj` | fetch the test-install log |
 | [`makeiso`](#makeiso) | `<leader>pm` | build the installer ISO |
 | [`create-win11-vm`](#create-win11-vm) | `<leader>pv` | build a Windows 11 VM |
+| [`capture-boot`](#capture-boot) | `<leader>pB` | screenshot a QEMU boot |
 
 ## Host lifecycle
 
@@ -774,6 +776,26 @@ What it does, in order:
 | Neovim | `<leader>pZ` |
 | On PATH | `coreutils`, `nix`, `zfs`, `gnused` |
 
+### gc
+
+Delete old generations and collect garbage to free up /nix.
+
+```bash
+gisnix gc
+```
+
+What it does, in order:
+
+1. show space before
+2. confirm, then delete generations older than the last N (default 10)
+3. collect garbage, show space after
+
+| | |
+| --- | --- |
+| Implementation | `utils/gc.sh` |
+| Neovim | `<leader>pO` |
+| On PATH | `coreutils`, `nix`, `gum` |
+
 ## Hardware
 
 *Reading a machine's hardware into configuration.*
@@ -923,6 +945,20 @@ gisnix create-win11-vm
 | Implementation | `utils/create-win11-vm.sh` |
 | Neovim | `<leader>pv` |
 | On PATH | `coreutils`, `nix`, `libvirt`, `systemd` |
+
+### capture-boot
+
+Capture a frame per second from a QEMU boot window, for boot-splash work.
+
+```bash
+gisnix capture-boot
+```
+
+| | |
+| --- | --- |
+| Implementation | `utils/capture-boot.sh` |
+| Neovim | `<leader>pB` |
+| On PATH | `coreutils`, `git`, `nix`, `gnused`, `grim`, `slurp` |
 
 ---
 

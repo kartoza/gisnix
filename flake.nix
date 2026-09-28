@@ -559,6 +559,28 @@
             [ "$live" != "${kzScriptHash}" ]
           }
 
+          # Downstream override. A flake that CONSUMES gisnix (a private fleet
+          # overlay) can specialise a baked command by declaring a row in its
+          # OWN utils/commands.json with "override": true. That row's own
+          # utils/<file> then wins over gisnix's built-in version, run from the
+          # caller's flake via `nix run .#<cmd>`. gisnix's own manifest never
+          # sets this flag, so gisnix never shadows itself — the check is inert
+          # in gisnix's own checkout. This is the hook that lets nix-config keep
+          # a host-specific keyboard-diagrams while every other command still
+          # comes straight from gisnix. Unknown (non-gisnix) commands are still
+          # handled by the *) branch below; this only covers NAME COLLISIONS.
+          if [ -n "$root" ] && [ -n "$cmd" ] && [ -f utils/commands.json ] \
+            && jq -e --arg c "$cmd" \
+                 'any(.commands[]; .name == $c and (.override // false))' \
+                 utils/commands.json >/dev/null 2>&1; then
+            file=$(jq -r --arg c "$cmd" \
+              '.commands[] | select(.name == $c) | .file' utils/commands.json)
+            if [ -f "utils/$file" ]; then
+              exec nix --extra-experimental-features "nix-command flakes" \
+                run ".#$cmd" -- "$@"
+            fi
+          fi
+
           case "$cmd" in
             "" | -h | --help | help)
               exec bash utils/dev-help.sh
@@ -981,6 +1003,16 @@
         gisnix-setup = mkCommandDrv (
           builtins.head (builtins.filter (c: c.name == "setup") commandManifest.commands)
         );
+
+        # The operator dispatcher, as a standalone package. A downstream flake
+        # (a fleet consuming gisnix) puts THIS on its dev-shell PATH instead of
+        # rebuilding its own parallel dispatcher — so `gisnix <cmd>` in that
+        # fleet runs gisnix's commands against the fleet's own tree, and any new
+        # gisnix command appears the moment the fleet runs `nix flake update
+        # gisnix`. Private commands the fleet keeps for itself surface through
+        # the dispatcher's cwd fallback (unknown names) and the override flag
+        # (name collisions). See utils/develop.nix's gisnixDispatcher slot.
+        gisnix = gisnixDispatcher;
       });
 
       # CHECKS

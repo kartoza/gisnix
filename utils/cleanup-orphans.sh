@@ -31,8 +31,14 @@
 # untouched; reclaiming space there is a separate decision.
 #
 # Usage:
-#   bash utils/zfs-cleanup-orphans.sh          # dry run, changes nothing
-#   bash utils/zfs-cleanup-orphans.sh --yes    # actually destroy
+#   gisnix cleanup-orphans              # dry run, changes nothing
+#   gisnix cleanup-orphans --yes        # destroy zfs-backup/syncoid debris only
+#   gisnix cleanup-orphans --all        # dry run, matching EVERY snapshot
+#   gisnix cleanup-orphans --all --yes  # destroy every snapshot on these datasets
+#
+# --all is for when the non-home datasets don't need ANY snapshot history at
+# all (they're reproducible or disposable) — it also destroys sanoid's
+# autosnap_* snapshots, which the default mode refuses to touch.
 
 set -euo pipefail
 
@@ -50,13 +56,25 @@ DATASETS=(
 # The dataset that must never be touched.
 PROTECTED_DATASET="NIXROOT/home"
 
-# zfs-backup's own snapshot names, and nothing else:
-#   NIXROOT/root@2026-05-17.22h-55-Backup
-#   NIXROOT/root@syncoid_abyss_2026-05-19:00:49:53-GMT01:00
-PATTERN='@([0-9]{4}-[0-9]{2}-[0-9]{2}\.[0-9]{2}h-[0-9]{2}-Backup$|syncoid_)'
-
+ALL=false
 APPLY=false
-[[ "${1:-}" == "--yes" ]] && APPLY=true
+for arg in "$@"; do
+  case "$arg" in
+    --all) ALL=true ;;
+    --yes) APPLY=true ;;
+  esac
+done
+
+if $ALL; then
+  # Every snapshot, no naming restriction. @blank is still excluded below,
+  # unconditionally, regardless of this pattern.
+  PATTERN='@.'
+else
+  # zfs-backup's own snapshot names, and nothing else:
+  #   NIXROOT/root@2026-05-17.22h-55-Backup
+  #   NIXROOT/root@syncoid_<host>_2026-05-19:00:49:53-GMT01:00
+  PATTERN='@([0-9]{4}-[0-9]{2}-[0-9]{2}\.[0-9]{2}h-[0-9]{2}-Backup$|syncoid_)'
+fi
 
 ZFS="sudo zfs"
 LIST=$(mktemp)
@@ -69,6 +87,11 @@ if $APPLY; then
   echo "MODE: DESTROY -- snapshots will be permanently removed"
 else
   echo "MODE: DRY RUN -- nothing will be changed (pass --yes to destroy)"
+fi
+if $ALL; then
+  echo "MATCH: every snapshot (--all) -- including sanoid autosnap_*"
+else
+  echo "MATCH: zfs-backup/syncoid debris only"
 fi
 bar
 
@@ -114,11 +137,14 @@ if grep -qE '@blank$' "$LIST"; then
 fi
 echo "  OK: no @blank snapshot in list"
 
-if grep -qE '@autosnap_' "$LIST"; then
+if $ALL; then
+  echo "  SKIPPED: --all permits sanoid autosnap_ snapshots"
+elif grep -qE '@autosnap_' "$LIST"; then
   echo "  ABORT: list contains sanoid autosnap_ snapshots. Refusing."
   exit 1
+else
+  echo "  OK: no sanoid autosnap_ snapshots in list"
 fi
-echo "  OK: no sanoid autosnap_ snapshots in list"
 
 # Holds would make a destroy fail; surface them up front.
 holds=0
@@ -165,7 +191,11 @@ if ! $APPLY; then
   echo
   echo "DRY RUN -- nothing was changed."
   echo "Review the list above, then re-run with:"
-  echo "    bash utils/zfs-cleanup-orphans.sh --yes"
+  if $ALL; then
+    echo "    gisnix cleanup-orphans --all --yes"
+  else
+    echo "    gisnix cleanup-orphans --yes"
+  fi
   exit 0
 fi
 

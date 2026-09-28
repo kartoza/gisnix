@@ -909,6 +909,42 @@
         "systemd"
       ],
       "usage": "gisnix set-timezone"
+    },
+    {
+      "name": "gc",
+      "file": "gc.sh",
+      "key": "O",
+      "group": "storage",
+      "order": 2,
+      "desc": "Delete old generations and collect garbage to free up /nix",
+      "terse": "free up disk space (old generations + nix-collect-garbage)",
+      "deps": [
+        "coreutils",
+        "nix",
+        "gum"
+      ],
+      "sequence": [
+        "show space before",
+        "confirm, then delete generations older than the last N (default 10)",
+        "collect garbage, show space after"
+      ]
+    },
+    {
+      "name": "capture-boot",
+      "file": "capture-boot.sh",
+      "key": "B",
+      "group": "vm",
+      "order": 7,
+      "desc": "Capture a frame per second from a QEMU boot window, for boot-splash work",
+      "terse": "screenshot a QEMU boot",
+      "deps": [
+        "coreutils",
+        "git",
+        "nix",
+        "gnused",
+        "grim",
+        "slurp"
+      ]
     }
   ]
 }
