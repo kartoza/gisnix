@@ -78,7 +78,12 @@
           alias parrot 'terminal-parrot -delay 50 -loops 7'
 
           # SSH and networking
-          alias ssh 'kitty +kitten ssh'
+          # kitty's ssh kitten copies kitty's terminfo to the remote host; it
+          # only makes sense when the terminal actually IS kitty. Guard it so
+          # other terminals (ghostty, foot, …) fall back to plain ssh.
+          if set -q KITTY_WINDOW_ID
+              alias ssh 'kitty +kitten ssh'
+          end
           alias wormhole wormhole-william
 
           # File manager
@@ -87,7 +92,9 @@
           # Development tools
           alias glow 'glow --pager'
           alias psql pgcli
-          alias icat 'kitty +kitten icat'
+          if set -q KITTY_WINDOW_ID
+              alias icat 'kitty +kitten icat'
+          end
           alias store-path 'readlink (which $argv)'
           alias brg batgrep
           alias gedit gnome-text-editor
