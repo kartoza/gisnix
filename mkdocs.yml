@@ -158,6 +158,7 @@ nav:
       - Supported hardware: user/hardware.md
       - Making a bootable USB stick: user/bootable-usb.md
       - After the install: user/after-install.md
+      - Post-install configuration: user/post-install.md
       - The workflow it unlocks: user/workflows.md
       - Building your fleet: user/fleet.md
       - Keyboard remapping: user/keyboard.md

@@ -141,6 +141,8 @@ thing to do.
 
 ## What's next?
 
+- [Post-install configuration](post-install.md) — display scaling, the
+  panel and dock, and the screenshot / GIF-recording shortcuts.
 - [Software bundles](../admin/software-bundles.md) — choosing what your
   machine carries.
 - [Keyboard remapping](keyboard.md) — home-row modifiers, layers, and
