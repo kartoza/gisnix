@@ -40,12 +40,14 @@ let
   wanted = masterPkgs.linuxPackages_7_2;
 in
 {
-  # mkDefault so a host may refine the choice without contradicting it. A host
-  # with an out-of-tree module that needs patching for this kernel — openrazer
-  # against 7.2, say — takes this bundle like anyone else, then swaps in the
-  # same kernel set with the patch applied. A plain definition there beats
-  # this default.
-  boot.kernelPackages = lib.mkDefault wanted;
+  # mkOverride 500 — stronger than mkDefault (1000), weaker than a plain
+  # assignment (100). This is the opt-in `kernel = "latest"` choice, so it must
+  # win over profiles/kernel.nix's mkDefault 7.2 baseline (two mkDefaults would
+  # collide, "defined multiple times"). A host that still needs to refine it —
+  # an out-of-tree module needing a patch for this kernel, openrazer against
+  # 7.2, say — uses a plain definition in its own hardware.nix, which beats
+  # this. (zfs.package has no competing default, so plain mkDefault is fine.)
+  boot.kernelPackages = lib.mkOverride 500 wanted;
   boot.zfs.package = lib.mkDefault masterPkgs.zfs_2_4;
 
   # The mkDefault above is a loaded gun, and this is its safety catch.

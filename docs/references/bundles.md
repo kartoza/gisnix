@@ -389,7 +389,7 @@ graph LR
 | [`services-system-power`](#services-system-power)  | 3 | `services-system` | — |
 | [`services-system-storage`](#services-system-storage)  | 3 | `services-system` | — |
 | [`security`](#security)  | 4 | — | — |
-| [`locale`](#locale)  *(choice)* | 80 | — | — |
+| [`locale`](#locale)  *(choice)* | 83 | — | — |
 
 ### base
 
@@ -1165,6 +1165,7 @@ Taking this also brings in `services-system`.
 | `locale-at-en.nix` | Austria — English |
 | `locale-at.nix` | Austria — German |
 | `locale-au-en.nix` | Australia — English |
+| `locale-ba-en.nix` | — |
 | `locale-be-en.nix` | Belgium — English |
 | `locale-be.nix` | Belgium — Dutch |
 | `locale-bg-en.nix` | Bulgaria — English |
@@ -1186,6 +1187,8 @@ Taking this also brings in `services-system`.
 | `locale-ee.nix` | Estonia — Estonian |
 | `locale-es-en.nix` | Spain — English |
 | `locale-es.nix` | Spain — Spanish |
+| `locale-eu-en-bosnia.nix` | — |
+| `locale-eu-en-madagascar.nix` | — |
 | `locale-fi-en.nix` | Finland — English |
 | `locale-fi.nix` | Finland — Finnish |
 | `locale-fr-en.nix` | France — English |
@@ -1245,6 +1248,6 @@ Taking this also brings in `services-system`.
 
 ---
 
-61 bundles, 225 modules.
+61 bundles, 228 modules.
 
 Made with love by [Kartoza](https://kartoza.com) | [Donate](https://github.com/sponsors/timlinux) | [GitHub](https://github.com/kartoza/gisnix)
