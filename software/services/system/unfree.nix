@@ -60,6 +60,22 @@ in
     '';
   };
 
+  options.kartoza.unfreePackagePrefixes = lib.mkOption {
+    type = lib.types.listOf lib.types.str;
+    default = [ ];
+    example = [ "cuda" ];
+    description = ''
+      Unfree package NAME prefixes this machine is permitted to build, by
+      `lib.getName`. For families that ship as many separately-named unfree
+      packages where listing each is impractical — CUDA is the motivating
+      case: an NVIDIA host pulls `cuda-merged`, `cuda12.9-cuda_cuobjdump`,
+      `cuda12.9-cuda_nvcc` and a dozen more, all sharing the `cuda` prefix.
+      Contributed to from any module; concatenated, same as unfreePackages.
+
+      Use a prefix specific enough not to sweep in unrelated unfree packages.
+    '';
+  };
+
   options.kartoza.insecurePackages = lib.mkOption {
     type = lib.types.listOf lib.types.str;
     default = [ ];
@@ -79,7 +95,13 @@ in
   };
 
   config.nixpkgs.config = {
-    allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) cfg.unfreePackages;
+    allowUnfreePredicate =
+      pkg:
+      let
+        name = lib.getName pkg;
+      in
+      builtins.elem name cfg.unfreePackages
+      || lib.any (prefix: lib.hasPrefix prefix name) cfg.unfreePackagePrefixes;
     permittedInsecurePackages = cfg.insecurePackages;
   };
 }
