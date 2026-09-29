@@ -101,7 +101,7 @@ so it's always complete.
 Uncomment (or add) a bundle name, then rebuild:
 
 ```bash
-sudo nixos-rebuild switch --flake .#<name>
+gisnix update
 ```
 
 Comment one out and rebuild to remove it. `base` and `services-system` are

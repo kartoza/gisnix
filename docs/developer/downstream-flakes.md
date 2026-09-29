@@ -220,8 +220,8 @@ bundle name.
   gisnix's published `docs/references/software.json` for package
   metadata, but runs `nix eval` and writes generated pages against the
   calling flake's own root.
-- `nixos-rebuild switch --flake .#myhost` and editing `config.nix`'s
-  bundle list by hand.
+- `gisnix update` (or `nixos-rebuild switch --flake .#myhost` directly)
+  and editing `config.nix`'s bundle list by hand.
 
 ## What isn't wired up yet
 

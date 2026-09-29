@@ -39,8 +39,12 @@ Then build it:
 
 ```bash
 nix run .#myhost-vm      # QEMU, headless — fast config check
-sudo nixos-rebuild switch --flake .#myhost   # on the real machine
+gisnix update myhost     # on the real machine
 ```
+
+`gisnix update` resolves hosts through `hosts/fleet.nix`, so give the
+host an entry there (step 6) even for a standalone machine;
+`sudo nixos-rebuild switch --flake .#myhost` works without one.
 
 ## Registering a test
 

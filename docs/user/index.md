@@ -20,6 +20,5 @@ for that).
 - Once installed, `~/nixos-config` on your machine is your own tiny flake —
   it pins gisnix and holds only your host and user files. Change installed
   software by editing `hosts/<name>/config.nix`'s bundle list, then
-  `sudo nixos-rebuild switch --flake .#<name>` (see the
-  [quickstart](quickstart.md) for the full loop, and its note on the
-  interactive `gisnix configure` menu).
+  `gisnix update` (see the [quickstart](quickstart.md) for the full loop,
+  and its note on the interactive `gisnix configure` menu).

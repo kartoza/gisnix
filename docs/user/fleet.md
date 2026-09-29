@@ -41,23 +41,20 @@ directly from the flake input and edits your own `hosts/myhost/config.nix`
 in place. `#bundles` (no host argument) is the read-only version — what
 exists, what's in it, what implies what.
 
-```bash
-sudo nixos-rebuild switch --flake .#myhost
-```
-
-is the always-available fallback if you'd rather hand-edit `config.nix` —
-every bundle is listed there, commented out, uncomment a line to take it.
+If you'd rather hand-edit `config.nix`, that works too — every bundle is
+listed there, commented out; uncomment a line to take it. Either way,
+apply the change with:
 
 ```bash
 gisnix update
 ```
 
-pulls in whatever's changed upstream — new gisnix commits your `flake.lock`
-hasn't seen yet, most immediately COSMIC itself, which tracks
-nixos-unstable rather than the stable channel your first boot used (see
-the quickstart's note on why that trade exists). Run `nix flake update
-gisnix` first if `gisnix update` alone doesn't pick up a change you know
-landed upstream — that's the one-line version of "update this pin."
+Add `--flake` to also pull in whatever's changed upstream — new gisnix
+commits your `flake.lock` hasn't seen yet, most immediately COSMIC itself,
+which tracks nixos-unstable rather than the stable channel your first boot
+used (see the quickstart's note on why that trade exists).
+`gisnix update --flake=gisnix` is the one-line version of "update this pin
+and nothing else."
 
 ## Making it *your* fleet's repo
 
@@ -112,8 +109,8 @@ outputs = { self, gisnix, ... }: {
 };
 ```
 
-Commit, push, and `nixos-rebuild switch --flake .#name2` on the new
-machine against your real repo (not the installer's throwaway one).
+Commit, push, and run `gisnix update` on the new machine against your
+real repo (not the installer's throwaway one).
 
 !!! note "Why this is manual right now"
     `gisnix create-host` — the command for adopting an already-installed
