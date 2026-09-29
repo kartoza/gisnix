@@ -200,4 +200,20 @@ the [quickstart](user/quickstart.md) for the rest.
 
 ---
 
+## Commercial support
+
+gisnix is built and maintained by [Kartoza](https://kartoza.com), an
+open-source geospatial company. If you are rolling gisnix out across an
+organisation and want help — deployment, custom enhancements, private
+software bundles, training, or a support contract — Kartoza offers all
+of these commercially. Get in touch via [kartoza.com](https://kartoza.com).
+
+## Acknowledgements
+
+gisnix is built by Tim Sutton.
+Thanks also to the NixOS, COSMIC, and QGIS communities, whose work this
+distribution stands on.
+
+---
+
 Made with 💗 by [Kartoza](https://kartoza.com) | [Donate!](https://github.com/sponsors/timlinux) | [GitHub](https://github.com/kartoza/gisnix)

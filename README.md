@@ -47,6 +47,19 @@ nix run --extra-experimental-features "nix-command flakes" github:kartoza/gisnix
   built ISO the normal way — it's a standard UEFI installation image, no
   hypervisor-specific variant needed.
 
+## Commercial support
+
+gisnix is built and maintained by [Kartoza](https://kartoza.com), an
+open-source geospatial company. Deployment help, custom enhancements,
+private software bundles, training, and support contracts are all
+available commercially — get in touch via [kartoza.com](https://kartoza.com).
+
+## Acknowledgements
+
+gisnix is built by Tim Sutton.
+Thanks also to the NixOS, COSMIC, and QGIS communities, whose work this
+distribution stands on.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
