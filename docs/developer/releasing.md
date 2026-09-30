@@ -85,9 +85,9 @@ that tag without requiring a new version.
 
 ## Downstream: bump the pin
 
-Cutting a gisnix release does not, by itself, change what any consumer
+Cutting a GISNIX release does not, by itself, change what any consumer
 (nix-config, or any other downstream flake) actually builds — a consumer
-pins gisnix to a specific tag in its own `flake.nix` (`url =
+pins GISNIX to a specific tag in its own `flake.nix` (`url =
 "github:kartoza/gisnix/vX.Y.Z"`) and has to bump that explicitly, then
 relock:
 
@@ -99,6 +99,6 @@ nix flake lock --update-input gisnix
 Bumping the pin string in `flake.nix` *before* the tag actually exists on
 GitHub leaves the flake unable to lock at all — `nix flake lock`/`nix
 develop`/anything that touches the lock file fails outright until either
-the tag is pushed or the pin is reverted. Land the gisnix release first,
+the tag is pushed or the pin is reverted. Land the GISNIX release first,
 confirm the tag is actually on GitHub (`git ls-remote --tags
 git@github.com:kartoza/gisnix.git`), then bump the downstream pin.

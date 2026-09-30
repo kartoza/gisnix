@@ -31,7 +31,7 @@ plugins:
       author: Kartoza
       copyright: Made with 💗 by Kartoza
       cover: true
-      cover_title: gisnix
+      cover_title: GISNIX
       cover_subtitle: A reproducible NixOS distribution for GIS workstations
       cover_logo: assets/brand/kartoza-symbol-color.svg
       toc_title: Contents

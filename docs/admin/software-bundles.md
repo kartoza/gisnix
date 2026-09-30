@@ -23,7 +23,7 @@ out, right there in the file, so `config.nix` doubles as its own menu.
 
 ## Every bundle at a glance
 
-Every bundle gisnix ships, with a one-line description — enough to see what is
+Every bundle GISNIX ships, with a one-line description — enough to see what is
 available without reading through what each one contains. Follow a name for its
 full package list. A *(choice)* set is one you pick a single member from,
 *(required)* can't be removed from a host that has it, and *(opt-in)* is never
@@ -118,7 +118,7 @@ resolves the full closure of implications at eval time. The
 
 ## Where the picker fits in
 
-On a full gisnix checkout (not the tiny per-machine flake the installer
+On a full GISNIX checkout (not the tiny per-machine flake the installer
 generates), `gisnix configure` gives you the same bundle selection as an
 interactive menu — search, tick boxes, see what each thing installs before
 committing. It's the exact same picker the installer's own software step

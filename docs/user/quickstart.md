@@ -1,20 +1,20 @@
 # Quickstart
 
-Getting gisnix onto a machine is a short journey: you write the installer
+Getting GISNIX onto a machine is a short journey: you write the installer
 to a USB stick, boot from it, connect to the network, answer a few
 questions, and reboot into a working system. This page walks the whole way,
-from the stick to the moment you have gisnix's commands at your fingertips.
+from the stick to the moment you have GISNIX's commands at your fingertips.
 
 Here is the shape of it before we begin.
 
-![Installing gisnix, from USB stick to a running machine](../assets/diagrams/install-journey.svg){ .kz-figure }
+![Installing GISNIX, from USB stick to a running machine](../assets/diagrams/install-journey.svg){ .kz-figure }
 
-!!! danger "Installing gisnix erases the target disk"
+!!! danger "Installing GISNIX erases the target disk"
     The installation **completely wipes the disk you install onto**. Every
     existing partition, operating system and file on it is destroyed, and
     the data **cannot be recovered** afterwards. Back up anything you care
     about *before* you start, and be certain you have chosen the right disk.
-    gisnix and Kartoza accept **no responsibility for lost data** — you
+    GISNIX and Kartoza accept **no responsibility for lost data** — you
     install at your own risk.
 
 ## 1. Get the installer
@@ -46,7 +46,7 @@ a throwaway disk, so you can rehearse the steps below safely.
 
 Start the target machine from the USB stick. Most machines have a key you
 hold at power-on to choose the boot device (often F12, F10 or Esc); on some
-you set the boot order in the firmware settings. gisnix needs **UEFI** boot
+you set the boot order in the firmware settings. GISNIX needs **UEFI** boot
 with **Secure Boot turned off**.
 
 You arrive at a plain text screen, logged in and ready. Nothing has been
@@ -115,7 +115,7 @@ description in your home directory. There is nothing more to do but wait.
 Remove the USB stick and restart. If you chose encryption, the machine asks
 for your passphrase as it starts. Then you are looking at a login screen.
 
-What you have now is a **minimal but complete** gisnix machine: an
+What you have now is a **minimal but complete** GISNIX machine: an
 encrypted ZFS disk and the COSMIC desktop, ready to grow into whatever you
 need.
 
@@ -125,11 +125,11 @@ Log in with the account you created, and the COSMIC desktop appears. From
 here, everything you do to the machine runs through one command — and this
 is how you reach it.
 
-![Your first login, reaching the gisnix commands](../assets/diagrams/first-run.svg){ .kz-figure }
+![Your first login, reaching the GISNIX commands](../assets/diagrams/first-run.svg){ .kz-figure }
 
-Open a terminal — gisnix uses **kitty**, which you will find in the
+Open a terminal — GISNIX uses **kitty**, which you will find in the
 applications menu. In it, go to your machine's description and step into
-gisnix's tools:
+GISNIX's tools:
 
 ```bash
 cd ~/nixos-config
@@ -144,7 +144,7 @@ gisnix
 ```
 
 and you are looking at the **command compendium** — the full list of things
-gisnix can do for this machine. `gisnix configure` opens a menu of software
+GISNIX can do for this machine. `gisnix configure` opens a menu of software
 to add; `gisnix update` rebuilds after a change; `gisnix locale` moves your
 clock when you travel. Typing `gisnix` on its own always shows the list.
 
@@ -152,14 +152,14 @@ clock when you travel. Typing `gisnix` on its own always shows the list.
     The desktop you just booted was installed from a fully-cached *stable*
     build so the install was quick. Your first `gisnix update`, once you are
     online, moves the machine onto the same up-to-the-minute COSMIC every
-    other gisnix host tracks. It may take a little longer than a routine
+    other GISNIX host tracks. It may take a little longer than a routine
     update, but only this once.
 
 ## What's next?
 
 - [After the install](after-install.md) — where your machine is described,
-  how to pull gisnix updates, and pinning versus tracking the latest.
-- [Understanding gisnix](../why.md) — the ideas behind what you just
+  how to pull GISNIX updates, and pinning versus tracking the latest.
+- [Understanding GISNIX](../why.md) — the ideas behind what you just
   installed.
 - [Software bundles](../admin/software-bundles.md) — choosing what your
   machine has.

@@ -1,6 +1,6 @@
 # Managing users
 
-A user account on a gisnix machine is described in a file, like everything
+A user account on a GISNIX machine is described in a file, like everything
 else: `users/<name>.nix` holds the account, and each host that should have that
 user imports it. You can write those by hand, but `gisnix adduser` does the
 whole thing for you — including the parts that are easy to get wrong, like
@@ -16,7 +16,7 @@ It asks, in turn:
 
 - **Username** — lowercase, the login name.
 - **Full name** — what shows up in the greeter and `finger`-style listings.
-- **GitHub username** *(optional)* — gisnix fetches that account's public keys
+- **GitHub username** *(optional)* — GISNIX fetches that account's public keys
   from `github.com/<user>.keys` and installs them, so you never paste a key by
   hand. You can skip this and add keys later.
 - **Password** — entered twice, then hashed with `mkpasswd` and written into
@@ -35,7 +35,7 @@ gisnix update            # this machine
 
 ## How a machine authenticates you
 
-gisnix runs sshd on every machine, but locked down, so it is worth knowing how
+GISNIX runs sshd on every machine, but locked down, so it is worth knowing how
 you actually get in:
 
 - **Public keys only.** Password login over SSH is off, and so is root login.

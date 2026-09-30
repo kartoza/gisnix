@@ -8,7 +8,7 @@ hide:
 
 <span class="kz-eyebrow">KARTOZA · GISNIX</span>
 
-# gisnix
+# GISNIX
 
 An opinionated, open-source NixOS distribution for GIS workstations.
 QGIS-centred, COSMIC on Wayland, ZFS-encrypted by default, keyboard-first,
@@ -18,22 +18,22 @@ configuration is one flake.
 
 <div class="kz-cta" markdown>
 [:material-download: Download Now!](https://github.com/kartoza/gisnix/releases/latest/download/gisnix-installer.iso){ .kz-cta__primary }
-[:material-lightbulb-on: Why gisnix](why.md){ .kz-cta__secondary }
+[:material-lightbulb-on: Why GISNIX](why.md){ .kz-cta__secondary }
 [:material-book-open-variant: Quickstart](user/quickstart.md){ .kz-cta__secondary }
 [:simple-github: Source](https://github.com/kartoza/gisnix){ .kz-cta__secondary }
 </div>
 
 </div>
 
-!!! danger "Installing gisnix erases the target disk"
+!!! danger "Installing GISNIX erases the target disk"
     The installer **completely wipes the disk you install onto** — every
     existing partition and file is destroyed and **cannot be recovered**.
     Back up anything you need first, and be sure of the disk you choose.
-    gisnix and Kartoza accept **no responsibility for lost data**.
+    GISNIX and Kartoza accept **no responsibility for lost data**.
 
 ## Install on Your Machine
 
-Most users want to grab the ISO and install gisnix on real hardware.
+Most users want to grab the ISO and install GISNIX on real hardware.
 
 <div class="kz-features" markdown>
 
@@ -138,9 +138,9 @@ binary from one entry.
 
 ### :material-source-fork: `lib.mkHost`
 
-A separate flake can pin gisnix and build a host against its bundles and
+A separate flake can pin GISNIX and build a host against its bundles and
 profiles while keeping only its own host and user files — see
-[Building on gisnix](developer/downstream-flakes.md).
+[Building on GISNIX](developer/downstream-flakes.md).
 
 </div>
 
@@ -159,7 +159,7 @@ Whole-system, reproducible, and never a partial state.
 
 One desktop, tracked close to upstream — System76's Rust compositor on
 Wayland. Modern, GPU-accelerated, tiling-capable, and identical on every
-gisnix machine so muscle memory travels with you.
+GISNIX machine so muscle memory travels with you.
 
 </div>
 
@@ -185,7 +185,7 @@ your keys, or the rest of your home.
 
 </div>
 
-[What makes gisnix opinionated :material-arrow-right:](why.md){ .md-button .md-button--primary }
+[What makes GISNIX opinionated :material-arrow-right:](why.md){ .md-button .md-button--primary }
 
 ---
 
@@ -207,7 +207,7 @@ the [quickstart](user/quickstart.md) for the rest.
 ![Tim Sutton](assets/brand/timlinux-avatar.jpg){ .no-lightbox }
 
 **Note from the Author:** This web site was substantially generated using
-AI and reviewed by me, a human. Also many parts of the gisnix project were
+AI and reviewed by me, a human. Also many parts of the GISNIX project were
 created, improved and supported using Claude. If you are looking for an
 'AI Free' project, this is not the place for you. However this project is
 also around 3 years of hard, manual work on my part — learning NixOS,
@@ -224,17 +224,35 @@ an AI agent.<br>
 
 ## Commercial support
 
-gisnix is built and maintained by [Kartoza](https://kartoza.com), an
-open-source geospatial company. If you are rolling gisnix out across an
+<div class="kz-block" markdown>
+
+![Kartoza](assets/brand/kartoza-logo-horizontal-color.png#only-light){ .no-lightbox .kz-block__logo }
+![Kartoza](assets/brand/kartoza-logo-horizontal-reversed.png#only-dark){ .no-lightbox .kz-block__logo }
+
+GISNIX is built and maintained by [Kartoza](https://kartoza.com), an
+open-source geospatial company. If you are rolling GISNIX out across an
 organisation and want help — deployment, custom enhancements, private
 software bundles, training, or a support contract — Kartoza offers all
-of these commercially. Get in touch via [kartoza.com](https://kartoza.com).
+of these commercially.
+
+[Get in touch :material-arrow-right:](https://kartoza.com/contact-us/){ .md-button .md-button--primary }
+
+</div>
 
 ## Acknowledgements
 
-gisnix is built by Tim Sutton.
-Thanks also to the NixOS, COSMIC, and QGIS communities, whose work this
-distribution stands on.
+GISNIX stands on the work of the NixOS, COSMIC, and QGIS communities.
+
+<div class="kz-author-note" markdown>
+
+![Tim Sutton](assets/brand/timlinux-avatar.jpg){ .no-lightbox }
+
+**Tim Sutton** ([@timlinux](https://github.com/timlinux)) — author and
+maintainer of GISNIX, co-founded Kartoza in 2014. My goal is to make
+geospatial decision making tools available to everyone, and I hope GISNIX
+helps you in your quest to use GIS.
+
+</div>
 
 ---
 

@@ -5,11 +5,11 @@ carries. How your desktop *looks and behaves* — scaling, panel layout,
 keyboard shortcuts — is a different kind of thing: personal, per-user
 state that COSMIC keeps in your home directory (under `~/.config/cosmic`).
 You set it once by clicking through **Settings**, and it survives every
-rebuild and every gisnix update, because nothing on this page touches the
+rebuild and every GISNIX update, because nothing on this page touches the
 flake at all.
 
 This page walks through the settings worth visiting in your first session,
-including two commands gisnix ships specifically so you can put them on a
+including two commands GISNIX ships specifically so you can put them on a
 key.
 
 ## Display scaling
@@ -38,7 +38,7 @@ COSMIC splits the bar into two parts, each configured under
   controls the same for it.
 
 To put an application on the dock, find it in the app library (the
-top-left panel button, carrying the Kartoza logo on a gisnix machine) or
+top-left panel button, carrying the Kartoza logo on a GISNIX machine) or
 start it, then right-click its icon and pin it. Drag pinned icons along
 the dock to put them in the order your hands expect. QGIS, a terminal, a
 browser and a file manager make a sensible opening set for a GIS
@@ -55,7 +55,7 @@ Two things to know before you add one:
 
 1. Give the **absolute path** to the command. The shortcut runs outside
    your shell, so `/run/current-system/sw/bin/screenshot-trigger` works
-   where a bare `screenshot-trigger` may not. Everything gisnix installs
+   where a bare `screenshot-trigger` may not. Everything GISNIX installs
    lives under `/run/current-system/sw/bin/`.
 2. The two capture commands below end in `-trigger` and `-toggle` for a
    reason. A COSMIC custom shortcut cannot launch the interactive region

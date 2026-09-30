@@ -1,6 +1,6 @@
 # Checks and hooks
 
-gisnix runs the same set of checks in three places — your local git hooks, CI on
+GISNIX runs the same set of checks in three places — your local git hooks, CI on
 every push and pull request, and a gate before each release — all from **one set
 of scripts**, so they cannot drift apart. This page is what each check verifies
 and where it runs.

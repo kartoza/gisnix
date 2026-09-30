@@ -1,7 +1,7 @@
 # Supported hardware
 
-gisnix is NixOS underneath, and NixOS runs on an enormous range of machines.
-What gisnix adds on top — the desktop, the disk layout, the keyboard work, the
+GISNIX is NixOS underneath, and NixOS runs on an enormous range of machines.
+What GISNIX adds on top — the desktop, the disk layout, the keyboard work, the
 installer — is developed and tested on a small number of laptops. On those, an
 install is a known quantity. On everything else it will very often work, but it
 is worth knowing where the well-trodden path ends.
@@ -19,12 +19,12 @@ most attention and are the safest bet:
 | **Framework Laptop 16** | The primary development machine. Everything here — install, desktop, suspend/resume, keyboard, Wi-Fi — is exercised on it regularly. |
 | **Framework Laptop 14** | Also regularly used and installed. |
 
-If you are buying a machine specifically to run gisnix, a Framework is the
+If you are buying a machine specifically to run GISNIX, a Framework is the
 choice that will give you the least trouble.
 
 ## Everywhere else — your mileage may vary
 
-On other laptops and desktops gisnix usually installs and runs fine, but it is
+On other laptops and desktops GISNIX usually installs and runs fine, but it is
 not something we can promise for hardware we have never seen. The parts most
 likely to need attention are the ones that vary most between machines:
 
@@ -39,7 +39,7 @@ likely to need attention are the ones that vary most between machines:
   you are installing.
 - **Proprietary vendor gadgetry** that only ever shipped a Windows driver.
 
-None of this means gisnix *won't* run — plenty of non-Framework machines run
+None of this means GISNIX *won't* run — plenty of non-Framework machines run
 it happily. It means that if something is going to need a hand, this is where
 it will be, and you should be comfortable reading a log and filing an issue.
 
@@ -47,14 +47,14 @@ it will be, and you should be comfortable reading a log and filing an issue.
     If your wireless adapter does not show up in `nmtui`, you do not have to
     give up on the install. Use a **wired connection** if you have one, or
     **tether an iPhone over USB** (below) to get online long enough to install.
-    Once installed, a newer gisnix — or a per-host kernel pin in your
+    Once installed, a newer GISNIX — or a per-host kernel pin in your
     `hardware.nix` — will often bring the adapter to life. Please
     [open an issue](https://github.com/kartoza/gisnix/issues) with your
     adapter (`lspci -nnk`) so it can be looked at.
 
 ## Tethering from an iPhone
 
-You do not need Wi-Fi or a cable to the wall to install gisnix — a phone is
+You do not need Wi-Fi or a cable to the wall to install GISNIX — a phone is
 enough. iPhone USB tethering works **out of the box**, on both the installer
 and the installed machine, with nothing to set up:
 

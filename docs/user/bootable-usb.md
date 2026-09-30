@@ -8,7 +8,7 @@ everything on it will be erased.
 !!! danger "Two disks get erased here — pick the right ones"
     Writing the ISO **erases the USB stick**, and later the installer
     **erases the machine's disk** you install onto. Both are irreversible.
-    Double-check the device each time. gisnix and Kartoza accept **no
+    Double-check the device each time. GISNIX and Kartoza accept **no
     responsibility for lost data**.
 
 === "Linux"

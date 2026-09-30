@@ -1,13 +1,13 @@
 # Building your fleet
 
-You've installed gisnix once and have a working machine. This is what to do
+You've installed GISNIX once and have a working machine. This is what to do
 next: live with that one host productively, then grow to two, ten, or
-however many machines you end up running — while keeping gisnix's own
+however many machines you end up running — while keeping GISNIX's own
 updates flowing in for free.
 
 ## What you actually have
 
-The installer left you `~/nixos-config`: a small flake that pins gisnix as
+The installer left you `~/nixos-config`: a small flake that pins GISNIX as
 an input and points at your one host.
 
 ```nix
@@ -21,11 +21,11 @@ an input and points at your one host.
 }
 ```
 
-Every package, every desktop profile, every overlay comes from gisnix. Your
+Every package, every desktop profile, every overlay comes from GISNIX. Your
 own repo holds exactly three things: `hosts/myhost/` (its hardware, disk
 layout, and which bundles it takes), `users/` (your account, your SSH
-key), and this `flake.nix` gluing the two to gisnix. That's the whole
-point — gisnix carries the opinion about what a good GIS workstation looks
+key), and this `flake.nix` gluing the two to GISNIX. That's the whole
+point — GISNIX carries the opinion about what a good GIS workstation looks
 like, your repo carries the facts about your own machines.
 
 ## Living with one host
@@ -36,7 +36,7 @@ nix run github:kartoza/gisnix#configure -- myhost
 ```
 
 Ticks bundles on and off, shows you a diff, writes nothing until you
-confirm. No gisnix checkout needed — this reads gisnix's bundle registry
+confirm. No GISNIX checkout needed — this reads GISNIX's bundle registry
 directly from the flake input and edits your own `hosts/myhost/config.nix`
 in place. `#bundles` (no host argument) is the read-only version — what
 exists, what's in it, what implies what.
@@ -49,7 +49,7 @@ apply the change with:
 gisnix update
 ```
 
-Add `--flake` to also pull in whatever's changed upstream — new gisnix
+Add `--flake` to also pull in whatever's changed upstream — new GISNIX
 commits your `flake.lock` hasn't seen yet, most immediately COSMIC itself,
 which tracks nixos-unstable rather than the stable channel your first boot
 used (see the quickstart's note on why that trade exists).
@@ -69,14 +69,14 @@ git remote add origin git@github.com:you/nixos-config.git
 git push -u origin main
 ```
 
-This repo is now the private layer sitting on top of gisnix — the same
+This repo is now the private layer sitting on top of GISNIX — the same
 relationship [kartoza/nix-config](https://github.com/kartoza/nix-config)
-has to gisnix itself, just smaller. Nothing about it is gisnix-specific:
+has to GISNIX itself, just smaller. Nothing about it is GISNIX-specific:
 it's a plain git repo you own outright.
 
 ## Adding a second machine
 
-Boot the gisnix installer on the new machine and go through the wizard as
+Boot the GISNIX installer on the new machine and go through the wizard as
 before — it'll generate its own small `hosts/<name2>/` the same way it did
 the first time. What's different this time is where that directory ends
 up: **move it into your existing repo** rather than leaving it as its own
@@ -115,19 +115,19 @@ real repo (not the installer's throwaway one).
 !!! note "Why this is manual right now"
     `gisnix create-host` — the command for adopting an already-installed
     machine into a flake — is designed to run from a single checkout that
-    has both gisnix's own tooling and your `hosts/` together, which a thin
+    has both GISNIX's own tooling and your `hosts/` together, which a thin
     downstream repo deliberately doesn't have. Copying the generated
     `hosts/<name>/` directory across by hand is the honest current
     answer, not a workaround for a bug — see [Building on
-    gisnix](../developer/downstream-flakes.md#what-isnt-wired-up-yet) for
+    GISNIX](../developer/downstream-flakes.md#what-isnt-wired-up-yet) for
     where this is tracked.
 
 ## Keeping private things private
 
-Two kinds of content never belong in gisnix, and both attach to
+Two kinds of content never belong in GISNIX, and both attach to
 `gisnix.lib.mkHost`/`mkFleet` the same way — `extraModules`:
 
-**Your own `projectConfig` and `fleet` registry.** gisnix's own defaults
+**Your own `projectConfig` and `fleet` registry.** GISNIX's own defaults
 are placeholders (`example.com`, a generic `nixosStateVersion`). Supply
 your real ones once your fleet has values worth keeping straight —
 your actual domain, and (if you want `ssh othermachine` to resolve
@@ -140,10 +140,10 @@ gisnix.lib.mkFleet ./hosts {
 };
 ```
 
-**Anything a shared gisnix module deliberately doesn't carry.** A few of
-gisnix's modules are generic on purpose where a real value would have to
+**Anything a shared GISNIX module deliberately doesn't carry.** A few of
+GISNIX's modules are generic on purpose where a real value would have to
 be private — trusting an internal CA certificate is the clearest example:
-gisnix's `services-system` bundle exposes an `extraCA.certificateFiles`
+GISNIX's `services-system` bundle exposes an `extraCA.certificateFiles`
 option, empty by default, rather than shipping anyone's actual chain.
 
 ```nix
@@ -157,8 +157,8 @@ gisnix.lib.mkHost "myhost" {
 
 The same pattern covers anything else specific to you: a private script, an
 internal-only application, a fleet-wide VPN dispatcher. Small modules in
-your own repo, layered on via `extraModules`, never touching gisnix's tree.
-[Building on gisnix](../developer/downstream-flakes.md) has the full
+your own repo, layered on via `extraModules`, never touching GISNIX's tree.
+[Building on GISNIX](../developer/downstream-flakes.md) has the full
 reference for `gisnixRoot`, per-host overrides via `mkFleet`'s
 `perHostArgs`, and what's proven to work versus still a known gap.
 
@@ -166,10 +166,10 @@ reference for `gisnixRoot`, per-host overrides via `mkFleet`'s
 
 If a fix or a bundle you built for your own fleet is generically useful —
 not tied to your own hostnames, secrets, or internal services — it likely
-belongs in gisnix itself rather than staying private. `AGENTS.md` in
-gisnix's own repo covers the rules of the road (bundle conventions, what
+belongs in GISNIX itself rather than staying private. `AGENTS.md` in
+GISNIX's own repo covers the rules of the road (bundle conventions, what
 the ISO does and doesn't ship, docs voice); a PR against
 [kartoza/gisnix](https://github.com/kartoza/gisnix) is the way in. Every
-fleet running gisnix gets the improvement the next time it updates the
+fleet running GISNIX gets the improvement the next time it updates the
 pin — that's the whole reason to keep the split between "opinion" and
 "your machines" honest in the first place.

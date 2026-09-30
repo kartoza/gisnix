@@ -1,7 +1,7 @@
-# Building on gisnix
+# Building on GISNIX
 
 `lib.mkHost` and `lib.mkFleet` are exposed specifically so another flake can
-build one host, or many, from gisnix's bundles, profiles and overlays while
+build one host, or many, from GISNIX's bundles, profiles and overlays while
 keeping only its own `hosts/<name>` and `users/<name>` — no vendored copy of
 `software/`, `profiles/`, or `overlays/`. This is how the installer's own
 generated per-machine flake works, and how a bigger fleet flake works too.
@@ -10,7 +10,7 @@ For the day-to-day workflow (config picker, rebuilding, adding a second
 machine) see [Building your fleet](../user/fleet.md). This page is the
 underlying API.
 
-![Your own flake builds on gisnix while keeping only your hosts and users](../assets/diagrams/downstream.svg){ .kz-figure }
+![Your own flake builds on GISNIX while keeping only your hosts and users](../assets/diagrams/downstream.svg){ .kz-figure }
 
 ## A single host
 
@@ -28,7 +28,7 @@ underlying API.
 `hostPath` points at a directory in *your own* repo, shaped like
 `hosts/example/` (see [Adding a host](adding-a-host.md)). `gisnix.lib.mkHost`
 wires in disko/agenix/home-manager/stylix, resolves your `config.nix`'s
-bundle list against gisnix's registry, and applies gisnix's overlays — all
+bundle list against GISNIX's registry, and applies GISNIX's overlays — all
 without your flake needing to know any of that exists.
 
 ## A fleet
@@ -69,12 +69,12 @@ hardware-specific extras) beyond what `mkFleet`'s `perHostArgs` covers.
 
 ## Your own `projectConfig` and `fleet`
 
-`mkHost`/`mkFleet` default to gisnix's own `config.nix` and `hosts/fleet.nix`
+`mkHost`/`mkFleet` default to GISNIX's own `config.nix` and `hosts/fleet.nix`
 — `example.com`, `nixosStateVersion = "26.05"`, no Hetzner/Keycloak/whatever
 else your own fields are. Any host or module that reads a `projectConfig`
-field gisnix's own `config.nix` doesn't have will hard-fail on a missing
+field GISNIX's own `config.nix` doesn't have will hard-fail on a missing
 attribute; any field both sides define (like `nixosStateVersion`) will
-silently take gisnix's value instead of yours if you don't override it.
+silently take GISNIX's value instead of yours if you don't override it.
 
 Supply your own:
 
@@ -86,7 +86,7 @@ gisnix.lib.mkHost "myhost" {
 }
 ```
 
-`fleet` matters even for a single host: gisnix's `services-system/
+`fleet` matters even for a single host: GISNIX's `services-system/
 fleet-hosts.nix` (part of the always-on `services-system` bundle) reads it
 to generate `/etc/hosts` entries for every machine it names — pass your own
 so `ssh anotherhost` resolves correctly, or omit it if you don't maintain a
@@ -94,7 +94,7 @@ fleet registry at all (an empty `{ hosts = {}; }` is fine).
 
 ## Re-attaching a genericized module's private content
 
-A few of gisnix's shared modules are deliberately generic where a real
+A few of GISNIX's shared modules are deliberately generic where a real
 value would have to be private — `services-system/ca-certificates.nix`
 doesn't ship anyone's actual internal CA, it exposes an
 `extraCA.certificateFiles` option (empty by default) instead. If your own
@@ -110,12 +110,12 @@ gisnix.lib.mkHost "myhost" {
 }
 ```
 
-## `gisnixRoot`: reaching gisnix's own profiles directly
+## `gisnixRoot`: reaching GISNIX's own profiles directly
 
 `hostPath`'s own files (`default.nix`, `desktop.nix`, `services.nix`, ...)
 receive `gisnixRoot` as a specialArg — this flake's own root, as an
 absolute path. Use it instead of a `../../` path (which would resolve
-against *your* repo, not gisnix's) to import one of gisnix's non-bundle
+against *your* repo, not GISNIX's) to import one of GISNIX's non-bundle
 profiles directly:
 
 ```nix
@@ -131,14 +131,14 @@ This is for the handful of profiles that aren't bundle-driven (they turn on
 an activation option, or pull in `hostPath`'s own `desktop.nix`/
 `services.nix` — a bundle structurally can't do either). Bundle content
 itself doesn't need this: `gisnix.lib.mkHost` already imports
-`profiles/bundles.nix` from gisnix's own tree regardless of where `hostPath`
+`profiles/bundles.nix` from GISNIX's own tree regardless of where `hostPath`
 points, so a `bundles = [ "desktop-browsers" ]` entry in your `config.nix`
 resolves correctly with no path juggling on your side at all.
 
 ## Your own `inputs`
 
 `hostPath`'s files also receive an `inputs` specialArg — but by default it's
-*gisnix's own* `inputs`, not yours. A host file referencing a flake input
+*GISNIX's own* `inputs`, not yours. A host file referencing a flake input
 your own flake declares (a vendored kernel, a private tool) fails with
 "attribute missing" even though the input genuinely exists — it's just not
 in the `inputs` this host file was handed.
@@ -152,7 +152,7 @@ gisnix.lib.mkHost "myhost" {
 
 `mkFleet` takes the same parameter, applied to every host it builds. This
 only affects the `inputs` specialArg your own `hostPath` files see —
-gisnix's internal use of its own inputs (disko, home-manager, its own
+GISNIX's internal use of its own inputs (disko, home-manager, its own
 overlays) is unaffected either way.
 
 ## Known gotchas from a real migration
@@ -164,7 +164,7 @@ Two real failures, found migrating an existing, non-trivial fleet onto
 `nixpkgs.config.allowUnfreePredicate` and
 `nixpkgs.config.permittedInsecurePackages` are bare, loosely-typed attrs
 keys with no per-key merge behaviour — the module system silently keeps
-only ONE definition if more than one module sets either directly. gisnix
+only ONE definition if more than one module sets either directly. GISNIX
 avoids this internally via `kartoza.unfreePackages`/`kartoza.insecurePackages`
 (`services-system/unfree.nix`), which are real `listOf str` options that
 concatenate. If your own `extraModules` (or a private module you layer in)
@@ -177,21 +177,21 @@ error pointing at the real cause. Use `kartoza.unfreePackages`/
 regardless of what else is declared.
 
 **`boot.zfs.forceImportRoot` conflicting with an existing host's own
-setting.** gisnix's `base` bundle sets this `true` unconditionally — it
+setting.** GISNIX's `base` bundle sets this `true` unconditionally — it
 fixes a real installer bug (the live ISO and the freshly-installed system
 have different ZFS hostids on first boot). A host you're migrating that
 predates disko — an existing install, hostid already consistent — likely
 already sets this `false` in its own `hardware.nix`. Two plain (non-
 `mkForce`) definitions of the same value is a hard eval error
 ("conflicting definition values"), not a silent one. Fix it in your own
-host file with `lib.mkForce false`, not by changing gisnix's default (which
+host file with `lib.mkForce false`, not by changing GISNIX's default (which
 is correct for the fresh-install case every OTHER host relies on).
 
-## Extending gisnix's tooling to your own bundles
+## Extending GISNIX's tooling to your own bundles
 
 There's no mechanism yet for a downstream flake to *add* modules to a
-bundle name gisnix already defines — if you take `desktop-kartoza-apps` (or
-whatever bundle) and gisnix's own copy is narrower than what you want,
+bundle name GISNIX already defines — if you take `desktop-kartoza-apps` (or
+whatever bundle) and GISNIX's own copy is narrower than what you want,
 add your own modules via `extraModules` rather than trying to extend the
 bundle itself. Tracked as a real gap, not a design decision — a future
 version may let a consumer register additional modules under an existing
@@ -199,25 +199,25 @@ bundle name.
 
 ## What's proven
 
-- Building a host with `hostPath` outside gisnix's own tree — the
+- Building a host with `hostPath` outside GISNIX's own tree — the
   `hostPath`/`gisnixRoot`/`fleet` specialArgs exist specifically to make
   this correct (see [Architecture](architecture.md)).
 - `mkHost`/`mkFleet` accepting a real `projectConfig`/`fleet` override
-  instead of gisnix's own placeholders.
+  instead of GISNIX's own placeholders.
 - `mkHost`/`mkFleet` accepting a `consumerInputs` override, so a host file
   referencing an input only your own flake declares resolves correctly.
 - A real fleet migration (three hosts, one with pre-existing hardware
   predating disko) — see the gotchas above, both found and fixed this way.
 - `nix run github:kartoza/gisnix#configure -- <host>` and `#bundles`,
-  run from inside a downstream flake's own directory with no gisnix
+  run from inside a downstream flake's own directory with no GISNIX
   checkout present at all. `configure.py`/`hostconfig.py` split "where the
-  bundle catalogue lives" (gisnix's own tree, via a `GISNIX_ROOT`
+  bundle catalogue lives" (GISNIX's own tree, via a `GISNIX_ROOT`
   environment variable the nix-packaged command sets) from "where the
   target host's files live" (the caller's own working directory), so the
   chooser edits your flake's `hosts/<name>/config.nix` while reading the
-  bundle registry from gisnix itself.
+  bundle registry from GISNIX itself.
 - `docs-generate-hosts` (per-host reference pages) the same way — reads
-  gisnix's published `docs/references/software.json` for package
+  GISNIX's published `docs/references/software.json` for package
   metadata, but runs `nix eval` and writes generated pages against the
   calling flake's own root.
 - `gisnix update` (or `nixos-rebuild switch --flake .#myhost` directly)
@@ -233,7 +233,7 @@ bundle name.
   (bring a self-installed machine into a flake) doesn't apply to a
   flake generated by the installer, which already has a `hosts/<name>/`.
 - **`docs-generate-software`/`-bundles`/`-commands` and `docs-build`/
-  `-serve`** build gisnix's own public site and were never meant to run
+  `-serve`** build GISNIX's own public site and were never meant to run
   against a downstream flake's data — a consumer wanting its own docs
   site (real hostnames, private topology) should build a separate one,
-  not try to feed private data through gisnix's public generator.
+  not try to feed private data through GISNIX's public generator.

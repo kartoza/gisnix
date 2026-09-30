@@ -1,6 +1,6 @@
 # Administration
 
-Running a gisnix machine (or a small fleet of them) day to day.
+Running a GISNIX machine (or a small fleet of them) day to day.
 
 - **[Software bundles](software-bundles.md)** — how the bundle system
   works, and the safe way to change what's installed.
@@ -10,7 +10,7 @@ Running a gisnix machine (or a small fleet of them) day to day.
 
 ## Fleet metadata
 
-If you're managing more than one gisnix machine and want them to know about
+If you're managing more than one GISNIX machine and want them to know about
 each other (so `ssh othermachine` works by name, for instance), see
 `hosts/fleet.nix` — see [Architecture](../developer/architecture.md) for
 how it's read. A single standalone machine doesn't need this at all.

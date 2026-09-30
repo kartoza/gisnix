@@ -9,7 +9,7 @@ mkHost = hostname: { hostPath ? ./hosts + "/${hostname}", extraModules ? [ ] }:
   nixpkgs.lib.nixosSystem { ... };
 ```
 
-Every host — gisnix's own `example`, or one in a downstream flake — goes
+Every host — GISNIX's own `example`, or one in a downstream flake — goes
 through this one function. It wires in disko, agenix, home-manager, stylix,
 the bundle-resolution module (`profiles/bundles.nix`), and the overlay set,
 then imports `hostPath` (a directory containing at least `default.nix` and
@@ -18,18 +18,18 @@ then imports `hostPath` (a directory containing at least `default.nix` and
 ## Three specialArgs that make a host portable
 
 A host's own files sit in `hostPath`, wherever that is. But a host's
-`default.nix` also needs to reach things that live in *gisnix*, not in its
+`default.nix` also needs to reach things that live in *GISNIX*, not in its
 own directory — shared profiles, the locale modules, the fleet registry.
 Three `specialArgs` make that possible regardless of where `hostPath` is:
 
 | specialArg | What it is | Used for |
 |---|---|---|
 | `hostPath` | The host's own directory | A profile that needs a per-host override file (e.g. `cosmic-desktop.nix` wanting `desktop.nix`) reaches it via `hostPath + "/desktop.nix"` rather than a `../hosts/${hostname}/...` path that would resolve against the wrong repo. |
-| `gisnixRoot` | This flake's own root (`./.`), as an absolute path | A host's `default.nix` imports shared, non-bundle profiles with `gisnixRoot + "/profiles/cosmic-desktop.nix"` instead of `../../profiles/...`, which only works when the host happens to live inside gisnix's own tree. |
-| `fleet` | The parsed `hosts/fleet.nix` | Bundle-driven modules like `fleet-hosts.nix` (generates `/etc/hosts` for every known machine) take the registry as an argument instead of importing a hardcoded path — a downstream flake has its own `fleet.nix`, not gisnix's. |
+| `gisnixRoot` | This flake's own root (`./.`), as an absolute path | A host's `default.nix` imports shared, non-bundle profiles with `gisnixRoot + "/profiles/cosmic-desktop.nix"` instead of `../../profiles/...`, which only works when the host happens to live inside GISNIX's own tree. |
+| `fleet` | The parsed `hosts/fleet.nix` | Bundle-driven modules like `fleet-hosts.nix` (generates `/etc/hosts` for every known machine) take the registry as an argument instead of importing a hardcoded path — a downstream flake has its own `fleet.nix`, not GISNIX's. |
 
-This is the fix that makes `hostPath` pointing *outside* gisnix's own repo
-actually work — see [Building on gisnix](downstream-flakes.md).
+This is the fix that makes `hostPath` pointing *outside* GISNIX's own repo
+actually work — see [Building on GISNIX](downstream-flakes.md).
 
 ## The bundle registry
 
@@ -39,8 +39,8 @@ describes. `profiles/bundles.nix` reads a host's `config.nix` `bundles`
 list, resolves implications transitively, and turns the result into module
 imports. Nothing here is fleet-specific — the whole registry, and the
 `gisnix` tooling that reads it (`utils/lib/hostconfig.py`, `bundleinfo.py`,
-`configure_tui.py`), works the same whether the host lives in gisnix
-itself or one layer up, in a flake that pins gisnix as an input.
+`configure_tui.py`), works the same whether the host lives in GISNIX
+itself or one layer up, in a flake that pins GISNIX as an input.
 
 ## Storage templates
 
@@ -64,6 +64,6 @@ three surfaces: a `nix run .#<name>` app, a `gisnix <name>` subcommand (via
 `gisnixDispatcher`), and a dev-shell binary — one script, one dependency list,
 no duplication. See the [command reference](../references/commands.md) for
 every command that exists today, and
-[the gisnix command pattern](../developer/installer.md#why-a-gisnix-command) for
+[the GISNIX command pattern](../developer/installer.md#why-a-gisnix-command) for
 why the installer itself is wired this way rather than as a bespoke flake
 app.

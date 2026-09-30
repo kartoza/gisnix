@@ -769,3 +769,23 @@ body,
         align-items: center;
     }
 }
+
+/* Plain card for callout blocks (commercial support etc.) — the
+   kz-author-note look without the avatar flex row. */
+.md-typeset .kz-block {
+    padding: 1.25rem 1.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--rule-line);
+    background: var(--surface-white);
+    margin: 1.5rem 0;
+}
+[data-md-color-scheme="slate"] .kz-block {
+    background: var(--md-code-bg-color);
+    border-color: var(--md-default-fg-color--lightest);
+}
+.md-typeset .kz-block > p:first-child { margin-top: 0; }
+.md-typeset .kz-block > p:last-child { margin-bottom: 0; }
+.md-typeset .kz-block img.kz-block__logo {
+    height: 44px;
+    width: auto;
+}

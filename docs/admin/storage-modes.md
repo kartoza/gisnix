@@ -3,7 +3,7 @@
 !!! danger "Every storage mode erases the disk"
     Whichever layout you choose, the installer **wipes the target disk
     completely** — all existing data is destroyed and cannot be recovered.
-    Back up first, and choose the disk carefully. gisnix and Kartoza accept
+    Back up first, and choose the disk carefully. GISNIX and Kartoza accept
     **no responsibility for lost data**.
 
 The installer offers three storage modes, all built from the same disko
@@ -35,7 +35,7 @@ NIXROOT/
 └── atuin     (/var/atuin)  shell history, XFS zvol
 ```
 
-The shape is the same whether a machine was installed fresh by gisnix or
+The shape is the same whether a machine was installed fresh by GISNIX or
 migrated onto it by hand.
 
 ## Changing your mind after install

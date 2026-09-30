@@ -1,4 +1,4 @@
-# gisnix
+# GISNIX
 
 A reproducible NixOS distribution for GIS workstations — ZFS-encryption-ready,
 bundle-based software selection, and a Kartoza-branded installer you boot
@@ -30,7 +30,7 @@ nix run --extra-experimental-features "nix-command flakes" github:kartoza/gisnix
   default, or plain XFS, or multi-disk stripe/raidz/raidz2 — see
   `templates/disko/`.
 - **`lib.mkHost`** — exposed so a downstream flake can build a host from
-  gisnix's bundles/profiles/overlays while keeping only its own
+  GISNIX's bundles/profiles/overlays while keeping only its own
   `hosts/<name>` and `users/<name>` in its own repo. Kartoza's internal
   fleet (`nix-config`) is built this way.
 
@@ -49,16 +49,15 @@ nix run --extra-experimental-features "nix-command flakes" github:kartoza/gisnix
 
 ## Commercial support
 
-gisnix is built and maintained by [Kartoza](https://kartoza.com), an
+GISNIX is built and maintained by [Kartoza](https://kartoza.com), an
 open-source geospatial company. Deployment help, custom enhancements,
 private software bundles, training, and support contracts are all
 available commercially — get in touch via [kartoza.com](https://kartoza.com).
 
 ## Acknowledgements
 
-gisnix is built by Tim Sutton.
-Thanks also to the NixOS, COSMIC, and QGIS communities, whose work this
-distribution stands on.
+GISNIX is built by [Tim Sutton](https://github.com/timlinux), and stands
+on the work of the NixOS, COSMIC, and QGIS communities.
 
 ## License
 

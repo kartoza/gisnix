@@ -1,7 +1,7 @@
 # Theming mirrors kartoza/InfrastructureMapper for visual consistency
 # across Kartoza-maintained mkdocs sites. Design tokens live in
 # docs/stylesheets/kartoza-tokens.css; Material adapter is in extra.css.
-site_name: gisnix
+site_name: GISNIX
 site_description: A reproducible NixOS distribution for GIS workstations — ZFS-encryption-ready, bundle-based software selection, Kartoza-branded installer.
 site_url: https://kartoza.github.io/gisnix/
 site_author: Kartoza
@@ -151,7 +151,7 @@ plugins:
 
 nav:
   - Home: index.md
-  - Why gisnix: why.md
+  - Why GISNIX: why.md
   - User guide:
       - user/index.md
       - Quickstart: user/quickstart.md
@@ -171,11 +171,11 @@ nav:
   - Developer guide:
       - developer/index.md
       - Architecture: developer/architecture.md
-      - Working on gisnix: developer/hacking.md
+      - Working on GISNIX: developer/hacking.md
       - Checks and hooks: developer/checks.md
       - Adding a host: developer/adding-a-host.md
       - The installer: developer/installer.md
-      - Building on gisnix (lib.mkHost): developer/downstream-flakes.md
+      - Building on GISNIX (lib.mkHost): developer/downstream-flakes.md
       - Releasing: developer/releasing.md
   - References:
       - references/index.md

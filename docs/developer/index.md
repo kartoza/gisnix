@@ -1,6 +1,6 @@
 # Developer guide
 
-For working on gisnix itself, or building your own fleet on top of it.
+For working on GISNIX itself, or building your own fleet on top of it.
 
 - **[Architecture](architecture.md)** — how a host is composed: `lib.mkHost`,
   the bundle registry, `hostPath`/`gisnixRoot`/`fleet` specialArgs, and why
@@ -10,7 +10,7 @@ For working on gisnix itself, or building your own fleet on top of it.
 - **[The installer](installer.md)** — the Textual wizard's own structure,
   `--mock` mode, and why its software step installs a fixed bundle set
   instead of nesting `gisnix configure`'s picker.
-- **[Building on gisnix](downstream-flakes.md)** — what `lib.mkHost` gives a
+- **[Building on GISNIX](downstream-flakes.md)** — what `lib.mkHost` gives a
   downstream flake, and what's still rough around that edge.
 - **[Releasing](releasing.md)** — version bump, changelog, tag, push — and
   what the tag push actually triggers.

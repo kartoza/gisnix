@@ -1,6 +1,6 @@
 # Locale and timezone
 
-A gisnix machine has one **preset locale** — a bundle that sets the keyboard
+A GISNIX machine has one **preset locale** — a bundle that sets the keyboard
 layout, timezone, system language and regional number/date formatting together,
 chosen from `software/locale/`. On top of that, you can override a single axis
 without changing the preset, which is what you want when only one thing needs to

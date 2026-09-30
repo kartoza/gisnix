@@ -1,6 +1,6 @@
 # Keyboard remapping
 
-gisnix ships one keyboard layer built on [kanata](https://github.com/jtroo/kanata), a
+GISNIX ships one keyboard layer built on [kanata](https://github.com/jtroo/kanata), a
 userspace remapper that reads raw keyboard events and rewrites them before
 X11/Wayland ever sees them. It applies to every keyboard on the machine —
 there is nothing to configure per board unless you plug in something with
@@ -13,7 +13,7 @@ remapping — and the same hold-to-talk speech-to-text — works everywhere:
 ![kanata sits between the keyboard and every application; speech is a held key](../assets/diagrams/keyboard.svg){ .kz-figure }
 
 It ships in the `services-device-input-kanata` bundle, which is on by
-default on **every** gisnix install — including a minimal one — so the
+default on **every** GISNIX install — including a minimal one — so the
 home-row modifiers work the moment you first log in, with nothing to set
 up. You only lose it if you deliberately remove the line from
 `hosts/<name>/config.nix`. It needs no vendor hardware and is a separate
@@ -135,7 +135,7 @@ Transcription runs **entirely on the machine's CPU**, via
 [whisper.cpp](https://github.com/ggerganov/whisper.cpp). No GPU or NPU is
 needed or used, so it works the same on a plain laptop as on a workstation
 with a graphics card, and nothing you say leaves the machine. (voxtype can
-also send audio to a remote API, but gisnix does not configure that mode,
+also send audio to a remote API, but GISNIX does not configure that mode,
 so it is never in play here.) The default model, `base.en`, is chosen to
 transcribe quickly on an ordinary CPU while staying accurate enough for
 dictation; it is fetched once, the first time the machine has network
@@ -163,7 +163,7 @@ finished at least once.
 
 See voxtype's own [configuration
 reference](https://github.com/peteonrails/voxtype) for changing the
-speech model, language, or output behaviour — gisnix ships it with
+speech model, language, or output behaviour — GISNIX ships it with
 upstream's defaults.
 
 ## herdr layer
@@ -216,7 +216,7 @@ but wrong. `@` and `-` sit on different physical keys under `us` vs `pt`,
 and the script picks the right one from `kanataLayout`.
 
 What is **not** here by default: an aerc (mail client) macro set —
-compose, reply, file to folders, contacts. gisnix does not install aerc,
+compose, reply, file to folders, contacts. GISNIX does not install aerc,
 so this stays a separate opt-in (`kartoza.kanata.aercLayer = true;`) for
 a host that actually runs it, rather than shipping mail-client keybinds
 to everyone by default.

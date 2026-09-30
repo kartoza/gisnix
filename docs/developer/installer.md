@@ -4,7 +4,7 @@ A Textual wizard living at `installer/` (Python), wired as the `setup`
 row in `utils/commands.json` — `gisnix setup`, `nix run .#setup`, and
 the standalone `setup` binary on the ISO's PATH are the same code, same
 as every other operator command (see
-[the gisnix command pattern](#why-a-gisnix-command) below). The `installer/`
+[the GISNIX command pattern](#why-a-gisnix-command) below). The `installer/`
 directory name predates the command's rename to `setup` and refers to what
 the wizard IS, not what you type — renaming a Python package tree is a much
 bigger diff than renaming a manifest row, and nothing forces the two to
@@ -76,7 +76,7 @@ rather than blocking silently:
 
 ### Stable COSMIC for the first install {#stable-cosmic-for-the-first-install}
 
-Every gisnix host pulls COSMIC from `nixpkgs-unstable` (see
+Every GISNIX host pulls COSMIC from `nixpkgs-unstable` (see
 `overlays/default.nix`) — that's deliberate for a *running* system doing an
 occasional `gisnix update`, but it meant the very first install, watched
 over someone's shoulder from a live ISO, could end up compiling desktop
