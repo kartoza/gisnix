@@ -13,6 +13,7 @@ Run from the repo root:  python3 docs/scripts/generate-bundle-docs.py
 from __future__ import annotations
 
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -25,7 +26,17 @@ import bundleinfo  # noqa: E402
 import bundles  # noqa: E402
 import diagram  # noqa: E402
 
-OUT = REPO_ROOT / "docs" / "references" / "bundles.md"
+# The registry (and the helper imports above) always come from gisnix's own
+# tree, but the generated pages belong to the CALLING flake's docs — only
+# the same place when this runs inside gisnix's own checkout. Run from a
+# store copy by a downstream consumer, REPO_ROOT is read-only; see
+# generate-host-docs.py for the same GISNIX_ROOT/TARGET_ROOT split.
+TARGET_ROOT = Path(
+    subprocess.run(
+        ["git", "rev-parse", "--show-toplevel"], capture_output=True, text=True, check=True
+    ).stdout.strip()
+)
+OUT = TARGET_ROOT / "docs" / "references" / "bundles.md"
 
 
 def _implication_diagram(all_bundles: list[dict]) -> str:
@@ -71,6 +82,10 @@ def _implication_diagram(all_bundles: list[dict]) -> str:
         slug="bundle-implications",
         alt="Which bundles bring in which",
         rel_prefix="../assets/diagrams",
+        # The SVG belongs beside the page being generated — the target
+        # repo's assets, not diagram.py's default of gisnix's own (which is
+        # read-only store when a downstream consumer runs this).
+        diagram_dir=TARGET_ROOT / "docs" / "assets" / "diagrams",
     )
 
 
@@ -86,6 +101,15 @@ def main() -> int:
             implied_by.setdefault(dep, []).append(b["name"])
 
     lines: list[str] = [
+        # Front-matter FIRST (mkdocs only reads it at byte 0): this page
+        # quotes package/service descriptions that may contain braces, so a
+        # consumer running mkdocs-macros (kartoza's fleet repo does) needs
+        # it opted out of the Jinja pass. gisnix's own docs build carries no
+        # macros plugin; the meta block is invisible there.
+        "---",
+        "ignore_macros: true",
+        "---",
+        "",
         "<!-- SPDX-FileCopyrightText: Tim Sutton -->",
         "<!-- SPDX-License-Identifier: MIT -->",
         "",
@@ -537,13 +561,13 @@ def main() -> int:
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text("\n".join(lines))
-    print(f"  wrote {OUT.relative_to(REPO_ROOT)}  ({len(all_bundles)} bundles)")
+    print(f"  wrote {OUT.relative_to(TARGET_ROOT)}  ({len(all_bundles)} bundles)")
 
     _inject_glance(all_bundles)
     return 0
 
 
-GLANCE = REPO_ROOT / "docs" / "admin" / "software-bundles.md"
+GLANCE = TARGET_ROOT / "docs" / "admin" / "software-bundles.md"
 GLANCE_BEGIN = "<!-- BEGIN bundles-at-a-glance (generated — do not edit by hand) -->"
 GLANCE_END = "<!-- END bundles-at-a-glance -->"
 
@@ -571,16 +595,22 @@ def _inject_glance(all_bundles: list[dict]) -> None:
         )
     block = GLANCE_BEGIN + "\n" + "\n".join(rows) + "\n" + GLANCE_END
 
+    # A downstream flake's docs tree need not carry the admin bundles page
+    # at all — that page is gisnix's. Skip rather than fail.
+    if not GLANCE.exists():
+        print("  no docs/admin/software-bundles.md here — at-a-glance skip")
+        return
+
     text = GLANCE.read_text()
     if GLANCE_BEGIN not in text or GLANCE_END not in text:
         raise SystemExit(
-            f"{GLANCE.relative_to(REPO_ROOT)}: missing at-a-glance markers "
+            f"{GLANCE.relative_to(TARGET_ROOT)}: missing at-a-glance markers "
             f"{GLANCE_BEGIN!r} / {GLANCE_END!r}"
         )
     pre = text.split(GLANCE_BEGIN)[0]
     post = text.split(GLANCE_END, 1)[1]
     GLANCE.write_text(pre + block + post)
-    print(f"  refreshed at-a-glance list in {GLANCE.relative_to(REPO_ROOT)}")
+    print(f"  refreshed at-a-glance list in {GLANCE.relative_to(TARGET_ROOT)}")
 
 
 def _first_comment(module: Path) -> str:

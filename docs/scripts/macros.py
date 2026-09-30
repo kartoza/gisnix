@@ -35,10 +35,25 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "utils" / "lib"))
 
 import hostconfig as _hostconfig  # noqa: E402
-SOURCE_DIR = REPO_ROOT / "docs" / "diagrams"
+
+# The pages these macros render belong to the CALLING flake's docs tree —
+# only the same place as REPO_ROOT inside gisnix's own checkout. A
+# downstream consumer loads this module from the store (via its own
+# macros.py shim), so its diagram sources, command manifest and fleet
+# registry are the target repo's own, not gisnix's. Same split as
+# generate-host-docs.py.
+import subprocess as _subprocess
+
+TARGET_ROOT = Path(
+    _subprocess.run(
+        ["git", "rev-parse", "--show-toplevel"], capture_output=True, text=True, check=True
+    ).stdout.strip()
+)
+SOURCE_DIR = TARGET_ROOT / "docs" / "diagrams"
+DIAGRAM_OUT_DIR = TARGET_ROOT / "docs" / "assets" / "diagrams"
 
 
-MANIFEST = REPO_ROOT / "utils" / "commands.json"
+MANIFEST = TARGET_ROOT / "utils" / "commands.json"
 
 
 def _manifest() -> dict:
@@ -49,7 +64,7 @@ def _manifest() -> dict:
 
 
 def _implemented(command: dict) -> bool:
-    return (REPO_ROOT / "utils" / command["file"]).exists()
+    return (TARGET_ROOT / "utils" / command["file"]).exists()
 
 
 def _table(headers: list[str], rows: list[list[str]]) -> str:
@@ -82,6 +97,7 @@ def define_env(env):
             slug=slug,
             alt=alt or slug.replace("-", " "),
             rel_prefix=prefix,
+            diagram_dir=DIAGRAM_OUT_DIR,
         )
 
     # ── Command manifest ──────────────────────────────────────────────────
@@ -188,7 +204,7 @@ def define_env(env):
         import re as _re
 
         try:
-            text = (REPO_ROOT / "hosts" / "fleet.nix").read_text()
+            text = (TARGET_ROOT / "hosts" / "fleet.nix").read_text()
         except OSError:
             return "_hosts/fleet.nix is unreadable._"
 
@@ -240,7 +256,7 @@ def define_env(env):
         import re as _re
 
         try:
-            text = (REPO_ROOT / "secrets" / "secrets.nix").read_text()
+            text = (TARGET_ROOT / "secrets" / "secrets.nix").read_text()
         except OSError:
             return "_secrets/secrets.nix is unreadable._"
         names = sorted(set(_re.findall(r'"([^"]+\.age)"', text)))

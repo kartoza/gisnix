@@ -1,3 +1,7 @@
+---
+ignore_macros: true
+---
+
 <!-- SPDX-FileCopyrightText: Tim Sutton -->
 <!-- SPDX-License-Identifier: MIT -->
 
