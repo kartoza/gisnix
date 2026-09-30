@@ -200,6 +200,28 @@ the [quickstart](user/quickstart.md) for the rest.
 
 ---
 
+## AI statement
+
+<div class="kz-author-note" markdown>
+
+![Tim Sutton](assets/brand/timlinux-avatar.jpg){ .no-lightbox }
+
+**Note from the Author:** This web site was substantially generated using
+AI and reviewed by me, a human. Also many parts of the gisnix project were
+created, improved and supported using Claude. If you are looking for an
+'AI Free' project, this is not the place for you. However this project is
+also around 3 years of hard, manual work on my part — learning NixOS,
+reviewing tools, desktop environments, wrangling .nix files by hand,
+refactoring, streamlining and trying to figure out how to provide a great
+user experience while trying to balance a tightrope of ethics, good and
+useful technology etc. We do welcome contributions, including AI generated
+improvements, but you need to thoroughly check and test your work first
+which can be time consuming and is not something that can be delegated to
+an AI agent.<br>
+— *Tim Sutton ([@timlinux](https://github.com/timlinux))*
+
+</div>
+
 ## Commercial support
 
 gisnix is built and maintained by [Kartoza](https://kartoza.com), an

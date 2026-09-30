@@ -730,3 +730,42 @@ body,
         text-decoration: underline;
     }
 }
+
+/* -----------------------------------------------------------------------
+   Author note — a personal statement with an avatar, used on the home
+   page for the AI disclosure.
+   ----------------------------------------------------------------------- */
+
+.md-typeset .kz-author-note {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+    padding: 1.25rem 1.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--rule-line);
+    background: var(--surface-white);
+    margin: 1.5rem 0;
+}
+[data-md-color-scheme="slate"] .kz-author-note {
+    background: var(--md-code-bg-color);
+    border-color: var(--md-default-fg-color--lightest);
+}
+.md-typeset .kz-author-note > p:first-child {
+    flex: 0 0 auto;
+    margin: 0;
+}
+.md-typeset .kz-author-note img {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    display: block;
+}
+.md-typeset .kz-author-note > p:last-child {
+    margin: 0;
+}
+@media (max-width: 600px) {
+    .md-typeset .kz-author-note {
+        flex-direction: column;
+        align-items: center;
+    }
+}
