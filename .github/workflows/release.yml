@@ -79,6 +79,15 @@ jobs:
       # The same gates as the pre-push hook and build-hosts.yml, from the same
       # scripts — a release cannot ship a host that doesn't build, a bundle that
       # doesn't evaluate, or a command app that doesn't. See AGENTS.md.
+      # The static bank first — the same hooks `gisnix validate` runs and
+      # build-hosts.yml enforces on PRs. Cheap relative to the builds below,
+      # and a release should not ship what a PR could not merge.
+      - name: Commit-stage hooks (nixfmt, gitleaks) — release gate
+        run: nix develop -c pre-commit run --all-files --show-diff-on-failure --hook-stage pre-commit
+
+      - name: Manual bank (lint + consistency) — release gate
+        run: nix develop -c pre-commit run --all-files --show-diff-on-failure --hook-stage manual
+
       - name: Build example host (install-equivalent) — release gate
         run: ./utils/check-example-builds.sh
 
