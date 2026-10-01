@@ -94,6 +94,26 @@ in
     '';
   };
 
+  options.kartoza.insecurePackagePrefixes = lib.mkOption {
+    type = lib.types.listOf lib.types.str;
+    default = [ ];
+    example = [ "electron-41." ];
+    description = ''
+      Insecure/EOL package NAME-VERSION prefixes this machine is permitted
+      to build. Exact entries in `insecurePackages` carry the full version
+      and go stale on every nixpkgs bump — `electron-41.9.1` stopped
+      matching the day nixpkgs moved to `electron-41.10.6`, and the eval
+      failure lands on whoever updates next, not whoever pinned it. A
+      prefix scoped to the major version (`electron-41.`) tracks the pin
+      that was actually meant, and dies naturally when the app moves off
+      that major.
+
+      Keep the prefix as narrow as the real constraint: `electron-41.` for
+      an app stuck on Electron 41, never a bare `electron-` that would
+      silently bless every future EOL Electron too.
+    '';
+  };
+
   config.nixpkgs.config = {
     allowUnfreePredicate =
       pkg:
@@ -102,6 +122,17 @@ in
       in
       builtins.elem name cfg.unfreePackages
       || lib.any (prefix: lib.hasPrefix prefix name) cfg.unfreePackagePrefixes;
+    # Setting allowInsecurePredicate REPLACES nixpkgs' own check of
+    # permittedInsecurePackages, so the predicate re-implements the exact
+    # list itself and adds the prefix match. Entries match `pkg.name`
+    # (name-version, e.g. "electron-41.10.6") — the same string nixpkgs'
+    # own permittedInsecurePackages matches and the refusal error prints.
+    allowInsecurePredicate =
+      pkg:
+      builtins.elem (pkg.name or "") cfg.insecurePackages
+      || lib.any (prefix: lib.hasPrefix prefix (pkg.name or "")) cfg.insecurePackagePrefixes;
+    # Kept in sync for transparency (nix repl spelunking, docs tooling);
+    # the predicate above is what actually decides.
     permittedInsecurePackages = cfg.insecurePackages;
   };
 }

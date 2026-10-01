@@ -16,10 +16,11 @@
   # unfree.nix), not nixpkgs.config.permittedInsecurePackages directly —
   # see that option's own comment for why a direct assignment here would
   # silently collide with any other module doing the same (confirmed:
-  # koodo-reader.nix used to, and one of the two always lost). Remove
-  # this line together with the package, or when nixpkgs moves logseq to
-  # a maintained electron.
-  kartoza.insecurePackages = [ "electron-39.8.10" ];
+  # koodo-reader.nix used to, and one of the two always lost). A
+  # major-version PREFIX, not an exact pin, so nixpkgs' electron-39 minor
+  # bumps don't break eval. Remove this line together with the package,
+  # or when nixpkgs moves logseq to a maintained electron.
+  kartoza.insecurePackagePrefixes = [ "electron-39." ];
 
   environment.systemPackages = with pkgs; [
     drawio

@@ -16,10 +16,12 @@
   # bare attrs key with no list-merging, so gui-apps.nix's own permit and
   # this one would collide and only one would survive (confirmed the hard
   # way: this exact package refused to evaluate with the direct
-  # assignment in place, on a host taking both bundles). Remove this line
-  # together with the package, or when nixpkgs moves koodo-reader to a
-  # maintained electron.
-  kartoza.insecurePackages = [ "electron-41.9.1" ];
+  # assignment in place, on a host taking both bundles). A major-version
+  # PREFIX, not an exact pin: "electron-41.9.1" went stale the day
+  # nixpkgs moved to 41.10.6 and broke eval on every host with this
+  # bundle. Remove this line together with the package, or when nixpkgs
+  # moves koodo-reader to a maintained electron.
+  kartoza.insecurePackagePrefixes = [ "electron-41." ];
 
   environment.systemPackages = [ pkgs.koodo-reader ];
 
