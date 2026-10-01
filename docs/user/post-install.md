@@ -119,6 +119,17 @@ minute if you have not stopped it first.
 
     Logging out and back in restarts it.
 
+### On-screen keystrokes
+
+With the `desktop-multimedia` bundle on board, bind
+`/run/current-system/sw/bin/wshowkeys-toggle` — `Ctrl+6` continues the
+row. One press overlays every keystroke at the bottom of the screen,
+each character drawn as a keycap (the Libertinus Keyboard face, SIL
+OFL); press again to turn it off. Made for pairing with the GIF
+recorder: viewers see what you typed, not just what happened. Set
+`WSHOWKEYS_FONT` (a Pango spec like `monospace 28`) before toggling if
+you want a different face.
+
 ### Other commands worth a key
 
 Anything on the system can be bound the same way. One that earns a spot
