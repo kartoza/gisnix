@@ -588,6 +588,30 @@
       ]
     },
     {
+      "name": "validate",
+      "file": "validate.sh",
+      "key": "c",
+      "group": "qa",
+      "order": 0,
+      "desc": "Run the full static check bank (the manual pre-commit stage) on demand",
+      "terse": "full lint/consistency bank",
+      "deps": [
+        "coreutils",
+        "git",
+        "pre-commit",
+        "nixfmt-rfc-style",
+        "shellcheck",
+        "actionlint",
+        "gitleaks",
+        "python3"
+      ],
+      "sequence": [
+        "run the instant commit-stage hooks (formatting, secret scan)",
+        "run the manual bank: lint and bundle/resource/locale/brand/manifest checks"
+      ],
+      "usage": "gisnix validate [--staged]"
+    },
+    {
       "name": "test",
       "file": "test.sh",
       "key": "t",

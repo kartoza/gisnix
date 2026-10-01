@@ -19,7 +19,7 @@ Every command this flake provides. One row in `utils/commands.json` mints all of
 
 This page is the sixth, generated from the same row.
 
-**42 implemented**, 5 declared but not yet written. Commands still to be built are listed rather than hidden: the manifest describes the intended lifecycle, not only the part of it that exists.
+**43 implemented**, 5 declared but not yet written. Commands still to be built are listed rather than hidden: the manifest describes the intended lifecycle, not only the part of it that exists.
 
 ## The life of a host
 
@@ -121,6 +121,7 @@ graph LR
 
 | Command | Key | What it does |
 | --- | --- | --- |
+| [`validate`](#validate) | `<leader>pc` | full lint/consistency bank |
 | [`test`](#test) | `<leader>pt` | nix flake check |
 | [`lint`](#lint) | `<leader>pl` | lint everything, read-only |
 | [`hooks`](#hooks) | `<leader>pH` | install pre-commit hooks |
@@ -695,6 +696,25 @@ gisnix set-timezone
 ## Quality checks
 
 *Checks that run before a change lands.*
+
+### validate
+
+Run the full static check bank (the manual pre-commit stage) on demand.
+
+```bash
+gisnix validate [--staged]
+```
+
+What it does, in order:
+
+1. run the instant commit-stage hooks (formatting, secret scan)
+2. run the manual bank: lint and bundle/resource/locale/brand/manifest checks
+
+| | |
+| --- | --- |
+| Implementation | `utils/validate.sh` |
+| Neovim | `<leader>pc` |
+| On PATH | `coreutils`, `git`, `pre-commit`, `nixfmt-rfc-style`, `shellcheck`, `actionlint`, `gitleaks`, `python3` |
 
 ### test
 

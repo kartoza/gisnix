@@ -34,8 +34,14 @@ jobs:
             experimental-features = nix-command flakes
             accept-flake-config = true
 
-      - name: Pre-commit checks (nixfmt, shellcheck, gitleaks, check-*.py)
+      - name: Commit-stage hooks (nixfmt, gitleaks)
         run: nix develop -c pre-commit run --all-files --show-diff-on-failure --hook-stage pre-commit
+
+      # The manual bank — what `gisnix validate` runs locally on demand.
+      # Commits no longer run these (they were slow enough to invite
+      # --no-verify), so CI is where they are enforced for every push/PR.
+      - name: Manual bank (shellcheck, actionlint, check-*.py)
+        run: nix develop -c pre-commit run --all-files --show-diff-on-failure --hook-stage manual
 
   # The heavy gates — the pre-push stage — from the same scripts the hook and
   # release.yml use. A full example-host build; eval-of-every-bundle; every

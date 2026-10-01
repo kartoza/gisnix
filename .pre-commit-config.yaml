@@ -4,14 +4,19 @@
 # dev shell (nix develop), never fetched by pre-commit itself — a supply-chain
 # rule that matters for a public project. `gisnix hooks` installs both stages.
 #
-# Two stages:
-#   pre-commit — fast, daemon-free checks, on every commit.
-#   pre-push   — the heavy build/eval gates, on `git push` (the publish moment).
-#                A full example-host build is minutes; it has no business
-#                running on every commit, but nothing broken should reach the
-#                remote. CI (build-hosts.yml / release.yml) runs the same
-#                scripts, so the gate is enforced in both places from one
-#                implementation.
+# Three stages:
+#   pre-commit — only what must never be wrong in a commit, and is instant:
+#                formatting and the secret scan. Everything else was here
+#                once, and the per-commit wait drove people to --no-verify.
+#   manual     — the full static bank (lint, bundle/resource/locale/brand/
+#                manifest consistency). Run it on demand with
+#                `gisnix validate`; CI (build-hosts.yml) runs it on every
+#                push and PR, so nothing escapes review unchecked.
+#   pre-push   — the heavy build/eval gates, on `git push` (the publish
+#                moment). A full example-host build is minutes; it has no
+#                business running on every commit, but nothing broken should
+#                reach the remote. CI runs the same scripts, so the gate is
+#                enforced in both places from one implementation.
 default_install_hook_types: [pre-commit, pre-push]
 
 repos:
@@ -30,14 +35,14 @@ repos:
         entry: shellcheck
         language: system
         files: '^utils/.*\.(sh|bash)$'
-        stages: [pre-commit]
+        stages: [manual]
 
       - id: actionlint
         name: "🤖 actionlint — GitHub Actions workflows"
         entry: actionlint
         language: system
         files: '^\.github/workflows/.*\.ya?ml$'
-        stages: [pre-commit]
+        stages: [manual]
 
       - id: gitleaks
         name: "🔒 gitleaks — secret scan (staged)"
@@ -54,7 +59,7 @@ repos:
         language: system
         files: '^software/.*\.(nix|json)$'
         pass_filenames: false
-        stages: [pre-commit]
+        stages: [manual]
 
       - id: iso-contents
         name: "🗂  ISO — every baked relative reference resolves"
@@ -62,7 +67,7 @@ repos:
         language: system
         files: '^(installer\.nix|(software|overlays|profiles|users|hosts|templates)/.*)$'
         pass_filenames: false
-        stages: [pre-commit]
+        stages: [manual]
 
       - id: resources-consistent
         name: "🖼  Resources — naming and references"
@@ -70,7 +75,7 @@ repos:
         language: system
         files: '^(resources/|.*\.nix$|utils/.*\.sh$)'
         pass_filenames: false
-        stages: [pre-commit]
+        stages: [manual]
 
       - id: locales-supported
         name: "🌍 Locales — names glibc will generate"
@@ -78,7 +83,7 @@ repos:
         language: system
         files: '^software/locale/.*\.nix$'
         pass_filenames: false
-        stages: [pre-commit]
+        stages: [manual]
 
       - id: brand-contrast
         name: "🎨 Brand — pairings meet WCAG 2.2 AA"
@@ -86,7 +91,7 @@ repos:
         language: system
         files: '^(brand\.nix|docs/scripts/brand\.py|utils/check-brand\.py)$'
         pass_filenames: false
-        stages: [pre-commit]
+        stages: [manual]
 
       - id: no-duplicate-packages
         name: "🔁 Packages — declared once per host"
@@ -94,7 +99,7 @@ repos:
         language: system
         files: '^(software/.*\.nix|software/.*/bundle\.json|hosts/.*\.nix)$'
         pass_filenames: false
-        stages: [pre-commit]
+        stages: [manual]
 
       - id: hostconfig-editor
         name: "🎛  Host config editor — parses and round-trips"
@@ -102,7 +107,7 @@ repos:
         language: system
         files: '^(utils/(configure|gen-host-config|check-hostconfig)\.py|utils/lib/hostconfig\.py|hosts/[^/]+/config\.nix|software/.*/bundle\.json)$'
         pass_filenames: false
-        stages: [pre-commit]
+        stages: [manual]
 
       - id: command-manifest
         name: "🧭 Command manifest — surfaces agree"
@@ -110,7 +115,7 @@ repos:
         language: system
         files: '^(utils/commands\.json|utils/.*\.(sh|py)|docs/scripts/generate-commands-docs\.py|\.nvim\.lua|\.exrc)$'
         pass_filenames: false
-        stages: [pre-commit]
+        stages: [manual]
 
       # ── heavy build/eval gates, on push only ────────────────────────────
       - id: example-host-builds

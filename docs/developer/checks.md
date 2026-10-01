@@ -20,20 +20,35 @@ nix develop        # or let direnv enter it
 gisnix hooks
 ```
 
-That installs both stages: the fast checks on `git commit`, the heavy gates on
-`git push`.
+That installs both hook stages: the instant checks on `git commit`, the heavy
+gates on `git push`.
 
-## On commit — the fast checks
+## On commit — the instant checks
 
-These are daemon-free and quick, so they run on every commit (`pre-commit`
-stage):
+Only two things run on every commit, because only two things are both
+instant and must never be wrong in a commit:
 
 | Check | What it verifies |
 |---|---|
 | **nixfmt** | Nix files are formatted to the RFC style. |
+| **gitleaks** | No secret is being committed (scans the staged change, scoped by `.gitleaks.toml`). |
+
+## On demand — `gisnix validate`
+
+The full static bank lives in pre-commit's `manual` stage: it does not run
+on commit (its seconds per commit added up, and a slow hook is a hook
+people `--no-verify` past), but one command runs the lot, and CI enforces
+it on every push and PR regardless:
+
+```bash
+gisnix validate            # the whole tree
+gisnix validate --staged   # just what is staged right now
+```
+
+| Check | What it verifies |
+|---|---|
 | **shellcheck** | `utils/*.sh` scripts have no shell bugs. |
 | **actionlint** | GitHub Actions workflows are valid. |
-| **gitleaks** | No secret is being committed (scans the staged change, scoped by `.gitleaks.toml`). |
 | **check-bundles.py** | Every module under `software/` is claimed by a `bundle.json` (or explicitly listed unclaimed), and every import resolves. |
 | **check-iso-contents.py** | Every relative reference a baked module makes resolves to something also baked onto the ISO. |
 | **check-resources.py** | Brand/resource files are named and referenced consistently. |
@@ -62,18 +77,19 @@ descriptions warn they may no longer evaluate), not what a normal install takes.
 ## In CI and at release
 
 - **`ci` workflow** (`.github/workflows/build-hosts.yml`) — on every push to
-  `main` and every pull request, a `checks` job runs the fast checks (through
-  `pre-commit`, so it is the exact same hooks) and a `gates` job runs the three
-  gate scripts. A PR cannot merge past a formatting slip, a broken bundle, an
-  unallow-listed package or a host that won't build, whether or not its author
-  installed the local hooks.
+  `main` and every pull request, a `checks` job runs the commit-stage hooks
+  AND the manual bank (through `pre-commit`, so it is the exact same hooks
+  `gisnix validate` runs) and a `gates` job runs the three gate scripts. A
+  PR cannot merge past a formatting slip, a broken bundle, an unallow-listed
+  package or a host that won't build, whether or not its author installed
+  the local hooks.
 - **`release.yml`** — runs the three gates again before it builds the ISOs and
   publishes, so a release can never ship what the gates would reject.
 
 ## Running them by hand
 
 ```bash
-pre-commit run --all-files                       # the fast checks
+gisnix validate                                  # instant checks + the manual bank
 pre-commit run --all-files --hook-stage pre-push # the gates
 ```
 
