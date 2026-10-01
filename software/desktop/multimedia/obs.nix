@@ -86,9 +86,14 @@ let
         # Libertinus Keyboard (fonts.packages below) draws every character
         # inside a keycap outline. Override with WSHOWKEYS_FONT, a Pango
         # spec like 'monospace 28'.
+        #
+        # This is the DreamMaoMao fork (see overlays/default.nix): -t is in
+        # MILLISECONDS there, and the display width is capped (oldest keys
+        # drop off) so continuous typing cannot overflow the screen — the
+        # original only ever cleared after a typing pause.
         /run/wrappers/bin/wshowkeys \
             -F "''${WSHOWKEYS_FONT:-Libertinus Keyboard 32}" \
-            -a bottom -m 80 -t 2 &
+            -a bottom -m 80 -t 2000 &
         echo "$!" > "$PIDFILE"
         ${pkgs.libnotify}/bin/notify-send "Key display" "On — keystrokes shown on screen"
     fi

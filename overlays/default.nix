@@ -30,6 +30,24 @@ in
     # ZFS backup tool with Bubble Tea TUI
     zfs-backup = inputs.zfs-backup.packages.${final.stdenv.hostPlatform.system}.default;
 
+    # wshowkeys: the DreamMaoMao fork instead of sircmpwn's original. The
+    # original purges the key display only after you STOP typing for the
+    # timeout, so continuous typing grows unbounded across the screen. The
+    # fork caps the display width (-l, default 800px, oldest keys drop off)
+    # and takes its timeout in milliseconds. Same meson build; overlaid
+    # rather than packaged fresh because programs.wshowkeys (the NixOS
+    # module that ships the setuid /dev/input wrapper) hardcodes
+    # pkgs.wshowkeys.
+    wshowkeys = prev.wshowkeys.overrideAttrs (old: {
+      version = "0-unstable-2026-05-20-dreammaomao";
+      src = final.fetchFromGitHub {
+        owner = "DreamMaoMao";
+        repo = "wshowkeys";
+        rev = "35d70762ab9af4ea301853e79b3b925d5fe9e920";
+        hash = "sha256-8upkB3179A8wP5Hph0EanE0VuIxe7VsmsqzcRaOq5y0=";
+      };
+    });
+
     # wlgif — region-to-GIF Wayland screen recorder (upstream flake package,
     # already wrapped with slurp/wf-recorder/ffmpeg/pipewire + GStreamer
     # plugin paths). Its default wlroots backend cannot work under
