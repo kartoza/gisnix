@@ -1,18 +1,54 @@
 {
   config,
   pkgs,
-  pkgs-unstable,
   lib,
   ...
 }:
 let
+  # Our own wl-find-cursor build. nixpkgs-unstable carries one, but its
+  # derivation fails on a real rebuild: wayland-scanner dies with "Could
+  # not open input file" on a protocols path that demonstrably exists —
+  # some __structuredAttrs interaction in that packaging (its make flags
+  # arrive escaped too, `PREFIX=\$\(out\)` in the log). Same upstream
+  # source pin, built plainly against the STABLE wayland stack instead;
+  # one C file, nothing exotic.
+  wl-find-cursor = pkgs.stdenv.mkDerivation {
+    pname = "wl-find-cursor";
+    version = "0-unstable-2026-02-03";
+
+    src = pkgs.fetchFromGitHub {
+      owner = "cjacker";
+      repo = "wl-find-cursor";
+      rev = "ce1a125702b466dc537c5490f7888b4a68dee883";
+      hash = "sha256-IUreWEOWF1loS5SiAh8XPFrKE35Pxv6e8hhvdtNvjiU=";
+    };
+
+    nativeBuildInputs = [ pkgs.wayland-scanner ];
+    buildInputs = [ pkgs.wayland ];
+
+    postPatch = ''
+      substituteInPlace Makefile \
+        --replace-fail "/usr/share/wayland-protocols" "${pkgs.wayland-protocols}/share/wayland-protocols" \
+        --replace-fail "gcc" "cc" \
+        --replace-fail "install: default" "install: all"
+    '';
+
+    makeFlags = [ "PREFIX=$(out)" ];
+
+    meta = {
+      description = "Highlight and print the mouse cursor position on Wayland";
+      homepage = "https://github.com/cjacker/wl-find-cursor";
+      license = lib.licenses.mit;
+      mainProgram = "wl-find-cursor";
+    };
+  };
+
   # Press-to-flash cursor locator — wl-find-cursor draws a growing circle
   # at the pointer and EXITS on its own (or the moment the mouse moves),
   # so unlike wshowkeys-toggle below there is nothing to stop; the pidfile
   # only guards against stacking a second animation on a double-press.
   # Bind to e.g. Ctrl+7, continuing the capture row. Kartoza-green circle,
-  # 0xAARRGGBB. pkgs-unstable: nixpkgs only carries wl-find-cursor there
-  # so far.
+  # 0xAARRGGBB.
   find-cursor = pkgs.writeShellScriptBin "find-cursor" ''
     set -uo pipefail
 
@@ -22,7 +58,7 @@ let
         exit 0
     fi
 
-    ${pkgs-unstable.wl-find-cursor}/bin/wl-find-cursor -d 1200 -s 400 -c 0xcf589632 &
+    ${wl-find-cursor}/bin/wl-find-cursor -d 1200 -s 400 -c 0xcf589632 &
     echo "$!" > "$PIDFILE"
     wait || true
     rm -f "$PIDFILE"
