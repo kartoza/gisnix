@@ -220,6 +220,40 @@
             # for a host that declares none.
             ./profiles/bundles.nix
             { nixpkgs.overlays = import ./overlays { inherit inputs stableCosmic; }; }
+            # pkgs-unstable, honouring the SAME kartoza allow-lists as the
+            # main pkgs. It used to be a specialArg import pinned to
+            # `allowUnfree = false`, which made unfree/insecure unstable
+            # packages impossible to permit and drove user files to private
+            # `import inputs.nixpkgs-unstable { ... }` copies with their own
+            # drifting predicates (one of which is how a host eval died on
+            # an electron no allow-list could reach). A module rather than a
+            # specialArg so it can read config.kartoza.*; gisnix's OWN
+            # nixpkgs-unstable pin, deliberately not the consumer's — a thin
+            # downstream flake does not carry that input at all.
+            (
+              { config, lib, ... }:
+              {
+                _module.args.pkgs-unstable = import inputs.nixpkgs-unstable {
+                  system = "x86_64-linux";
+                  config = {
+                    allowUnfreePredicate =
+                      pkg:
+                      let
+                        name = lib.getName pkg;
+                      in
+                      builtins.elem name config.kartoza.unfreePackages
+                      || lib.any (p: lib.hasPrefix p name) config.kartoza.unfreePackagePrefixes;
+                    allowInsecurePredicate =
+                      pkg:
+                      let
+                        name = pkg.name or "${pkg.pname or ""}-${pkg.version or ""}";
+                      in
+                      builtins.elem name config.kartoza.insecurePackages
+                      || lib.any (p: lib.hasPrefix p name) config.kartoza.insecurePackagePrefixes;
+                  };
+                };
+              }
+            )
           ]
           ++ extraModules
           ++ nixpkgs.lib.optional (projectConfig.environmentName == "dev") (
@@ -246,10 +280,6 @@
             kartoza-plymouth-theme = inputs.kartoza-plymouth-theme;
             kartoza-grub-themes = inputs.kartoza-grub-themes;
             nixos-utils = inputs.nixos-utils.packages.x86_64-linux;
-            pkgs-unstable = import inputs.nixpkgs-unstable {
-              system = "x86_64-linux";
-              config.allowUnfree = false;
-            };
             # This flake's own root, as an absolute path — so a host living
             # in a DOWNSTREAM flake (hostPath pointing outside this repo,
             # e.g. a machine's own tiny flake pinning gisnix as an input)
