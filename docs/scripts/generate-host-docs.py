@@ -644,7 +644,7 @@ def render_host_page(facts: dict[str, Any]) -> str:
     # Front-matter FIRST (mkdocs reads it only at byte 0): generated
     # pages carry package descriptions that may contain braces, so a
     # consumer running mkdocs-macros needs them out of the Jinja pass.
-    lines.append("---\nignore_macros: true\n---\n\n")
+    lines.append("---\nrender_macros: false\n---\n\n")
     lines.append("<!-- SPDX-FileCopyrightText: Tim Sutton -->\n")
     lines.append("<!-- SPDX-License-Identifier: MIT -->\n\n")
     lines.append(f'<span class="kz-eyebrow">HOST · {h.upper()}</span>\n\n')
@@ -858,7 +858,7 @@ def render_index_page(all_facts: dict[str, dict[str, Any]]) -> str:
     # Front-matter FIRST (mkdocs reads it only at byte 0): generated
     # pages carry package descriptions that may contain braces, so a
     # consumer running mkdocs-macros needs them out of the Jinja pass.
-    lines.append("---\nignore_macros: true\n---\n\n")
+    lines.append("---\nrender_macros: false\n---\n\n")
     lines.append("<!-- SPDX-FileCopyrightText: Tim Sutton -->\n")
     lines.append("<!-- SPDX-License-Identifier: MIT -->\n\n")
     lines.append('<span class="kz-eyebrow">FLEET</span>\n\n')

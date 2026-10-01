@@ -149,10 +149,10 @@ def render(catalogue: dict[str, dict[str, Any]], hosts: list[str]) -> str:
     bucketed = taxonomy.categorise_packages(names)
 
     lines: list[str] = [
-        # Front-matter FIRST — same ignore_macros opt-out as the
+        # Front-matter FIRST — same render_macros opt-out as the
         # other generated pages; see generate-host-docs.py.
         "---",
-        "ignore_macros: true",
+        "render_macros: false",
         "---",
         "",
         "# Software catalogue",

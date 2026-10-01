@@ -107,7 +107,7 @@ def main() -> int:
         # it opted out of the Jinja pass. gisnix's own docs build carries no
         # macros plugin; the meta block is invisible there.
         "---",
-        "ignore_macros: true",
+        "render_macros: false",
         "---",
         "",
         "<!-- SPDX-FileCopyrightText: Tim Sutton -->",

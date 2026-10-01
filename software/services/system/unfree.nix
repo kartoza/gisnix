@@ -124,13 +124,20 @@ in
       || lib.any (prefix: lib.hasPrefix prefix name) cfg.unfreePackagePrefixes;
     # Setting allowInsecurePredicate REPLACES nixpkgs' own check of
     # permittedInsecurePackages, so the predicate re-implements the exact
-    # list itself and adds the prefix match. Entries match `pkg.name`
-    # (name-version, e.g. "electron-41.10.6") — the same string nixpkgs'
-    # own permittedInsecurePackages matches and the refusal error prints.
+    # list itself and adds the prefix match. The matched string is
+    # name-version ("electron-41.10.6") — the same one the refusal error
+    # prints — but it must be COMPUTED the way nixpkgs' own default check
+    # computes it: at predicate time a pname+version package has no `name`
+    # attribute yet, so `pkg.name or ""` is empty for nearly everything
+    # and silently refuses the entire allow-list (confirmed: every host
+    # failed on packages its modules had explicitly permitted).
     allowInsecurePredicate =
       pkg:
-      builtins.elem (pkg.name or "") cfg.insecurePackages
-      || lib.any (prefix: lib.hasPrefix prefix (pkg.name or "")) cfg.insecurePackagePrefixes;
+      let
+        name = pkg.name or "${pkg.pname or ""}-${pkg.version or ""}";
+      in
+      builtins.elem name cfg.insecurePackages
+      || lib.any (prefix: lib.hasPrefix prefix name) cfg.insecurePackagePrefixes;
     # Kept in sync for transparency (nix repl spelunking, docs tooling);
     # the predicate above is what actually decides.
     permittedInsecurePackages = cfg.insecurePackages;
