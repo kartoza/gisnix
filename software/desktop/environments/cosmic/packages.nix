@@ -266,7 +266,21 @@ let
         -lavfi "fps=15,scale=iw:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=3" \
         "$OUTPUT"
 
-    ${pkgs.libnotify}/bin/notify-send "Record GIF" "Saved $OUTPUT"
+    # A second copy at half the dimensions, for chat windows and issue
+    # trackers where the full-size one is too heavy. Its own palette pass:
+    # downscaling changes which colours the frames actually contain, and a
+    # palette built from the full-size frames dithers noticeably worse on
+    # the shrunk ones.
+    HALF_OUTPUT="$RECORDING_DIR/recording-$TIMESTAMP-half.gif"
+    ${pkgs.ffmpeg}/bin/ffmpeg -y -v error -i "$RAW" \
+        -vf "fps=15,scale=iw/2:-1:flags=lanczos,palettegen=stats_mode=diff" \
+        "$WORKDIR/palette-half.png"
+
+    ${pkgs.ffmpeg}/bin/ffmpeg -y -v error -i "$RAW" -i "$WORKDIR/palette-half.png" \
+        -lavfi "fps=15,scale=iw/2:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=3" \
+        "$HALF_OUTPUT"
+
+    ${pkgs.libnotify}/bin/notify-send "Record GIF" "Saved $OUTPUT (+ half-size copy)"
 
     # Opens the folder, not the file — no portable "reveal and select
     # this one file" concept exists here, only "open this path" (a

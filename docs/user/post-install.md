@@ -99,7 +99,9 @@ One key does both ends of the job. Press it once: the crosshair appears,
 you drag out a region, and recording starts (a notification confirms the
 size). Press it again: recording stops, the video is converted to a GIF,
 and the file lands in `~/Videos/Recordings` — the folder opens so you can
-grab it. Short GIFs of a map interaction, a dialog sequence, or a bug in
+grab it. A second copy at half the dimensions is saved beside it
+(`…-half.gif`), sized for chat windows and issue trackers where the
+full-size one is too heavy. Short GIFs of a map interaction, a dialog sequence, or a bug in
 motion drop straight into an issue tracker or a chat window where a video
 file would be a chore.
 
