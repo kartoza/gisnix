@@ -1,10 +1,33 @@
 {
   config,
   pkgs,
+  pkgs-unstable,
   lib,
   ...
 }:
 let
+  # Press-to-flash cursor locator — wl-find-cursor draws a growing circle
+  # at the pointer and EXITS on its own (or the moment the mouse moves),
+  # so unlike wshowkeys-toggle below there is nothing to stop; the pidfile
+  # only guards against stacking a second animation on a double-press.
+  # Bind to e.g. Ctrl+7, continuing the capture row. Kartoza-green circle,
+  # 0xAARRGGBB. pkgs-unstable: nixpkgs only carries wl-find-cursor there
+  # so far.
+  find-cursor = pkgs.writeShellScriptBin "find-cursor" ''
+    set -uo pipefail
+
+    PIDFILE="''${XDG_RUNTIME_DIR:?XDG_RUNTIME_DIR not set}/kartoza-find-cursor.pid"
+
+    if [[ -f "$PIDFILE" ]] && ${pkgs.procps}/bin/ps -p "$(cat "$PIDFILE")" >/dev/null 2>&1; then
+        exit 0
+    fi
+
+    ${pkgs-unstable.wl-find-cursor}/bin/wl-find-cursor -d 1200 -s 400 -c 0xcf589632 &
+    echo "$!" > "$PIDFILE"
+    wait || true
+    rm -f "$PIDFILE"
+  '';
+
   # One key on, same key off — the record-gif-toggle pattern, for the
   # wshowkeys keystroke overlay (bind to e.g. Ctrl+6 in COSMIC's custom
   # shortcuts, beside the screenshot and GIF keys). No FIFO/listener
@@ -38,6 +61,7 @@ in
 {
   # Add system wide packages
   environment.systemPackages = [
+    find-cursor
     wshowkeys-toggle
     (pkgs.wrapOBS {
       plugins = with pkgs.obs-studio-plugins; [

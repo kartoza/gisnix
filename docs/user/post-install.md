@@ -130,6 +130,14 @@ recorder: viewers see what you typed, not just what happened. Set
 `WSHOWKEYS_FONT` (a Pango spec like `monospace 28`) before toggling if
 you want a different face.
 
+### Finding the cursor
+
+Also from `desktop-multimedia`: bind
+`/run/current-system/sw/bin/find-cursor` — `Ctrl+7` keeps the row going.
+One press draws a growing circle around the pointer and vanishes on its
+own (moving the mouse dismisses it early). For big or many monitors, and
+for recordings where the viewer needs to see where you're pointing.
+
 ### Other commands worth a key
 
 Anything on the system can be bound the same way. One that earns a spot
