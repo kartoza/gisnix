@@ -1623,11 +1623,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1788680260,
-        "narHash": "sha256-Yq2OmRCwGftxp1f9fjviYlV/JsFApkcKNgKib7+LFtI=",
+        "lastModified": 1790977390,
+        "narHash": "sha256-dMyzK/ZvjxO0tTZUSvNlG7Icn9E5Adf10imvFEL/PuA=",
         "owner": "timlinux",
         "repo": "zfs-backup",
-        "rev": "0164bfdd829020906146c4f5e1f1aea334bbd6bb",
+        "rev": "984ad5ece4067519b4569ce63f5c46f6910414a8",
         "type": "github"
       },
       "original": {
