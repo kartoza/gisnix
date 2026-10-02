@@ -47,7 +47,7 @@ let
   # at the pointer and EXITS on its own (or the moment the mouse moves),
   # so unlike wshowkeys-toggle below there is nothing to stop; the pidfile
   # only guards against stacking a second animation on a double-press.
-  # Bind to e.g. Ctrl+7, continuing the capture row. Kartoza-green circle,
+  # Bind to e.g. Ctrl+7, continuing the capture row. circle in Kartoza yellow (brand.nix highlight1),
   # 0xAARRGGBB.
   find-cursor = pkgs.writeShellScriptBin "find-cursor" ''
     set -uo pipefail
@@ -58,7 +58,14 @@ let
         exit 0
     fi
 
-    ${wl-find-cursor}/bin/wl-find-cursor -d 1200 -s 400 -c 0xcf589632 &
+    # -e true: a NO-OP "mouse emulation" command. wl-find-cursor refuses
+    # to start on compositors without zwlr_virtual_pointer_v1 (cosmic-comp
+    # is one) unless -e provides a motion-emulating command — but it only
+    # needs that motion to coax a pointer.enter out of the compositor, and
+    # cosmic-comp sends enter the moment the overlay maps (confirmed on a
+    # real session: coordinates arrive with zero mouse movement). So the
+    # protocol gap costs nothing here and the emulation can be a no-op.
+    ${wl-find-cursor}/bin/wl-find-cursor -e true -d 1200 -s 400 -c 0xcfdf9e2f &
     echo "$!" > "$PIDFILE"
     wait || true
     rm -f "$PIDFILE"
