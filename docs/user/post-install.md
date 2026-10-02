@@ -134,9 +134,19 @@ you want a different face.
 
 Also from `desktop-multimedia`: bind
 `/run/current-system/sw/bin/find-cursor` — `Ctrl+7` keeps the row going.
-One press draws a growing circle around the pointer and vanishes on its
-own (moving the mouse dismisses it early). For big or many monitors, and
-for recordings where the viewer needs to see where you're pointing.
+It toggles *click highlighting*: press once and every mouse click from
+then on flashes a growing yellow circle around the pointer; press again
+to turn it off. For presentations and screencasts on big or many
+monitors, where the viewer needs to see where you clicked.
+
+!!! note "Click highlighting needs the `input` group"
+    Reading mouse clicks means reading input devices directly, which the
+    Wayland session does not expose to ordinary programs. Add the user to
+    the `input` group on hosts where you want this —
+    `users.users.<name>.extraGroups = [ "input" ];` — and rebuild. It is
+    not granted fleet-wide on purpose: `input` membership also lets the
+    user's programs read the keyboard. find-cursor tells you if the group
+    is missing rather than silently doing nothing.
 
 ### Other commands worth a key
 
