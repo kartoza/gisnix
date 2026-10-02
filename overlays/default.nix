@@ -46,6 +46,10 @@ in
         rev = "35d70762ab9af4ea301853e79b3b925d5fe9e920";
         hash = "sha256-8upkB3179A8wP5Hph0EanE0VuIxe7VsmsqzcRaOq5y0=";
       };
+      # The fork defers its timeout clear to the NEXT keypress, so idle
+      # keys linger on screen indefinitely; the patch clears the moment
+      # the timeout elapses. See the patch header for the full story.
+      patches = (old.patches or [ ]) ++ [ ./wshowkeys-clear-on-timeout.patch ];
     });
 
     # wlgif — region-to-GIF Wayland screen recorder (upstream flake package,

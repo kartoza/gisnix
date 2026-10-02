@@ -1,0 +1,23 @@
+Clear the key display WHEN the timeout elapses, not on the next keypress.
+
+Upstream (DreamMaoMao fork) only marks the display pending_clear when the
+timeout fires and performs the actual clear lazily inside the next
+keyboard event — so the last keys linger on screen indefinitely while you
+are idle. Clearing immediately is what a display timeout means; the
+subsequent render is safe under cosmic-comp because render_keys_frame
+clamps the empty surface to 1x1 (the zero-size close/exit was the
+original wshowkeys' failure mode).
+
+--- a/main.c
++++ b/main.c
+@@ -1599,9 +1599,7 @@
+ 			long elapsed_ms = (now.tv_sec - state.last_key.tv_sec) * 1000 +
+ 							  (now.tv_nsec - state.last_key.tv_nsec) / 1000000;
+ 			if (elapsed_ms >= state.timeout) {
+-				if (!state.pending_clear) {
+-					state.pending_clear = true;
+-				}
++				clear_full_keylink(&state);
+ 				poll_timeout = -1;
+ 			} else {
+ 				poll_timeout = state.timeout - (int)elapsed_ms;
