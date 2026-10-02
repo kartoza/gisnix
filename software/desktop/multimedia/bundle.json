@@ -8,7 +8,9 @@
   "modules": [
     "codecs.nix",
     "creative-apps.nix",
+    "find-cursor.nix",
     "obs.nix",
-    "unstable-apps.nix"
+    "unstable-apps.nix",
+    "wshowkeys.nix"
   ]
 }

@@ -346,7 +346,7 @@ graph LR
 | [`desktop-games`](#desktop-games)  | 3 | `desktop-environments-cosmic` | — |
 | [`desktop-gis`](#desktop-gis)  | 8 | `desktop-environments-cosmic` | `desktop-gis-source-builds`, `desktop-gis-versions-qgis-1-8`, `desktop-gis-versions-qgis-2-10`, `desktop-gis-versions-qgis-2-16`, `desktop-gis-versions-qgis-2-18`, `desktop-gis-versions-qgis-2-4`, `desktop-gis-versions-qgis-2-6`, `desktop-gis-versions-qgis-2-8`, `desktop-gis-versions-qgis-3-10`, `desktop-gis-versions-qgis-3-16`, `desktop-gis-versions-qgis-3-22`, `desktop-gis-versions-qgis-3-24`, `desktop-gis-versions-qgis-3-26`, `desktop-gis-versions-qgis-3-28`, `desktop-gis-versions-qgis-3-32`, `desktop-gis-versions-qgis-3-34`, `desktop-gis-versions-qgis-3-36`, `desktop-gis-versions-qgis-3-38`, `desktop-gis-versions-qgis-3-4`, `desktop-gis-versions-qgis-3-40`, `desktop-gis-versions-qgis-3-42`, `desktop-gis-versions-qgis-3-44`, `desktop-gis-versions-qgis-3-8`, `desktop-gis-versions-qgis-4-0` |
 | [`desktop-kartoza-apps`](#desktop-kartoza-apps)  | 3 | `desktop-environments-cosmic` | `desktop-kartoza-apps-screencaster` |
-| [`desktop-multimedia`](#desktop-multimedia)  | 4 | `desktop-environments-cosmic` | — |
+| [`desktop-multimedia`](#desktop-multimedia)  | 6 | `desktop-environments-cosmic` | — |
 | [`desktop-productivity`](#desktop-productivity)  | 3 | `desktop-environments-cosmic` | — |
 | [`desktop-remote`](#desktop-remote)  | 3 | `desktop-environments-cosmic` | — |
 | [`desktop-environments-cosmic`](#desktop-environments-cosmic)  | 3 | `desktop-essentials` | `desktop-browsers`, `desktop-comms`, `desktop-ebook-readers`, `desktop-environments-cosmic-extensions`, `desktop-games`, `desktop-gis`, `desktop-kartoza-apps`, `desktop-multimedia`, `desktop-productivity`, `desktop-remote` |
@@ -586,8 +586,10 @@ Taking this also brings in `desktop-environments-cosmic`.
 | --- | --- |
 | `codecs.nix` | Codecs and image-format loaders, for everything that previews media |
 | `creative-apps.nix` | Creative applications: audio, image, video and 3D authoring |
+| `find-cursor.nix` | find-cursor — click-to-highlight the mouse pointer, for screencasts and demos (and for finding the cursor across… |
 | `obs.nix` | — |
 | `unstable-apps.nix` | — |
+| `wshowkeys.nix` | wshowkeys — on-screen keystroke display for screencasts and demos, pairing with OBS and record-gif |
 
 ### desktop-productivity
 
@@ -1252,6 +1254,6 @@ Taking this also brings in `services-system`.
 
 ---
 
-61 bundles, 228 modules.
+61 bundles, 230 modules.
 
 Made with love by [Kartoza](https://kartoza.com) | [Donate](https://github.com/sponsors/timlinux) | [GitHub](https://github.com/kartoza/gisnix)
