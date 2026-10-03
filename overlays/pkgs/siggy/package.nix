@@ -47,6 +47,7 @@
   lib,
   rustPlatform,
   fetchFromGitHub,
+  makeWrapper,
 }:
 rustPlatform.buildRustPackage rec {
   pname = "siggy";
@@ -96,6 +97,17 @@ rustPlatform.buildRustPackage rec {
       "spqr-1.5.1" = "sha256-XlqyjWQ5/F25/FdRTc4RDCqp8Gr1LCEBLeatXKnVciI=";
     };
   };
+
+  nativeBuildInputs = [ makeWrapper ];
+
+  # kitty is the fleet's standard terminal (software/base/kitty.nix, on
+  # every host) — default siggy to its image protocol so attachments
+  # render without the caller having to set SIGGY_IMAGE_PROTOCOL by hand
+  # every launch. --set-default (not --set): an env var already set by
+  # the caller still wins.
+  postFixup = ''
+    wrapProgram $out/bin/siggy --set-default SIGGY_IMAGE_PROTOCOL kitty
+  '';
 
   meta = {
     description = "Terminal Signal messenger client, wrapping signal-cli";
