@@ -28,7 +28,20 @@ in
     kartoza-grub-themes = inputs.kartoza-grub-themes.${final.stdenv.hostPlatform.system}.default;
 
     # ZFS backup tool with Bubble Tea TUI
-    zfs-backup = inputs.zfs-backup.packages.${final.stdenv.hostPlatform.system}.default;
+    #
+    # doCheck = false: the 2026-10-02 bump (rev 984ad5e) added two go test
+    # cases — TestRunSyncoidWithResumeRecoveryRetriesAfterClearingStaleToken
+    # and TestRunSyncoidWithResumeRecoveryReportsAbortFailure — that exec a
+    # literal "syncoid" relative to the test's own temp build dir rather
+    # than through $PATH, so the checkPhase fails in the Nix sandbox (no
+    # such sandbox-relative path exists) even though the binary itself
+    # builds fine. Upstream (timlinux/zfs-backup) needs its own
+    # nativeCheckInputs = [ sanoid ] (or the test mocking the exec) — this
+    # is a packaging stopgap here, not a statement that the tests don't
+    # matter; remove doCheck once that's fixed upstream.
+    zfs-backup = inputs.zfs-backup.packages.${final.stdenv.hostPlatform.system}.default.overrideAttrs {
+      doCheck = false;
+    };
 
     # wshowkeys: the DreamMaoMao fork instead of sircmpwn's original. The
     # original purges the key display only after you STOP typing for the
