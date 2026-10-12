@@ -79,6 +79,25 @@
   # so the only knob we have is at the `vmTools.runInLinuxVM` layer.  4
   # GiB is enough for grub-install + plymouth + a small closure copy
   # without OOM.
+  #
+  # Second fix on the same builder: vmTools.runInLinuxVM shares the Nix
+  # store into the inner disk-image-builder VM over virtiofsd. virtiofsd's
+  # --inode-file-handles defaults to "prefer", which calls
+  # open_by_handle_at()/name_to_handle_at() — these need
+  # CAP_DAC_READ_SEARCH, which the unprivileged nixbld* build user never
+  # has. "prefer" is meant to fall back gracefully when the filesystem
+  # returns ENOTSUP for file-handle export, but this fleet's ZFS root
+  # returns EPERM instead, which virtiofsd does NOT treat as a fallback
+  # trigger — so the mount fails outright and the inner VM kernel panics
+  # ("Attempted to kill init!"). Confirmed not caused by the Nix sandbox,
+  # OOM, or gisnix's own vm.sh/screenshot code (reproduces with plain
+  # `--boot`). --inode-file-handles isn't exposed as a vmTools parameter,
+  # so the only lever is wrapping the virtiofsd binary itself to always
+  # append the override — `never` skips the file-handle codepath
+  # entirely and uses O_PATH fds instead (more open FDs, fine for a
+  # one-shot build). Scoped to this profile only — virt.nix uses the
+  # real virtiofsd for libvirt VM filesystem sharing and should keep
+  # upstream's default.
   nixpkgs.overlays = [
     (final: prev: {
       vmTools = prev.vmTools // {
@@ -89,6 +108,15 @@
               memSize = 4096;
             })
           );
+      };
+
+      virtiofsd = prev.symlinkJoin {
+        name = "virtiofsd-eperm-workaround";
+        paths = [ prev.virtiofsd ];
+        nativeBuildInputs = [ prev.makeWrapper ];
+        postBuild = ''
+          wrapProgram $out/bin/virtiofsd --add-flags "--inode-file-handles=never"
+        '';
       };
     })
   ];
