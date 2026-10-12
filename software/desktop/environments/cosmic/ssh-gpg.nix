@@ -16,7 +16,23 @@
   services.gnome.gcr-ssh-agent.enable = false;
 
   # Seahorse for managing keyring entries
-  environment.systemPackages = [ pkgs.seahorse ];
+  #
+  # gcr also matters here for a reason that has nothing to do with seahorse:
+  # COSMIC doesn't implement org.gnome.keyring.SystemPrompter itself (see
+  # https://github.com/pop-os/cosmic-epoch/issues/3453 — upstream is working
+  # on a native one but it hadn't shipped as of epoch 1.10). Whenever
+  # gnome-keyring-daemon needs an interactive unlock — e.g. it restarted
+  # mid-session and relocked, so the PAM auto-unlock below only applies at
+  # login — it calls whoever owns that D-Bus name. With no prompter
+  # registered, the request silently times out: no working dialog ever
+  # appears, which looks exactly like "I typed the right password and it
+  # still didn't unlock." gcr ships GcrSystemPrompter (the dialog gnome-shell
+  # normally provides) and its D-Bus service file, so something answers that
+  # request under COSMIC too.
+  environment.systemPackages = [
+    pkgs.seahorse
+    pkgs.gcr
+  ];
 
   # Session variables for desktop integration
   environment.sessionVariables = {
