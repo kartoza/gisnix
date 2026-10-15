@@ -3,6 +3,17 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.24.0] - 2026-10-15
+
+### Changed
+
+- **`pkgs.kanata-handy-toggle` is now a shared overlay package**, not a
+  `let`-binding local to `kanata-keyboard.nix`. A downstream flake's own
+  per-host kanata instances (a second physical keyboard wired outside
+  that file, as this fleet's own Glove80/Sonsei instances are) can now
+  reach the same right-Ctrl-to-dictation wrapper instead of each needing
+  its own copy. Behaviour is unchanged for the default instance.
+
 ## [0.23.0] - 2026-10-15
 
 ### Changed

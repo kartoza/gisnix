@@ -50,13 +50,15 @@ let
   # "system-level shortcuts must be configured through your desktop
   # environment", which doesn't work reliably under COSMIC/Wayland. So
   # kanata has to drive it directly — hold right Ctrl, kanata fires
-  # Handy's toggle CLI (see kanataHandyToggle and kanata-config.nix's
-  # handyToggle). This is the same shape voxtype's OWN kanata-driven path
-  # tried and abandoned (kanata is a ROOT service, so a client it runs
-  # can't reach a user-session resource on its own) — kanataHandyToggle
-  # below exists specifically to work around that, the same way
-  # kanataPlaySound already does for sound. UNVERIFIED on real hardware;
-  # see kanataHandyToggle's own comment.
+  # Handy's toggle CLI (see kanata-config.nix's handyToggle). This is the
+  # same shape voxtype's OWN kanata-driven path tried and abandoned
+  # (kanata is a ROOT service, so a client it runs can't reach a
+  # user-session resource on its own) — pkgs.kanata-handy-toggle
+  # (overlays/default.nix, a PACKAGE rather than a local let-binding so a
+  # downstream flake's own per-host kanata instances can reach it too)
+  # exists specifically to work around that, the same way kanataPlaySound
+  # below already does for sound. UNVERIFIED on real hardware; see
+  # kanata-handy-toggle's own comment.
   handyToggle = true;
 
   # kanata's own systemd unit is a SYSTEM service (it needs /dev/uinput and
@@ -82,37 +84,6 @@ let
     # No PipeWire session up — nothing to play into. Exit 0 regardless:
     # a `cmd` action failing is not a reason to disrupt the key press it
     # rode in on.
-    exit 0
-  '';
-
-  # Handy's --toggle-* CLI signals an ALREADY-RUNNING user-session
-  # instance (a Tauri single-instance check) rather than starting
-  # anything itself — kanata's `cmd` fires it from a ROOT system service,
-  # with no XDG_RUNTIME_DIR or HOME of its own, so a bare `handy
-  # --toggle-transcription` may never find the session it's meant to
-  # reach. This borrows kanataPlaySound's exact fix below: hunt down
-  # whichever logged-in user's session is actually up (same PipeWire
-  # socket liveness check) and run inside it.
-  #
-  # UNVERIFIED on real hardware — Handy doesn't document its lock-file/IPC
-  # path, so this is the best-effort shape based on how Tauri's
-  # single-instance plugin and every other root-vs-user-session problem in
-  # this file behaves, not a confirmed fix. If right-Ctrl dictation does
-  # nothing, start here: check whether `handy` even sees an existing
-  # instance when run with this HOME/XDG_RUNTIME_DIR pair by hand.
-  kanataHandyToggle = pkgs.writeShellScriptBin "kanata-handy-toggle" ''
-    for sock in /run/user/*/pipewire-0; do
-      if [ -S "$sock" ]; then
-        uid="''${sock#/run/user/}"
-        uid="''${uid%/pipewire-0}"
-        export XDG_RUNTIME_DIR="/run/user/$uid"
-        export HOME="$(getent passwd "$uid" | cut -d: -f6)"
-        exec ${pkgs.handy}/bin/handy --toggle-transcription
-      fi
-    done
-    # No live session found — nothing to toggle. Exit 0 regardless: a
-    # `cmd` action failing is not a reason to disrupt the key press it
-    # rode in on (same reasoning as kanataPlaySound above).
     exit 0
   '';
 
@@ -209,7 +180,7 @@ in
             # default along with everything else here.
             clipboardHolds = true;
             inherit handyToggle;
-            handyToggleBin = "${kanataHandyToggle}/bin/kanata-handy-toggle";
+            handyToggleBin = "${pkgs.kanata-handy-toggle}/bin/kanata-handy-toggle";
             # Herdr<->aerc mode-toggle beep — only reached when aercLayer is
             # on, but harmless to always pass (kanata-config.nix's own
             # dualMode gate decides whether it's ever used).
@@ -250,7 +221,7 @@ in
     ) config.services.kanata.keyboards;
 
     # Handy (https://github.com/cjpais/Handy) — local, offline
-    # speech-to-text: hold right Ctrl (kanataHandyToggle/handyToggle above),
+    # speech-to-text: hold right Ctrl (pkgs.kanata-handy-toggle/handyToggle above),
     # speak, hold again, and it types the transcription at your cursor.
     # Whisper/Parakeet runs on-device; nothing leaves the machine. Replaces
     # voxtype, which this fleet found too slow — see the commit that made
