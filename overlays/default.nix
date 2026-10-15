@@ -128,7 +128,28 @@ in
     # AGPL-3.0-only — see overlays/pkgs/siggy/package.nix for the license
     # note, the architecture, and the git-dependency outputHashes this one
     # carries that discourse-tui/perch do not.
-    siggy = final.callPackage ./pkgs/siggy/package.nix { };
+    #
+    # Built against nixpkgs-unstable (not final/prev, i.e. stable) and
+    # paired with the signal-cli override below pinned the same way:
+    # siggy talks to signal-cli over JSON-RPC, so the two need to move
+    # together rather than siggy drifting against whatever signal-cli
+    # version the stable channel happens to carry.
+    siggy =
+      (import inputs.nixpkgs-unstable {
+        system = final.stdenv.hostPlatform.system;
+        config.allowUnfree = false;
+      }).callPackage
+        ./pkgs/siggy/package.nix
+        { };
+
+    # signal-cli — siggy's JSON-RPC backend. Pinned to nixpkgs-unstable
+    # alongside siggy above so the pair stays in lock step; see that
+    # entry for why.
+    signal-cli =
+      (import inputs.nixpkgs-unstable {
+        system = final.stdenv.hostPlatform.system;
+        config.allowUnfree = false;
+      }).signal-cli;
 
     # Use latest kitty from nixpkgs-unstable
     kitty =
