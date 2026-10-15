@@ -36,7 +36,7 @@ AMBER = "#FFD400"  # Shift / nav left-click
 CYAN = "#00E5FF"  # nav right-click
 VIOLET = "#B14FFF"  # nav scroll
 PINK = "#FF2D95"  # layer activators
-ORANGE = "#FF8A00"  # push-to-talk (voxtype)
+ORANGE = "#FF8A00"  # dictation toggle (Handy)
 GRAY = "#8A8B8B"  # bracket chords
 TEAL = "#06969A"  # plain key
 DARK = "#2A2B2B"  # unlit key (held-layer views)
@@ -156,12 +156,12 @@ def base_view(rows):
             "s": BLUE, "l": BLUE, "lalt": BLUE, "altgr": BLUE,
             "d": RED, "k": RED, "lctrl": RED,
             "f": AMBER, "j": AMBER, "lsft": AMBER, "rsft": AMBER,
-            # Right Ctrl: tap = Ctrl, hold = voxtype push-to-talk (the
+            # Right Ctrl: tap = Ctrl, hold = toggle Handy dictation (the
             # trigger on every keyboard). Coloured for the hold.
             "rctrl": ORANGE,
             **{k: PINK for k in activators},
             # Menu, where a board has one, is a second way into the
-            # navigation layer on hold — not push-to-talk any more.
+            # navigation layer on hold — not the dictation toggle.
             **({"menu": PINK} if has_menu else {}),
             "q": GRAY, "w": GRAY, "o": GRAY, "p": GRAY,
             "x": GRAY, "z": GRAY, "m": GRAY, ",": GRAY,
@@ -169,7 +169,7 @@ def base_view(rows):
         "sublabels": {
             "a": "Super", "s": "Alt", "d": "Ctrl", "f": "Shift",
             "j": "Shift", "k": "Ctrl", "l": "Alt", ";": "Super",
-            "super": "Super", "lctrl": "Ctrl", "rctrl": "hold: voxtype",
+            "super": "Super", "lctrl": "Ctrl", "rctrl": "hold: dictate",
             "lalt": "Alt", "altgr": "Alt", "lsft": "Shift", "rsft": "Shift",
             "q": "{", "w": "{", "o": "}", "p": "}",
             "x": "<", "z": "<", "m": ">", ",": ">",
@@ -180,7 +180,7 @@ def base_view(rows):
             (BLUE, "Alt (s l + Alt/AltGr)"),
             (RED, "Ctrl (d k + left Ctrl)"),
             (AMBER, "Shift (f j + Shift keys)"),
-            (ORANGE, "push-to-talk, held (right Ctrl — voxtype)"),
+            (ORANGE, "toggle Handy dictation, held (right Ctrl)"),
             (
                 PINK,
                 "navigation layer, held ("

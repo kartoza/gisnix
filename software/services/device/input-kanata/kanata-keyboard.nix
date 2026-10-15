@@ -43,23 +43,29 @@ let
   # `kartoza.userEmails.<name>` — null until at least one has.
   emailScript = config.kartoza.kanataEmailScript;
 
-  # Right Ctrl is voxtype's push-to-talk key (see docs/user/keyboard.md), but
-  # voxtype detects it ITSELF (voxtypeManagedConfig above sets [hotkey] key =
-  # "RIGHTCTRL", enabled = true) rather than kanata driving it. So kanata must
-  # NOT bind right Ctrl — false leaves it out of defsrc, passing it straight
-  # through to kanata's virtual output where the voxtype daemon can see it.
-  # Kanata driving voxtype was tried and abandoned: kanata is a ROOT service,
-  # so the `voxtype record` client it ran could not reach the user daemon's
-  # socket or its config. See the [hotkey] comment in voxtypeManagedConfig.
-  voxtypePtt = false;
+  # Right Ctrl is Handy's dictation key (see docs/user/keyboard.md). Unlike
+  # voxtype (which detected the key itself via evdev, so kanata stayed out
+  # of the way — see the commit that replaced it for the history), Handy
+  # has no evdev-level hotkey of its own: its documented Linux story is
+  # "system-level shortcuts must be configured through your desktop
+  # environment", which doesn't work reliably under COSMIC/Wayland. So
+  # kanata has to drive it directly — hold right Ctrl, kanata fires
+  # Handy's toggle CLI (see kanataHandyToggle and kanata-config.nix's
+  # handyToggle). This is the same shape voxtype's OWN kanata-driven path
+  # tried and abandoned (kanata is a ROOT service, so a client it runs
+  # can't reach a user-session resource on its own) — kanataHandyToggle
+  # below exists specifically to work around that, the same way
+  # kanataPlaySound already does for sound. UNVERIFIED on real hardware;
+  # see kanataHandyToggle's own comment.
+  handyToggle = true;
 
   # kanata's own systemd unit is a SYSTEM service (it needs /dev/uinput and
   # /dev/input, which is also why it carries the uinput/openrazer
   # supplementary groups below) — not something the user's session manager
   # spawned. Systemd only sets XDG_RUNTIME_DIR for units IT launches inside
   # a user's own manager; a bare `pw-play` invoked from this service's
-  # `cmd` actions (the herdr<->aerc mode-toggle beep, voxtype's start/stop
-  # cues, herdr's macro-record click) has no PipeWire socket to reach and
+  # `cmd` actions (the herdr<->aerc mode-toggle beep, the Handy toggle
+  # cue, herdr's macro-record click) has no PipeWire socket to reach and
   # fails silently — the `cmd` "succeeds" from kanata's point of view
   # (pw-play exits nonzero, kanata just logs it), so nothing looked broken
   # short of actually listening for the sound. This wrapper hunts down
@@ -79,67 +85,35 @@ let
     exit 0
   '';
 
-  # gisnix-managed voxtype config. Two things matter here, and both were
-  # wrong on a first-run default:
-  #   - [hotkey] enabled = false: voxtype's OWN key detection is OFF, so it
-  #     stops listening on its default SCROLLLOCK (a key many boards, incl.
-  #     the Framework 16, don't even have). kanata is the single trigger —
-  #     right Ctrl held runs `voxtype record start/stop` (see kanata-config).
-  #   - [audio.feedback] enabled = true: voxtype plays the start/stop beep
-  #     ITSELF, from the user session where it actually reaches PipeWire.
-  #     kanata's own cue can't — it fires from a system service with no
-  #     audio socket — which is why right-Ctrl push-to-talk felt silent even
-  #     when it was recording.
-  voxtypeManagedConfig = pkgs.writeText "voxtype-config.toml" ''
-    # Managed by gisnix (software/services/device/input-kanata/
-    # kanata-keyboard.nix). Overwritten on every rebuild — edit there.
-    #
-    # The field set below mirrors what `voxtype setup` itself writes: voxtype
-    # 0.7.2 uses strict TOML parsing, so a required field with no default
-    # (notably [audio].device) is a hard start-up error if omitted, not a
-    # warning. Keep every uncommented key present.
-    state_file = "auto"
-
-    [hotkey]
-    # voxtype detects the push-to-talk key ITSELF, via evdev, on right Ctrl.
-    # This is the reliable path here: kanata driving voxtype meant a `voxtype
-    # record start` CLIENT run from kanata's ROOT service, which could neither
-    # reach the daemon's per-user socket (/run/user/UID/voxtype) nor read the
-    # daemon's store config — it read the stale ~/.config copy and crashed. By
-    # detecting the key itself, the running daemon (user session, in the
-    # `input` group) sees right Ctrl on kanata's virtual output — so kanata is
-    # set NOT to bind right Ctrl (voxtypePtt = false), passing it straight
-    # through. Hold to record, release to transcribe.
-    key = "RIGHTCTRL"
-    modifiers = []
-    enabled = true
-
-    [audio]
-    # device has no default — leaving the whole [audio] table out is what made
-    # the daemon crash-loop ("missing field `device`"). Match voxtype's own
-    # generated defaults for the rest.
-    device = "default"
-    sample_rate = 16000
-    max_duration_secs = 60
-
-    [audio.feedback]
-    # The start/stop beep, played from voxtype's own user session where it can
-    # reach PipeWire (kanata's system-scope cue never could). Independent of
-    # the trigger, so it sounds whether a cmd or a hotkey starts recording.
-    enabled = true
-    theme = "default"
-    volume = 0.7
-
-    [whisper]
-    backend = "local"
-    model = "base.en"
-    language = "en"
-    translate = false
-
-    [output]
-    mode = "type"
-    fallback_to_clipboard = true
-    type_delay_ms = 0
+  # Handy's --toggle-* CLI signals an ALREADY-RUNNING user-session
+  # instance (a Tauri single-instance check) rather than starting
+  # anything itself — kanata's `cmd` fires it from a ROOT system service,
+  # with no XDG_RUNTIME_DIR or HOME of its own, so a bare `handy
+  # --toggle-transcription` may never find the session it's meant to
+  # reach. This borrows kanataPlaySound's exact fix below: hunt down
+  # whichever logged-in user's session is actually up (same PipeWire
+  # socket liveness check) and run inside it.
+  #
+  # UNVERIFIED on real hardware — Handy doesn't document its lock-file/IPC
+  # path, so this is the best-effort shape based on how Tauri's
+  # single-instance plugin and every other root-vs-user-session problem in
+  # this file behaves, not a confirmed fix. If right-Ctrl dictation does
+  # nothing, start here: check whether `handy` even sees an existing
+  # instance when run with this HOME/XDG_RUNTIME_DIR pair by hand.
+  kanataHandyToggle = pkgs.writeShellScriptBin "kanata-handy-toggle" ''
+    for sock in /run/user/*/pipewire-0; do
+      if [ -S "$sock" ]; then
+        uid="''${sock#/run/user/}"
+        uid="''${uid%/pipewire-0}"
+        export XDG_RUNTIME_DIR="/run/user/$uid"
+        export HOME="$(getent passwd "$uid" | cut -d: -f6)"
+        exec ${pkgs.handy}/bin/handy --toggle-transcription
+      fi
+    done
+    # No live session found — nothing to toggle. Exit 0 regardless: a
+    # `cmd` action failing is not a reason to disrupt the key press it
+    # rode in on (same reasoning as kanataPlaySound above).
+    exit 0
   '';
 
   cfg = config.kartoza.kanata;
@@ -234,23 +208,22 @@ in
             # data involved, unlike emailScript above), so it ships on by
             # default along with everything else here.
             clipboardHolds = true;
-            inherit voxtypePtt;
-            voxtypePackage = pkgs.voxtype;
+            inherit handyToggle;
+            handyToggleBin = "${kanataHandyToggle}/bin/kanata-handy-toggle";
             # Herdr<->aerc mode-toggle beep — only reached when aercLayer is
             # on, but harmless to always pass (kanata-config.nix's own
             # dualMode gate decides whether it's ever used).
             beepPlayer = "${kanataPlaySound}/bin/kanata-play-sound";
             beepSound = "${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo/bell.oga";
-            # No voxtype start/stop cues from kanata: those `cmd`s fire from
-            # the SYSTEM-scope kanata service, which has no PipeWire socket, so
-            # they never made a sound — that silence is exactly why push-to-talk
-            # felt dead even while it was recording. The beep now comes from
-            # voxtype itself ([audio.feedback] in voxtypeManagedConfig), played
-            # from the user session where it can actually reach PipeWire. Left
-            # unset (null), so kanata's rctl-ptt runs a clean `voxtype record
-            # start`/`stop` with no dead cue riding along.
+            # Handy toggle cue, via the same kanataPlaySound wrapper the
+            # herdr/aerc beep uses — unlike voxtype, Handy documents no
+            # audio feedback of its own to fall back on, so without this
+            # the dictation key would be silent both ways.
+            # message-new-instant.oga, not bell.oga or the herdr pair, so
+            # all three stay distinct.
+            handyToggleSound = "${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo/message-new-instant.oga";
             # herdr's macro-record toggle click — camera-shutter, not
-            # bell.oga or the voxtype pair, so all three stay distinct.
+            # bell.oga or the handy toggle, so all three stay distinct.
             recordToggleSound = "${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo/camera-shutter.oga";
           };
         };
@@ -276,80 +249,43 @@ in
       }
     ) config.services.kanata.keyboards;
 
-    # voxtype (https://github.com/peteonrails/voxtype) — local, offline
-    # push-to-talk voice-to-text: hold Menu, speak, release, and it types
-    # the transcription at your cursor. whisper.cpp runs on-device; nothing
-    # leaves the machine unless a host explicitly opts into the remote/API
-    # mode voxtype also supports, which gisnix does not configure. The
-    # daemon has to stay running for `voxtype record start/stop` (what the
-    # Menu-hold above actually runs) to reach it — hence the user service.
+    # Handy (https://github.com/cjpais/Handy) — local, offline
+    # speech-to-text: hold right Ctrl (kanataHandyToggle/handyToggle above),
+    # speak, hold again, and it types the transcription at your cursor.
+    # Whisper/Parakeet runs on-device; nothing leaves the machine. Replaces
+    # voxtype, which this fleet found too slow — see the commit that made
+    # this swap for that comparison.
     #
-    # The daemon preloads its whisper.cpp model at startup and hard-fails if
-    # it isn't already on disk — upstream's own answer is `voxtype setup`,
-    # a manual step. That is a real trap on a fresh install: nobody runs it
-    # unprompted, so the service just crash-loops (RestartSec=3, forever)
-    # until someone notices and thinks to run it by hand. Fetching it
-    # ourselves via `pkgs.fetchurl` would be more hermetic, but voxtype
-    # doesn't publish a stable per-model URL/hash to pin against; this
-    # mirrors upstream's own home-manager module instead (services.voxtype
-    # in github:peteonrails/voxtype's modules/services/voxtype.nix) — a
-    # `voxtype-model-loader` oneshot that runs the same download the manual
-    # step would, gated on the network actually being up, before the daemon
-    # ever tries to preload anything.
-    systemd.user.services.voxtype-model-loader = {
-      description = "Download voxtype's speech model";
-      before = [ "voxtype.service" ];
-      wants = [ "network-online.target" ];
-      after = [ "network-online.target" ];
-      unitConfig.ConditionUser = "!@system";
-      # voxtype shells out to curl for the actual download. A systemd user
-      # service's PATH is not /run/current-system/sw/bin — curl has to be
-      # handed to it explicitly, confirmed the hard way ("Failed to run
-      # curl: No such file or directory") on a real machine. `path` (a list,
-      # concatenated onto nixpkgs' own default), not `environment.PATH` (a
-      # plain string) — the latter collided with the coreutils/systemd
-      # default nixos/modules/system/boot/systemd/user.nix already sets for
-      # every user service: "conflicting definition values", confirmed the
-      # hard way too.
-      path = [ pkgs.curl ];
-      serviceConfig = {
-        Type = "oneshot";
-        RemainAfterExit = true;
-        ExecStart = "${pkgs.voxtype}/bin/voxtype setup --download --model base.en --no-post-install";
-        Restart = "on-failure";
-        RestartSec = 30;
-      };
-    };
-
-    # The daemon reads the gisnix-managed config STRAIGHT FROM THE NIX STORE
-    # (`voxtype --config <store path>`), rather than us writing a copy into
-    # ~/.config/voxtype. This is deliberate, and it is what an earlier
-    # write-a-copy oneshot got wrong: a `RemainAfterExit` oneshot that has
-    # already succeeded does not reliably re-run on `nixos-rebuild switch`, so
-    # a changed config never reached ~/.config and the daemon kept parsing the
-    # stale file (which is exactly how a bad config survived a rebuild that was
-    # supposed to fix it). With the path baked into ExecStart, a config change
-    # changes the unit, systemd restarts the daemon, and the new config is in
-    # force the moment the switch completes — no on-disk copy to go stale, and
-    # voxtype's own first-run `setup` defaults (SCROLLLOCK hotkey, beep off)
-    # are simply never read.
-    systemd.user.services.voxtype = {
-      description = "voxtype push-to-talk voice-to-text daemon";
-      wantedBy = [ "default.target" ];
-      wants = [ "voxtype-model-loader.service" ];
-      after = [ "voxtype-model-loader.service" ];
+    # Unlike voxtype, Handy is a GUI/tray app (Tauri — needs webkitgtk,
+    # GTK, a real Wayland session), not a headless CLI daemon, so it goes
+    # on graphical-session.target rather than default.target (the same
+    # convention screenshot-listener and battery-monitor use elsewhere in
+    # gisnix) and starts with --start-hidden (no window at login; the tray
+    # icon still gives access to Settings) rather than --no-tray.
+    #
+    # Model choice and download are first-run, Settings-UI-only steps —
+    # Handy documents no CLI flag or config file for either, unlike
+    # voxtype's `setup --download` (which this file used to automate via a
+    # model-loader oneshot). There is nothing equivalent to automate here:
+    # a human has to open Handy once and pick a model before dictation
+    # does anything.
+    systemd.user.services.handy = {
+      description = "Handy speech-to-text daemon (toggled via right-Ctrl hold — see kanata-config.nix)";
+      wantedBy = [ "graphical-session.target" ];
+      partOf = [ "graphical-session.target" ];
+      after = [ "graphical-session.target" ];
       unitConfig.ConditionUser = "!@system";
       serviceConfig = {
-        Type = "simple";
-        ExecStart = "${pkgs.voxtype}/bin/voxtype --config ${voxtypeManagedConfig}";
+        ExecStart = "${pkgs.handy}/bin/handy --start-hidden";
         Restart = "on-failure";
         RestartSec = 3;
+        Slice = "session.slice";
       };
     };
 
     environment.systemPackages = with pkgs; [
       kanata
-      voxtype
+      handy
 
       (writeShellScriptBin "kanata-toggle" ''
         #!/usr/bin/env bash

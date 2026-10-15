@@ -12,7 +12,7 @@ for that).
   arranging the panel and dock, and putting the screenshot and
   GIF-recording commands on keys of their own.
 - **[Keyboard remapping](keyboard.md)** — the home-row modifiers,
-  navigation layer, and hold-Menu [voice dictation](keyboard.md#push-to-talk-voxtype)
+  navigation layer, and hold-right-Ctrl [voice dictation](keyboard.md#dictation-handy)
   the `services-device-input-kanata` bundle gives you (on by default), and
   what to do about a second board.
 - **[Building your fleet](fleet.md)** — living with one host, turning it

@@ -10,14 +10,14 @@ component "The application\nyou are typing in" as app
 kbd --> kanata : every key press
 kanata --> app : remapped keys
 
-component "voxtype\nspeech to text" as vox #E6F4F4
-kanata ..> vox : hold Menu = record
+component "Handy\nspeech to text" as vox #E6F4F4
+kanata ..> vox : hold right Ctrl = toggle
 vox --> app : the words you spoke,\ntyped where the cursor is
 
 note bottom of app
   kanata sits between the keyboard and
   everything else, so the same remapping —
-  and the same hold-to-talk — works in
+  and the same dictation toggle — works in
   every application without each one
   needing to know about it.
 end note

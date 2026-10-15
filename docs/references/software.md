@@ -140,8 +140,8 @@ See the per-host pages for what a specific machine installs.
 
 | Package | Description | Link | Hosts |
 | --- | --- | --- | --- |
+| `handy` | Free, open source, offline speech-to-text application | [home](https://handy.computer) | all |
 | `kanata` | Tool to improve keyboard comfort and usability with advanced customization | [home](https://github.com/jtroo/kanata) | all |
-| `voxtype` | Voice-to-text with push-to-talk for Wayland compositors | [home](https://voxtype.io) | all |
 
 ## Services · DNS
 

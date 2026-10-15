@@ -284,8 +284,8 @@ _Hardware every machine benefits from: Bluetooth and firmware updates. Anything 
 
 | Package | Description |
 | --- | --- |
+| `handy` | Free, open source, offline speech-to-text application |
 | `kanata` | Tool to improve keyboard comfort and usability with advanced customization |
-| `voxtype` | Voice-to-text with push-to-talk for Wayland compositors |
 
 ### Services · DNS (1)
 

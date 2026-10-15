@@ -39,37 +39,46 @@
   # default, so unlike herdr this stays off unless a caller both runs
   # aerc and asks for it.
   aercLayer ? false,
-  # Hold **physical right Ctrl** to talk to voxtype (push-to-talk). Right
+  # Hold **physical right Ctrl** to toggle Handy dictation on/off. Right
   # Ctrl is the trigger because it exists on every keyboard, where the Menu
   # key does not (the Framework 16's built-in board has none) — so the same
   # gesture works on any host. See rctlSrc/rctlAlias below for the binding.
-  # `on-press-fakekey`/`on-release-fakekey` tap a virtual key when the real
-  # key is pressed and again when released, and those virtual keys run
-  # `voxtype record start`/`stop` — see the defvirtualkeys block below.
-  # Tapping right Ctrl still gives a normal Ctrl press; only the hold talks
-  # to voxtype.
-  voxtypePtt ? false,
-  # The voxtype package — needed only when voxtypePtt is true, to give the
-  # `cmd voxtype record start`/`stop` actions below an ABSOLUTE path.
-  # kanata itself runs as a system service, and system services don't get
-  # /run/current-system/sw/bin on PATH any more than user services do
-  # (same lesson as voxtype-model-loader's curl, confirmed the same way:
-  # "Failed to execute program voxtype: No such file or directory" on a
-  # real machine, even with voxtype in environment.systemPackages).
-  voxtypePackage ? null,
+  # Handy's own remote-control CLI only supports TOGGLING a running
+  # instance (no discrete start/stop like voxtype's `record start`/`stop`
+  # had), so the hold fires one `cmd` the moment the hold is recognised;
+  # releasing does nothing. Tapping right Ctrl still gives a normal Ctrl
+  # press; only the hold reaches Handy.
+  handyToggle ? false,
+  # Absolute path to the binary kanata's `cmd` should run to fire that
+  # toggle — needed only when handyToggle is true. NOT necessarily
+  # pkgs.handy's own bin/handy: Handy's toggle flag signals an
+  # ALREADY-RUNNING user-session instance (a Tauri single-instance check),
+  # and kanata itself runs as a system service with no XDG_RUNTIME_DIR or
+  # HOME of its own — the same class of problem that sank kanata driving
+  # voxtype directly (a root-run client couldn't reach voxtype's per-user
+  # socket either). kanata-keyboard.nix's kanataHandyToggle wrapper finds
+  # the logged-in user's session first, the same way kanataPlaySound finds
+  # a PipeWire socket to play into. Same PATH lesson either way: kanata
+  # doesn't get /run/current-system/sw/bin on its own PATH, so a bare
+  # "handy" fails with "No such file or directory" even when it's on PATH
+  # for an interactive shell.
+  handyToggleBin ? null,
   # Absolute path to an audio player — shared by the herdr<->aerc
-  # mode-toggle beep (see dualMode below) and the voxtype start/stop
-  # sounds just below. Same PATH lesson as voxtypeBin: kanata is a
-  # system service, so the player binary and every sound file have to be
-  # absolute, not just "on PATH".
+  # mode-toggle beep (see dualMode below) and the Handy toggle cue just
+  # below. Same PATH lesson as handyToggleBin: kanata is a system service,
+  # so the player binary and every sound file have to be absolute, not
+  # just "on PATH".
   beepPlayer ? null,
   # Mode-toggle beep sound (dualMode only).
   beepSound ? null,
-  # Voxtype push-to-talk audio cues: a short sound on press (recording
-  # started) and a different one on release (recording stopped) — both
-  # null by default (silent), set together with beepPlayer.
-  voxtypeStartSound ? null,
-  voxtypeStopSound ? null,
+  # Handy toggle audio cue — one sound, played whichever way the toggle
+  # just went (same "one click, both ways" reasoning as
+  # herdr-record-toggle below: a toggle is stateless from kanata's side,
+  # so there's no config-time way to tell which direction just fired).
+  # null by default (silent), set together with beepPlayer. Handy has no
+  # cue of its own to fall back on here — voxtype played its own via
+  # [audio.feedback] in a config file; Handy documents no equivalent.
+  handyToggleSound ? null,
   # herdr's macro-record toggle (herdrLayer only — see herdr-record-toggle
   # below) click, played on both start AND stop: kanata's
   # dynamic-macro-record is a stateless toggle (the same action starts it
@@ -180,68 +189,49 @@ let
   herdrDefault = if herdrLayer then " @herdr-nav" else "";
   herdrPass = if herdrLayer then " _" else "";
 
-  # Right Ctrl (physical) — the push-to-talk trigger. Present on every
+  # Right Ctrl (physical) — the Handy dictation trigger. Present on every
   # keyboard, unlike Menu, so the gesture is the same on any host. Governed
-  # by the voxtypePtt flag.
+  # by the handyToggle flag.
   #
   # Cost: this key is not in defsrc by default, so kanata never touches it
   # and it passes through as an ordinary Ctrl modifier. Adding it to
   # defsrc to catch the hold means kanata now decides tap vs hold — and a
   # quick Ctrl+<key> chord typed via the RIGHT Ctrl key specifically can
-  # resolve as a hold (another key pressed while it's down), which runs
-  # PTT instead of applying the Ctrl modifier. Left Ctrl is untouched, so
-  # every shortcut still works via that key; only the right one changes
-  # character. A considered trade, not an oversight — see the commit that
-  # added this for the reasoning.
-  rctlSrc = if voxtypePtt then " rctl" else "";
-  rctlDefault = if voxtypePtt then " @rctl-ptt" else "";
-  rctlPass = if voxtypePtt then " _" else "";
+  # resolve as a hold (another key pressed while it's down), which fires
+  # the toggle instead of applying the Ctrl modifier. Left Ctrl is
+  # untouched, so every shortcut still works via that key; only the right
+  # one changes character. A considered trade, not an oversight — see the
+  # commit that added this for the reasoning.
+  rctlSrc = if handyToggle then " rctl" else "";
+  rctlDefault = if handyToggle then " @rctl-ptt" else "";
+  rctlPass = if handyToggle then " _" else "";
+
+  # Absolute path to the binary — see handyToggleBin's own comment above
+  # for why this usually isn't pkgs.handy's bin/handy directly.
+  #
+  # Only ONE action is needed (unlike voxtype's start/stop pair): Handy's
+  # CLI toggles, so the hold firing once is the whole gesture. No
+  # on-press/on-release fakekey split, and no defvirtualkeys block, is
+  # required to express that — a plain `cmd` as the tap-hold's hold-action
+  # fires the moment the hold is recognised; releasing early enough to
+  # stay under holdTimeout never reaches it at all (same as any other
+  # tap-hold on this board).
+  handyToggleAction =
+    if handyToggleSound == null || beepPlayer == null then
+      "(cmd ${handyToggleBin})"
+    else
+      "(multi (cmd ${handyToggleBin}) (cmd ${beepPlayer} ${handyToggleSound}))";
 
   rctlAlias =
-    if !voxtypePtt then
+    if !handyToggle then
       ""
     else
       ''
 
         ;; Right Ctrl: tap for a normal Ctrl press (still usable as a
-        ;; modifier — see the trade-off noted above), hold for voxtype
-        ;; push-to-talk. This is the push-to-talk key on every host.
-        rctl-ptt (tap-hold ${toString tapTimeout} ${toString holdTimeout} rctl (multi (on-press-fakekey voxtype-start tap) (on-release-fakekey voxtype-stop tap)))
-      '';
-
-  # Fake keys the menu-hold/rctl-hold actions above tap — kanata runs the
-  # `cmd` each is bound to when tapped, so pressing/releasing the real key
-  # becomes `voxtype record start`/`voxtype record stop`. voxtype's own
-  # daemon has to already be running (systemd --user service) for these to
-  # reach it. Absolute path to the binary — kanata runs as a SYSTEM
-  # service, which doesn't get /run/current-system/sw/bin on its own PATH,
-  # so a bare "voxtype" fails with "No such file or directory" even though
-  # the package is installed and on PATH for an interactive shell.
-  voxtypeBin = "${voxtypePackage}/bin/voxtype";
-
-  # If a sound was given, play it alongside the record start/stop command
-  # (a `multi` of both `cmd`s) rather than just running voxtype alone.
-  voxtypeStartAction =
-    if voxtypeStartSound == null || beepPlayer == null then
-      "(cmd ${voxtypeBin} record start)"
-    else
-      "(multi (cmd ${voxtypeBin} record start) (cmd ${beepPlayer} ${voxtypeStartSound}))";
-
-  voxtypeStopAction =
-    if voxtypeStopSound == null || beepPlayer == null then
-      "(cmd ${voxtypeBin} record stop)"
-    else
-      "(multi (cmd ${voxtypeBin} record stop) (cmd ${beepPlayer} ${voxtypeStopSound}))";
-
-  voxtypeVirtualKeys =
-    if !voxtypePtt then
-      ""
-    else
-      ''
-        (defvirtualkeys
-          voxtype-start ${voxtypeStartAction}
-          voxtype-stop ${voxtypeStopAction}
-        )
+        ;; modifier — see the trade-off noted above), hold to toggle
+        ;; Handy dictation. This is the dictation key on every host.
+        rctl-ptt (tap-hold ${toString tapTimeout} ${toString holdTimeout} rctl ${handyToggleAction})
       '';
 
   # The main typing layer — one copy, unless dualMode splits it in two.
@@ -260,13 +250,11 @@ let
   # string when the column exists, or "" to omit it — defsrc must gain or
   # lose this column in lockstep, so the two can't diverge (herdrLayer
   # false means no herdr key was given at all, nothing to bind).
-  defaultLayerBody =
-    herdrCol:
-    ''
-      q w e r t    y u i o p
-          @a @s @d @f g    h @j @k @l @;
-          z ${cutKey} ${copyKey} ${pasteKey} b    n m , . /
-          @spc-nav @menu-nav @met${herdrCol}${rctlDefault}'';
+  defaultLayerBody = herdrCol: ''
+    q w e r t    y u i o p
+        @a @s @d @f g    h @j @k @l @;
+        z ${cutKey} ${copyKey} ${pasteKey} b    n m , . /
+        @spc-nav @menu-nav @met${herdrCol}${rctlDefault}'';
 
   defaultLayer =
     if !dualMode then
@@ -628,8 +616,8 @@ in
   ;; menu = the context-menu key (left of right Ctrl)
   ;; lmet = the physical Super key (for the meta lighting layer)
   ;; herdrKey (herdr instances only) = tap normal / hold for the herdr layer
-  ;; rctl (voxtypePtt instances only) = physical right Ctrl, tap normal /
-  ;;   hold for voxtype push-to-talk — a second trigger alongside Menu,
+  ;; rctl (handyToggle instances only) = physical right Ctrl, tap normal /
+  ;;   hold to toggle Handy dictation — a second trigger alongside Menu,
   ;;   for boards (the Framework 16's built-in keyboard) with no Menu key
   (defsrc
     q w e r t    y u i o p
@@ -690,7 +678,7 @@ in
     spc-nav (tap-hold ${toString tapTimeout} ${toString holdTimeout} spc (layer-while-held navigation))
 
     ;; Menu key: tap for context menu, hold for the navigation/mouse layer.
-    ;; It no longer triggers voxtype push-to-talk — that lives on right Ctrl
+    ;; It no longer triggers Handy dictation — that lives on right Ctrl
     ;; (see rctl-ptt), which is present on every keyboard whereas Menu is
     ;; not (the Framework 16's built-in board has none). Holding Menu here
     ;; is just a second way into the navigation layer, alongside space.
@@ -726,6 +714,5 @@ in
     scroll-down (mwheel-down 50 120)${clipboardAliases}${herdrAliases}${aercAliases}${emailAlias}${rctlAlias}
   )
 
-  ${voxtypeVirtualKeys}
   ${chordsBlock}
 ''

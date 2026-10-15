@@ -114,12 +114,12 @@ right hand becomes arrow keys and paging.
 Release Space or Menu and the layer disappears; every key underneath goes
 back to typing normally.
 
-## Push-to-talk (voxtype)
+## Dictation (Handy)
 
-Hold **physical right Ctrl** and speak; release it and whatever you said
-gets typed at your cursor. This is
-[voxtype](https://github.com/peteonrails/voxtype), installed and running
-by default alongside kanata.
+Hold **physical right Ctrl** for a beat to toggle dictation on; speak,
+then hold it again to toggle it off and type whatever you said at your
+cursor. This is [Handy](https://github.com/cjpais/Handy), installed and
+running by default alongside kanata.
 
 Right Ctrl is the trigger because it is on *every* keyboard, where the
 Menu key is not — the Framework 16's built-in board, for one, has none —
@@ -127,44 +127,41 @@ so the same gesture works on any machine. Tapping right Ctrl still sends a
 normal Ctrl press, so it stays usable as a modifier; only the *hold* is
 repurposed. One trade-off comes with that: a fast `Ctrl+<key>` chord typed
 *specifically* through the right Ctrl key can be read as a hold (another
-key pressed while it's down) and start push-to-talk instead of applying
-the modifier. Left Ctrl is untouched, so every shortcut still works
-through that key — reach for the left one for chords.
+key pressed while it's down) and fire the toggle instead of applying the
+modifier. Left Ctrl is untouched, so every shortcut still works through
+that key — reach for the left one for chords.
 
-Transcription runs **entirely on the machine's CPU**, via
-[whisper.cpp](https://github.com/ggerganov/whisper.cpp). No GPU or NPU is
-needed or used, so it works the same on a plain laptop as on a workstation
-with a graphics card, and nothing you say leaves the machine. (voxtype can
-also send audio to a remote API, but GISNIX does not configure that mode,
-so it is never in play here.) The default model, `base.en`, is chosen to
-transcribe quickly on an ordinary CPU while staying accurate enough for
-dictation; it is fetched once, the first time the machine has network
-after install, by a `voxtype-model-loader` service that runs before the
-daemon starts. Holding right Ctrl on a machine that has never been online
-does nothing until that download finishes. After the model is cached,
-everything is offline, including on later boots with no network at all.
+This is a **toggle, not true push-to-talk**: Handy replaced
+[voxtype](https://github.com/peteonrails/voxtype) here (voxtype had grown
+too slow), but Handy's own remote-control CLI only supports toggling a
+running instance, not discrete start/stop — so holding right Ctrl starts
+a recording that keeps going until you hold it again, rather than
+stopping the moment you let go.
 
-A short sound plays on press (recording started) and a different one on
-release (recording stopped) — audible confirmation you don't have to
-watch the screen for, and a clear signal for when it's *not* recording
-(no sound on press means the daemon isn't running — see below).
+Transcription runs **entirely on the machine's CPU/GPU**, via Whisper or
+Parakeet models — nothing you say leaves the machine. The first time you
+use dictation on a fresh install, open Handy from its tray icon and pick
+a model in Settings; unlike voxtype, Handy has no CLI flag or config file
+for this, so there's no automated first-run download to wait on — holding
+right Ctrl does nothing until you've done that once by hand.
 
-If nothing happens when you hold Menu or right Ctrl, check both services:
+A sound plays each time the toggle fires, whichever direction it just
+went — audible confirmation you don't have to watch the screen for.
+
+If nothing happens when you hold right Ctrl, check the service:
 
 ```
-systemctl --user status voxtype-model-loader
-systemctl --user status voxtype
+systemctl --user status handy
 ```
 
-A `voxtype-model-loader` stuck as `activating` (or restarting) means it's
-still waiting on the network, or waiting on it to come back — it retries
-every 30 seconds. `voxtype` itself won't start clean until the loader has
-finished at least once.
-
-See voxtype's own [configuration
-reference](https://github.com/peteonrails/voxtype) for changing the
-speech model, language, or output behaviour — GISNIX ships it with
-upstream's defaults.
+and confirm a model is actually selected in Handy's own Settings (tray
+icon → Settings → Models). The right-Ctrl hold runs entirely through
+kanata's own `cmd` mechanism rather than Handy's built-in shortcuts (Handy
+documents no reliable global-hotkey support under Wayland/COSMIC), so a
+silent toggle with the service otherwise healthy is the one thing to
+report if it doesn't work — the fix living on either side of that
+root-service-to-user-session handoff isn't yet confirmed on real
+hardware.
 
 ## herdr layer
 
@@ -251,8 +248,8 @@ they always match what the machine actually does.
 letter as usual; only holding turns them into a modifier, so your fingers
 never leave the home row to reach for Ctrl or Alt. The diagram also shows
 the keys that reach the other layers on a hold: **Space** or **Menu** for
-navigation, **Caps** for the herdr layer, and **right Ctrl** for voxtype
-push-to-talk.
+navigation, **Caps** for the herdr layer, and **right Ctrl** to toggle
+Handy dictation.
 
 **The navigation layer** (hold Space or Menu) turns the right hand into
 arrow keys and mouse controls without leaving the keyboard.

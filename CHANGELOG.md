@@ -3,6 +3,26 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.23.0] - 2026-10-15
+
+### Changed
+
+- **Dictation: Handy replaces voxtype**, which this fleet found too slow.
+  Right Ctrl still toggles it (`services/device/input-kanata`), but the
+  gesture is now a single **toggle**, not push-to-talk: Handy's
+  remote-control CLI only supports toggling a running instance, with no
+  discrete start/stop like voxtype's `record start`/`stop` had, so one
+  hold-press now fires one toggle and release does nothing. kanata drives
+  it directly via a new `kanata-handy-toggle` wrapper (the same
+  root-service-to-user-session problem that sank kanata driving voxtype
+  directly, worked around the same way `kanata-play-sound` already does
+  for sound) — **unverified on real hardware**, since Handy documents no
+  lock-file/IPC path to confirm against. Model choice/download is now a
+  manual first-run step in Handy's own Settings UI; there is no CLI flag
+  or config file to automate it the way voxtype's `setup --download` oneshot
+  did. Packaged from nixpkgs-unstable (`pkgs.handy`, MIT, Tauri-based) —
+  see `docs/user/keyboard.md` for the full user-facing story.
+
 ## [0.22.0] - 2026-09-27
 
 ### Added

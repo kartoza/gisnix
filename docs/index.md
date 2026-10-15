@@ -168,8 +168,9 @@ GISNIX machine so muscle memory travels with you.
 ### :material-keyboard: Keyboard-first, with speech
 
 kanata is on by default — home-row mods, a nav layer, chords — no vendor
-hardware needed. Hold right Ctrl and voxtype types what you say into
-whatever field your cursor is in — on the CPU, no graphics card needed.
+hardware needed. Hold right Ctrl to toggle Handy dictation, speak, hold
+again, and it types what you said into whatever field your cursor is
+in — entirely on-device, no cloud involved.
 
 </div>
 
