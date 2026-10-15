@@ -79,7 +79,7 @@ so it's always complete.
 | [`desktop-gis-versions-qgis-4-0`](../references/bundles.md#desktop-gis-versions-qgis-4-0) *(opt-in)* | QGIS 4.0 pinned (4.0.3, the last 4.0.x that nixpkgs shipped), installed with the standard python packages from its own pinned nixpkgs — pure binary-cache hits, no source builds. |
 | [`services-device`](../references/bundles.md#services-device) | Hardware every machine benefits from: Bluetooth and firmware updates. Anything depending on what is actually plugged in is a sub-bundle. |
 | [`services-dns`](../references/bundles.md#services-dns) | DNS filtering: blocky as the local resolver, plus the firewall rules that stop applications bypassing it over DoH. Fleet-wide policy. |
-| [`services-network`](../references/bundles.md#services-network) | Network presence: mDNS service discovery, and the overlay VPN. Tailscale here is being replaced by NetBird. |
+| [`services-network`](../references/bundles.md#services-network) | Network presence: mDNS service discovery, and the overlay VPN. Tailscale and NetBird run side by side during the migration — see ssh-access.nix's overlayInterfaces. |
 | [`services-sync`](../references/bundles.md#services-sync) | File synchronisation between machines and to cloud storage. |
 | [`services-system`](../references/bundles.md#services-system) *(required)* | What every machine needs without exception: CA trust, the fleet's /etc/hosts, kernel hardening, sshd, the unfree allow-list, audio and Flatpak. |
 | [`services-virtualisation`](../references/bundles.md#services-virtualisation) | Running things that are not native to this machine: containers, virtual machines, cross-architecture emulation, Windows compatibility. |

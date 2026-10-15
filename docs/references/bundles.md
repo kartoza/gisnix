@@ -379,7 +379,7 @@ graph LR
 | [`desktop-gis-versions-qgis-4-0`](#desktop-gis-versions-qgis-4-0)  | 1 | `desktop-gis` | — |
 | [`services-device`](#services-device)  | 2 | — | `services-device-input`, `services-device-input-kanata`, `services-device-mobile`, `services-device-peripherals`, `services-device-printing` |
 | [`services-dns`](#services-dns)  | 2 | — | — |
-| [`services-network`](#services-network)  | 2 | — | — |
+| [`services-network`](#services-network)  | 3 | — | — |
 | [`services-sync`](#services-sync)  | 2 | — | — |
 | [`services-system`](#services-system)  | 8 | — | `services-system-console`, `services-system-power`, `services-system-storage` |
 | [`services-virtualisation`](#services-virtualisation)  | 4 | — | — |
@@ -977,12 +977,13 @@ Taking this also brings in `desktop-gis`.
 
 ### services-network
 
-*Network presence: mDNS service discovery, and the overlay VPN. Tailscale here is being replaced by NetBird.*
+*Network presence: mDNS service discovery, and the overlay VPN. Tailscale and NetBird run side by side during the migration — see ssh-access.nix's overlayInterfaces.*
 
 `software/services/network/`
 
 - `avahi.nix`
 - `tailscale.nix`
+- `netbird.nix`
 
 ### services-sync
 
@@ -1254,6 +1255,6 @@ Taking this also brings in `services-system`.
 
 ---
 
-61 bundles, 230 modules.
+61 bundles, 231 modules.
 
 Made with love by [Kartoza](https://kartoza.com) | [Donate](https://github.com/sponsors/timlinux) | [GitHub](https://github.com/kartoza/gisnix)

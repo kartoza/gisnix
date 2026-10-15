@@ -1,10 +1,11 @@
 {
   "name": "services-network",
   "path": "services/network",
-  "description": "Network presence: mDNS service discovery, and the overlay VPN. Tailscale here is being replaced by NetBird.",
+  "description": "Network presence: mDNS service discovery, and the overlay VPN. Tailscale and NetBird run side by side during the migration — see ssh-access.nix's overlayInterfaces.",
   "implies": [],
   "modules": [
     "avahi.nix",
-    "tailscale.nix"
+    "tailscale.nix",
+    "netbird.nix"
   ]
 }
