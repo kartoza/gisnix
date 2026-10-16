@@ -3,6 +3,20 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.26.1] - 2026-10-16
+
+### Fixed
+
+- `rustgis` actually failed to build — the first real build attempt
+  (not just evaluation) caught it: `crates/render`'s own `build.rs`
+  downloads 5 Natural Earth GeoJSON files at build time, which the Nix
+  build sandbox's lack of network turns into a hard failure. Pre-fetches
+  them with `fetchurl` and points `RUSTGIS_DATA_DIR` at them instead —
+  exactly the escape hatch `build.rs` already documents for offline
+  builds. Also dropped the deprecated `xorg.libX11`-style attribute
+  names (renamed to `libx11` etc. in nixpkgs) the same build surfaced as
+  warnings.
+
 ## [0.26.0] - 2026-10-16
 
 ### Added

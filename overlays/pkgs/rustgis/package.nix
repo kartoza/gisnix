@@ -21,27 +21,35 @@
 # entries, so postFixup below wraps LD_LIBRARY_PATH instead — that's the
 # one that actually lets dlopen find them.
 #
-# UNVERIFIED: no working nix daemon here to build with (see this repo's
-# sandbox-workflow notes), so this derivation has never actually been
-# built. Everything above was confirmed by reading the real source tree
-# at the v0.2.0 tag (Cargo.toml, Cargo.lock, apps/rustgis/Cargo.toml, the
-# AUR/package.sh packaging scripts) rather than guessed — but "the source
-# says X" is not the same as "it built". Build this for real before
-# trusting it; if the GUI doesn't come up, LD_LIBRARY_PATH coverage above
-# is the first thing to check.
+# crates/render's build.rs downloads 5 Natural Earth GeoJSON files
+# (opengeos/rustgis-assets, via assets.rustgis.app) at BUILD time — a
+# real build caught this (`error: failed to run custom build command for
+# rustgis-render`; the Nix build sandbox has no network at all), so this
+# isn't a guess like the rest of this file was before that first build.
+# build.rs itself supports exactly this case: set RUSTGIS_DATA_DIR to a
+# folder already holding the files and it copies from there instead of
+# fetching. The five fetchurl calls below exist for that, and preBuild
+# assembles them into one directory.
 #
-# Upstream: https://github.com/opengeos/RustGIS
+# BUILD-VERIFIED up to this fix, NOT further: the fetchurl hashes were
+# computed the same way the source hash below was (downloaded directly,
+# hashed with `nix hash file` — no working nix daemon here to build
+# with), so the actual compile past this point is still unconfirmed.
 {
   lib,
   rustPlatform,
   fetchFromGitHub,
+  fetchurl,
   pkg-config,
   makeWrapper,
   libxkbcommon,
   wayland,
   vulkan-loader,
   libGL,
-  xorg,
+  libx11,
+  libxcursor,
+  libxi,
+  libxrandr,
   fontconfig,
   freetype,
 }:
@@ -51,13 +59,39 @@ let
     wayland
     vulkan-loader
     libGL
-    xorg.libX11
-    xorg.libXcursor
-    xorg.libXi
-    xorg.libXrandr
+    libx11
+    libxcursor
+    libxi
+    libxrandr
     fontconfig
     freetype
   ];
+
+  # Natural Earth sample data crates/render's build.rs embeds for the
+  # basemap outline and World Atlas sample — see the header comment for
+  # why these are fetched here rather than left to build.rs itself.
+  rustgisAssets = {
+    "countries.geojson" = fetchurl {
+      url = "https://assets.rustgis.app/data/countries.geojson";
+      hash = "sha256-vvjuYeRmhQSdR7V3uG+3bp9nr0Gj1MOKy2fwAhvzGzY=";
+    };
+    "countries_chn.geojson" = fetchurl {
+      url = "https://assets.rustgis.app/data/countries_chn.geojson";
+      hash = "sha256-UkjtPJlmejSKjxT4bCclCNGEc/4YjYrDpOeA7JE/wuo=";
+    };
+    "cities.geojson" = fetchurl {
+      url = "https://assets.rustgis.app/data/cities.geojson";
+      hash = "sha256-KMh4RXmXQbGYEio+mrKxoUoVBOt0GHqvHbDTr4p1ix4=";
+    };
+    "rivers.geojson" = fetchurl {
+      url = "https://assets.rustgis.app/data/rivers.geojson";
+      hash = "sha256-iXER9LPyvdyYx4mTuEjRrRjOuQu7PsnXA4iMkO33DnM=";
+    };
+    "lakes.geojson" = fetchurl {
+      url = "https://assets.rustgis.app/data/lakes.geojson";
+      hash = "sha256-EfSasfcaP/lfrgf4HJBR22wNiOUevWZeKMEMLxG43SQ=";
+    };
+  };
 in
 rustPlatform.buildRustPackage rec {
   pname = "rustgis";
@@ -96,6 +130,18 @@ rustPlatform.buildRustPackage rec {
   # fetch). Disabling rather than risking every host's build hanging or
   # failing on something environmental rather than a real regression.
   doCheck = false;
+
+  # See rustgisAssets above and the header comment: crates/render's own
+  # build.rs reads RUSTGIS_DATA_DIR instead of fetching when it's set,
+  # copying each file out and checking it looks like GeoJSON (starts
+  # with `{`) — real files, not placeholders, so that check passes.
+  preBuild = ''
+    mkdir -p rustgis-data
+    ${lib.concatStringsSep "\n" (
+      lib.mapAttrsToList (name: path: "ln -s ${path} rustgis-data/${name}") rustgisAssets
+    )}
+    export RUSTGIS_DATA_DIR="$PWD/rustgis-data"
+  '';
 
   nativeBuildInputs = [
     pkg-config
