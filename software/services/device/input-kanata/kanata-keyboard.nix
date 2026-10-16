@@ -43,32 +43,14 @@ let
   # `kartoza.userEmails.<name>` — null until at least one has.
   emailScript = config.kartoza.kanataEmailScript;
 
-  # Right Ctrl is Handy's dictation key (see docs/user/keyboard.md). Unlike
-  # voxtype (which detected the key itself via evdev, so kanata stayed out
-  # of the way — see the commit that replaced it for the history), Handy
-  # has no evdev-level hotkey of its own: its documented Linux story is
-  # "system-level shortcuts must be configured through your desktop
-  # environment", which doesn't work reliably under COSMIC/Wayland. So
-  # kanata has to drive it directly — hold right Ctrl, kanata fires
-  # Handy's toggle CLI (see kanata-config.nix's handyToggle). This is the
-  # same shape voxtype's OWN kanata-driven path tried and abandoned
-  # (kanata is a ROOT service, so a client it runs can't reach a
-  # user-session resource on its own) — pkgs.kanata-handy-toggle
-  # (overlays/default.nix, a PACKAGE rather than a local let-binding so a
-  # downstream flake's own per-host kanata instances can reach it too)
-  # exists specifically to work around that, the same way kanataPlaySound
-  # below already does for sound. UNVERIFIED on real hardware; see
-  # kanata-handy-toggle's own comment.
-  handyToggle = true;
-
   # kanata's own systemd unit is a SYSTEM service (it needs /dev/uinput and
   # /dev/input, which is also why it carries the uinput/openrazer
   # supplementary groups below) — not something the user's session manager
   # spawned. Systemd only sets XDG_RUNTIME_DIR for units IT launches inside
   # a user's own manager; a bare `pw-play` invoked from this service's
-  # `cmd` actions (the herdr<->aerc mode-toggle beep, the Handy toggle
-  # cue, herdr's macro-record click) has no PipeWire socket to reach and
-  # fails silently — the `cmd` "succeeds" from kanata's point of view
+  # `cmd` actions (the herdr<->aerc mode-toggle beep, herdr's macro-record
+  # click) has no PipeWire socket to reach and fails silently — the `cmd`
+  # "succeeds" from kanata's point of view
   # (pw-play exits nonzero, kanata just logs it), so nothing looked broken
   # short of actually listening for the sound. This wrapper hunts down
   # whichever logged-in user's PipeWire socket is actually up and plays
@@ -179,22 +161,13 @@ in
             # data involved, unlike emailScript above), so it ships on by
             # default along with everything else here.
             clipboardHolds = true;
-            inherit handyToggle;
-            handyToggleBin = "${pkgs.kanata-handy-toggle}/bin/kanata-handy-toggle";
             # Herdr<->aerc mode-toggle beep — only reached when aercLayer is
             # on, but harmless to always pass (kanata-config.nix's own
             # dualMode gate decides whether it's ever used).
             beepPlayer = "${kanataPlaySound}/bin/kanata-play-sound";
             beepSound = "${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo/bell.oga";
-            # Handy toggle cue, via the same kanataPlaySound wrapper the
-            # herdr/aerc beep uses — unlike voxtype, Handy documents no
-            # audio feedback of its own to fall back on, so without this
-            # the dictation key would be silent both ways.
-            # message-new-instant.oga, not bell.oga or the herdr pair, so
-            # all three stay distinct.
-            handyToggleSound = "${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo/message-new-instant.oga";
             # herdr's macro-record toggle click — camera-shutter, not
-            # bell.oga or the handy toggle, so all three stay distinct.
+            # bell.oga, so the two stay distinct.
             recordToggleSound = "${pkgs.sound-theme-freedesktop}/share/sounds/freedesktop/stereo/camera-shutter.oga";
           };
         };
@@ -220,40 +193,21 @@ in
       }
     ) config.services.kanata.keyboards;
 
-    # Handy (https://github.com/cjpais/Handy) — local, offline
-    # speech-to-text: hold right Ctrl (pkgs.kanata-handy-toggle/handyToggle above),
-    # speak, hold again, and it types the transcription at your cursor.
-    # Whisper/Parakeet runs on-device; nothing leaves the machine. Replaces
-    # voxtype, which this fleet found too slow — see the commit that made
-    # this swap for that comparison.
+    # Handy (https://github.com/cjpais/Handy) — local, offline speech-to-
+    # text: press a shortcut, speak, press again, and it types the
+    # transcription at your cursor. Whisper/Parakeet runs on-device;
+    # nothing leaves the machine. Replaces voxtype, which this fleet found
+    # too slow.
     #
-    # Unlike voxtype, Handy is a GUI/tray app (Tauri — needs webkitgtk,
-    # GTK, a real Wayland session), not a headless CLI daemon, so it goes
-    # on graphical-session.target rather than default.target (the same
-    # convention screenshot-listener and battery-monitor use elsewhere in
-    # gisnix) and starts with --start-hidden (no window at login; the tray
-    # icon still gives access to Settings) rather than --no-tray.
-    #
-    # Model choice and download are first-run, Settings-UI-only steps —
-    # Handy documents no CLI flag or config file for either, unlike
-    # voxtype's `setup --download` (which this file used to automate via a
-    # model-loader oneshot). There is nothing equivalent to automate here:
-    # a human has to open Handy once and pick a model before dictation
-    # does anything.
-    systemd.user.services.handy = {
-      description = "Handy speech-to-text daemon (toggled via right-Ctrl hold — see kanata-config.nix)";
-      wantedBy = [ "graphical-session.target" ];
-      partOf = [ "graphical-session.target" ];
-      after = [ "graphical-session.target" ];
-      unitConfig.ConditionUser = "!@system";
-      serviceConfig = {
-        ExecStart = "${pkgs.handy}/bin/handy --start-hidden";
-        Restart = "on-failure";
-        RestartSec = 3;
-        Slice = "session.slice";
-      };
-    };
-
+    # Just a package here, deliberately — no systemd unit and no kanata
+    # binding. Both were tried (see the commit that added, then the one
+    # that removed, pkgs.kanata-handy-toggle) and dropped in favour of
+    # Handy's own mechanisms: its tray Settings has its own global-
+    # shortcut config and its own "launch at login" toggle, and leaning on
+    # those means gisnix isn't re-implementing (and re-debugging) features
+    # the app already ships. The cost is two one-time manual steps on a
+    # fresh install — pick a model, and flip "launch at login" on — not
+    # meaningfully different from the model pick already being manual.
     environment.systemPackages = with pkgs; [
       kanata
       handy

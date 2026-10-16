@@ -168,9 +168,9 @@ GISNIX machine so muscle memory travels with you.
 ### :material-keyboard: Keyboard-first, with speech
 
 kanata is on by default — home-row mods, a nav layer, chords — no vendor
-hardware needed. Hold right Ctrl to toggle Handy dictation, speak, hold
-again, and it types what you said into whatever field your cursor is
-in — entirely on-device, no cloud involved.
+hardware needed. Handy ships alongside it for speech-to-text: press a
+shortcut, speak, press again, and it types what you said into whatever
+field your cursor is in — entirely on-device, no cloud involved.
 
 </div>
 

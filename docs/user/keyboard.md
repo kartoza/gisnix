@@ -116,52 +116,28 @@ back to typing normally.
 
 ## Dictation (Handy)
 
-Hold **physical right Ctrl** for a beat to toggle dictation on; speak,
-then hold it again to toggle it off and type whatever you said at your
-cursor. This is [Handy](https://github.com/cjpais/Handy), installed and
-running by default alongside kanata.
+[Handy](https://github.com/cjpais/Handy) ships too — press a shortcut,
+speak, press again, and it types the transcription at your cursor,
+entirely on-device (Whisper or Parakeet models; nothing you say leaves
+the machine). It replaced [voxtype](https://github.com/peteonrails/voxtype)
+here, which had grown too slow.
 
-Right Ctrl is the trigger because it is on *every* keyboard, where the
-Menu key is not — the Framework 16's built-in board, for one, has none —
-so the same gesture works on any machine. Tapping right Ctrl still sends a
-normal Ctrl press, so it stays usable as a modifier; only the *hold* is
-repurposed. One trade-off comes with that: a fast `Ctrl+<key>` chord typed
-*specifically* through the right Ctrl key can be read as a hold (another
-key pressed while it's down) and fire the toggle instead of applying the
-modifier. Left Ctrl is untouched, so every shortcut still works through
-that key — reach for the left one for chords.
+Unlike everything else on this page, **Handy is not part of the kanata
+remapping** — it is its own tray application, and configures itself:
 
-This is a **toggle, not true push-to-talk**: Handy replaced
-[voxtype](https://github.com/peteonrails/voxtype) here (voxtype had grown
-too slow), but Handy's own remote-control CLI only supports toggling a
-running instance, not discrete start/stop — so holding right Ctrl starts
-a recording that keeps going until you hold it again, rather than
-stopping the moment you let go.
+- First run, open Handy from its tray icon and pick a model in
+  Settings → Models. Nothing works until this is done; there's no
+  automated download the way voxtype's `setup --download` was.
+- Set your own shortcut and recording mode (toggle / hold-to-talk) in
+  Settings → Shortcuts.
+- Turn on "launch at login" in Handy's own Settings if you want it
+  running without opening it by hand each session — gisnix doesn't wire
+  a systemd unit for this; the app manages its own lifecycle.
 
-Transcription runs **entirely on the machine's CPU/GPU**, via Whisper or
-Parakeet models — nothing you say leaves the machine. The first time you
-use dictation on a fresh install, open Handy from its tray icon and pick
-a model in Settings; unlike voxtype, Handy has no CLI flag or config file
-for this, so there's no automated first-run download to wait on — holding
-right Ctrl does nothing until you've done that once by hand.
-
-A sound plays each time the toggle fires, whichever direction it just
-went — audible confirmation you don't have to watch the screen for.
-
-If nothing happens when you hold right Ctrl, check the service:
-
-```
-systemctl --user status handy
-```
-
-and confirm a model is actually selected in Handy's own Settings (tray
-icon → Settings → Models). The right-Ctrl hold runs entirely through
-kanata's own `cmd` mechanism rather than Handy's built-in shortcuts (Handy
-documents no reliable global-hotkey support under Wayland/COSMIC), so a
-silent toggle with the service otherwise healthy is the one thing to
-report if it doesn't work — the fix living on either side of that
-root-service-to-user-session handoff isn't yet confirmed on real
-hardware.
+If something's not transcribing, check whether Handy is even running
+(`pgrep handy`, or look for its tray icon) before suspecting the model or
+shortcut — a fresh install starts it manually once, same as the
+model-pick step above.
 
 ## herdr layer
 
@@ -248,8 +224,7 @@ they always match what the machine actually does.
 letter as usual; only holding turns them into a modifier, so your fingers
 never leave the home row to reach for Ctrl or Alt. The diagram also shows
 the keys that reach the other layers on a hold: **Space** or **Menu** for
-navigation, **Caps** for the herdr layer, and **right Ctrl** to toggle
-Handy dictation.
+navigation, and **Caps** for the herdr layer.
 
 **The navigation layer** (hold Space or Menu) turns the right hand into
 arrow keys and mouse controls without leaving the keyboard.

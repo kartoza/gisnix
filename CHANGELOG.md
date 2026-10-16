@@ -3,6 +3,22 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.25.0] - 2026-10-16
+
+### Changed
+
+- **Handy is no longer driven by kanata.** The right-Ctrl toggle binding
+  (`handyToggle`/`handyToggleBin` in `kanata-config.nix`), the
+  `pkgs.kanata-handy-toggle` wrapper package, and the
+  `systemd.user.services.handy` unit are all removed — never confirmed
+  end-to-end on real hardware before this reversal, superseded instead of
+  debugged. Handy's own tray Settings already has a global-shortcut
+  config and a "launch at login" toggle, and leaning on those avoids
+  gisnix re-implementing (and re-debugging) features the app already
+  ships. `pkgs.handy` is still installed by default. Two one-time manual
+  steps now live entirely in Handy's own UI instead of being split across
+  it and gisnix: pick a model, and turn on "launch at login" if wanted.
+
 ## [0.24.0] - 2026-10-15
 
 ### Changed

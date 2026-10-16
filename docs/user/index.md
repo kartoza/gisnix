@@ -11,10 +11,11 @@ for that).
 - **[Post-install configuration](post-install.md)** — display scaling,
   arranging the panel and dock, and putting the screenshot and
   GIF-recording commands on keys of their own.
-- **[Keyboard remapping](keyboard.md)** — the home-row modifiers,
-  navigation layer, and hold-right-Ctrl [voice dictation](keyboard.md#dictation-handy)
-  the `services-device-input-kanata` bundle gives you (on by default), and
-  what to do about a second board.
+- **[Keyboard remapping](keyboard.md)** — the home-row modifiers and
+  navigation layer the `services-device-input-kanata` bundle gives you
+  (on by default), what to do about a second board, and the
+  [voice dictation](keyboard.md#dictation-handy) app that ships
+  alongside it.
 - **[Building your fleet](fleet.md)** — living with one host, turning it
   into a real repo, and adding a second (or tenth) machine.
 - Once installed, `~/nixos-config` on your machine is your own tiny flake —

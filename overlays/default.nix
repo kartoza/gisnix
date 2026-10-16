@@ -128,45 +128,6 @@ in
         config.allowUnfree = false;
       }).handy;
 
-    # Shared wrapper every kanata instance's right-Ctrl dictation binding
-    # runs instead of pkgs.handy's bin/handy directly — a PACKAGE (not a
-    # module-local let-binding) specifically so a downstream flake's own
-    # per-host kanata instances (a second physical keyboard, wired outside
-    # software/services/device/input-kanata/kanata-keyboard.nix) can reach
-    # it too, rather than each one copying the script.
-    #
-    # Handy's --toggle-* CLI signals an ALREADY-RUNNING user-session
-    # instance (a Tauri single-instance check) rather than starting
-    # anything itself — kanata's `cmd` fires it from a ROOT system
-    # service, with no XDG_RUNTIME_DIR or HOME of its own, so a bare
-    # `handy --toggle-transcription` may never find the session it's
-    # meant to reach. Same fix as kanata-keyboard.nix's kanataPlaySound:
-    # hunt down whichever logged-in user's session is actually up (same
-    # PipeWire socket liveness check) and run inside it.
-    #
-    # UNVERIFIED on real hardware — Handy doesn't document its lock-file/
-    # IPC path, so this is the best-effort shape based on how Tauri's
-    # single-instance plugin and every other root-vs-user-session problem
-    # in this codebase behaves, not a confirmed fix. If right-Ctrl
-    # dictation does nothing, start here: check whether `handy` even sees
-    # an existing instance when run with this HOME/XDG_RUNTIME_DIR pair
-    # by hand.
-    kanata-handy-toggle = final.writeShellScriptBin "kanata-handy-toggle" ''
-      for sock in /run/user/*/pipewire-0; do
-        if [ -S "$sock" ]; then
-          uid="''${sock#/run/user/}"
-          uid="''${uid%/pipewire-0}"
-          export XDG_RUNTIME_DIR="/run/user/$uid"
-          export HOME="$(getent passwd "$uid" | cut -d: -f6)"
-          exec ${final.handy}/bin/handy --toggle-transcription
-        fi
-      done
-      # No live session found — nothing to toggle. Exit 0 regardless: a
-      # `cmd` action failing is not a reason to disrupt the key press it
-      # rode in on (same reasoning as kanataPlaySound).
-      exit 0
-    '';
-
     # discourse-tui — TUI Discourse-forum browser, not in nixpkgs.
     discourse-tui = final.callPackage ./pkgs/discourse-tui/package.nix { };
 
