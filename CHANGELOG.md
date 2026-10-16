@@ -3,6 +3,16 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.26.0] - 2026-10-16
+
+### Added
+
+- **`rustgis`**, in the `desktop-gis` bundle — [RustGIS](https://rustgis.app),
+  a GIS desktop app written entirely in Rust (egui/eframe), Apache-2.0.
+  Not in nixpkgs; packaged from source (`overlays/pkgs/rustgis/package.nix`).
+  Not build-verified in this environment — see the package's own header
+  comment for what to check first if it doesn't come up.
+
 ## [0.25.0] - 2026-10-16
 
 ### Changed
