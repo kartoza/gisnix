@@ -12,6 +12,7 @@
     "qgis-latest.nix",
     "qgis-ltr.nix",
     "qgis-wayland-appid.nix",
+    "rustgis.nix",
     "saga.nix",
     "whitebox-tools.nix"
   ],

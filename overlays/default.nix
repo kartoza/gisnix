@@ -162,6 +162,11 @@ in
         config.allowUnfree = false;
       }).signal-cli;
 
+    # rustgis (https://rustgis.app) — GIS desktop app, not in nixpkgs.
+    # Apache-2.0 — see overlays/pkgs/rustgis/package.nix for the
+    # architecture notes and the UNVERIFIED-build caveat it carries.
+    rustgis = final.callPackage ./pkgs/rustgis/package.nix { };
+
     # Use latest kitty from nixpkgs-unstable
     kitty =
       (import inputs.nixpkgs-unstable {

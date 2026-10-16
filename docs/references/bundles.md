@@ -344,7 +344,7 @@ graph LR
 | [`desktop-ebook-readers`](#desktop-ebook-readers)  | 4 | `desktop-environments-cosmic` | — |
 | [`desktop-essentials`](#desktop-essentials)  | 1 | — | `desktop-environments-cosmic`, `desktop-essentials-extras` |
 | [`desktop-games`](#desktop-games)  | 3 | `desktop-environments-cosmic` | — |
-| [`desktop-gis`](#desktop-gis)  | 8 | `desktop-environments-cosmic` | `desktop-gis-source-builds`, `desktop-gis-versions-qgis-1-8`, `desktop-gis-versions-qgis-2-10`, `desktop-gis-versions-qgis-2-16`, `desktop-gis-versions-qgis-2-18`, `desktop-gis-versions-qgis-2-4`, `desktop-gis-versions-qgis-2-6`, `desktop-gis-versions-qgis-2-8`, `desktop-gis-versions-qgis-3-10`, `desktop-gis-versions-qgis-3-16`, `desktop-gis-versions-qgis-3-22`, `desktop-gis-versions-qgis-3-24`, `desktop-gis-versions-qgis-3-26`, `desktop-gis-versions-qgis-3-28`, `desktop-gis-versions-qgis-3-32`, `desktop-gis-versions-qgis-3-34`, `desktop-gis-versions-qgis-3-36`, `desktop-gis-versions-qgis-3-38`, `desktop-gis-versions-qgis-3-4`, `desktop-gis-versions-qgis-3-40`, `desktop-gis-versions-qgis-3-42`, `desktop-gis-versions-qgis-3-44`, `desktop-gis-versions-qgis-3-8`, `desktop-gis-versions-qgis-4-0` |
+| [`desktop-gis`](#desktop-gis)  | 9 | `desktop-environments-cosmic` | `desktop-gis-source-builds`, `desktop-gis-versions-qgis-1-8`, `desktop-gis-versions-qgis-2-10`, `desktop-gis-versions-qgis-2-16`, `desktop-gis-versions-qgis-2-18`, `desktop-gis-versions-qgis-2-4`, `desktop-gis-versions-qgis-2-6`, `desktop-gis-versions-qgis-2-8`, `desktop-gis-versions-qgis-3-10`, `desktop-gis-versions-qgis-3-16`, `desktop-gis-versions-qgis-3-22`, `desktop-gis-versions-qgis-3-24`, `desktop-gis-versions-qgis-3-26`, `desktop-gis-versions-qgis-3-28`, `desktop-gis-versions-qgis-3-32`, `desktop-gis-versions-qgis-3-34`, `desktop-gis-versions-qgis-3-36`, `desktop-gis-versions-qgis-3-38`, `desktop-gis-versions-qgis-3-4`, `desktop-gis-versions-qgis-3-40`, `desktop-gis-versions-qgis-3-42`, `desktop-gis-versions-qgis-3-44`, `desktop-gis-versions-qgis-3-8`, `desktop-gis-versions-qgis-4-0` |
 | [`desktop-kartoza-apps`](#desktop-kartoza-apps)  | 3 | `desktop-environments-cosmic` | `desktop-kartoza-apps-screencaster` |
 | [`desktop-multimedia`](#desktop-multimedia)  | 6 | `desktop-environments-cosmic` | — |
 | [`desktop-productivity`](#desktop-productivity)  | 3 | `desktop-environments-cosmic` | — |
@@ -555,6 +555,7 @@ Taking this also brings in `desktop-environments-cosmic`.
 | `qgis-latest.nix` | — |
 | `qgis-ltr.nix` | — |
 | `qgis-wayland-appid.nix` | Shared desktop entry so Wayland panels (COSMIC) match QGIS windows to a proper icon |
+| `rustgis.nix` | — |
 | `saga.nix` | — |
 | `whitebox-tools.nix` | — |
 
@@ -1255,6 +1256,6 @@ Taking this also brings in `services-system`.
 
 ---
 
-61 bundles, 231 modules.
+61 bundles, 232 modules.
 
 Made with love by [Kartoza](https://kartoza.com) | [Donate](https://github.com/sponsors/timlinux) | [GitHub](https://github.com/kartoza/gisnix)
