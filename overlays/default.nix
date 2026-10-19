@@ -94,6 +94,9 @@ in
     kartoza-screencaster =
       inputs.kartoza-screencaster.packages.${final.stdenv.hostPlatform.system}.default;
 
+    # Stream Sprout - restream a video source to multiple destinations
+    stream-sprout = inputs.stream-sprout.packages.${final.stdenv.hostPlatform.system}.default;
+
     # Bubblewrapped AI applications. All generated from the one jail
     # definition in ./pkgs/ai/mk-sandboxed.nix — add new tools there rather
     # than copying a wrapper.

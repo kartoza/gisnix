@@ -98,6 +98,14 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Stream Sprout — restreams a v4l2loopback (or other video) source to
+    # Twitch/YouTube/Owncast/PeerTube at once. desktop-multimedia, next to
+    # obs.nix's v4l2loopback device.
+    stream-sprout = {
+      url = "https://flakehub.com/f/wimpysworld/stream-sprout/*.tar.gz";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Home-manager for user-level configuration
     home-manager = {
       url = "github:nix-community/home-manager";

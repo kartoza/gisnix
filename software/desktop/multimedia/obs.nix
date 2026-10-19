@@ -7,6 +7,7 @@
 {
   # Add system wide packages
   environment.systemPackages = [
+    pkgs.stream-sprout # restream the v4l2loopback cam below to Twitch/YouTube/Owncast/PeerTube
     (pkgs.wrapOBS {
       plugins = with pkgs.obs-studio-plugins; [
         wlrobs # wayland capture support
