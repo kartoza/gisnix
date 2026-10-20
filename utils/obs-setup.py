@@ -20,6 +20,7 @@ canvas will still work, just with the frame/lower-third proportions off.
 import argparse
 import glob
 import os
+import socket
 import sys
 
 import obsws_python as obs
@@ -85,6 +86,47 @@ def pick_webcam():
         if dev != "/dev/video1":
             return dev
     return "/dev/video0"
+
+
+def obs_is_running():
+    """/proc scan, not pgrep — one fewer runtime dependency for a script
+    that otherwise only needs the obsws-python interpreter."""
+    for pid in os.listdir("/proc"):
+        if not pid.isdigit():
+            continue
+        try:
+            with open(f"/proc/{pid}/comm") as f:
+                if f.read().strip() == "obs":
+                    return True
+        except OSError:
+            continue  # process exited mid-scan, or we can't read it — skip it
+    return False
+
+
+def port_open(host, port, timeout=2):
+    try:
+        with socket.create_connection((host, port), timeout=timeout):
+            return True
+    except OSError:
+        return False
+
+
+def explain_unreachable(host, port):
+    print(f"Can't reach OBS's websocket at {host}:{port}.", file=sys.stderr)
+    if obs_is_running():
+        print(
+            "OBS is running, but isn't listening there yet — obs-scenes.nix's\n"
+            "websocket settings only take effect from OBS's NEXT launch after a\n"
+            "rebuild. Fully quit OBS (check it isn't still sitting in the tray)\n"
+            "and reopen it, then run this again.",
+            file=sys.stderr,
+        )
+    else:
+        print(
+            "OBS doesn't appear to be running at all. Start it, then run this\n"
+            "again.",
+            file=sys.stderr,
+        )
 
 
 class SceneBuilder:
@@ -215,11 +257,15 @@ def main():
     args = parser.parse_args()
 
     b = BRANDS[args.brand]
+
+    if not port_open(args.host, args.port):
+        explain_unreachable(args.host, args.port)
+        sys.exit(1)
+
     try:
         cl = obs.ReqClient(host=args.host, port=args.port, password=args.password, timeout=5)
-    except Exception as exc:  # noqa: BLE001 — surfacing the connect failure as-is is the point
-        print(f"Could not reach OBS's websocket at {args.host}:{args.port}: {exc}", file=sys.stderr)
-        print("Is OBS running, with Tools > WebSocket Server Settings enabled?", file=sys.stderr)
+    except Exception as exc:  # noqa: BLE001 — port's open, so this is something else (auth, protocol) — surface it as-is
+        print(f"Connected to {args.host}:{args.port} but the handshake failed: {exc}", file=sys.stderr)
         sys.exit(1)
 
     existing = {c for c in cl.get_scene_collection_list().scene_collections}
