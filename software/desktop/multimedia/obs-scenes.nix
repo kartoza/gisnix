@@ -52,7 +52,12 @@ let
 import configparser, glob, os, sys
 
 path, brand = sys.argv[1], sys.argv[2]
-cfg = configparser.ConfigParser()
+# strict=False: a real OBS-written global.ini can carry a duplicate key in
+# one section (seen live: two "MaxLogs" under [General]) — Python's
+# ConfigParser is stricter about that than OBS's own ini reader and
+# refuses to even load the file. strict=False keeps the last value, same
+# as OBS does, and the rewrite below collapses the duplicate for good.
+cfg = configparser.ConfigParser(strict=False)
 cfg.optionxform = str
 if os.path.exists(path):
     cfg.read(path)
@@ -77,7 +82,7 @@ with open(path, "w") as f:
 # rebuild after that first launch picks the new profile up.
 obs_studio_dir = os.path.dirname(path)
 for basic_ini in glob.glob(os.path.join(obs_studio_dir, "basic", "profiles", "*", "basic.ini")):
-    pcfg = configparser.ConfigParser()
+    pcfg = configparser.ConfigParser(strict=False)
     pcfg.optionxform = str
     pcfg.read(basic_ini)
 
