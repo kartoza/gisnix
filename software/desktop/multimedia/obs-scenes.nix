@@ -28,12 +28,26 @@ let
 
   # OBS's global.ini carries a LOT the user edits through OBS itself (window
   # geometry, recent files, …) — unlike herdr/kitty's config files, this is
-  # not something gisnix can own wholesale with a symlink. Instead: ensure
-  # the [OBSWebSocket] section is on (obs-setup and the kanata obs layer
-  # both need it) and, once that bootTheme's collection actually exists,
-  # that OBS opens into it — without touching anything else a human already
-  # set. Loopback-only use (obs-cli/obs-setup both run on this same
+  # not something gisnix can own wholesale with a symlink. Instead: once
+  # that bootTheme's collection actually exists, point OBS at it — without
+  # touching anything else a human already set.
+  #
+  # The websocket server's own settings do NOT live in global.ini, despite
+  # that being the obvious guess (and what an earlier version of this file
+  # wrote, silently doing nothing on any host that had ever launched OBS
+  # before). Checked against obs-websocket's own source
+  # (src/Config.cpp/Config::Load): it reads a plugin-private JSON file at
+  # obs_module_config_path("obs-websocket")/config.json — on Linux that is
+  # ~/.config/obs-studio/plugin_config/obs-websocket/config.json — with ITS
+  # OWN key names (server_enabled/server_port/auth_required/first_load),
+  # not the ServerEnabled/ServerPort/AuthRequired names global.ini's
+  # [OBSWebSocket] section would use. global.ini only matters on the very
+  # first-ever OBS launch, as a one-time migration source
+  # (MigrateGlobalConfigData) — useless on a host where OBS already has a
+  # config.json, which describes every real host by the time this was
+  # found. Loopback-only use (obs-cli/obs-setup both run on this same
   # machine), so no auth and no firewall rule.
+  #
   # The python body MUST sit flush at column 0 — a bash heredoc with a
   # quoted delimiter ('PYEOF') takes its content completely literally, so
   # any indentation added here to match the surrounding nix/bash would
@@ -49,9 +63,34 @@ let
 
         mkdir -p "$dir/.config/obs-studio"
         python3 - "$dir/.config/obs-studio/global.ini" "${brand}" <<'PYEOF'
-import configparser, glob, os, sys
+import configparser, glob, json, os, sys
 
 path, brand = sys.argv[1], sys.argv[2]
+obs_studio_dir = os.path.dirname(path)
+
+# The websocket server's actual config — see this file's own comment for
+# why this is a plugin-private JSON file, not global.ini's [OBSWebSocket].
+ws_config_path = os.path.join(obs_studio_dir, "plugin_config", "obs-websocket", "config.json")
+os.makedirs(os.path.dirname(ws_config_path), exist_ok=True)
+ws_config = {}
+if os.path.exists(ws_config_path):
+    with open(ws_config_path) as f:
+        try:
+            ws_config = json.load(f)
+        except json.JSONDecodeError:
+            ws_config = {}
+ws_config["server_enabled"] = True
+ws_config["server_port"] = 4455
+ws_config["auth_required"] = False
+# Only set if absent (a genuinely fresh config.json) — OBS's own
+# Config::Load() auto-generates a server_password on first_load=true if
+# none is set yet, which is pointless work for a no-auth loopback setup.
+# An existing config.json's own first_load value (already false, past
+# that point) is left alone either way.
+ws_config.setdefault("first_load", False)
+with open(ws_config_path, "w") as f:
+    json.dump(ws_config, f, indent=4)
+
 # strict=False: a real OBS-written global.ini can carry a duplicate key in
 # one section (seen live: two "MaxLogs" under [General]) — Python's
 # ConfigParser is stricter about that than OBS's own ini reader and
@@ -61,11 +100,6 @@ cfg = configparser.ConfigParser(strict=False)
 cfg.optionxform = str
 if os.path.exists(path):
     cfg.read(path)
-
-cfg.setdefault("OBSWebSocket", {})
-cfg["OBSWebSocket"]["ServerEnabled"] = "true"
-cfg["OBSWebSocket"]["ServerPort"] = "4455"
-cfg["OBSWebSocket"]["AuthRequired"] = "false"
 
 scenes_file = os.path.join(os.path.dirname(path), "basic", "scenes", brand + ".json")
 if os.path.exists(scenes_file):
@@ -80,7 +114,6 @@ with open(path, "w") as f:
 # OBS's first launch (profiles, unlike global.ini, are never created by
 # this activation script), so this is a no-op until then; the next
 # rebuild after that first launch picks the new profile up.
-obs_studio_dir = os.path.dirname(path)
 for basic_ini in glob.glob(os.path.join(obs_studio_dir, "basic", "profiles", "*", "basic.ini")):
     pcfg = configparser.ConfigParser(strict=False)
     pcfg.optionxform = str
