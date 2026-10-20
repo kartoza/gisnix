@@ -66,7 +66,7 @@ KIND_COLOR = "color_source_v3"
 KIND_IMAGE = "image_source"
 KIND_TEXT = "text_ft2_source_v2"
 KIND_WEBCAM = "v4l2_input"
-KIND_SCREEN = "pipewire-screencapture-source"  # portal-based — cosmic-comp has no wlr-screencopy
+KIND_SCREEN = "pipewire-screen-capture-source"  # portal-based — cosmic-comp has no wlr-screencopy
 KIND_OVERLAY = "input-overlay"
 
 
