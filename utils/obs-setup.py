@@ -24,6 +24,7 @@ import socket
 import sys
 
 import obsws_python as obs
+from obsws_python.error import OBSSDKRequestError
 
 # --------------------------------------------------------------------------
 # Brand palettes — sampled from the actual committed assets (resources/
@@ -323,33 +324,55 @@ def main():
         # CreateSceneCollection switches into it with one default scene —
         # removed once the real scenes exist (a collection can't have zero).
 
-    existing_scenes = {s["sceneName"] for s in cl.get_scene_list().scenes}
-    if SCRATCH_SCENE not in existing_scenes:
-        cl.create_scene(SCRATCH_SCENE)
+    try:
+        existing_scenes = {s["sceneName"] for s in cl.get_scene_list().scenes}
+        if SCRATCH_SCENE not in existing_scenes:
+            cl.create_scene(SCRATCH_SCENE)
 
-    # Orphaned sources from an earlier interrupted run: RemoveScene drops
-    # the scene but NOT the inputs that were in it (they just stop
-    # appearing in any scene) — so a retry's CreateInput would still hit
-    # "A source already exists by that input name" even after
-    # SceneBuilder recreates the scene itself clean. Every input this
-    # script ever creates is named "<scene> <thing>", so sweeping by that
-    # prefix catches them regardless of which scene they came from or
-    # whether that scene still exists.
-    existing_inputs = [i["inputName"] for i in cl.get_input_list().inputs]
-    prefixes = tuple(f"{scene} " for scene in SCENES)
-    for input_name in existing_inputs:
-        if input_name.startswith(prefixes):
-            cl.remove_input(input_name)
+        # Orphaned sources from an earlier interrupted run: RemoveScene
+        # drops the scene but NOT the inputs that were in it (they just
+        # stop appearing in any scene) — so a retry's CreateInput would
+        # still hit "A source already exists by that input name" even
+        # after SceneBuilder recreates the scene itself clean. Every
+        # input this script ever creates is named "<scene> <thing>", so
+        # sweeping by that prefix catches them regardless of which scene
+        # they came from or whether that scene still exists.
+        existing_inputs = [i["inputName"] for i in cl.get_input_list().inputs]
+        prefixes = tuple(f"{scene} " for scene in SCENES)
+        for input_name in existing_inputs:
+            if input_name.startswith(prefixes):
+                cl.remove_input(input_name)
 
-    webcam_device = pick_webcam()
-    print(f"Webcam device: {webcam_device}")
-    build_all(cl, b, webcam_device)
+        webcam_device = pick_webcam()
+        print(f"Webcam device: {webcam_device}")
+        build_all(cl, b, webcam_device)
 
-    for scene in cl.get_scene_list().scenes:
-        if scene["sceneName"] not in SCENES:
-            cl.remove_scene(scene["sceneName"])
+        for scene in cl.get_scene_list().scenes:
+            if scene["sceneName"] not in SCENES:
+                cl.remove_scene(scene["sceneName"])
 
-    cl.set_current_program_scene("Screen")
+        cl.set_current_program_scene("Screen")
+    except OBSSDKRequestError as exc:
+        # No traceback — req_name/code/comment (folded into str(exc) by
+        # obsws-python itself) are already the useful part; a stack
+        # through seven build_*_scene calls adds noise, not information.
+        print(f"OBS rejected a request while building the collection: {exc}", file=sys.stderr)
+        print(file=sys.stderr)
+        print("What to try:", file=sys.stderr)
+        print("  - Re-run with --force. This script cleans up whatever the failed", file=sys.stderr)
+        print("    attempt left behind (scratch scene, orphaned sources) before", file=sys.stderr)
+        print("    rebuilding, so a retry is always safe.", file=sys.stderr)
+        print("  - If it fails at the same request every time, the message above", file=sys.stderr)
+        print("    names the scene/source OBS rejected — check its Sources panel", file=sys.stderr)
+        print("    for it directly, and whether a plugin this needs (input-overlay,", file=sys.stderr)
+        print("    v4l2loopback) is actually installed and enabled.", file=sys.stderr)
+        sys.exit(1)
+    except Exception as exc:  # noqa: BLE001 — catch-all: still no raw traceback, still a next step
+        print(f"obs-setup failed partway through: {exc}", file=sys.stderr)
+        print("Re-run with --force — this script cleans up after a failed attempt", file=sys.stderr)
+        print("before rebuilding. If it keeps failing the same way, that's the exact", file=sys.stderr)
+        print("message to go looking for (or report).", file=sys.stderr)
+        sys.exit(1)
     print(f"'{b['collection']}' built: {', '.join(SCENES)}")
 
 
