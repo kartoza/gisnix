@@ -26,10 +26,18 @@
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     # Default terminal-editor bundle: Tim's timvim Neovim configuration.
-    nvf = {
-      url = "github:timlinux/timvim";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    #
+    # Deliberately NOT inputs.nixpkgs.follows'd: timvim pins its own
+    # nixos-unstable and `nvf.lib.neovimConfiguration` is a DAG-based module
+    # system built on pkgs.lib — a lib-version gap between gisnix's pin and
+    # timvim's own changes how/whether generated Lua is ordered, not just
+    # what it evaluates to. Confirmed the hard way: `nix run .#` from
+    # timvim's own checkout (native nixpkgs) rendered a diagnostics side
+    # panel; the same commit built through a follows-redirected nixpkgs
+    # rendered old-style inline virtual text instead. The build-time/cache
+    # cost of a second nixpkgs tree is the accepted price for matching what
+    # `nix run .#` actually shows.
+    nvf.url = "github:timlinux/timvim";
 
     agenix = {
       url = "github:ryantm/agenix/0.15.0";
@@ -208,7 +216,15 @@
           # A consumer overrides it with ITS OWN real inputs so a host
           # file referencing `inputs.<its-own-input-name>` — a private
           # kernel pin, its own vendored flake, anything gisnix doesn't
-          # have — resolves correctly instead of "attribute missing".
+          # have — resolves correctly instead of "attribute missing". The
+          # specialArg below merges this OVER gisnix's own `inputs` rather
+          # than replacing it outright, so a consumer only needs to declare
+          # the inputs it actually wants to override/add — one that takes
+          # the editor bundle but has no opinion of its own on `nvf` still
+          # gets gisnix's pin, instead of every consumer having to carry a
+          # second, driftable copy of every input gisnix's own modules read
+          # this way (nvf was exactly that: two near-identical `nvf` blocks,
+          # one of which quietly had a different nixpkgs.follows).
           # Confirmed the hard way: abyss's hardware.nix references
           # inputs.nixpkgs-master, which only exists in nix-config's own
           # inputs, not gisnix's.
@@ -279,11 +295,10 @@
               hostConfig
               fleet
               ;
-            # consumerInputs, not the plain `inputs` this function itself
-            # uses above for disko/agenix/stylix/the overlay call — see
-            # consumerInputs' own comment on why these are deliberately
-            # different.
-            inputs = consumerInputs;
+            # gisnix's own `inputs` as the base, consumerInputs merged on
+            # top — see consumerInputs' own comment above for why a
+            # consumer only needs to name what it actually overrides.
+            inputs = inputs // consumerInputs;
             geodiff = inputs.geodiff;
             kartoza-plymouth-theme = inputs.kartoza-plymouth-theme;
             kartoza-grub-themes = inputs.kartoza-grub-themes;
