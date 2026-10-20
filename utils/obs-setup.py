@@ -138,6 +138,9 @@ def explain_unreachable(host, port):
         )
 
 
+RESOURCE_ALREADY_EXISTS = 601  # obs-websocket RequestStatus — stable protocol constant, not ours to pick
+
+
 class SceneBuilder:
     def __init__(self, client, scene_name):
         self.cl = client
@@ -149,15 +152,22 @@ class SceneBuilder:
         #
         # Idempotent: a retry (crash mid-build, or a deliberate --force
         # rebuild) can find this exact scene name already here from a
-        # previous run, which CreateScene refuses outright ("A source
-        # already exists by that scene name"). Removing it first is safe
-        # ONLY because main() guarantees a scratch scene exists before any
-        # of this runs — OBS refuses to remove a collection's LAST scene,
+        # previous run, which CreateScene refuses outright. main()'s
+        # upfront sweep is meant to have already cleared this, but that
+        # sweep is a best-effort snapshot-then-act pass — catching the
+        # specific "already exists" code here and removing+retrying right
+        # at the point of failure doesn't depend on that snapshot having
+        # been perfectly complete or race-free. Safe to remove ONLY
+        # because main() guarantees a scratch scene exists before any of
+        # this runs — OBS refuses to remove a collection's LAST scene,
         # and this one might well be it.
-        existing = {s["sceneName"] for s in client.get_scene_list().scenes}
-        if scene_name in existing:
+        try:
+            client.create_scene(scene_name)
+        except OBSSDKRequestError as exc:
+            if exc.code != RESOURCE_ALREADY_EXISTS:
+                raise
             client.remove_scene(scene_name)
-        client.create_scene(scene_name)
+            client.create_scene(scene_name)
 
     def _place(self, item_id, x, y, w=None, h=None, source_w=None, source_h=None):
         t = {"positionX": float(x), "positionY": float(y)}
@@ -167,22 +177,27 @@ class SceneBuilder:
             t["scaleY"] = h / source_h
         self.cl.set_scene_item_transform(self.scene, item_id, t)
 
-    def _name(self, name):
-        # Inputs are named uniquely across the WHOLE collection, not per
-        # scene — "A source already exists by that input name" the moment
-        # a second scene tries to create its own "Background"/"Accent Bar"/
-        # etc. Prefixing with the scene name is what actually scopes them.
-        return f"{self.scene} {name}"
+    def _create_input(self, name, kind, settings):
+        # Same self-healing shape as SceneBuilder.__init__ above, for the
+        # same reason: main()'s upfront sweep of "<scene> <thing>"-prefixed
+        # inputs is best-effort, not a guarantee — this is what actually
+        # makes a retry safe regardless of why a name was still taken.
+        full_name = f"{self.scene} {name}"
+        try:
+            return self.cl.create_input(self.scene, full_name, kind, settings, True)
+        except OBSSDKRequestError as exc:
+            if exc.code != RESOURCE_ALREADY_EXISTS:
+                raise
+            self.cl.remove_input(full_name)
+            return self.cl.create_input(self.scene, full_name, kind, settings, True)
 
     def color(self, name, hex_color, x, y, w, h, alpha=255):
-        resp = self.cl.create_input(
-            self.scene, self._name(name), KIND_COLOR, {"color": abgr(hex_color, alpha), "width": w, "height": h}, True
-        )
+        resp = self._create_input(name, KIND_COLOR, {"color": abgr(hex_color, alpha), "width": w, "height": h})
         self._place(resp.scene_item_id, x, y)
         return resp.scene_item_id
 
     def image(self, name, path, x, y):
-        resp = self.cl.create_input(self.scene, self._name(name), KIND_IMAGE, {"file": path}, True)
+        resp = self._create_input(name, KIND_IMAGE, {"file": path})
         self._place(resp.scene_item_id, x, y)
         return resp.scene_item_id
 
@@ -193,19 +208,19 @@ class SceneBuilder:
             "color2": abgr(color_hex),
             "font": {"face": "Sans Bold" if bold else "Sans", "size": size},
         }
-        resp = self.cl.create_input(self.scene, self._name(name), KIND_TEXT, settings, True)
+        resp = self._create_input(name, KIND_TEXT, settings)
         self._place(resp.scene_item_id, x, y)
         return resp.scene_item_id
 
     def webcam(self, name, device, x, y, w, h):
-        resp = self.cl.create_input(self.scene, self._name(name), KIND_WEBCAM, {"device_id": device}, True)
+        resp = self._create_input(name, KIND_WEBCAM, {"device_id": device})
         self._place(resp.scene_item_id, x, y, w, h, source_w=CANVAS_W, source_h=CANVAS_H)
         return resp.scene_item_id
 
     def screencapture(self, name, x, y, w, h):
         # No source-specific settings pre-filled: the portal prompts the
         # user to pick a screen/window the first time this input runs.
-        resp = self.cl.create_input(self.scene, self._name(name), KIND_SCREEN, {}, True)
+        resp = self._create_input(name, KIND_SCREEN, {})
         self._place(resp.scene_item_id, x, y, w, h, source_w=CANVAS_W, source_h=CANVAS_H)
         return resp.scene_item_id
 
@@ -213,7 +228,7 @@ class SceneBuilder:
         # input-overlay needs its own layout (svg+xml) authored in its own
         # editor — this creates the source with none configured, so it
         # shows "no layout" until that one-time setup runs.
-        resp = self.cl.create_input(self.scene, self._name(name), KIND_OVERLAY, {}, True)
+        resp = self._create_input(name, KIND_OVERLAY, {})
         self._place(resp.scene_item_id, x, y)
         return resp.scene_item_id
 
