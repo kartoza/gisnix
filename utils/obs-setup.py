@@ -90,13 +90,21 @@ def pick_webcam():
 
 def obs_is_running():
     """/proc scan, not pgrep — one fewer runtime dependency for a script
-    that otherwise only needs the obsws-python interpreter."""
+    that otherwise only needs the obsws-python interpreter.
+
+    Checks cmdline, not comm: comm is the kernel's 15-char-truncated
+    executable name, which on a wrapped Nix package (wrapOBS's real binary
+    is typically named something like .obs-wrapped, not obs) won't match a
+    plain "obs" equality check at all. cmdline is the full argv, same
+    thing `pgrep -f` searches — substring, not equality, so it matches
+    regardless of the exact wrapper name.
+    """
     for pid in os.listdir("/proc"):
         if not pid.isdigit():
             continue
         try:
-            with open(f"/proc/{pid}/comm") as f:
-                if f.read().strip() == "obs":
+            with open(f"/proc/{pid}/cmdline", "rb") as f:
+                if b"obs" in f.read():
                     return True
         except OSError:
             continue  # process exited mid-scan, or we can't read it — skip it
