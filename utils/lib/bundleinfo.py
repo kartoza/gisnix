@@ -252,8 +252,8 @@ def _elements(body: str, base: int = 0) -> list[tuple[str, int]]:
 
         # `${system}` inside an attribute path. Skipping the antiquotation
         # and closing the token over it turns
-        # `inputs.nvf.packages.${system}.default` into one readable name
-        # instead of the two fragments `inputs.nvf.packages.` and `.default`.
+        # `inputs.timvim.packages.${system}.default` into one readable name
+        # instead of the two fragments `inputs.timvim.packages.` and `.default`.
         if body.startswith("${", i):
             close, nest = i + 2, 1
             while close < len(body) and nest:

@@ -2,8 +2,8 @@
 { pkgs, inputs, ... }:
 {
   environment.systemPackages = [
-    # Use timvim - complete neovim distribution with nvf
-    inputs.nvf.packages.${pkgs.stdenv.hostPlatform.system}.default
+    # Use timvim - complete neovim distribution, built with the nvf framework
+    inputs.timvim.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];
 
   environment.shellAliases = {

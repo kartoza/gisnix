@@ -30,7 +30,7 @@ pkgs.mkShell {
     # with no line editing, which renders starship's \[ \] prompt markers
     # literally (and drops tab-completion / history).
     pkgs.bashInteractive
-    inputs.nvf.packages.${pkgs.stdenv.hostPlatform.system}.default # my own neovim package (fork)
+    inputs.timvim.packages.${pkgs.stdenv.hostPlatform.system}.default # my own neovim package (fork)
     pkgs.rage # Secrets management
     # Development
     pkgs.gum # UX for TUIs

@@ -37,7 +37,7 @@
     # rendered old-style inline virtual text instead. The build-time/cache
     # cost of a second nixpkgs tree is the accepted price for matching what
     # `nix run .#` actually shows.
-    nvf.url = "github:timlinux/timvim";
+    timvim.url = "github:timlinux/timvim";
 
     agenix = {
       url = "github:ryantm/agenix/0.15.0";
@@ -220,11 +220,12 @@
           # specialArg below merges this OVER gisnix's own `inputs` rather
           # than replacing it outright, so a consumer only needs to declare
           # the inputs it actually wants to override/add — one that takes
-          # the editor bundle but has no opinion of its own on `nvf` still
-          # gets gisnix's pin, instead of every consumer having to carry a
-          # second, driftable copy of every input gisnix's own modules read
-          # this way (nvf was exactly that: two near-identical `nvf` blocks,
-          # one of which quietly had a different nixpkgs.follows).
+          # the editor bundle but has no opinion of its own on `timvim`
+          # still gets gisnix's pin, instead of every consumer having to
+          # carry a second, driftable copy of every input gisnix's own
+          # modules read this way (timvim was exactly that: two near-
+          # identical `timvim` blocks, one of which quietly had a
+          # different nixpkgs.follows).
           # Confirmed the hard way: abyss's hardware.nix references
           # inputs.nixpkgs-master, which only exists in nix-config's own
           # inputs, not gisnix's.
