@@ -138,7 +138,8 @@ def explain_unreachable(host, port):
         )
 
 
-RESOURCE_ALREADY_EXISTS = 601  # obs-websocket RequestStatus — stable protocol constant, not ours to pick
+RESOURCE_ALREADY_EXISTS = 601  # obs-websocket RequestStatus — stable protocol constants, not ours to pick
+INVALID_INPUT_KIND = 605
 
 
 class SceneBuilder:
@@ -373,6 +374,26 @@ def main():
         # through seven build_*_scene calls adds noise, not information.
         print(f"OBS rejected a request while building the collection: {exc}", file=sys.stderr)
         print(file=sys.stderr)
+        if exc.code == INVALID_INPUT_KIND:
+            # The one failure mode worth more than generic advice: ask OBS
+            # itself what it actually has, right now, on this machine —
+            # beats guessing kind-name spellings blind from outside it.
+            print("OBS doesn't recognise one of the source kinds this script asked for.", file=sys.stderr)
+            try:
+                available = sorted(cl.get_input_kind_list(unversioned=True).input_kinds)
+                print("Kinds this OBS actually has available:", file=sys.stderr)
+                for kind in available:
+                    print(f"  - {kind}", file=sys.stderr)
+                for wanted, used_for in (
+                    (KIND_WEBCAM, "the webcam"),
+                    (KIND_SCREEN, "screen capture"),
+                    (KIND_OVERLAY, "the keystroke/mouse overlay"),
+                ):
+                    if wanted not in available:
+                        print(f'  -> "{wanted}" ({used_for}) is missing — that plugin isn\'t loaded.', file=sys.stderr)
+            except Exception:  # noqa: BLE001 — best-effort extra diagnostic; don't let it hide the real error
+                pass
+            print(file=sys.stderr)
         print("What to try:", file=sys.stderr)
         print("  - Re-run with --force. This script cleans up whatever the failed", file=sys.stderr)
         print("    attempt left behind (scratch scene, orphaned sources) before", file=sys.stderr)
