@@ -145,6 +145,17 @@ class SceneBuilder:
         # a scene, it doesn't create one. CreateSceneCollection only gives
         # us ONE default scene (removed later in main() once the real ones
         # exist), so every other scene name needs its own CreateScene.
+        #
+        # Idempotent: a retry (crash mid-build, or a deliberate --force
+        # rebuild) can find this exact scene name already here from a
+        # previous run, which CreateScene refuses outright ("A source
+        # already exists by that scene name"). Removing it first is safe
+        # ONLY because main() guarantees a scratch scene exists before any
+        # of this runs — OBS refuses to remove a collection's LAST scene,
+        # and this one might well be it.
+        existing = {s["sceneName"] for s in client.get_scene_list().scenes}
+        if scene_name in existing:
+            client.remove_scene(scene_name)
         client.create_scene(scene_name)
 
     def _place(self, item_id, x, y, w=None, h=None, source_w=None, source_h=None):
@@ -256,6 +267,12 @@ def build_card_scene(cl, b, name, headline, sub):
 
 SCENES = ["Webcam", "Screen", "ScreenCam", "ScreenOverlay", "Intro", "BRB", "Outro"]
 
+# Never a real scene name — exists only so OBS always has a scene to fall
+# back to while every real one gets torn down and rebuilt. OBS refuses to
+# leave a collection with zero scenes, so without this, rebuilding
+# whichever scene happens to be the last one left would fail outright.
+SCRATCH_SCENE = "_gisnix_scratch_"
+
 
 def build_all(cl, b, webcam_device):
     build_webcam_scene(cl, b, webcam_device)
@@ -305,6 +322,24 @@ def main():
         cl.create_scene_collection(b["collection"])
         # CreateSceneCollection switches into it with one default scene —
         # removed once the real scenes exist (a collection can't have zero).
+
+    existing_scenes = {s["sceneName"] for s in cl.get_scene_list().scenes}
+    if SCRATCH_SCENE not in existing_scenes:
+        cl.create_scene(SCRATCH_SCENE)
+
+    # Orphaned sources from an earlier interrupted run: RemoveScene drops
+    # the scene but NOT the inputs that were in it (they just stop
+    # appearing in any scene) — so a retry's CreateInput would still hit
+    # "A source already exists by that input name" even after
+    # SceneBuilder recreates the scene itself clean. Every input this
+    # script ever creates is named "<scene> <thing>", so sweeping by that
+    # prefix catches them regardless of which scene they came from or
+    # whether that scene still exists.
+    existing_inputs = [i["inputName"] for i in cl.get_input_list().inputs]
+    prefixes = tuple(f"{scene} " for scene in SCENES)
+    for input_name in existing_inputs:
+        if input_name.startswith(prefixes):
+            cl.remove_input(input_name)
 
     webcam_device = pick_webcam()
     print(f"Webcam device: {webcam_device}")
