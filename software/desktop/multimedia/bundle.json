@@ -10,6 +10,7 @@
     "creative-apps.nix",
     "find-cursor.nix",
     "obs.nix",
+    "obs-scenes.nix",
     "unstable-apps.nix",
     "wshowkeys.nix"
   ]

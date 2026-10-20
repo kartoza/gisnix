@@ -8,6 +8,7 @@
   # Add system wide packages
   environment.systemPackages = [
     pkgs.stream-sprout # restream the v4l2loopback cam below to Twitch/YouTube/Owncast/PeerTube
+    pkgs.obs-cli # remote-control OBS over obs-websocket — top-level package, not an obs-studio-plugins attr
     (pkgs.wrapOBS {
       plugins = with pkgs.obs-studio-plugins; [
         wlrobs # wayland capture support
@@ -15,7 +16,6 @@
         obs-backgroundremoval # OBS plugin to replace the background in portrait images and video
         obs-3d-effect # create 3d effects for transitions
         waveform # show waveform of audio
-        #obs-cli # control obs from cli
         droidcam-obs # use droidcam app on your phone to let it work as a camera. Also can remote control OBS
         obs-pipewire-audio-capture
         input-overlay # show your keyboard and mouse on screen

@@ -201,13 +201,29 @@ herdr trigger key can reach: hold it, and — instead of herdr — you get
 aerc commands on the same hjkl-shaped layout (switch account, switch
 folder, file to spam/archive, compose, reply-all, and more).
 
-Which one holding the trigger key reaches is a persistent choice, not
+### obs mode (opt-in)
+
+A host with `kartoza.kanata.obsLayer = true;` gets a third: hold the
+trigger key and you reach OBS scene switches instead — `w` Webcam, `s`
+Screen, `c` Screen+Cam, `o` Screen+Overlay, `i` Intro, `b` BRB, `e`
+Outro. Each key is a fire-and-forget call to `obs-cli` over
+obs-websocket, so nothing is typed and it is safe to hold regardless of
+what window has focus. The scenes themselves (and the branded Kartoza/
+QGIS look) come from desktop-multimedia's `obs-scenes.nix` — run
+`gisnix obs-setup <kartoza|qgis>` once, with OBS open, to build them.
+
+Which mode holding the trigger key reaches is a persistent choice, not
 something you pick each time: hold the trigger key, tap Space while
-still holding it, and release — that's the toggle. It doesn't change
-anything about the *current* hold; it changes which layer the trigger
-key reaches the *next* time you hold it, and plays a short beep so the
-switch has feedback beyond memory. Toggle again (same gesture, from
-inside the other layer) to go back.
+still holding it, and release — that's the cycle. It doesn't change
+anything about the *current* hold; it advances which layer the trigger
+key reaches the *next* time you hold it (herdr -> aerc -> obs -> herdr,
+skipping whichever of aerc/obs is off on this host), and plays a short
+beep so the switch has feedback beyond memory. Repeat the same gesture
+to keep stepping round the cycle.
+
+> Layout diagrams below don't yet include an obs-layer picture —
+> `gisnix keyboard-diagrams` only draws herdr/aerc today. The key table
+> above is accurate; the SVG is a follow-up.
 
 ## Layout diagrams
 

@@ -935,6 +935,25 @@
       "usage": "gisnix set-timezone"
     },
     {
+      "name": "obs-setup",
+      "file": "obs-setup.sh",
+      "key": "o",
+      "group": "software",
+      "order": 5,
+      "desc": "Build gisnix's branded OBS scene collection (Kartoza or QGIS) — Webcam/Screen/ScreenCam/ScreenOverlay/Intro/BRB/Outro — by driving a running OBS over obs-websocket",
+      "terse": "build the branded OBS scene collection",
+      "deps": [],
+      "pythonDeps": [
+        "obsws-python"
+      ],
+      "sequence": [
+        "connect to OBS's websocket server (must already be running)",
+        "create or rebuild the brand's scene collection",
+        "add each scene's sources (camera, screen capture, branding) with their transforms"
+      ],
+      "usage": "gisnix obs-setup <kartoza|qgis> [--force]"
+    },
+    {
       "name": "gc",
       "file": "gc.sh",
       "key": "O",

@@ -408,6 +408,20 @@
         "type": "github"
       }
     },
+    "flake-schemas": {
+      "locked": {
+        "lastModified": 1721999734,
+        "narHash": "sha256-G5CxYeJVm4lcEtaO87LKzOsVnWeTcHGKbKxNamNWgOw=",
+        "rev": "0a5c42297d870156d9c57d8f99e476b738dcd982",
+        "revCount": 75,
+        "type": "tarball",
+        "url": "https://api.flakehub.com/f/pinned/DeterminateSystems/flake-schemas/0.1.5/0190ef2f-61e0-794b-ba14-e82f225e55e6/source.tar.gz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://flakehub.com/f/DeterminateSystems/flake-schemas/%2A.tar.gz"
+      }
+    },
     "flake-utils": {
       "inputs": {
         "systems": "systems"
@@ -1242,10 +1256,31 @@
         "nixpkgs": "nixpkgs_6",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "nvf": "nvf",
+        "stream-sprout": "stream-sprout",
         "stylix": "stylix",
         "term2alpha": "term2alpha_2",
         "wlgif": "wlgif",
         "zfs-backup": "zfs-backup"
+      }
+    },
+    "stream-sprout": {
+      "inputs": {
+        "flake-schemas": "flake-schemas",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1756247743,
+        "narHash": "sha256-4IAqWjJzwRCFx3fFonQ/ODbsVgJVi+2NmljFbomXbKI=",
+        "rev": "bd1676efa6e51ba32e9701b12f508200216b0ca1",
+        "revCount": 106,
+        "type": "tarball",
+        "url": "https://api.flakehub.com/f/pinned/wimpysworld/stream-sprout/0.1.6/0198e887-3098-7a5f-b2c5-3462769e8e5d/source.tar.gz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://flakehub.com/f/wimpysworld/stream-sprout/%2A.tar.gz"
       }
     },
     "stylix": {

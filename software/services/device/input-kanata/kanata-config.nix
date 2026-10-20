@@ -39,6 +39,14 @@
   # default, so unlike herdr this stays off unless a caller both runs
   # aerc and asks for it.
   aercLayer ? false,
+  # Opt-in fifth layer: the board becomes OBS scene-switch commands — see
+  # obsDeflayer below for the key table. REQUIRES herdrKey, same as
+  # aercLayer; shares the same trigger (see `modes`/dualMode below), not a
+  # key of its own. Needs obsCli too.
+  obsLayer ? false,
+  # Absolute path to obs-cli (obsLayer only) — kanata is a system service,
+  # so, like beepPlayer/emailScript below, this can't rely on PATH.
+  obsCli ? null,
   # Absolute path to an audio player — the herdr<->aerc mode-toggle beep
   # (see dualMode below) and the herdr-record-toggle click just below.
   # Kanata is a system service, so the player binary and every sound file
@@ -81,10 +89,36 @@
 let
   herdrLayer = herdrKey != null;
 
-  # aercLayer shares herdr's trigger key instead of owning Tab — see the
-  # herdr deflayer's own comment for the history (Tab held its own layer
-  # until this). Requires herdrLayer; aercLayer alone does nothing.
-  dualMode = herdrLayer && aercLayer;
+  # Which secondary modes share the herdr trigger key, in CYCLE ORDER:
+  # space (held) advances to the next one; releasing and pressing the
+  # trigger again reaches whichever mode is now active. Order is fixed —
+  # herdr -> aerc -> obs -> herdr — skipping whichever of aerc/obs is off.
+  modes =
+    (if herdrLayer then [ "herdr" ] else [ ])
+    ++ (if herdrLayer && aercLayer then [ "aerc" ] else [ ])
+    ++ (if herdrLayer && obsLayer then [ "obs" ] else [ ]);
+
+  # aercLayer/obsLayer share herdr's trigger key instead of owning Tab —
+  # see the herdr deflayer's own comment for the history (Tab held its own
+  # layer until this). Either alone, without herdrLayer, does nothing.
+  # The name predates obs (back when herdr/aerc were the only two modes
+  # that could ever share the trigger); every comment below still calls
+  # the two-or-more-modes case "dualMode" — it now just means "more than
+  # one mode is on this trigger," two or three.
+  dualMode = builtins.length modes > 1;
+
+  # Next mode after `mode` in the cycle above, skipping whichever of
+  # aerc/obs is off. Hand-written rather than a generic rotate-by-index:
+  # there are exactly three possible modes, and this reads straight off
+  # the cycle-order comment on `modes`.
+  nextMode =
+    mode:
+    if mode == "herdr" then
+      (if aercLayer then "aerc" else if obsLayer then "obs" else "herdr")
+    else if mode == "aerc" then
+      (if obsLayer then "obs" else "herdr")
+    else
+      "herdr";
 
   # defchordsv2 is only legal ONCE per config, and only if there is at
   # least one chord in it — an empty block is invalid kanata syntax. So the
@@ -158,16 +192,17 @@ let
 
   # The main typing layer — one copy, unless dualMode splits it in two.
   #
-  # dualMode (herdrLayer AND aercLayer both on) needs two BASE layers,
-  # default-herdr and default-aerc, identical except for what the herdr
-  # trigger key does — the polymorphic-base era (see the herdr comment
-  # below) tried exactly this shape once already, switched automatically
-  # by focus detection, and was removed because the detection never
-  # fired reliably. This is the same shape for a different reason: not
-  # auto-detection, a manual toggle (see herdrAliases' mode-to-aerc/
-  # mode-to-herdr) — `layer-switch` changes which of the two is the
-  # active base, and each one's own herdr-trigger binding decides which
-  # target layer (herdr or aerc) that key reaches from here on.
+  # dualMode (two or more of herdr/aerc/obs on) needs one BASE layer per
+  # active mode — default-herdr, default-aerc, default-obs as applicable —
+  # identical except for what the herdr trigger key does. The polymorphic-
+  # base era (see the herdr comment below) tried exactly this shape once
+  # already, switched automatically by focus detection, and was removed
+  # because the detection never fired reliably. This is the same shape for
+  # a different reason: not auto-detection, a manual cycle (see
+  # herdrAliases'/aercAliases'/obsAliases' mode-next-from-* below) —
+  # `layer-switch` changes which base is active, and each one's own
+  # herdr-trigger binding decides which target layer (herdr, aerc or obs)
+  # that key reaches from here on.
   # herdrCol matches herdrDefault's own convention exactly: a leading-space
   # string when the column exists, or "" to omit it — defsrc must gain or
   # lose this column in lockstep, so the two can't diverge (herdrLayer
@@ -185,14 +220,14 @@ let
             ${defaultLayerBody herdrDefault}
           )''
     else
-      ''
-        (deflayer default-herdr
-            ${defaultLayerBody " @herdr-nav"}
-          )
-
-        (deflayer default-aerc
-            ${defaultLayerBody " @aerc-nav"}
-          )'';
+      builtins.concatStringsSep "\n\n" (
+        map (
+          mode: ''
+            (deflayer default-${mode}
+                ${defaultLayerBody " @${mode}-nav"}
+              )''
+        ) modes
+      );
 
   # The herdr layer. hjkl are transcribed from the Sonsei's layer 2 ("Macros
   # & Symbols") — that board's own macro layout puts navigation on h/j/k/l,
@@ -301,7 +336,7 @@ let
           _ _ ${emailInLayer} @herdr-record-toggle _    _ @herdr-agent-down @herdr-agent-up _ @herdr-play-macro
           _ @herdr-edit-scrollback _ _ _    @herdr-left @herdr-down @herdr-up @herdr-right _
           _ _ _ _ _    @herdr-new-tab _ _ _ _
-          ${if dualMode then "@mode-to-aerc" else "_"} _ _${herdrPass}
+          ${if dualMode then "@mode-next-from-herdr" else "_"} _ _${herdrPass}
         )
       '';
 
@@ -366,7 +401,37 @@ let
           _ _ ${emailInLayer} @aerc-reply _    @aerc-headers @aerc-unread @aerc-flag @aerc-contact-edit _
           @aerc-archive @aerc-spam @aerc-delete @aerc-forward @aerc-recall    @aerc-acct-prev @aerc-folder-next @aerc-folder-prev @aerc-acct-next _
           _ _ @aerc-compose @aerc-search @aerc-filter    @aerc-contact-add @aerc-mark _ _ _
-          ${if dualMode then "@mode-to-herdr" else "_"} _ _${herdrPass}
+          ${if dualMode then "@mode-next-from-aerc" else "_"} _ _${herdrPass}
+        )
+      '';
+
+  # obs layer — held via the same trigger key as herdr/aerc, once the mode
+  # cycle (see `modes`/`nextMode` above) has switched the active base
+  # layer to default-obs. Each key switches OBS's current program scene
+  # via obs-cli/obs-websocket (obsAliases below) — nothing here types into
+  # the focused window, so unlike herdr/aerc it is safe to hold regardless
+  # of what has focus. Scene content itself lives in gisnix's
+  # desktop-multimedia obs-scenes module, not here; this is only the key
+  # table, kept mnemonic the same way herdr/aerc are:
+  #
+  #   w -> Webcam           full-frame cam + branded lower-third
+  #   s -> Screen           screen/window capture, branded frame
+  #   c -> Screen + Cam     screen capture, branded webcam PiP
+  #   o -> Screen + Overlay screen capture, keystrokes/mouse shown
+  #   i -> Intro            branded title card
+  #   b -> BRB              branded "be right back" card
+  #   e -> Outro            branded closing card
+  obsDeflayer =
+    if !obsLayer then
+      ""
+    else
+      ''
+
+        (deflayer obs
+          _ @obs-webcam @obs-outro _ _    _ _ @obs-intro @obs-overlay _
+          _ @obs-screen _ _ _    _ _ _ _ _
+          _ _ @obs-pip _ @obs-brb    _ _ _ _ _
+          ${if dualMode then "@mode-next-from-obs" else "_"} _ _${herdrPass}
         )
       '';
 
@@ -396,17 +461,14 @@ let
           ""
         else
           ''
-            ;; Same trigger key, aerc instead of herdr — which one fires
-            ;; depends on which base layer (default-herdr/default-aerc) is
-            ;; currently active; see mode-to-aerc/mode-to-herdr below.
-            aerc-nav (tap-hold ${toString tapTimeout} ${toString holdTimeout} ${herdrKey} (layer-while-held aerc))
-            ;; Space, held WHILE herdr/aerc is held (see their deflayers'
-            ;; first bottom-row slot), toggles which mode the trigger key
-            ;; reaches next time. Doesn't change what's active THIS hold —
-            ;; only the next one, once the trigger key is released and
-            ;; pressed again against the new base layer.
-            mode-to-aerc  ${modeToggleAction "default-aerc"}
-            mode-to-herdr ${modeToggleAction "default-herdr"}
+            ;; Space, held WHILE herdr is held (see its deflayer's first
+            ;; bottom-row slot), advances the trigger key to the next mode
+            ;; in the cycle (see `modes`/`nextMode` above). Doesn't change
+            ;; what's active THIS hold — only the next one, once the
+            ;; trigger key is released and pressed again against the new
+            ;; base layer. aerc-nav/obs-nav (the other modes' own trigger
+            ;; bindings) live in aercAliases/obsAliases, not here.
+            mode-next-from-herdr ${modeToggleAction "default-${nextMode "herdr"}"}
           ''
       )
       + ''
@@ -460,6 +522,21 @@ let
       ""
     else
       ''
+
+        ;; Same trigger key as herdr — which one fires depends on which
+        ;; base layer (default-herdr/default-aerc/default-obs) is
+        ;; currently active; see mode-next-from-herdr/mode-next-from-aerc.
+        aerc-nav (tap-hold ${toString tapTimeout} ${toString holdTimeout} ${herdrKey} (layer-while-held aerc))
+      ''
+      + (
+        if !dualMode then
+          ""
+        else
+          ''
+            mode-next-from-aerc ${modeToggleAction "default-${nextMode "aerc"}"}
+          ''
+      )
+      + ''
 
         ;; aerc mail filing — named for the destination folder, which is
         ;; also the trigger letter's mnemonic. Keycodes, so the `:` and the
@@ -532,6 +609,42 @@ let
         ;; --help (empty search terms is the documented "show all" case).
         aerc-contact-edit (macro ${colonChord} t e r m spc k h a r d spc e d i t ret)
       '';
+
+  # obs layer aliases — scene switches via obs-cli over obs-websocket.
+  # Fire-and-forget `cmd` calls, not macros: nothing is typed, so these are
+  # safe to fire regardless of what window has focus. Scene names are
+  # ASCII, no spaces, matching the collection shipped by gisnix's
+  # desktop-multimedia obs-scenes module (Kartoza- and QGIS-branded
+  # variants — same scene names in both, so these bindings work under
+  # either).
+  obsAliases =
+    if !obsLayer then
+      ""
+    else
+      ''
+
+        ;; Same trigger key as herdr/aerc — which one fires depends on
+        ;; which base layer is currently active; see mode-next-from-*.
+        obs-nav (tap-hold ${toString tapTimeout} ${toString holdTimeout} ${herdrKey} (layer-while-held obs))
+      ''
+      + (
+        if !dualMode then
+          ""
+        else
+          ''
+            mode-next-from-obs ${modeToggleAction "default-${nextMode "obs"}"}
+          ''
+      )
+      + ''
+
+        obs-webcam  (cmd ${obsCli} scene current Webcam)
+        obs-screen  (cmd ${obsCli} scene current Screen)
+        obs-pip     (cmd ${obsCli} scene current ScreenCam)
+        obs-overlay (cmd ${obsCli} scene current ScreenOverlay)
+        obs-intro   (cmd ${obsCli} scene current Intro)
+        obs-brb     (cmd ${obsCli} scene current BRB)
+        obs-outro   (cmd ${obsCli} scene current Outro)
+      '';
 in
 ''
   ;; Define the source keys we want to intercept
@@ -573,7 +686,7 @@ in
     _ _ _ _ _    _ _ _ _ _
     _ _ _ _ _    _ _ _ _ _
     _ _ _${herdrPass}
-  )${herdrDeflayer}${aercDeflayer}
+  )${herdrDeflayer}${aercDeflayer}${obsDeflayer}
 
   ;; Alias definitions
   (defalias
@@ -627,7 +740,7 @@ in
 
     ;; Mouse scroll - interval(ms) distance
     scroll-up (mwheel-up 50 120)
-    scroll-down (mwheel-down 50 120)${clipboardAliases}${herdrAliases}${aercAliases}${emailAlias}
+    scroll-down (mwheel-down 50 120)${clipboardAliases}${herdrAliases}${aercAliases}${obsAliases}${emailAlias}
   )
 
   ${chordsBlock}

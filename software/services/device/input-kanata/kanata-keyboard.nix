@@ -86,6 +86,21 @@ in
     '';
   };
 
+  options.kartoza.kanata.obsLayer = lib.mkOption {
+    type = lib.types.bool;
+    default = false;
+    example = true;
+    description = ''
+      Take over the herdr trigger key (Caps Lock) for OBS scene-switch
+      commands too, reached by cycling caps+space (herdr -> aerc, if
+      also on -> obs -> herdr) — see docs/user/keyboard.md. Off by
+      default, same reasoning as aercLayer: a scene-switch layer has no
+      business shipping to everyone when OBS's branded scene collection
+      (desktop-multimedia's obs-scenes module) is opt-in itself. A host
+      that wants it sets `kartoza.kanata.obsLayer = true;`.
+    '';
+  };
+
   # Everything below is config, not more options — once a module declares
   # a top-level `options`, NixOS requires the rest explicitly wrapped in
   # `config` rather than left alongside it (confirmed the hard way: "has
@@ -157,6 +172,11 @@ in
             # business shipping to everyone by default.
             herdrKey = "caps";
             aercLayer = cfg.aercLayer;
+            obsLayer = cfg.obsLayer;
+            # Only ever read when obsLayer is on (kanata-config.nix's own
+            # gate), so harmless to always pass — same reasoning as
+            # beepPlayer above.
+            obsCli = "${pkgs.obs-cli}/bin/obs-cli";
             # Hold x/c/v for cut/copy/paste. A generic mechanism (no per-user
             # data involved, unlike emailScript above), so it ships on by
             # default along with everything else here.
