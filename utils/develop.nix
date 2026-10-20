@@ -18,13 +18,20 @@
   # else or was shadowed by it, silently. `gisnix update` can only mean
   # ours.
   gisnixDispatcher ? null,
+  # Tab completion for the dispatcher above — ships bash-completion and
+  # fish vendor_completions.d files that shell out to `gisnix --list` at
+  # completion time (nix's own XDG_DATA_DIRS wiring for mkShell packages
+  # is what makes both shells pick these up automatically).
+  gisnixCompletions ? null,
   # Kept so `nix build` and friends can still reach the individual command
   # derivations; not placed on PATH.
   commandPackages ? [ ],
   ...
 }:
 pkgs.mkShell {
-  packages = pkgs.lib.optional (gisnixDispatcher != null) gisnixDispatcher ++ [
+  packages = pkgs.lib.optional (gisnixDispatcher != null) gisnixDispatcher
+  ++ pkgs.lib.optional (gisnixCompletions != null) gisnixCompletions
+  ++ [
     # bashInteractive shadows the stdenv's minimal (readline-less) bash on
     # PATH. Without this, typing `bash` inside `nix develop` gives a shell
     # with no line editing, which renders starship's \[ \] prompt markers

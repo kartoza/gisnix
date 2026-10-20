@@ -706,6 +706,27 @@
         '';
       };
 
+      # Tab completion for `gisnix <TAB>` — both scripts shell out to
+      # `gisnix --list` at completion time instead of embedding the command
+      # names, so this package never needs rebuilding just because
+      # commands.json grew a row; only gisnixDispatcher itself does.
+      gisnixCompletions = defaultPkgs.runCommand "gisnix-completions" { } ''
+        mkdir -p $out/share/bash-completion/completions $out/share/fish/vendor_completions.d
+
+        cat > $out/share/bash-completion/completions/gisnix <<'BASH_COMPLETION'
+        _gisnix_complete() {
+          if [ "$COMP_CWORD" -eq 1 ]; then
+            COMPREPLY=( $(compgen -W "$(gisnix --list 2>/dev/null)" -- "''${COMP_WORDS[1]}") )
+          fi
+        }
+        complete -F _gisnix_complete gisnix
+        BASH_COMPLETION
+
+        cat > $out/share/fish/vendor_completions.d/gisnix.fish <<'FISH_COMPLETION'
+        complete -c gisnix -f -n '__fish_use_subcommand' -a '(gisnix --list 2>/dev/null)'
+        FISH_COMPLETION
+      '';
+
       commandApps = builtins.listToAttrs (
         map (
           c:
@@ -1074,6 +1095,12 @@
         # the dispatcher's cwd fallback (unknown names) and the override flag
         # (name collisions). See utils/develop.nix's gisnixDispatcher slot.
         gisnix = gisnixDispatcher;
+
+        # Tab completion for the dispatcher above — a downstream flake's
+        # own dev shell puts this on its XDG_DATA_DIRS next to gisnix
+        # itself (same reasoning as gisnix = gisnixDispatcher). See
+        # utils/develop.nix's gisnixCompletions slot.
+        gisnix-completions = gisnixCompletions;
       });
 
       # CHECKS
@@ -1103,6 +1130,7 @@
               pkgs
               commandPackages
               gisnixDispatcher
+              gisnixCompletions
               ;
           };
         }
