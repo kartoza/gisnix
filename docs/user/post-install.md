@@ -148,6 +148,42 @@ monitors, where the viewer needs to see where you clicked.
     user's programs read the keyboard. find-cursor tells you if the group
     is missing rather than silently doing nothing.
 
+### Branded OBS scene packs
+
+Also from `desktop-multimedia`: OBS ships with its websocket server
+already turned on (loopback only, no password — that is what lets the
+next two things talk to it), but the branded scene collection does not
+build itself. Open OBS, then run:
+
+```bash
+gisnix obs-setup kartoza   # or: gisnix obs-setup qgis
+```
+
+This builds seven scenes over that websocket connection — Webcam, Screen,
+Screen+Cam, Screen+Overlay, Intro, BRB, Outro — branded from the real
+Kartoza/QGIS colours, not a hand-picked palette. It is the one-time setup
+step; nothing automatic creates these on first boot, the way
+`gisnix obs-setup` has no equivalent of Handy's own first-run wizard. Re-run
+it with `--force` to tear down and rebuild a brand's collection from
+scratch (say, after a gisnix update changes what it builds) — without
+`--force` it leaves an existing collection alone and just switches to it.
+
+The host's `bootTheme` choice (kartoza or qgis) decides which collection
+OBS opens into by default, same as it already decides Plymouth/GRUB
+branding — but only once that collection actually exists; run
+`gisnix obs-setup` for the matching brand first.
+
+Switch between the seven scenes without touching the mouse: see the
+[obs mode section](keyboard.md#obs-mode-opt-in) on the keyboard page for
+the caps+space cycle and the key table.
+
+!!! note "If `gisnix obs-setup` cannot connect"
+    It needs OBS already running with Tools → WebSocket Server Settings
+    showing the server enabled — this host's activation script seeds
+    that setting into `global.ini` automatically, but only takes effect
+    from OBS's *next* launch after a rebuild. Restart OBS once if the
+    command reports it cannot reach `localhost:4455`.
+
 ### Other commands worth a key
 
 Anything on the system can be bound the same way. One that earns a spot
