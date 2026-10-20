@@ -155,15 +155,22 @@ class SceneBuilder:
             t["scaleY"] = h / source_h
         self.cl.set_scene_item_transform(self.scene, item_id, t)
 
+    def _name(self, name):
+        # Inputs are named uniquely across the WHOLE collection, not per
+        # scene — "A source already exists by that input name" the moment
+        # a second scene tries to create its own "Background"/"Accent Bar"/
+        # etc. Prefixing with the scene name is what actually scopes them.
+        return f"{self.scene} {name}"
+
     def color(self, name, hex_color, x, y, w, h, alpha=255):
         resp = self.cl.create_input(
-            self.scene, name, KIND_COLOR, {"color": abgr(hex_color, alpha), "width": w, "height": h}, True
+            self.scene, self._name(name), KIND_COLOR, {"color": abgr(hex_color, alpha), "width": w, "height": h}, True
         )
         self._place(resp.scene_item_id, x, y)
         return resp.scene_item_id
 
     def image(self, name, path, x, y):
-        resp = self.cl.create_input(self.scene, name, KIND_IMAGE, {"file": path}, True)
+        resp = self.cl.create_input(self.scene, self._name(name), KIND_IMAGE, {"file": path}, True)
         self._place(resp.scene_item_id, x, y)
         return resp.scene_item_id
 
@@ -174,19 +181,19 @@ class SceneBuilder:
             "color2": abgr(color_hex),
             "font": {"face": "Sans Bold" if bold else "Sans", "size": size},
         }
-        resp = self.cl.create_input(self.scene, name, KIND_TEXT, settings, True)
+        resp = self.cl.create_input(self.scene, self._name(name), KIND_TEXT, settings, True)
         self._place(resp.scene_item_id, x, y)
         return resp.scene_item_id
 
     def webcam(self, name, device, x, y, w, h):
-        resp = self.cl.create_input(self.scene, name, KIND_WEBCAM, {"device_id": device}, True)
+        resp = self.cl.create_input(self.scene, self._name(name), KIND_WEBCAM, {"device_id": device}, True)
         self._place(resp.scene_item_id, x, y, w, h, source_w=CANVAS_W, source_h=CANVAS_H)
         return resp.scene_item_id
 
     def screencapture(self, name, x, y, w, h):
         # No source-specific settings pre-filled: the portal prompts the
         # user to pick a screen/window the first time this input runs.
-        resp = self.cl.create_input(self.scene, name, KIND_SCREEN, {}, True)
+        resp = self.cl.create_input(self.scene, self._name(name), KIND_SCREEN, {}, True)
         self._place(resp.scene_item_id, x, y, w, h, source_w=CANVAS_W, source_h=CANVAS_H)
         return resp.scene_item_id
 
@@ -194,7 +201,7 @@ class SceneBuilder:
         # input-overlay needs its own layout (svg+xml) authored in its own
         # editor — this creates the source with none configured, so it
         # shows "no layout" until that one-time setup runs.
-        resp = self.cl.create_input(self.scene, name, KIND_OVERLAY, {}, True)
+        resp = self.cl.create_input(self.scene, self._name(name), KIND_OVERLAY, {}, True)
         self._place(resp.scene_item_id, x, y)
         return resp.scene_item_id
 
