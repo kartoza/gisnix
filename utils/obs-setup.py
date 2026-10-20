@@ -141,6 +141,11 @@ class SceneBuilder:
     def __init__(self, client, scene_name):
         self.cl = client
         self.scene = scene_name
+        # CreateInput's sceneName must already exist — it adds a source TO
+        # a scene, it doesn't create one. CreateSceneCollection only gives
+        # us ONE default scene (removed later in main() once the real ones
+        # exist), so every other scene name needs its own CreateScene.
+        client.create_scene(scene_name)
 
     def _place(self, item_id, x, y, w=None, h=None, source_w=None, source_h=None):
         t = {"positionX": float(x), "positionY": float(y)}
@@ -283,8 +288,12 @@ def main():
             cl.set_current_scene_collection(b["collection"])
             return
         cl.set_current_scene_collection(b["collection"])
-        for scene in cl.get_scene_list().scenes:
-            cl.remove_scene(scene["sceneName"])
+        # Not removed here: OBS refuses to leave a scene collection with
+        # zero scenes, and a loop over every existing scene would hit that
+        # on the last one. build_all() below creates all 7 new scenes
+        # first (distinct names), then the cleanup loop at the end of
+        # main() removes whatever old scenes are left over — by then
+        # there's always at least 7 scenes, never zero.
     else:
         cl.create_scene_collection(b["collection"])
         # CreateSceneCollection switches into it with one default scene —
