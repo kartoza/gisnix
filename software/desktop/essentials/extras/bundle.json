@@ -6,6 +6,7 @@
     "desktop-essentials"
   ],
   "modules": [
-    "desktop-base-extras.nix"
+    "desktop-base-extras.nix",
+    "fuzzel-launchers.nix"
   ]
 }

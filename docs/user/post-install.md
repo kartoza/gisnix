@@ -184,6 +184,22 @@ the caps+space cycle and the key table.
     from OBS's *next* launch after a rebuild. Restart OBS once if the
     command reports it cannot reach `localhost:4455`.
 
+### Emoji picker
+
+With `desktop-essentials-extras` on board, bind
+`/run/current-system/sw/bin/emoji-picker` — `Super+E` is a natural home.
+Opens a fuzzel panel; type a few letters to fuzzy-filter (e.g. `fire`,
+`shrug`, `tada`), Enter copies the selected character to the clipboard —
+paste it with Ctrl+V. Copy rather than direct typing on purpose: typing
+needs a Wayland virtual-keyboard tool cosmic-comp's protocol support is
+inconsistent about, the same gap behind the GIF recorder's own note above;
+copy-to-clipboard only needs the clipboard protocol, which works
+everywhere.
+
+Every fuzzel-based launcher gisnix ships (this one, and more to come)
+shares one theme — dark, rounded, generously padded — configured once in
+`fuzzel.ini` rather than per-launcher.
+
 ### Other commands worth a key
 
 Anything on the system can be bound the same way. One that earns a spot
