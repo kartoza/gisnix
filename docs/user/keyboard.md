@@ -244,6 +244,8 @@ desktop-multimedia's `obs-scenes.nix` — run
 | `i` | Intro scene |
 | `b` | BRB scene |
 | `e` | Outro scene |
+| `j` | next scene (same order as above, wraps around) |
+| `k` | previous scene (same order as above, wraps around) |
 
 Which mode holding the trigger key reaches is a persistent choice, not
 something you pick each time: hold the trigger key, tap Space while

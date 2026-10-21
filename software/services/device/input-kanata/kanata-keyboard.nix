@@ -77,6 +77,50 @@ let
     exit 0
   '';
 
+  # j/k on the obs layer — steps the program scene forward/backward
+  # through gisnix's OWN 7-scene order (obs-setup.py's SCENE_BASE_NAMES:
+  # Webcam, Screen, ScreenCam, ScreenOverlay, Intro, BRB, Outro), not
+  # whatever order obs-websocket's GetSceneList happens to report — that
+  # depends on OBS's own scene-insertion behaviour, which this has no
+  # business depending on. Pure network I/O (obs-websocket over
+  # localhost), so — unlike kanataLayerIndicator's Wayland/GTK problem —
+  # kanata's locked-down DynamicUser service has everything it needs to
+  # run this directly, no session access required.
+  obsSceneStep = pkgs.writeShellApplication {
+    name = "obs-scene-step";
+    runtimeInputs = [ pkgs.obs-cli ];
+    text = ''
+      direction="$1"
+      order=(Webcam Screen ScreenCam ScreenOverlay Intro BRB Outro)
+
+      current="$(obs-cli scene get --port 4455)"
+      prefix="''${current% *}"
+      base="''${current##* }"
+
+      index=-1
+      for i in "''${!order[@]}"; do
+        if [ "''${order[$i]}" = "$base" ]; then
+          index=$i
+          break
+        fi
+      done
+      # Current scene isn't one of ours (OBS's own default "Scene", say)
+      # — nothing sensible to step from, so do nothing rather than guess.
+      if [ "$index" -eq -1 ]; then
+        exit 0
+      fi
+
+      count=''${#order[@]}
+      if [ "$direction" = next ]; then
+        next_index=$(( (index + 1) % count ))
+      else
+        next_index=$(( (index - 1 + count) % count ))
+      fi
+
+      obs-cli scene current --port 4455 "$prefix ''${order[$next_index]}"
+    '';
+  };
+
   kanataLayerIndicatorPython = pkgs.python3.withPackages (ps: [
     ps.pystray
     ps.pillow
@@ -263,6 +307,7 @@ in
             # gate), so harmless to always pass — same reasoning as
             # beepPlayer above.
             obsCli = "${pkgs.obs-cli}/bin/obs-cli";
+            obsSceneStep = "${obsSceneStep}/bin/obs-scene-step";
             inherit obsScenePrefix;
             # Hold x/c/v for cut/copy/paste. A generic mechanism (no per-user
             # data involved, unlike emailScript above), so it ships on by

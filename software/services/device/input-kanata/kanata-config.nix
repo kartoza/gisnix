@@ -47,6 +47,11 @@
   # Absolute path to obs-cli (obsLayer only) — kanata is a system service,
   # so, like beepPlayer/emailScript below, this can't rely on PATH.
   obsCli ? null,
+  # Absolute path to the obs-scene-step wrapper (obsLayer only — see j/k
+  # in obsAliases below). Same "can't rely on PATH" reasoning as obsCli;
+  # built alongside it in kanata-keyboard.nix since it shells out to the
+  # same obs-cli binary.
+  obsSceneStep ? null,
   # Scene-name prefix (obsLayer only) — obs-setup.py namespaces every
   # scene per brand ("Kartoza Webcam", "QGIS Webcam"), so the obs layer's
   # own bindings have to know which brand this host's OBS is set up with.
@@ -436,7 +441,7 @@ let
 
         (deflayer obs
           _ @obs-webcam @obs-outro _ _    _ _ @obs-intro @obs-overlay _
-          _ @obs-screen _ _ _    _ _ _ _ _
+          _ @obs-screen _ _ _    _ @obs-next @obs-prev _ _
           _ _ @obs-pip _ @obs-brb    _ _ _ _ _
           ${if dualMode then "@mode-next-from-obs" else "_"} _ _${herdrPass}
         )
@@ -644,13 +649,24 @@ let
       )
       + ''
 
-        obs-webcam  (cmd ${obsCli} scene current "${obsScenePrefix} Webcam")
-        obs-screen  (cmd ${obsCli} scene current "${obsScenePrefix} Screen")
-        obs-pip     (cmd ${obsCli} scene current "${obsScenePrefix} ScreenCam")
-        obs-overlay (cmd ${obsCli} scene current "${obsScenePrefix} ScreenOverlay")
-        obs-intro   (cmd ${obsCli} scene current "${obsScenePrefix} Intro")
-        obs-brb     (cmd ${obsCli} scene current "${obsScenePrefix} BRB")
-        obs-outro   (cmd ${obsCli} scene current "${obsScenePrefix} Outro")
+        ;; --port 4455 matches obs-scenes.nix's own seeded websocket port —
+        ;; obs-cli's own default is 4444, which is NOT what gets seeded, so
+        ;; every one of these silently targeted the wrong port without it.
+        obs-webcam  (cmd ${obsCli} scene current --port 4455 "${obsScenePrefix} Webcam")
+        obs-screen  (cmd ${obsCli} scene current --port 4455 "${obsScenePrefix} Screen")
+        obs-pip     (cmd ${obsCli} scene current --port 4455 "${obsScenePrefix} ScreenCam")
+        obs-overlay (cmd ${obsCli} scene current --port 4455 "${obsScenePrefix} ScreenOverlay")
+        obs-intro   (cmd ${obsCli} scene current --port 4455 "${obsScenePrefix} Intro")
+        obs-brb     (cmd ${obsCli} scene current --port 4455 "${obsScenePrefix} BRB")
+        obs-outro   (cmd ${obsCli} scene current --port 4455 "${obsScenePrefix} Outro")
+
+        ;; j/k — vim-shaped, same down=next/up=previous reading herdr's own
+        ;; j/k (next/previous workspace) already uses. Steps through the
+        ;; same 7-scene order obs-setup.py built the collection in,
+        ;; wrapping around at either end — see obs-scene-step itself for
+        ;; why this is a separate script rather than another inline cmd.
+        obs-next (cmd ${obsSceneStep} next)
+        obs-prev (cmd ${obsSceneStep} prev)
       '';
 in
 ''
