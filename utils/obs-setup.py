@@ -15,48 +15,83 @@ time. Run it with OBS already open.
 Canvas is assumed 1920x1080 (OBS's own default) — every transform below is
 an absolute pixel position for that size. A profile running a different
 canvas will still work, just with the frame/lower-third proportions off.
+
+No visual QA happened on any of this beyond reading it back as numbers —
+nothing here renders OBS, so there's no way to screenshot the result from
+where this runs. The geometry (especially the slant panel's rotation) is a
+best-effort calculation, not a pixel-verified one; nudge it by hand in OBS's
+own Edit Transform dialog if an angle or gap looks wrong.
 """
 
 import argparse
 import glob
+import json
 import os
+import pwd
 import socket
+import subprocess
 import sys
 
 import obsws_python as obs
 from obsws_python.error import OBSSDKRequestError
 
 # --------------------------------------------------------------------------
-# Brand palettes — sampled from the actual committed assets (resources/
-# kartoza-logo.png, resources/qgis-spatial-splash.png), not invented, so the
-# scenes read as the same brand as gisnix's Plymouth/GRUB boot theming.
+# Brand palette — Kartoza's real design tokens (the official brand pack's
+# color/tokens.json: Kartoza Amber #EEB348, Kartoza Blue #54A2CC, Charcoal
+# #383939 for panels/body text), not sampled/guessed. Flat colour only, no
+# gradients or drop shadows — the brand pack is explicit that the system is
+# flat. QGIS has no equivalent brand pack here, so its tones are sampled
+# from the real committed asset (resources/qgis-spatial-splash.png) instead,
+# same as before.
 #
 # QGIS has no vendored logo (unlike Kartoza's resources/kartoza-logo.png) —
 # redistributing one needs a license check gisnix hasn't done yet, so the
 # QGIS brand card is a styled wordmark (text_ft2_source), not an image. Swap
 # in a real logo file + an `image` element once that's cleared.
+#
+# Kartoza's actual motif artwork (the map illustration, the pre-rendered
+# slant graphics) is proprietary brand-pack material and deliberately NOT
+# used here — this file stays in public gisnix. The "slant panel" look
+# below is built from plain rotated colour rectangles instead: the same
+# diagonal-panel *device* the brand pack uses, recreated geometrically
+# rather than from its artwork, which is why it works for QGIS too.
 # --------------------------------------------------------------------------
 BRANDS = {
     "kartoza": {
         "collection": "Kartoza",
-        "bg": "#262626",
-        "primary": "#EFB348",
-        "secondary": "#55A3CD",
+        "panel": "#383939",  # Charcoal — brand pack's own panel/body-text tone
+        "primary": "#EEB348",  # Kartoza Amber
+        "secondary": "#54A2CC",  # Kartoza Blue
+        "cloud": "#F5F5F2",  # Cloud (light neutral surface)
+        "white": "#FFFFFF",
         "logo": os.environ.get("KARTOZA_LOGO", "/etc/xdg/obs-scenes/kartoza-logo.png"),
         "wordmark": None,
+        "tagline": "putting spatial decision-making tools in the hands of everyone",
     },
     "qgis": {
         "collection": "QGIS",
-        "bg": "#062436",
+        "panel": "#062436",  # sampled from resources/qgis-spatial-splash.png
         "primary": "#4D6E2F",
         "secondary": "#62882E",
+        "cloud": "#F5F5F2",
+        "white": "#FFFFFF",
         "logo": None,
         "wordmark": "QGIS",
+        "tagline": "A Free and Open Source Geographic Information System",
     },
 }
 
+SCENE_BASE_NAMES = ["Webcam", "Screen", "ScreenCam", "ScreenOverlay", "Intro", "BRB", "Outro"]
+
 CANVAS_W, CANVAS_H = 1920, 1080
 BORDER = 24  # branded frame thickness, Screen/ScreenCam/ScreenOverlay
+
+# text_ft2_source_v2 face names — Lato ships via nixpkgs (pkgs.lato, wired
+# into fonts.packages by obs-scenes.nix) so fontconfig resolves these by
+# family name; no font file path needed in the source settings.
+FONT_BLACK = "Lato Black"
+FONT_BOLD = "Lato Bold"
+FONT_REGULAR = "Lato"
 
 # OBS source kinds — the one thing here most likely to need adjusting on a
 # given OBS build (plugin set, Wayland vs X11). First CreateInput failure
@@ -79,6 +114,15 @@ def abgr(hex_color, alpha=255):
     return (alpha << 24) | (b << 16) | (g << 8) | r
 
 
+def scene_name(b, base):
+    # Namespaced per brand ("Kartoza Webcam", "QGIS Webcam") so the two
+    # brands' scenes read unambiguously in OBS's own scene list and in
+    # obs-cli output, even though each brand already lives in its own
+    # scene COLLECTION (a separate OBS namespace on its own) — this is
+    # about readability, not avoiding a real collision.
+    return f"{b['collection']} {base}"
+
+
 def pick_webcam():
     """First /dev/video* that isn't obs.nix's v4l2loopback sink
     (video_nr=1, i.e. /dev/video1) — that device is OBS's own virtual-
@@ -87,6 +131,68 @@ def pick_webcam():
         if dev != "/dev/video1":
             return dev
     return "/dev/video0"
+
+
+IDENTITY_CACHE = os.path.expanduser("~/.config/gisnix/obs-identity.json")
+
+
+def gum_prompt(label, placeholder):
+    """Best-effort interactive prompt — falls back to the placeholder
+    outright (never crashes the build) if gum isn't on PATH, stdin isn't a
+    terminal, or the user just hits enter on an empty answer."""
+    try:
+        result = subprocess.run(
+            ["gum", "input", "--prompt", f"{label}: ", "--placeholder", placeholder],
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+        value = result.stdout.strip()
+        return value if value else placeholder
+    except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
+        return placeholder
+
+
+def get_identity():
+    """Name and email first from this host's own Nix config (obs-
+    scenes.nix writes one identity-<user>.json per real user, sourced from
+    users.users.<name>.description and kartoza.userEmails — the same
+    per-user email declaration kanata's own email macro already uses, see
+    kanata-email.nix) — authoritative when present, since it's centrally
+    declared rather than typed into a prompt each time. Role has no Nix
+    source at all, so it's always asked. Anything gum has to ask for gets
+    cached in IDENTITY_CACHE so it's only asked once, not on every run.
+    """
+    cache = {}
+    if os.path.exists(IDENTITY_CACHE):
+        with open(IDENTITY_CACHE) as f:
+            try:
+                cache = json.load(f)
+            except json.JSONDecodeError:
+                cache = {}
+
+    nix_identity = {}
+    username = pwd.getpwuid(os.getuid()).pw_name
+    nix_identity_path = f"/etc/xdg/obs-scenes/identity-{username}.json"
+    if os.path.exists(nix_identity_path):
+        with open(nix_identity_path) as f:
+            try:
+                nix_identity = json.load(f)
+            except json.JSONDecodeError:
+                nix_identity = {}
+
+    identity = {
+        "name": nix_identity.get("name") or cache.get("name") or gum_prompt("Your name", "Your Name"),
+        "email": nix_identity.get("email") or cache.get("email") or gum_prompt("Your email", "you@example.com"),
+        "role": cache.get("role") or gum_prompt("Your role/title", "GIS Analyst"),
+    }
+
+    if identity != cache:
+        os.makedirs(os.path.dirname(IDENTITY_CACHE), exist_ok=True)
+        with open(IDENTITY_CACHE, "w") as f:
+            json.dump(identity, f, indent=2)
+
+    return identity
 
 
 def obs_is_running():
@@ -170,12 +276,14 @@ class SceneBuilder:
             client.remove_scene(scene_name)
             client.create_scene(scene_name)
 
-    def _place(self, item_id, x, y, w=None, h=None, source_w=None, source_h=None):
+    def _place(self, item_id, x, y, w=None, h=None, source_w=None, source_h=None, rotation=None):
         t = {"positionX": float(x), "positionY": float(y)}
         if w is not None and source_w:
             t["scaleX"] = w / source_w
         if h is not None and source_h:
             t["scaleY"] = h / source_h
+        if rotation is not None:
+            t["rotation"] = float(rotation)
         self.cl.set_scene_item_transform(self.scene, item_id, t)
 
     def _create_input(self, name, kind, settings):
@@ -192,9 +300,9 @@ class SceneBuilder:
             self.cl.remove_input(full_name)
             return self.cl.create_input(self.scene, full_name, kind, settings, True)
 
-    def color(self, name, hex_color, x, y, w, h, alpha=255):
+    def color(self, name, hex_color, x, y, w, h, alpha=255, rotation=None):
         resp = self._create_input(name, KIND_COLOR, {"color": abgr(hex_color, alpha), "width": w, "height": h})
-        self._place(resp.scene_item_id, x, y)
+        self._place(resp.scene_item_id, x, y, rotation=rotation)
         return resp.scene_item_id
 
     def image(self, name, path, x, y):
@@ -202,12 +310,12 @@ class SceneBuilder:
         self._place(resp.scene_item_id, x, y)
         return resp.scene_item_id
 
-    def text(self, name, text_value, color_hex, x, y, size=64, bold=True):
+    def text(self, name, text_value, color_hex, x, y, size=64, face=FONT_REGULAR):
         settings = {
             "text": text_value,
             "color1": abgr(color_hex),
             "color2": abgr(color_hex),
-            "font": {"face": "Sans Bold" if bold else "Sans", "size": size},
+            "font": {"face": face, "size": size},
         }
         resp = self._create_input(name, KIND_TEXT, settings)
         self._place(resp.scene_item_id, x, y)
@@ -233,29 +341,56 @@ class SceneBuilder:
         self._place(resp.scene_item_id, x, y)
         return resp.scene_item_id
 
+    def slant_panel(self, name, hex_color, angle_deg=8):
+        # The brand pack's signature device (brand/.../motif/slant_*.png in
+        # the private asset pack): a solid panel with one diagonal edge,
+        # covering roughly the left 40% of frame. Recreated geometrically
+        # (an oversized rectangle, rotated around its top-left corner —
+        # OBS's default scene-item pivot) rather than from that artwork, so
+        # it needs no image asset and works for any brand colour.
+        #
+        # Oversized on purpose: 1000 wide, 2000 tall (canvas is only 1080
+        # tall) positioned well above the canvas top, so the rotated
+        # rectangle's edges run off both the top and bottom of frame no
+        # matter the small rotation below — no visible gap at either edge,
+        # even if the angle needs adjusting later. The right edge of that
+        # rectangle becomes the panel's diagonal — a bigger angle swings it
+        # further across the frame from top to bottom.
+        w, h = 1000, 2000
+        x, y = 0, -460
+        return self.color(name, hex_color, x, y, w, h, rotation=angle_deg)
 
-def brand_mark(b, s, x, y, size=96):
+
+def brand_mark(b, s, x, y, size=96, face=FONT_BLACK):
     """Logo image if the brand has one, else a styled wordmark."""
     if b["logo"] and os.path.exists(b["logo"]):
         s.image("Brand Logo", b["logo"], x, y)
     else:
-        s.text("Brand Wordmark", b["wordmark"] or b["collection"], b["primary"], x, y, size=size)
+        s.text("Brand Wordmark", b["wordmark"] or b["collection"], b["white"], x, y, size=size, face=face)
 
 
-def build_webcam_scene(cl, b, webcam_device):
-    s = SceneBuilder(cl, "Webcam")
-    s.color("Background", b["bg"], 0, 0, CANVAS_W, CANVAS_H)
+def build_webcam_scene(cl, b, webcam_device, identity):
+    s = SceneBuilder(cl, scene_name(b, "Webcam"))
+    s.color("Background", b["cloud"], 0, 0, CANVAS_W, CANVAS_H)
     s.webcam("Camera", webcam_device, 0, 0, CANVAS_W, CANVAS_H)
-    s.color("Lower Third Bar", b["primary"], 0, 912, CANVAS_W, 72, alpha=230)
-    s.text("Lower Third Name", "Your Name — Kartoza", "#111111", 32, 924, size=40)
-    brand_mark(b, s, CANVAS_W - 220, 32, size=64)
+    # Lower-third: panel + accent rule + name, the classic talking-head
+    # treatment — solid charcoal panel (brand pack's own "no gradients"
+    # rule), one thin accent-colour rule above it, name in big bold Lato.
+    s.color("Lower Third Rule", b["primary"], 0, 846, 640, 8)
+    s.color("Lower Third Panel", b["panel"], 0, 854, 640, 130, alpha=235)
+    s.text("Lower Third Name", identity["name"], b["white"], 32, 866, size=56, face=FONT_BLACK)
+    s.text("Lower Third Role", identity["role"], b["primary"], 32, 932, size=26, face=FONT_REGULAR)
+    brand_mark(b, s, CANVAS_W - 220, 32, size=56)
 
 
 def build_screen_scene(cl, b, name="Screen"):
-    s = SceneBuilder(cl, name)
-    s.color("Background", b["primary"], 0, 0, CANVAS_W, CANVAS_H)
+    s = SceneBuilder(cl, scene_name(b, name))
+    s.color("Background", b["panel"], 0, 0, CANVAS_W, CANVAS_H)
     s.screencapture("Screen Capture", BORDER, BORDER, CANVAS_W - 2 * BORDER, CANVAS_H - 2 * BORDER)
-    brand_mark(b, s, CANVAS_W - 220, CANVAS_H - 96, size=56)
+    # A thin brand-colour corner flag rather than a full frame — reads as
+    # "branded" without competing with whatever's on screen underneath.
+    s.color("Corner Flag", b["primary"], CANVAS_W - 180, 0, 180, 10)
+    brand_mark(b, s, CANVAS_W - 220, CANVAS_H - 80, size=40)
     return s
 
 
@@ -272,17 +407,19 @@ def build_screenoverlay_scene(cl, b):
     s.overlay("Input Overlay", 48, CANVAS_H - 48 - 220)
 
 
-def build_card_scene(cl, b, name, headline, sub):
-    s = SceneBuilder(cl, name)
-    s.color("Background", b["bg"], 0, 0, CANVAS_W, CANVAS_H)
-    s.color("Accent Bar", b["primary"], 0, CANVAS_H - 16, CANVAS_W, 16)
-    brand_mark(b, s, CANVAS_W // 2 - 110, 360, size=120)
-    s.text("Headline", headline, "#FFFFFF", CANVAS_W // 2 - 260, 540, size=56)
+def build_card_scene(cl, b, base_name, headline, sub):
+    # Big, strong, bold — this is a title card, not a caption: a headline
+    # this size is the whole point of the scene, not competing with
+    # anything else on screen the way the lower-third text does.
+    s = SceneBuilder(cl, scene_name(b, base_name))
+    s.color("Background", b["cloud"], 0, 0, CANVAS_W, CANVAS_H)
+    s.slant_panel("Slant Panel", b["panel"])
+    brand_mark(b, s, 140, 260, size=120)
+    s.text("Headline", headline, b["white"], 136, 460, size=104, face=FONT_BLACK)
     if sub:
-        s.text("Subtext", sub, b["primary"], CANVAS_W // 2 - 260, 620, size=32, bold=False)
+        s.text("Subtext", sub, b["primary"], 140, 590, size=36, face=FONT_BOLD)
+    s.text("Tagline", b["tagline"], b["secondary"], 140, CANVAS_H - 90, size=22, face=FONT_REGULAR)
 
-
-SCENES = ["Webcam", "Screen", "ScreenCam", "ScreenOverlay", "Intro", "BRB", "Outro"]
 
 # Never a real scene name — exists only so OBS always has a scene to fall
 # back to while every real one gets torn down and rebuilt. OBS refuses to
@@ -291,14 +428,51 @@ SCENES = ["Webcam", "Screen", "ScreenCam", "ScreenOverlay", "Intro", "BRB", "Out
 SCRATCH_SCENE = "_gisnix_scratch_"
 
 
-def build_all(cl, b, webcam_device):
-    build_webcam_scene(cl, b, webcam_device)
+def build_all(cl, b, webcam_device, identity):
+    build_webcam_scene(cl, b, webcam_device, identity)
     build_screen_scene(cl, b)
     build_screencam_scene(cl, b, webcam_device)
     build_screenoverlay_scene(cl, b)
-    build_card_scene(cl, b, "Intro", "Starting soon", "demo@kartoza.com")
+    build_card_scene(cl, b, "Intro", "Starting soon", identity["email"])
     build_card_scene(cl, b, "BRB", "Be right back", None)
-    build_card_scene(cl, b, "Outro", "Thanks for watching", "kartoza.com")
+    build_card_scene(cl, b, "Outro", "Thanks for watching", identity["email"])
+
+
+# Preference order, not a hard requirement — set_transition() below asks
+# OBS what it actually has (GetSceneTransitionList) and walks this list
+# looking for the first match, rather than assuming any one of these
+# exists by this exact name on every OBS version/build.
+#
+# "Move" (obs-move-transition, installed by obs.nix) is the fancier pick
+# and listed first, but there is no obs-websocket request to CREATE a new
+# transition instance — only to select among ones that already exist.
+# OBS auto-creates instances of its OWN built-ins (Fade/Slide/Swipe/Luma
+# Wipe/Cut) in every fresh scene collection; it does NOT auto-create one
+# for a plugin-provided kind like move_transition. So "Move" only starts
+# winning this preference once you've added one yourself, once, via the
+# "+" in OBS's own Scene Transitions dock — after that this script picks
+# it up automatically on every future run, same as the built-ins.
+TRANSITION_PREFERENCE = ["Move", "Slide", "Swipe", "Luma Wipe", "Fade"]
+TRANSITION_DURATION_MS = 450
+
+
+def set_transition(cl):
+    # "Gorgeous animated transitions from one scene to another" — OBS has
+    # no per-scene-pair transition API via obs-websocket; SetCurrentScene-
+    # Transition sets ONE active transition used for every SetCurrent-
+    # ProgramScene switch collection-wide (Cut is the other common
+    # default, and deliberately not in TRANSITION_PREFERENCE — it's instant,
+    # the opposite of what was asked for). obs-transition-table (also
+    # installed) can do an actual different transition per scene-pair, but
+    # that's configured entirely in its own OBS dock UI — nothing in the
+    # websocket protocol exposes it to set up remotely.
+    available = {t["transitionName"] for t in cl.get_scene_transition_list().transitions}
+    for name in TRANSITION_PREFERENCE:
+        if name in available:
+            cl.set_current_scene_transition(name)
+            cl.set_current_scene_transition_duration(TRANSITION_DURATION_MS)
+            return name
+    return None  # none of the preferred ones exist — leave OBS's own default alone
 
 
 def main():
@@ -311,6 +485,7 @@ def main():
     args = parser.parse_args()
 
     b = BRANDS[args.brand]
+    scenes = [scene_name(b, base) for base in SCENE_BASE_NAMES]
 
     if not port_open(args.host, args.port):
         explain_unreachable(args.host, args.port)
@@ -354,20 +529,30 @@ def main():
         # sweeping by that prefix catches them regardless of which scene
         # they came from or whether that scene still exists.
         existing_inputs = [i["inputName"] for i in cl.get_input_list().inputs]
-        prefixes = tuple(f"{scene} " for scene in SCENES)
+        prefixes = tuple(f"{scene} " for scene in scenes)
         for input_name in existing_inputs:
             if input_name.startswith(prefixes):
                 cl.remove_input(input_name)
 
         webcam_device = pick_webcam()
         print(f"Webcam device: {webcam_device}")
-        build_all(cl, b, webcam_device)
+        identity = get_identity()
+        print(f"Identity: {identity['name']} <{identity['email']}>, {identity['role']}")
+        print(
+            "Note: the first time a Screen Capture source actually runs, the "
+            "desktop portal will pop up a share picker — pick a display/window "
+            "and confirm, or the screen scenes stay blank. That's a one-time, "
+            "OS-level permission prompt; nothing here can pre-approve it."
+        )
+        build_all(cl, b, webcam_device, identity)
 
         for scene in cl.get_scene_list().scenes:
-            if scene["sceneName"] not in SCENES:
+            if scene["sceneName"] not in scenes:
                 cl.remove_scene(scene["sceneName"])
 
-        cl.set_current_program_scene("Screen")
+        transition = set_transition(cl)
+
+        cl.set_current_program_scene(scene_name(b, "Screen"))
     except OBSSDKRequestError as exc:
         # No traceback — req_name/code/comment (folded into str(exc) by
         # obsws-python itself) are already the useful part; a stack
@@ -409,7 +594,11 @@ def main():
         print("before rebuilding. If it keeps failing the same way, that's the exact", file=sys.stderr)
         print("message to go looking for (or report).", file=sys.stderr)
         sys.exit(1)
-    print(f"'{b['collection']}' built: {', '.join(SCENES)}")
+    print(f"'{b['collection']}' built: {', '.join(scenes)}")
+    if transition:
+        print(f"Scene transition: {transition} ({TRANSITION_DURATION_MS}ms)")
+    else:
+        print("No preferred transition (Slide/Swipe/Luma Wipe/Fade) found — left OBS's own default alone.")
 
 
 if __name__ == "__main__":

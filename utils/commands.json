@@ -942,7 +942,9 @@
       "order": 5,
       "desc": "Build gisnix's branded OBS scene collection (Kartoza or QGIS) — Webcam/Screen/ScreenCam/ScreenOverlay/Intro/BRB/Outro — by driving a running OBS over obs-websocket",
       "terse": "build the branded OBS scene collection",
-      "deps": [],
+      "deps": [
+        "gum"
+      ],
       "pythonDeps": [
         "obsws-python"
       ],

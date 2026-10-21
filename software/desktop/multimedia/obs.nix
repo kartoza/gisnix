@@ -12,7 +12,10 @@
     (pkgs.wrapOBS {
       plugins = with pkgs.obs-studio-plugins; [
         wlrobs # wayland capture support
-        obs-move-transition # Plugin for OBS Studio to move source to a new position during scene transition
+        obs-move-transition # animated move/resize/rotate transitions between scenes
+        obs-scene-as-transition # use a whole scene (e.g. a logo sting) as a transition
+        obs-transition-table # pick a different transition per specific scene-A -> scene-B pair
+        obs-browser-transition # HTML/CSS/JS-driven transitions, for anything the built-in set can't do
         obs-backgroundremoval # OBS plugin to replace the background in portrait images and video
         obs-3d-effect # create 3d effects for transitions
         waveform # show waveform of audio

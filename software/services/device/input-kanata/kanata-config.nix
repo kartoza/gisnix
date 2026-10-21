@@ -47,6 +47,13 @@
   # Absolute path to obs-cli (obsLayer only) — kanata is a system service,
   # so, like beepPlayer/emailScript below, this can't rely on PATH.
   obsCli ? null,
+  # Scene-name prefix (obsLayer only) — obs-setup.py namespaces every
+  # scene per brand ("Kartoza Webcam", "QGIS Webcam"), so the obs layer's
+  # own bindings have to know which brand this host's OBS is set up with.
+  # kanata-keyboard.nix computes this from the same hostConfig.bootTheme
+  # obs-scenes.nix reads for the same purpose — if you change one, change
+  # the other, or the two stop agreeing on what to call the same host.
+  obsScenePrefix ? "Kartoza",
   # Absolute path to an audio player — the herdr<->aerc mode-toggle beep
   # (see dualMode below) and the herdr-record-toggle click just below.
   # Kanata is a system service, so the player binary and every sound file
@@ -637,13 +644,13 @@ let
       )
       + ''
 
-        obs-webcam  (cmd ${obsCli} scene current Webcam)
-        obs-screen  (cmd ${obsCli} scene current Screen)
-        obs-pip     (cmd ${obsCli} scene current ScreenCam)
-        obs-overlay (cmd ${obsCli} scene current ScreenOverlay)
-        obs-intro   (cmd ${obsCli} scene current Intro)
-        obs-brb     (cmd ${obsCli} scene current BRB)
-        obs-outro   (cmd ${obsCli} scene current Outro)
+        obs-webcam  (cmd ${obsCli} scene current "${obsScenePrefix} Webcam")
+        obs-screen  (cmd ${obsCli} scene current "${obsScenePrefix} Screen")
+        obs-pip     (cmd ${obsCli} scene current "${obsScenePrefix} ScreenCam")
+        obs-overlay (cmd ${obsCli} scene current "${obsScenePrefix} ScreenOverlay")
+        obs-intro   (cmd ${obsCli} scene current "${obsScenePrefix} Intro")
+        obs-brb     (cmd ${obsCli} scene current "${obsScenePrefix} BRB")
+        obs-outro   (cmd ${obsCli} scene current "${obsScenePrefix} Outro")
       '';
 in
 ''

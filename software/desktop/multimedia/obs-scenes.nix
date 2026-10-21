@@ -19,12 +19,36 @@
 # size, still visually close to lossless) if disk space becomes the
 # limiting factor.
 {
+  config,
+  lib,
   pkgs,
   hostConfig,
   ...
 }:
 let
+  # Cross-referenced with kanata-keyboard.nix's identical obsScenePrefix —
+  # if you change one, change the other, or a host's keyboard starts
+  # switching to scenes that don't exist in its own OBS.
   brand = if (hostConfig.bootTheme or "kartoza") == "qgis" then "QGIS" else "Kartoza";
+
+  # Per-user "who is this" for obs-setup.py's lower-third/card text —
+  # name from the same NixOS account field `id -c`/`finger` would show,
+  # email from kartoza.userEmails (declared per-user, e.g. users/tim.nix:
+  # `kartoza.userEmails.tim = "tim@kartoza.com";` — the exact same source
+  # kanata-email.nix already reads for its own press-time email macro).
+  # Nothing here is asked interactively; obs-setup.py's own gum fallback
+  # covers whichever of these a user hasn't declared (most often: role,
+  # which has no NixOS field to read at all).
+  identityFiles = lib.mapAttrs' (
+    username: userCfg:
+    lib.nameValuePair "xdg/obs-scenes/identity-${username}.json" {
+      mode = "0444";
+      text = builtins.toJSON {
+        name = if userCfg.description or "" != "" then userCfg.description else null;
+        email = config.kartoza.userEmails.${username} or null;
+      };
+    }
+  ) (lib.filterAttrs (_: userCfg: userCfg.isNormalUser or false) config.users.users);
 
   # OBS's global.ini carries a LOT the user edits through OBS itself (window
   # geometry, recent files, …) — unlike herdr/kitty's config files, this is
@@ -139,12 +163,21 @@ PYEOF
   };
 in
 {
-  # obs-setup.py's default KARTOZA_LOGO path — QGIS has no vendored logo
-  # (see obs-setup.py's own BRANDS comment), so only Kartoza needs an asset
-  # shipped here.
-  environment.etc."xdg/obs-scenes/kartoza-logo.png" = {
-    mode = "0444";
-    source = ../../../resources/kartoza-logo.png;
+  # Lato — the brand pack's own typeface — so text_ft2_source_v2's
+  # "Lato"/"Lato Bold"/"Lato Black" face names resolve via fontconfig.
+  # Open-source (OFL), packaged in nixpkgs proper; no private asset needed
+  # for the typography, unlike the motif artwork this deliberately avoids
+  # (see obs-setup.py's own BRANDS comment for why).
+  fonts.packages = [ pkgs.lato ];
+
+  environment.etc = identityFiles // {
+    # obs-setup.py's default KARTOZA_LOGO path — QGIS has no vendored logo
+    # (see obs-setup.py's own BRANDS comment), so only Kartoza needs an
+    # asset shipped here.
+    "xdg/obs-scenes/kartoza-logo.png" = {
+      mode = "0444";
+      source = ../../../resources/kartoza-logo.png;
+    };
   };
 
   system.activationScripts.gisnixObsSeedConfig = ''

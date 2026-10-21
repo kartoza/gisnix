@@ -43,6 +43,14 @@ let
   # `kartoza.userEmails.<name>` — null until at least one has.
   emailScript = config.kartoza.kanataEmailScript;
 
+  # obsLayer's scene-switch bindings need the same brand prefix
+  # obs-setup.py namespaced the scenes with ("Kartoza Webcam", "QGIS
+  # Webcam") — this is the SAME hostConfig.bootTheme ternary
+  # obs-scenes.nix uses for the same reason; if you change one, change the
+  # other, or a host's keyboard starts switching to scenes that don't
+  # exist in its own OBS.
+  obsScenePrefix = if (hostConfig.bootTheme or "kartoza") == "qgis" then "QGIS" else "Kartoza";
+
   # kanata's own systemd unit is a SYSTEM service (it needs /dev/uinput and
   # /dev/input, which is also why it carries the uinput/openrazer
   # supplementary groups below) — not something the user's session manager
@@ -177,6 +185,7 @@ in
             # gate), so harmless to always pass — same reasoning as
             # beepPlayer above.
             obsCli = "${pkgs.obs-cli}/bin/obs-cli";
+            inherit obsScenePrefix;
             # Hold x/c/v for cut/copy/paste. A generic mechanism (no per-user
             # data involved, unlike emailScript above), so it ships on by
             # default along with everything else here.
