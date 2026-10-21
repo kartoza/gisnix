@@ -200,6 +200,20 @@ Every fuzzel-based launcher gisnix ships (this one, and the cheatsheet
 below) shares one theme — dark, rounded, generously padded — configured
 once in `fuzzel.ini` rather than per-launcher.
 
+!!! note "If Super+E does nothing"
+    Nothing binds this automatically — a rebuild only installs the
+    command, it doesn't touch COSMIC's own shortcut list. Add it by hand:
+    **Settings → Input devices → Keyboard shortcuts → Custom shortcuts →
+    Add shortcut**, with the absolute path
+    (`/run/current-system/sw/bin/emoji-picker`), not the bare command —
+    see the "Custom keyboard shortcuts" note near the top of this page.
+    Test the command straight from a terminal first if the key still does
+    nothing after that; if it opens there, the binding itself is the
+    problem, not the tool. If a Super+E entry already exists and still
+    doesn't fire, delete it and add it again rather than editing it in
+    place — COSMIC's shortcut dialog has had bugs where editing an
+    existing binding's command silently fails to save.
+
 ### Keybind cheatsheet
 
 Also with `desktop-essentials-extras`: bind
@@ -216,6 +230,14 @@ separately-maintained list — update the docs, rebuild, the cheatsheet
 matches. A private host can extend it with its own sections (aerc/obs
 bindings, say) by dropping a markdown file with the same table shape into
 `/etc/xdg/keybind-cheatsheet/`.
+
+!!! note "If Super+K does nothing"
+    Same cause and fix as Super+E above: add it by hand under
+    **Settings → Input devices → Keyboard shortcuts → Custom shortcuts →
+    Add shortcut**, bound to the absolute path
+    (`/run/current-system/sw/bin/keybind-cheatsheet`). Confirm the
+    command itself works by running it straight from a terminal before
+    chasing the binding further.
 
 ### Other commands worth a key
 
