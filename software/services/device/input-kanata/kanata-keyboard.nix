@@ -77,6 +77,20 @@ let
     exit 0
   '';
 
+  kanataLayerIndicatorPython = pkgs.python3.withPackages (ps: [
+    ps.pystray
+    ps.pillow
+  ]);
+
+  kanataLayerIndicator = pkgs.writeShellApplication {
+    name = "kanata-layer-indicator";
+    runtimeInputs = [ kanataLayerIndicatorPython ];
+    text = ''
+      export LATO_DIR="${pkgs.lato}"
+      exec python3 ${./kanata-layer-indicator.py} "$@"
+    '';
+  };
+
   cfg = config.kartoza.kanata;
 in
 {
@@ -106,6 +120,22 @@ in
       business shipping to everyone when OBS's branded scene collection
       (desktop-multimedia's obs-scenes module) is opt-in itself. A host
       that wants it sets `kartoza.kanata.obsLayer = true;`.
+    '';
+  };
+
+  options.kartoza.kanata.layerIndicator = lib.mkOption {
+    type = lib.types.bool;
+    default = false;
+    example = true;
+    description = ''
+      A tray icon showing which of herdr/aerc/obs the trigger key
+      currently reaches — H, A or O — by following the same kanata TCP
+      layer feed razer-layer-lights listens to (see
+      kanata-layer-indicator.py). Needs the main "keyboard" instance's
+      TCP port actually set (`services.kanata.keyboards.keyboard.port`)
+      — off by default since most hosts don't opt into that port at
+      all. A host that wants it sets
+      `kartoza.kanata.layerIndicator = true;`.
     '';
   };
 
@@ -286,6 +316,25 @@ in
         echo "Testing kanata with verbose output (Ctrl+C to exit)..."
         sudo kanata --cfg /etc/kanata/keyboard.kbd --debug
       '')
-    ];
+    ]
+    ++ lib.optional cfg.layerIndicator kanataLayerIndicator;
+
+    # H/A/O tray icon for the herdr/aerc/obs cycle — see
+    # kanata-layer-indicator.py's own module docstring. Same
+    # graphical-session wiring as razer-layer-lights (abyss's own
+    # hosts/abyss/kanata-keyboard.nix), restarting on crash for the same
+    # reason: a quiet tray icon is a worse failure mode than a brief gap
+    # while it restarts.
+    systemd.user.services.kanata-layer-indicator = lib.mkIf cfg.layerIndicator {
+      description = "H/A/O tray icon for the kanata herdr/aerc/obs cycle";
+      wantedBy = [ "graphical-session.target" ];
+      partOf = [ "graphical-session.target" ];
+      after = [ "graphical-session.target" ];
+      serviceConfig = {
+        ExecStart = "${kanataLayerIndicator}/bin/kanata-layer-indicator --listen 127.0.0.1:${toString config.services.kanata.keyboards.keyboard.port}";
+        Restart = "on-failure";
+        RestartSec = 3;
+      };
+    };
   };
 }
