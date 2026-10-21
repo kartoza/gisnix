@@ -116,7 +116,16 @@ let
     pkgs.libayatana-appindicator
     pkgs.gobject-introspection
   ];
-  kanataLayerIndicatorGiPath = pkgs.lib.makeSearchPath "lib/girepository-1.0" kanataLayerIndicatorGiDeps;
+  # makeLibraryPath (below) has its own output-selection smarts and
+  # correctly picks each package's "lib" output — makeSearchPath has
+  # none, and for glib/pango specifically their BARE (default) output is
+  # "bin", which has no lib/girepository-1.0 at all (confirmed empirically:
+  # the typelibs live only under each package's "out" output). Force "out"
+  # explicitly for every dependency rather than relying on whatever a
+  # bare package reference happens to default to.
+  kanataLayerIndicatorGiPath = pkgs.lib.makeSearchPath "lib/girepository-1.0" (
+    map (pkgs.lib.getOutput "out") kanataLayerIndicatorGiDeps
+  );
   kanataLayerIndicatorLibPath = pkgs.lib.makeLibraryPath kanataLayerIndicatorGiDeps;
 
   kanataLayerIndicator = pkgs.writeShellApplication {
