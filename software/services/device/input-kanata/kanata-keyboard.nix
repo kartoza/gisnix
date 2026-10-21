@@ -85,19 +85,39 @@ let
 
   # pystray's only Wayland-compatible backend (StatusNotifierItem, via
   # libayatana-appindicator over GObject-Introspection — the plain Gtk
-  # backend is X11-tray-protocol only) needs its typelib AND the shared
-  # libraries it dlopen's by name findable at runtime; withPackages above
-  # only gets `import gi` itself onto PYTHONPATH, not these two, which is
-  # why the service crashed with "Namespace Gtk not available" the first
-  # time this shipped.
-  kanataLayerIndicatorGiPath = pkgs.lib.makeSearchPath "lib/girepository-1.0" [
+  # backend is X11-tray-protocol only) needs each dependency's OWN
+  # typelib findable on GI_TYPELIB_PATH — unlike shared libraries, that
+  # search path is NOT resolved transitively through gtk3's own RPATH, so
+  # every package in Gtk-3.0.typelib's real dependency chain needs its
+  # own entry here, confirmed against gtk3's actual linked closure
+  # (`patchelf --print-rpath libgtk-3.so.0`) rather than guessed:
+  # glib (GLib/GObject/Gio/GModule), gdk-pixbuf, at-spi2-core (Atk),
+  # harfbuzz and pango all ship their own .typelib next to gtk3's.
+  # gobject-introspection itself has to be in the mix too — it bundles a
+  # handful of "bonus" typelibs (xlib-2.0, cairo-1.0, fontconfig-2.0,
+  # freetype2-2.0) for C libraries that carry no GIR annotations of their
+  # own, which Gdk-3.0.typelib still declares a dependency on.
+  #
+  # First attempt here only listed gtk3 + libayatana-appindicator, which
+  # got further (past the "Namespace Gtk not available" ValueError that
+  # crashed the service outright) but pystray's own ImportError handling
+  # swallowed the real cause and silently fell back to its X11 backend,
+  # which can never work under COSMIC's Wayland-only session — confirmed
+  # by importing `gi.repository.Gtk`/`AyatanaAppIndicator3` directly
+  # (bypassing pystray's except-and-continue) against the real store
+  # paths this host already has built.
+  kanataLayerIndicatorGiDeps = [
     pkgs.gtk3
+    pkgs.glib
+    pkgs.gdk-pixbuf
+    pkgs.at-spi2-core
+    pkgs.harfbuzz
+    pkgs.pango
     pkgs.libayatana-appindicator
+    pkgs.gobject-introspection
   ];
-  kanataLayerIndicatorLibPath = pkgs.lib.makeLibraryPath [
-    pkgs.gtk3
-    pkgs.libayatana-appindicator
-  ];
+  kanataLayerIndicatorGiPath = pkgs.lib.makeSearchPath "lib/girepository-1.0" kanataLayerIndicatorGiDeps;
+  kanataLayerIndicatorLibPath = pkgs.lib.makeLibraryPath kanataLayerIndicatorGiDeps;
 
   kanataLayerIndicator = pkgs.writeShellApplication {
     name = "kanata-layer-indicator";
