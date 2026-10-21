@@ -198,19 +198,52 @@ to everyone by default.
 
 A host with `kartoza.kanata.aercLayer = true;` gets a second thing the
 herdr trigger key can reach: hold it, and — instead of herdr — you get
-aerc commands on the same hjkl-shaped layout (switch account, switch
-folder, file to spam/archive, compose, reply-all, and more).
+aerc (a mail client) commands instead. Each key types the aerc command
+and presses Enter, except `v`/`b` which leave the command line open for
+you to finish typing.
+
+| Key | Action |
+|---|---|
+| `h` | previous account |
+| `l` | next account |
+| `j` | next folder |
+| `k` | previous folder |
+| `s` | file to Spam |
+| `a` | file to Archive |
+| `r` | reply-all |
+| `e` | types your email address, if you've set one (see above) |
+| `c` | compose a new message |
+| `f` | forward the selected message |
+| `d` | delete the selected message |
+| `g` | reopen a postponed draft |
+| `y` | show/hide full headers |
+| `u` | toggle read/unread |
+| `i` | toggle the star/flag |
+| `m` | enter/leave visual mark mode |
+| `v` | primes `:search ` — type the terms yourself, then Enter |
+| `b` | primes `:filter ` — type the terms yourself, then Enter |
+| `n` | add this message's sender as a contact |
+| `o` | browse/edit contacts |
 
 ### obs mode (opt-in)
 
 A host with `kartoza.kanata.obsLayer = true;` gets a third: hold the
-trigger key and you reach OBS scene switches instead — `w` Webcam, `s`
-Screen, `c` Screen+Cam, `o` Screen+Overlay, `i` Intro, `b` BRB, `e`
-Outro. Each key is a fire-and-forget call to `obs-cli` over
-obs-websocket, so nothing is typed and it is safe to hold regardless of
-what window has focus. The scenes themselves (and the branded Kartoza/
-QGIS look) come from desktop-multimedia's `obs-scenes.nix` — run
+trigger key and you reach OBS scene switches instead. Each key is a
+fire-and-forget call to `obs-cli` over obs-websocket, so nothing is
+typed and it is safe to hold regardless of what window has focus. The
+scenes themselves (and the branded Kartoza/QGIS look) come from
+desktop-multimedia's `obs-scenes.nix` — run
 `gisnix obs-setup <kartoza|qgis>` once, with OBS open, to build them.
+
+| Key | Action |
+|---|---|
+| `w` | Webcam scene |
+| `s` | Screen scene |
+| `c` | Screen+Cam scene |
+| `o` | Screen+Overlay scene |
+| `i` | Intro scene |
+| `b` | BRB scene |
+| `e` | Outro scene |
 
 Which mode holding the trigger key reaches is a persistent choice, not
 something you pick each time: hold the trigger key, tap Space while
