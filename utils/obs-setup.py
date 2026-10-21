@@ -397,6 +397,21 @@ class SceneBuilder:
         self._place(resp.scene_item_id, x, y, w=w, h=h, source_w=source_w, source_h=source_h)
         return resp.scene_item_id
 
+    def link(self, source_name, x, y, w=None, h=None, source_w=None, source_h=None):
+        # Attaches an EXISTING, scene-independent source (see
+        # ensure_shared_input) into THIS scene via CreateSceneItem,
+        # instead of _create_input making a fresh, independent copy of
+        # it. The point: Intro/BRB/Outro's logo and tagline are the same
+        # literal source object rather than three near-identical copies
+        # that could quietly drift apart from each other — the position
+        # passed here still has to be repeated per call (CreateSceneItem
+        # gives every scene its OWN item id/transform even when the
+        # underlying source is shared), but the pixel CONTENT (image data
+        # or text) can never go out of sync between scenes this way.
+        resp = self.cl.create_scene_item(self.scene, source_name, True)
+        self._place(resp.scene_item_id, x, y, w=w, h=h, source_w=source_w, source_h=source_h)
+        return resp.scene_item_id
+
     def slant_panel(self, name, hex_color, angle_deg=8):
         # The brand pack's signature device (brand/.../motif/slant_*.png in
         # the private asset pack): a solid panel with one diagonal edge,
@@ -417,10 +432,95 @@ class SceneBuilder:
         return self.color(name, hex_color, x, y, w, h, rotation=angle_deg)
 
 
-def brand_mark(b, s, x, y, size=96, face=FONT_BLACK):
-    """Logo image if the brand has one, else a styled wordmark."""
+# Card scene vertical rhythm — one set of numbers shared by every call to
+# build_card_scene, rather than per-call magic numbers that could drift
+# between Intro/BRB/Outro. Each element's Y is the previous one's bottom
+# edge plus CARD_GAP, computed from its actual rendered height (not
+# guessed) — a gap big enough to read as deliberate whitespace, not a
+# margin of error. Subtext's absence (BRB has none) doesn't move anything
+# else, since headline/tagline don't depend on whether it rendered.
+CARD_LOGO_X = 140
+CARD_LOGO_Y = 120
+CARD_LOGO_SIZE = 120  # target rendered height in px — see brand_mark's own note on why this didn't used to mean anything
+CARD_GAP = 48
+CARD_HEADLINE_SIZE = 104
+CARD_HEADLINE_LINE_HEIGHT = 1.25  # text_ft2_source_v2 has no exposed line-metrics API — Lato Black's cap-to-descender span approximated from its own font metrics, not measured pixel-for-pixel (see this file's own top-of-file disclaimer)
+CARD_SUBTEXT_SIZE = 36
+CARD_TAGLINE_SIZE = 22
+
+
+def ensure_shared_input(cl, name, kind, settings):
+    """Create (or replace) a source that isn't owned by any one scene —
+    obs-websocket has no true scene-less CreateInput, so this attaches it
+    to SCRATCH_SCENE purely as a landing spot; the source persists once
+    created regardless of what happens to that scene afterwards
+    (RemoveScene only drops THAT scene's own reference to a source, never
+    the source itself — confirmed against every other scene here, which
+    already survive the scratch-scene teardown at the end of a build).
+    Self-heals the same way SceneBuilder._create_input does, so a retry
+    or a deliberate --force rebuild replaces it cleanly rather than
+    erroring on "already exists". Returns `name` itself — callers want
+    the source NAME to pass to CreateSceneItem later, not the scratch
+    scene's own (irrelevant, about to be torn down) scene-item id."""
+    try:
+        cl.create_input(SCRATCH_SCENE, name, kind, settings, True)
+    except OBSSDKRequestError as exc:
+        if exc.code != RESOURCE_ALREADY_EXISTS:
+            raise
+        cl.remove_input(name)
+        cl.create_input(SCRATCH_SCENE, name, kind, settings, True)
+    return name
+
+
+def ensure_card_brand_mark(cl, b):
+    """The card scenes' shared logo/wordmark — see ensure_shared_input.
+    Card-scene-sized (size=120) specifically; Webcam/Screen keep their
+    own independently-placed, differently-sized marks (genuinely
+    different layouts, corner marks rather than a title-card headline),
+    so sharing across those would need per-scene transforms anyway and
+    gains nothing — this is scoped to the Intro/BRB/Outro trio, where
+    the brand pack's own packs show it as literally the same mark."""
+    name = f"{b['collection']} Card Brand Mark"
     if b["logo"] and os.path.exists(b["logo"]):
-        s.image("Brand Logo", b["logo"], x, y)
+        return ensure_shared_input(cl, name, KIND_IMAGE, {"file": b["logo"]})
+    settings = {
+        "text": b["wordmark"] or b["collection"],
+        "color1": abgr(b["white"]),
+        "color2": abgr(b["white"]),
+        "font": {"face": FONT_BLACK, "size": CARD_LOGO_SIZE},
+    }
+    return ensure_shared_input(cl, name, KIND_TEXT, settings)
+
+
+def ensure_card_tagline(cl, b):
+    """The card scenes' shared strapline — see ensure_shared_input."""
+    name = f"{b['collection']} Card Tagline"
+    settings = {
+        "text": b["tagline"],
+        "color1": abgr(b["secondary"]),
+        "color2": abgr(b["secondary"]),
+        "font": {"face": FONT_REGULAR, "size": CARD_TAGLINE_SIZE},
+    }
+    return ensure_shared_input(cl, name, KIND_TEXT, settings)
+
+
+def brand_mark(b, s, x, y, size=96, face=FONT_BLACK):
+    """Logo image if the brand has one, else a styled wordmark. `size` is
+    the target rendered HEIGHT in pixels either way — the image branch
+    used to place the logo file at its own native resolution with no
+    scaling at all, which for Kartoza's actual 512x512 logo.png meant a
+    512px-tall mark wherever this was called, `size` silently ignored.
+    Used by Webcam/Screen's own per-scene marks — card scenes use the
+    shared ensure_card_brand_mark + SceneBuilder.link instead, see
+    above."""
+    if b["logo"] and os.path.exists(b["logo"]):
+        dims = png_dimensions(b["logo"])
+        if dims:
+            source_w, source_h = dims
+            w = size * source_w / source_h  # uniform scale to a `size`-tall mark — see image()'s own note on why both axes need a target
+            s.image("Brand Logo", b["logo"], x, y, w=w, h=size, source_w=source_w, source_h=source_h)
+        else:
+            s.image("Brand Logo", b["logo"], x, y)
     else:
         s.text("Brand Wordmark", b["wordmark"] or b["collection"], b["white"], x, y, size=size, face=face)
 
@@ -474,7 +574,7 @@ def build_screenoverlay_scene(cl, b):
     )
 
 
-def build_card_scene(cl, b, base_name, headline, sub):
+def build_card_scene(cl, b, base_name, headline, sub, card_logo, card_tagline):
     # Big, strong, bold — this is a title card, not a caption: a headline
     # this size is the whole point of the scene, not competing with
     # anything else on screen the way the lower-third text does.
@@ -495,11 +595,36 @@ def build_card_scene(cl, b, base_name, headline, sub):
     else:
         s.color("Background", b["cloud"], 0, 0, CANVAS_W, CANVAS_H)
         s.slant_panel("Slant Panel", b["panel"])
-    brand_mark(b, s, 140, 260, size=120)
-    s.text("Headline", headline, b["white"], 136, 460, size=104, face=FONT_BLACK)
+
+    # Logo and tagline are shared sources (see ensure_card_brand_mark /
+    # ensure_card_tagline) linked in here, not independently recreated —
+    # the same literal object in Intro/BRB/Outro, placed at the same x/y
+    # every time, rather than three copies that could quietly diverge.
+    logo_dims = png_dimensions(b["logo"]) if b["logo"] and os.path.exists(b["logo"]) else None
+    logo_w = CARD_LOGO_SIZE * logo_dims[0] / logo_dims[1] if logo_dims else CARD_LOGO_SIZE
+    s.link(
+        card_logo,
+        CARD_LOGO_X,
+        CARD_LOGO_Y,
+        w=logo_w,
+        h=CARD_LOGO_SIZE,
+        source_w=logo_dims[0] if logo_dims else None,
+        source_h=logo_dims[1] if logo_dims else None,
+    )
+    logo_bottom = CARD_LOGO_Y + CARD_LOGO_SIZE
+
+    headline_y = logo_bottom + CARD_GAP
+    s.text("Headline", headline, b["white"], 136, headline_y, size=CARD_HEADLINE_SIZE, face=FONT_BLACK)
+    headline_bottom = headline_y + CARD_HEADLINE_SIZE * CARD_HEADLINE_LINE_HEIGHT
+
     if sub:
-        s.text("Subtext", sub, b["primary"], 140, 590, size=36, face=FONT_BOLD)
-    s.text("Tagline", b["tagline"], b["secondary"], 140, CANVAS_H - 90, size=22, face=FONT_REGULAR)
+        subtext_y = headline_bottom + CARD_GAP
+        s.text("Subtext", sub, b["primary"], 140, subtext_y, size=CARD_SUBTEXT_SIZE, face=FONT_BOLD)
+
+    # Tagline sits near the bottom of frame regardless — already well
+    # clear of the headline/subtext block above under any brand's text,
+    # so it doesn't need to follow the same cascading math.
+    s.link(card_tagline, 140, CANVAS_H - 90)
 
 
 # Never a real scene name — exists only so OBS always has a scene to fall
@@ -514,9 +639,14 @@ def build_all(cl, b, webcam_device, identity):
     build_screen_scene(cl, b)
     build_screencam_scene(cl, b, webcam_device)
     build_screenoverlay_scene(cl, b)
-    build_card_scene(cl, b, "Intro", "Starting soon", identity["email"])
-    build_card_scene(cl, b, "BRB", "Be right back", None)
-    build_card_scene(cl, b, "Outro", "Thanks for watching", identity["email"])
+
+    # Created once, linked into all three card scenes — see
+    # ensure_card_brand_mark / ensure_card_tagline / SceneBuilder.link.
+    card_logo = ensure_card_brand_mark(cl, b)
+    card_tagline = ensure_card_tagline(cl, b)
+    build_card_scene(cl, b, "Intro", "Starting soon", identity["email"], card_logo, card_tagline)
+    build_card_scene(cl, b, "BRB", "Be right back", None, card_logo, card_tagline)
+    build_card_scene(cl, b, "Outro", "Thanks for watching", identity["email"], card_logo, card_tagline)
 
 
 # Preference order, not a hard requirement — set_transition() below asks
