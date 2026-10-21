@@ -118,6 +118,16 @@ KIND_WEBCAM = "v4l2_input"
 KIND_SCREEN = "pipewire-screen-capture-source"  # portal-based — cosmic-comp has no wlr-screencopy
 KIND_OVERLAY = "input-overlay"
 
+# Default keyboard overlay (obs-scenes.nix deploys these two unconditionally
+# — see that file's own comment for the license/source) so ScreenOverlay
+# isn't a blank box the first time anyone opens it. 360px wide keeps a
+# full keyboard readable without swallowing the corner of a 1920x1080
+# capture; height follows from the texture's own aspect ratio (see
+# SceneBuilder.overlay).
+DEFAULT_OVERLAY_TEXTURE = "/etc/xdg/obs-scenes/input-overlay-texture.png"
+DEFAULT_OVERLAY_LAYOUT = "/etc/xdg/obs-scenes/input-overlay-layout.json"
+DEFAULT_OVERLAY_WIDTH = 360
+
 
 def png_dimensions(path):
     """(width, height) read straight from the PNG IHDR chunk — stdlib only,
@@ -362,12 +372,29 @@ class SceneBuilder:
         self._place(resp.scene_item_id, x, y, w, h, source_w=CANVAS_W, source_h=CANVAS_H)
         return resp.scene_item_id
 
-    def overlay(self, name, x, y):
-        # input-overlay needs its own layout (svg+xml) authored in its own
-        # editor — this creates the source with none configured, so it
-        # shows "no layout" until that one-time setup runs.
-        resp = self._create_input(name, KIND_OVERLAY, {})
-        self._place(resp.scene_item_id, x, y)
+    def overlay(self, name, x, y, w=None, texture=None, layout=None):
+        # The actual obs_data settings keys (confirmed from the plugin's
+        # own compiled strings — its UI labels, "Overlay.Path.Texture" /
+        # "Overlay.Path.Layout", are NOT the settings keys): io.overlay_image
+        # for the texture PNG, io.layout_file for the layout JSON. Without
+        # both, the source has nothing to draw and OBS shows an empty box —
+        # obs-scenes.nix deploys a default pair (resources/input-overlay,
+        # vendored from the input-overlay project's own presets) so this
+        # isn't blank out of the box; a host is still free to point this at
+        # its own texture/layout by hand in OBS's Properties dialog later.
+        settings = {}
+        if texture and os.path.exists(texture):
+            settings["io.overlay_image"] = texture
+        if layout and os.path.exists(layout):
+            settings["io.layout_file"] = layout
+        resp = self._create_input(name, KIND_OVERLAY, settings)
+        h = source_w = source_h = None
+        if w is not None and texture:
+            dims = png_dimensions(texture)
+            if dims:
+                source_w, source_h = dims
+                h = w * source_h / source_w  # uniform scale — both axes need a target or OBS only stretches X
+        self._place(resp.scene_item_id, x, y, w=w, h=h, source_w=source_w, source_h=source_h)
         return resp.scene_item_id
 
     def slant_panel(self, name, hex_color, angle_deg=8):
@@ -433,7 +460,18 @@ def build_screencam_scene(cl, b, webcam_device):
 
 def build_screenoverlay_scene(cl, b):
     s = build_screen_scene(cl, b, "ScreenOverlay")
-    s.overlay("Input Overlay", 48, CANVAS_H - 48 - 220)
+    texture = DEFAULT_OVERLAY_TEXTURE if os.path.exists(DEFAULT_OVERLAY_TEXTURE) else None
+    layout = DEFAULT_OVERLAY_LAYOUT if os.path.exists(DEFAULT_OVERLAY_LAYOUT) else None
+    dims = png_dimensions(texture) if texture else None
+    h = DEFAULT_OVERLAY_WIDTH * dims[1] / dims[0] if dims else 220
+    s.overlay(
+        "Input Overlay",
+        48,
+        CANVAS_H - 48 - h,
+        w=DEFAULT_OVERLAY_WIDTH,
+        texture=texture,
+        layout=layout,
+    )
 
 
 def build_card_scene(cl, b, base_name, headline, sub):

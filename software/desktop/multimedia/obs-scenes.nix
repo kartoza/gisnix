@@ -169,7 +169,24 @@ in
   # Open-source (OFL), packaged in nixpkgs proper.
   fonts.packages = [ pkgs.lato ];
 
-  environment.etc = identityFiles;
+  environment.etc = identityFiles // {
+    # Default keyboard overlay for the ScreenOverlay scene's input-overlay
+    # source — vendored from the input-overlay project's own presets
+    # (resources/input-overlay, GPL-2.0, see the .license sidecars there)
+    # so the scene isn't a blank box the first time anyone opens it. Brand-
+    # agnostic (a plain grey/cyan QWERTY-plus-arrows sprite sheet, not
+    # styled to Kartoza/QGIS), same tier as the QGIS brand's own public
+    # assets — a host can still swap in its own texture/layout by hand in
+    # OBS's own Properties dialog, this is only the out-of-the-box default.
+    "xdg/obs-scenes/input-overlay-texture.png" = {
+      mode = "0444";
+      source = ../../../resources/input-overlay/qwerty_arrow_keys.png;
+    };
+    "xdg/obs-scenes/input-overlay-layout.json" = {
+      mode = "0444";
+      source = ../../../resources/input-overlay/qwerty_arrow_keys.json;
+    };
+  };
 
   system.activationScripts.gisnixObsSeedConfig = ''
     ${seedObsConfig}/bin/gisnix-obs-seed-config

@@ -1,0 +1,6 @@
+SPDX-FileCopyrightText: univrsal/input-overlay contributors
+SPDX-License-Identifier: GPL-2.0-only
+
+Source: https://github.com/univrsal/input-overlay/tree/master/presets/qwerty_arrow_keys
+Vendored unmodified as the default keyboard overlay texture for gisnix's
+OBS ScreenOverlay scene (desktop-multimedia's obs-scenes.nix / obs-setup.py).
