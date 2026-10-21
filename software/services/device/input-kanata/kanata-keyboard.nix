@@ -80,13 +80,32 @@ let
   kanataLayerIndicatorPython = pkgs.python3.withPackages (ps: [
     ps.pystray
     ps.pillow
+    ps.pygobject3
   ]);
+
+  # pystray's only Wayland-compatible backend (StatusNotifierItem, via
+  # libayatana-appindicator over GObject-Introspection — the plain Gtk
+  # backend is X11-tray-protocol only) needs its typelib AND the shared
+  # libraries it dlopen's by name findable at runtime; withPackages above
+  # only gets `import gi` itself onto PYTHONPATH, not these two, which is
+  # why the service crashed with "Namespace Gtk not available" the first
+  # time this shipped.
+  kanataLayerIndicatorGiPath = pkgs.lib.makeSearchPath "lib/girepository-1.0" [
+    pkgs.gtk3
+    pkgs.libayatana-appindicator
+  ];
+  kanataLayerIndicatorLibPath = pkgs.lib.makeLibraryPath [
+    pkgs.gtk3
+    pkgs.libayatana-appindicator
+  ];
 
   kanataLayerIndicator = pkgs.writeShellApplication {
     name = "kanata-layer-indicator";
     runtimeInputs = [ kanataLayerIndicatorPython ];
     text = ''
       export LATO_DIR="${pkgs.lato}"
+      export GI_TYPELIB_PATH="${kanataLayerIndicatorGiPath}"
+      export LD_LIBRARY_PATH="${kanataLayerIndicatorLibPath}''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
       exec python3 ${./kanata-layer-indicator.py} "$@"
     '';
   };
