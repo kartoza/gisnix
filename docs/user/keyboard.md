@@ -235,15 +235,19 @@ scenes themselves (and the branded Kartoza/QGIS look) come from
 desktop-multimedia's `obs-scenes.nix` — run
 `gisnix obs-setup <kartoza|qgis>` once, with OBS open, to build them.
 
+Rows below are listed in the order j/k actually cycle through — Intro
+first, every working/content scene, then Outro, then BRB.
+
 | Key | Action |
 |---|---|
+| `i` | Intro scene |
 | `w` | Webcam scene |
 | `s` | Screen scene |
 | `c` | Screen+Cam scene |
 | `o` | Screen+Overlay scene |
-| `i` | Intro scene |
-| `b` | BRB scene |
+| `t` | Terminal scene — camera full-canvas, a terminal/window capture on top at reduced opacity (the "VU-meter overlay" look) so both read at once |
 | `e` | Outro scene |
+| `b` | BRB scene |
 | `j` | next scene (same order as above, wraps around) |
 | `k` | previous scene (same order as above, wraps around) |
 

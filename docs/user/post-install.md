@@ -159,10 +159,10 @@ build itself. Open OBS, then run:
 gisnix obs-setup kartoza   # or: gisnix obs-setup qgis
 ```
 
-This builds seven scenes over that websocket connection — Webcam, Screen,
-Screen+Cam, Screen+Overlay, Intro, BRB, Outro — branded from the real
-Kartoza/QGIS colours, not a hand-picked palette. It is the one-time setup
-step; nothing automatic creates these on first boot, the way
+This builds eight scenes over that websocket connection — Intro, Webcam,
+Screen, Screen+Cam, Screen+Overlay, Terminal, Outro, BRB — branded from
+the real Kartoza/QGIS colours, not a hand-picked palette. It is the
+one-time setup step; nothing automatic creates these on first boot, the way
 `gisnix obs-setup` has no equivalent of Handy's own first-run wizard. Re-run
 it with `--force` to tear down and rebuild a brand's collection from
 scratch (say, after a gisnix update changes what it builds) — without
@@ -173,7 +173,7 @@ OBS opens into by default, same as it already decides Plymouth/GRUB
 branding — but only once that collection actually exists; run
 `gisnix obs-setup` for the matching brand first.
 
-Switch between the seven scenes without touching the mouse: see the
+Switch between the eight scenes without touching the mouse: see the
 [obs mode section](keyboard.md#obs-mode-opt-in) on the keyboard page for
 the caps+space cycle and the key table.
 

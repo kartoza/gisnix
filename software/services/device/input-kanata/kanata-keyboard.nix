@@ -78,8 +78,9 @@ let
   '';
 
   # j/k on the obs layer — steps the program scene forward/backward
-  # through gisnix's OWN 7-scene order (obs-setup.py's SCENE_BASE_NAMES:
-  # Webcam, Screen, ScreenCam, ScreenOverlay, Intro, BRB, Outro), not
+  # through gisnix's OWN 8-scene order (obs-setup.py's SCENE_BASE_NAMES:
+  # Intro, Webcam, Screen, ScreenCam, ScreenOverlay, Terminal, Outro,
+  # BRB — keep this bash array and that Python list in lockstep, not
   # whatever order obs-websocket's GetSceneList happens to report — that
   # depends on OBS's own scene-insertion behaviour, which this has no
   # business depending on. Pure network I/O (obs-websocket over
@@ -91,7 +92,7 @@ let
     runtimeInputs = [ pkgs.obs-cli ];
     text = ''
       direction="$1"
-      order=(Webcam Screen ScreenCam ScreenOverlay Intro BRB Outro)
+      order=(Intro Webcam Screen ScreenCam ScreenOverlay Terminal Outro BRB)
 
       current="$(obs-cli scene get --port 4455)"
       prefix="''${current% *}"

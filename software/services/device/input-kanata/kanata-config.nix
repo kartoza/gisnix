@@ -440,7 +440,7 @@ let
       ''
 
         (deflayer obs
-          _ @obs-webcam @obs-outro _ _    _ _ @obs-intro @obs-overlay _
+          _ @obs-webcam @obs-outro _ @obs-terminal    _ _ @obs-intro @obs-overlay _
           _ @obs-screen _ _ _    _ @obs-next @obs-prev _ _
           _ _ @obs-pip _ @obs-brb    _ _ _ _ _
           ${if dualMode then "@mode-next-from-obs" else "_"} _ _${herdrPass}
@@ -659,10 +659,11 @@ let
         obs-intro   (cmd ${obsCli} scene current --port 4455 "${obsScenePrefix} Intro")
         obs-brb     (cmd ${obsCli} scene current --port 4455 "${obsScenePrefix} BRB")
         obs-outro   (cmd ${obsCli} scene current --port 4455 "${obsScenePrefix} Outro")
+        obs-terminal (cmd ${obsCli} scene current --port 4455 "${obsScenePrefix} Terminal")
 
         ;; j/k — vim-shaped, same down=next/up=previous reading herdr's own
         ;; j/k (next/previous workspace) already uses. Steps through the
-        ;; same 7-scene order obs-setup.py built the collection in,
+        ;; same 8-scene order obs-setup.py built the collection in,
         ;; wrapping around at either end — see obs-scene-step itself for
         ;; why this is a separate script rather than another inline cmd.
         obs-next (cmd ${obsSceneStep} next)

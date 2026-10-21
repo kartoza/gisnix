@@ -95,10 +95,21 @@ def load_brand_overrides():
         except (OSError, json.JSONDecodeError) as exc:
             print(f"Warning: couldn't load brand '{name}' from {path}: {exc}", file=sys.stderr)
 
-SCENE_BASE_NAMES = ["Webcam", "Screen", "ScreenCam", "ScreenOverlay", "Intro", "BRB", "Outro"]
+# Intro first, then every working/content scene, then Outro, then BRB —
+# also the order obs-scene-step cycles through (j/k) and the order
+# build_all() creates them in, so OBS's own scene list reads the same
+# way top to bottom. kanata-keyboard.nix's obs-scene-step script carries
+# an identical copy of this list (bash can't import Python) — change one,
+# change the other, or j/k and this stop agreeing on what's next.
+SCENE_BASE_NAMES = ["Intro", "Webcam", "Screen", "ScreenCam", "ScreenOverlay", "Terminal", "Outro", "BRB"]
 
 CANVAS_W, CANVAS_H = 1920, 1080
-BORDER = 24  # branded frame thickness, Screen/ScreenCam/ScreenOverlay
+BORDER = 24  # branded frame thickness, Screen/ScreenCam/ScreenOverlay/Terminal
+# color_filter_v2's own opacity range is 0-1, NOT the legacy color_filter's
+# 0-100 — confirmed against real-world reports of the two behaving
+# differently (obsproject/obs-studio#4989), not assumed. 0.7 is readable
+# text over a readable face, the "VU-meter overlay" look — tune to taste.
+TERMINAL_OPACITY = 0.7
 
 # text_ft2_source_v2 face names — Lato ships via nixpkgs (pkgs.lato, wired
 # into fonts.packages by obs-scenes.nix) so fontconfig resolves these by
@@ -385,6 +396,20 @@ class SceneBuilder:
         self._place(resp.scene_item_id, x, y, w=w, h=h, source_w=source_w, source_h=source_h)
         return resp.scene_item_id
 
+    def capture(self, name, x, y, w, h):
+        # An UNSHARED screen/window capture — for a one-off per-scene
+        # capture like the Terminal scene's own terminal window, as
+        # opposed to the cross-scene Screen Capture source (see
+        # ensure_screen_capture) every Screen/ScreenCam/ScreenOverlay
+        # scene links in instead. No settings pre-filled: the portal
+        # prompts you to pick a screen or window the first time this
+        # input actually runs. Returns the full (scene-prefixed) source
+        # name, not a scene-item id, since callers that need to attach a
+        # filter (CreateSourceFilter) address the SOURCE by name.
+        resp = self._create_input(name, KIND_SCREEN, {})
+        self._place(resp.scene_item_id, x, y, w, h, source_w=CANVAS_W, source_h=CANVAS_H)
+        return f"{self.scene} {name}"
+
     def link(self, source_name, x, y, w=None, h=None, source_w=None, source_h=None):
         # Attaches an EXISTING, scene-independent source (see
         # ensure_shared_input) into THIS scene via CreateSceneItem,
@@ -591,6 +616,22 @@ def build_screenoverlay_scene(cl, b, screen_capture):
     )
 
 
+def build_terminal_scene(cl, b, camera):
+    # Talk to camera with a terminal visible at the same time — the
+    # full-canvas camera is the base layer, a full-canvas terminal/window
+    # capture sits on top at TERMINAL_OPACITY, the "VU-meter overlay"
+    # look streamers use: neither fully hides the other, both read at
+    # once. The capture itself has no settings pre-filled — same one-time
+    # portal setup as any other screen/window capture here, pick the
+    # terminal window the first time this scene is used.
+    s = SceneBuilder(cl, scene_name(b, "Terminal"))
+    s.color("Background", b["panel"], 0, 0, CANVAS_W, CANVAS_H)
+    s.link(camera, 0, 0, w=CANVAS_W, h=CANVAS_H, source_w=CANVAS_W, source_h=CANVAS_H)
+    terminal_source = s.capture("Window Capture", 0, 0, CANVAS_W, CANVAS_H)
+    cl.create_source_filter(terminal_source, "Transparency", "color_filter_v2", {"opacity": TERMINAL_OPACITY})
+    brand_mark(b, s, CANVAS_W - 220, CANVAS_H - 80, size=40)
+
+
 def build_card_scene(cl, b, base_name, headline, sub, card_logo, card_tagline):
     # Big, strong, bold — this is a title card, not a caption: a headline
     # this size is the whole point of the scene, not competing with
@@ -660,18 +701,24 @@ def build_all(cl, b, webcam_device, identity):
     camera = ensure_camera(cl, b, webcam_device)
     screen_capture = ensure_screen_capture(cl, b)
 
-    build_webcam_scene(cl, b, camera, identity)
-    build_screen_scene(cl, b, screen_capture)
-    build_screencam_scene(cl, b, screen_capture, camera)
-    build_screenoverlay_scene(cl, b, screen_capture)
-
     # Created once, linked into all three card scenes — see
     # ensure_card_brand_mark / ensure_card_tagline / SceneBuilder.link.
     card_logo = ensure_card_brand_mark(cl, b)
     card_tagline = ensure_card_tagline(cl, b)
+
+    # Build order matches SCENE_BASE_NAMES exactly — see that constant's
+    # own comment for why: OBS's own scene list then reads the same way
+    # top to bottom, and it's the order j/k (obs-scene-step) cycles
+    # through. Intro first, every working/content scene, then Outro,
+    # then BRB.
     build_card_scene(cl, b, "Intro", "Starting soon", identity["email"], card_logo, card_tagline)
+    build_webcam_scene(cl, b, camera, identity)
+    build_screen_scene(cl, b, screen_capture)
+    build_screencam_scene(cl, b, screen_capture, camera)
+    build_screenoverlay_scene(cl, b, screen_capture)
+    build_terminal_scene(cl, b, camera)
+    build_card_scene(cl, b, "Outro", "Goodbye!", identity["email"], card_logo, card_tagline)
     build_card_scene(cl, b, "BRB", "Be right back", None, card_logo, card_tagline)
-    build_card_scene(cl, b, "Outro", "Thanks for watching", identity["email"], card_logo, card_tagline)
 
 
 # Preference order, not a hard requirement — set_transition() below asks
