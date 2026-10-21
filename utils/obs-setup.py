@@ -360,18 +360,6 @@ class SceneBuilder:
         self._place(resp.scene_item_id, x, y)
         return resp.scene_item_id
 
-    def webcam(self, name, device, x, y, w, h):
-        resp = self._create_input(name, KIND_WEBCAM, {"device_id": device})
-        self._place(resp.scene_item_id, x, y, w, h, source_w=CANVAS_W, source_h=CANVAS_H)
-        return resp.scene_item_id
-
-    def screencapture(self, name, x, y, w, h):
-        # No source-specific settings pre-filled: the portal prompts the
-        # user to pick a screen/window the first time this input runs.
-        resp = self._create_input(name, KIND_SCREEN, {})
-        self._place(resp.scene_item_id, x, y, w, h, source_w=CANVAS_W, source_h=CANVAS_H)
-        return resp.scene_item_id
-
     def overlay(self, name, x, y, w=None, texture=None, layout=None):
         # The actual obs_data settings keys (confirmed from the plugin's
         # own compiled strings — its UI labels, "Overlay.Path.Texture" /
@@ -504,6 +492,27 @@ def ensure_card_tagline(cl, b):
     return ensure_shared_input(cl, name, KIND_TEXT, settings)
 
 
+def ensure_camera(cl, b, webcam_device):
+    """One webcam source, linked into both Webcam (full-canvas) and
+    ScreenCam (small PiP) — see ensure_shared_input. Beyond staying in
+    sync if the device ever changes, this avoids two independent v4l2
+    opens of the same physical camera at once, which not every driver
+    handles cleanly."""
+    name = f"{b['collection']} Camera"
+    return ensure_shared_input(cl, name, KIND_WEBCAM, {"device_id": webcam_device})
+
+
+def ensure_screen_capture(cl, b):
+    """One screen-capture source, linked into Screen/ScreenCam/
+    ScreenOverlay — see ensure_shared_input. Also means the xdg-desktop-
+    portal screen/window picker only has to be granted ONCE: each
+    independent pipewire-screen-capture-source instance prompts fresh on
+    its own first use, so three separate sources meant three separate
+    portal prompts for what was always meant to be the same capture."""
+    name = f"{b['collection']} Screen Capture"
+    return ensure_shared_input(cl, name, KIND_SCREEN, {})
+
+
 def brand_mark(b, s, x, y, size=96, face=FONT_BLACK):
     """Logo image if the brand has one, else a styled wordmark. `size` is
     the target rendered HEIGHT in pixels either way — the image branch
@@ -525,10 +534,10 @@ def brand_mark(b, s, x, y, size=96, face=FONT_BLACK):
         s.text("Brand Wordmark", b["wordmark"] or b["collection"], b["white"], x, y, size=size, face=face)
 
 
-def build_webcam_scene(cl, b, webcam_device, identity):
+def build_webcam_scene(cl, b, camera, identity):
     s = SceneBuilder(cl, scene_name(b, "Webcam"))
     s.color("Background", b["cloud"], 0, 0, CANVAS_W, CANVAS_H)
-    s.webcam("Camera", webcam_device, 0, 0, CANVAS_W, CANVAS_H)
+    s.link(camera, 0, 0, w=CANVAS_W, h=CANVAS_H, source_w=CANVAS_W, source_h=CANVAS_H)
     # Lower-third: panel + accent rule + name, the classic talking-head
     # treatment — solid charcoal panel (brand pack's own "no gradients"
     # rule), one thin accent-colour rule above it, name in big bold Lato.
@@ -539,10 +548,18 @@ def build_webcam_scene(cl, b, webcam_device, identity):
     brand_mark(b, s, CANVAS_W - 220, 32, size=56)
 
 
-def build_screen_scene(cl, b, name="Screen"):
+def build_screen_scene(cl, b, screen_capture, name="Screen"):
     s = SceneBuilder(cl, scene_name(b, name))
     s.color("Background", b["panel"], 0, 0, CANVAS_W, CANVAS_H)
-    s.screencapture("Screen Capture", BORDER, BORDER, CANVAS_W - 2 * BORDER, CANVAS_H - 2 * BORDER)
+    s.link(
+        screen_capture,
+        BORDER,
+        BORDER,
+        w=CANVAS_W - 2 * BORDER,
+        h=CANVAS_H - 2 * BORDER,
+        source_w=CANVAS_W,
+        source_h=CANVAS_H,
+    )
     # A thin brand-colour corner flag rather than a full frame — reads as
     # "branded" without competing with whatever's on screen underneath.
     s.color("Corner Flag", b["primary"], CANVAS_W - 180, 0, 180, 10)
@@ -550,16 +567,16 @@ def build_screen_scene(cl, b, name="Screen"):
     return s
 
 
-def build_screencam_scene(cl, b, webcam_device):
-    s = build_screen_scene(cl, b, "ScreenCam")
+def build_screencam_scene(cl, b, screen_capture, camera):
+    s = build_screen_scene(cl, b, screen_capture, "ScreenCam")
     pip_w, pip_h = 420, 236
     x, y = CANVAS_W - pip_w - 48, CANVAS_H - pip_h - 48
     s.color("Cam Border", b["secondary"], x - 8, y - 8, pip_w + 16, pip_h + 16)
-    s.webcam("Camera PiP", webcam_device, x, y, pip_w, pip_h)
+    s.link(camera, x, y, w=pip_w, h=pip_h, source_w=CANVAS_W, source_h=CANVAS_H)
 
 
-def build_screenoverlay_scene(cl, b):
-    s = build_screen_scene(cl, b, "ScreenOverlay")
+def build_screenoverlay_scene(cl, b, screen_capture):
+    s = build_screen_scene(cl, b, screen_capture, "ScreenOverlay")
     texture = DEFAULT_OVERLAY_TEXTURE if os.path.exists(DEFAULT_OVERLAY_TEXTURE) else None
     layout = DEFAULT_OVERLAY_LAYOUT if os.path.exists(DEFAULT_OVERLAY_LAYOUT) else None
     dims = png_dimensions(texture) if texture else None
@@ -635,10 +652,18 @@ SCRATCH_SCENE = "_gisnix_scratch_"
 
 
 def build_all(cl, b, webcam_device, identity):
-    build_webcam_scene(cl, b, webcam_device, identity)
-    build_screen_scene(cl, b)
-    build_screencam_scene(cl, b, webcam_device)
-    build_screenoverlay_scene(cl, b)
+    # Created once, linked into every scene that needs them — see
+    # ensure_camera / ensure_screen_capture / SceneBuilder.link. Besides
+    # keeping them in sync, this means the portal screen/window picker
+    # only has to be granted once (per ensure_screen_capture's own note),
+    # and avoids two v4l2 opens of the same physical camera at once.
+    camera = ensure_camera(cl, b, webcam_device)
+    screen_capture = ensure_screen_capture(cl, b)
+
+    build_webcam_scene(cl, b, camera, identity)
+    build_screen_scene(cl, b, screen_capture)
+    build_screencam_scene(cl, b, screen_capture, camera)
+    build_screenoverlay_scene(cl, b, screen_capture)
 
     # Created once, linked into all three card scenes — see
     # ensure_card_brand_mark / ensure_card_tagline / SceneBuilder.link.
