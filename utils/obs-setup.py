@@ -78,9 +78,13 @@ def load_brand_overrides():
     (private data should always win over a public default, not merge
     field-by-field with it). Required keys: collection, panel, primary,
     secondary, cloud, white, logo (a file path or null), wordmark (a
-    string shown instead of an image, or null), tagline. A malformed file
-    is skipped with a warning, not a crash — one bad brand file shouldn't
-    take every brand down with it."""
+    string shown instead of an image, or null), tagline. Optional: motif —
+    a file path to a full-canvas-aspect-ratio PNG with the brand's own
+    diagonal-panel artwork already composited in (see build_card_scene),
+    used in place of the geometric slant panel when present; omit or set
+    null to keep the geometric look. A malformed file is skipped with a
+    warning, not a crash — one bad brand file shouldn't take every brand
+    down with it."""
     if not os.path.isdir(BRAND_OVERRIDE_DIR):
         return
     for path in sorted(glob.glob(os.path.join(BRAND_OVERRIDE_DIR, "*.json"))):
@@ -113,6 +117,21 @@ KIND_TEXT = "text_ft2_source_v2"
 KIND_WEBCAM = "v4l2_input"
 KIND_SCREEN = "pipewire-screen-capture-source"  # portal-based — cosmic-comp has no wlr-screencopy
 KIND_OVERLAY = "input-overlay"
+
+
+def png_dimensions(path):
+    """(width, height) read straight from the PNG IHDR chunk — stdlib only,
+    no Pillow dependency just to size one background image before scaling
+    it to canvas. Returns None for anything that isn't a well-formed PNG;
+    callers treat that as "place unscaled" rather than crashing on it."""
+    try:
+        with open(path, "rb") as f:
+            header = f.read(24)
+    except OSError:
+        return None
+    if header[:8] != b"\x89PNG\r\n\x1a\n" or header[12:16] != b"IHDR":
+        return None
+    return int.from_bytes(header[16:20], "big"), int.from_bytes(header[20:24], "big")
 
 
 def abgr(hex_color, alpha=255):
@@ -315,9 +334,9 @@ class SceneBuilder:
         self._place(resp.scene_item_id, x, y, rotation=rotation)
         return resp.scene_item_id
 
-    def image(self, name, path, x, y):
+    def image(self, name, path, x, y, w=None, h=None, source_w=None, source_h=None):
         resp = self._create_input(name, KIND_IMAGE, {"file": path})
-        self._place(resp.scene_item_id, x, y)
+        self._place(resp.scene_item_id, x, y, w, h, source_w, source_h)
         return resp.scene_item_id
 
     def text(self, name, text_value, color_hex, x, y, size=64, face=FONT_REGULAR):
@@ -422,8 +441,22 @@ def build_card_scene(cl, b, base_name, headline, sub):
     # this size is the whole point of the scene, not competing with
     # anything else on screen the way the lower-third text does.
     s = SceneBuilder(cl, scene_name(b, base_name))
-    s.color("Background", b["cloud"], 0, 0, CANVAS_W, CANVAS_H)
-    s.slant_panel("Slant Panel", b["panel"])
+    # "motif" is optional brand data (see load_brand_overrides): a full
+    # CANVAS-aspect-ratio background with the brand's real diagonal-panel
+    # artwork already composited in (the brand pack's own slant_title.png,
+    # for Kartoza) — the right-hand art slant_panel's geometric rectangle
+    # can't recreate, since that rectangle is deliberately plain colour so
+    # it works for any brand without needing artwork at all. A brand with
+    # no motif (QGIS) falls back to the flat-colour + geometric-panel look
+    # exactly as before.
+    motif = b.get("motif")
+    motif_dims = png_dimensions(motif) if motif and os.path.exists(motif) else None
+    if motif_dims:
+        mw, mh = motif_dims
+        s.image("Background", motif, 0, 0, w=CANVAS_W, h=CANVAS_H, source_w=mw, source_h=mh)
+    else:
+        s.color("Background", b["cloud"], 0, 0, CANVAS_W, CANVAS_H)
+        s.slant_panel("Slant Panel", b["panel"])
     brand_mark(b, s, 140, 260, size=120)
     s.text("Headline", headline, b["white"], 136, 460, size=104, face=FONT_BLACK)
     if sub:
