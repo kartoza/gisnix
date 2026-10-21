@@ -163,22 +163,13 @@ PYEOF
   };
 in
 {
-  # Lato — the brand pack's own typeface — so text_ft2_source_v2's
+  # Lato — gisnix's own pick for the scene text, Black for headlines,
+  # regular/bold for everything else — so text_ft2_source_v2's
   # "Lato"/"Lato Bold"/"Lato Black" face names resolve via fontconfig.
-  # Open-source (OFL), packaged in nixpkgs proper; no private asset needed
-  # for the typography, unlike the motif artwork this deliberately avoids
-  # (see obs-setup.py's own BRANDS comment for why).
+  # Open-source (OFL), packaged in nixpkgs proper.
   fonts.packages = [ pkgs.lato ];
 
-  environment.etc = identityFiles // {
-    # obs-setup.py's default KARTOZA_LOGO path — QGIS has no vendored logo
-    # (see obs-setup.py's own BRANDS comment), so only Kartoza needs an
-    # asset shipped here.
-    "xdg/obs-scenes/kartoza-logo.png" = {
-      mode = "0444";
-      source = ../../../resources/kartoza-logo.png;
-    };
-  };
+  environment.etc = identityFiles;
 
   system.activationScripts.gisnixObsSeedConfig = ''
     ${seedObsConfig}/bin/gisnix-obs-seed-config

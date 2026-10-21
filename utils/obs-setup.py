@@ -36,38 +36,26 @@ import obsws_python as obs
 from obsws_python.error import OBSSDKRequestError
 
 # --------------------------------------------------------------------------
-# Brand palette — Kartoza's real design tokens (the official brand pack's
-# color/tokens.json: Kartoza Amber #EEB348, Kartoza Blue #54A2CC, Charcoal
-# #383939 for panels/body text), not sampled/guessed. Flat colour only, no
-# gradients or drop shadows — the brand pack is explicit that the system is
-# flat. QGIS has no equivalent brand pack here, so its tones are sampled
-# from the real committed asset (resources/qgis-spatial-splash.png) instead,
-# same as before.
+# Brand palette. gisnix ships exactly one brand outright — QGIS, fully
+# public: no vendored logo (redistributing one needs a license check
+# gisnix hasn't done), so it's a styled wordmark (text_ft2_source), and its
+# tones are sampled from the real committed asset
+# (resources/qgis-spatial-splash.png), not invented.
 #
-# QGIS has no vendored logo (unlike Kartoza's resources/kartoza-logo.png) —
-# redistributing one needs a license check gisnix hasn't done yet, so the
-# QGIS brand card is a styled wordmark (text_ft2_source), not an image. Swap
-# in a real logo file + an `image` element once that's cleared.
+# Every other brand — Kartoza included — is NOT defined here. It's loaded
+# at runtime from /etc/xdg/obs-scenes/brands/<name>.json, which is
+# nix-config's (private) concern to provision, not gisnix's: gisnix is the
+# mechanism, a specific company's actual brand tokens, tagline and logo
+# path are that company's data, supplied from outside. See
+# load_brand_overrides() below for the exact JSON shape expected.
 #
-# Kartoza's actual motif artwork (the map illustration, the pre-rendered
-# slant graphics) is proprietary brand-pack material and deliberately NOT
-# used here — this file stays in public gisnix. The "slant panel" look
-# below is built from plain rotated colour rectangles instead: the same
-# diagonal-panel *device* the brand pack uses, recreated geometrically
-# rather than from its artwork, which is why it works for QGIS too.
+# The "slant panel" look (build_card_scene) is built from plain rotated
+# colour rectangles, not from any brand pack's pre-rendered artwork — the
+# same diagonal-panel *device* a brand pack like Kartoza's might ship as a
+# bitmap, recreated geometrically instead, which is why it works for any
+# brand's colours, public or private, without needing that artwork here.
 # --------------------------------------------------------------------------
 BRANDS = {
-    "kartoza": {
-        "collection": "Kartoza",
-        "panel": "#383939",  # Charcoal — brand pack's own panel/body-text tone
-        "primary": "#EEB348",  # Kartoza Amber
-        "secondary": "#54A2CC",  # Kartoza Blue
-        "cloud": "#F5F5F2",  # Cloud (light neutral surface)
-        "white": "#FFFFFF",
-        "logo": os.environ.get("KARTOZA_LOGO", "/etc/xdg/obs-scenes/kartoza-logo.png"),
-        "wordmark": None,
-        "tagline": "putting spatial decision-making tools in the hands of everyone",
-    },
     "qgis": {
         "collection": "QGIS",
         "panel": "#062436",  # sampled from resources/qgis-spatial-splash.png
@@ -80,6 +68,28 @@ BRANDS = {
         "tagline": "A Free and Open Source Geographic Information System",
     },
 }
+
+BRAND_OVERRIDE_DIR = "/etc/xdg/obs-scenes/brands"
+
+
+def load_brand_overrides():
+    """Each /etc/xdg/obs-scenes/brands/<name>.json becomes BRANDS[<name>],
+    replacing a built-in entry of the same name outright if one exists
+    (private data should always win over a public default, not merge
+    field-by-field with it). Required keys: collection, panel, primary,
+    secondary, cloud, white, logo (a file path or null), wordmark (a
+    string shown instead of an image, or null), tagline. A malformed file
+    is skipped with a warning, not a crash — one bad brand file shouldn't
+    take every brand down with it."""
+    if not os.path.isdir(BRAND_OVERRIDE_DIR):
+        return
+    for path in sorted(glob.glob(os.path.join(BRAND_OVERRIDE_DIR, "*.json"))):
+        name = os.path.splitext(os.path.basename(path))[0]
+        try:
+            with open(path) as f:
+                BRANDS[name] = json.load(f)
+        except (OSError, json.JSONDecodeError) as exc:
+            print(f"Warning: couldn't load brand '{name}' from {path}: {exc}", file=sys.stderr)
 
 SCENE_BASE_NAMES = ["Webcam", "Screen", "ScreenCam", "ScreenOverlay", "Intro", "BRB", "Outro"]
 
@@ -476,6 +486,8 @@ def set_transition(cl):
 
 
 def main():
+    load_brand_overrides()  # before argparse: --help/choices must reflect what's actually installed
+
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("brand", choices=sorted(BRANDS))
     parser.add_argument("--force", action="store_true", help="tear down and rebuild if the collection exists")
