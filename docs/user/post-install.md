@@ -196,9 +196,26 @@ inconsistent about, the same gap behind the GIF recorder's own note above;
 copy-to-clipboard only needs the clipboard protocol, which works
 everywhere.
 
-Every fuzzel-based launcher gisnix ships (this one, and more to come)
-shares one theme — dark, rounded, generously padded — configured once in
-`fuzzel.ini` rather than per-launcher.
+Every fuzzel-based launcher gisnix ships (this one, and the cheatsheet
+below) shares one theme — dark, rounded, generously padded — configured
+once in `fuzzel.ini` rather than per-launcher.
+
+### Keybind cheatsheet
+
+Also with `desktop-essentials-extras`: bind
+`/run/current-system/sw/bin/keybind-cheatsheet` — `Super+K` fits the
+pattern. Opens a big fuzzel panel (roughly 80% of the screen) listing
+every keybind on [the keyboard page](keyboard.md) — home-row mods,
+bracket chords, clipboard holds, the navigation layer, the herdr layer —
+grouped by section, fuzzy-searchable the same way as any fuzzel menu.
+It's a reader, not a picker: selecting a line doesn't do anything, Esc
+closes it.
+
+It parses `keyboard.md`'s own tables rather than carrying a second,
+separately-maintained list — update the docs, rebuild, the cheatsheet
+matches. A private host can extend it with its own sections (aerc/obs
+bindings, say) by dropping a markdown file with the same table shape into
+`/etc/xdg/keybind-cheatsheet/`.
 
 ### Other commands worth a key
 

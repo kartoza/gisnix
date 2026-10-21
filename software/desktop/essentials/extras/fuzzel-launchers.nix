@@ -33,6 +33,27 @@
         exec rofimoji --selector fuzzel --action copy
       '';
     })
+
+    # Every keybind table in docs/user/keyboard.md, in one fuzzy-searchable
+    # panel — parses the actual markdown (keybind-cheatsheet.py), rather
+    # than a second, hand-maintained copy of the same bindings that could
+    # drift from it. Covers what gisnix itself documents there (home-row
+    # mods, bracket chords, clipboard holds, nav layer, herdr layer) —
+    # aerc/obs and anything else private has no table in gisnix's own
+    # docs to parse, but shows up too if a host drops its own markdown
+    # fragment, same table shape, into /etc/xdg/keybind-cheatsheet/*.md.
+    #
+    #   Super+K → keybind-cheatsheet   (bind by hand, see module comment above)
+    (writeShellApplication {
+      name = "keybind-cheatsheet";
+      runtimeInputs = [
+        python3
+        fuzzel
+      ];
+      text = ''
+        exec python3 ${./keybind-cheatsheet.py} ${../../../../docs/user/keyboard.md} "$@"
+      '';
+    })
   ];
 
   environment.etc."xdg/fuzzel/fuzzel.ini" = {
