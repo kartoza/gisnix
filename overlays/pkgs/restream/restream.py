@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """A Textual front end for stream-sprout — restream-to-multiple-platforms
 over RTMP (see software/desktop/multimedia/obs.nix for how it's installed).
 
@@ -235,7 +234,8 @@ def save_custom_links(links: list[tuple[str, str]]) -> None:
 
     path = sidecar_path()
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps({"links": [{"label": l, "url": u} for l, u in links]}, indent=2))
+    rows = [{"label": label, "url": url} for label, url in links]
+    path.write_text(json.dumps({"links": rows}, indent=2))
 
 
 # ── modal: add / edit a service ─────────────────────────────────────────

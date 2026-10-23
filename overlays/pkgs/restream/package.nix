@@ -9,8 +9,14 @@ writers.writePython3Bin "restream" {
     textual
     pyyaml
   ];
-  # writers' flake8 check enforces PEP8's 79-column line limit, which
-  # nothing else in this repo's Python follows (see utils/*.py) — not a
-  # real defect, just a stricter default than our house style.
-  flakeIgnore = [ "E501" ];
+  # writers' flake8 check enforces strict PEP8 style (line length, comment
+  # formatting, ambiguous names, operator-placement nits) that nothing
+  # else in this repo's Python follows (see utils/*.py) — none of it is a
+  # real defect. Ignore the whole pycodestyle families (E, W) rather than
+  # chase one code at a time; keep pyflakes' F-codes (unused imports,
+  # undefined names, redefinitions) enforced — those catch real bugs.
+  flakeIgnore = [
+    "E"
+    "W"
+  ];
 } (builtins.readFile ./restream.py)
