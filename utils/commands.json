@@ -956,26 +956,6 @@
       "usage": "gisnix obs-setup <kartoza|qgis> [--force]"
     },
     {
-      "name": "restream",
-      "file": "stream-sprout-tui.sh",
-      "key": "P",
-      "group": "software",
-      "order": 6,
-      "desc": "Textual TUI for stream-sprout: edit the local RTMP endpoint and restream destinations, run/stop it, watch the log, and jump to YouTube/Twitch/PeerTube management pages",
-      "terse": "configure and run stream-sprout",
-      "deps": [],
-      "pythonDeps": [
-        "textual",
-        "pyyaml"
-      ],
-      "sequence": [
-        "edit the local RTMP endpoint OBS streams into, and the enabled restream destinations",
-        "start stream-sprout and watch its log for standing-by/streaming/stopped",
-        "jump to YouTube Studio, Twitch's dashboard, or any custom link you've recorded"
-      ],
-      "usage": "gisnix restream [--config <path>]"
-    },
-    {
       "name": "gc",
       "file": "gc.sh",
       "key": "O",

@@ -360,7 +360,7 @@ class LinkModal(ModalScreen[tuple[str, str] | None]):
 
 
 class SproutApp(App):
-    """gisnix restream — set up and run stream-sprout without hand-editing YAML."""
+    """restream — set up and run stream-sprout without hand-editing YAML."""
 
     CSS = """
     #endpoint-form Input { margin-bottom: 1; }
@@ -387,7 +387,7 @@ class SproutApp(App):
         self.custom_links = load_custom_links()
         self.show_keys = False
         self.process: subprocess.Popen | None = None
-        self.title = "gisnix restream"
+        self.title = "restream"
         self.sub_title = str(self.config.path)
 
     # ── layout ───────────────────────────────────────────────────────────
@@ -737,7 +737,7 @@ class SproutApp(App):
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        prog="gisnix restream",
+        prog="restream",
         description=__doc__.splitlines()[0],
     )
     parser.add_argument(

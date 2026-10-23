@@ -19,7 +19,7 @@ Every command this flake provides. One row in `utils/commands.json` mints all of
 
 This page is the sixth, generated from the same row.
 
-**45 implemented**, 5 declared but not yet written. Commands still to be built are listed rather than hidden: the manifest describes the intended lifecycle, not only the part of it that exists.
+**44 implemented**, 5 declared but not yet written. Commands still to be built are listed rather than hidden: the manifest describes the intended lifecycle, not only the part of it that exists.
 
 ## The life of a host
 
@@ -117,7 +117,6 @@ graph LR
 | [`adduser`](#adduser) | `<leader>pC` | add a user account |
 | [`set-timezone`](#set-timezone) | `<leader>pV` | set the timezone |
 | [`obs-setup`](#obs-setup) | `<leader>po` | build the branded OBS scene collection |
-| [`restream`](#restream) | `<leader>pP` | configure and run stream-sprout |
 
 **🧪 qa** — Checks that run before a change lands.
 
@@ -714,25 +713,6 @@ What it does, in order:
 | Implementation | `utils/obs-setup.sh` |
 | Neovim | `<leader>po` |
 | On PATH | `gum` |
-
-### restream
-
-Textual TUI for stream-sprout: edit the local RTMP endpoint and restream destinations, run/stop it, watch the log, and jump to YouTube/Twitch/PeerTube management pages.
-
-```bash
-gisnix restream [--config <path>]
-```
-
-What it does, in order:
-
-1. edit the local RTMP endpoint OBS streams into, and the enabled restream destinations
-2. start stream-sprout and watch its log for standing-by/streaming/stopped
-3. jump to YouTube Studio, Twitch's dashboard, or any custom link you've recorded
-
-| | |
-| --- | --- |
-| Implementation | `utils/stream-sprout-tui.sh` |
-| Neovim | `<leader>pP` |
 
 ## Quality checks
 

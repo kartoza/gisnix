@@ -7,14 +7,17 @@ All notable changes to gisnix are documented here. Format follows
 
 ### Added
 
-- **`gisnix restream`** (`utils/stream-sprout-tui.py`) — a Textual TUI for
-  `stream-sprout` (restream-to-multiple-platforms, in the
-  `desktop-multimedia` bundle). Edits the same `stream-sprout.yaml`
-  `stream-sprout` itself reads (local RTMP endpoint, restream
-  destinations with Twitch/YouTube/Trovo presets or a custom entry for
-  self-hosted PeerTube/Owncast), runs/stops it and tails its log for
-  standing-by/streaming/stopped, and links out to YouTube Studio and
-  Twitch's dashboard plus any custom links recorded for self-hosted
+- **`restream`**, a system package alongside `stream-sprout` in the
+  `desktop-multimedia` bundle (`software/desktop/multimedia/obs.nix`) —
+  a Textual TUI front end for it, packaged from
+  `overlays/pkgs/restream/restream.py`. Not an operator command (it has
+  nothing to do with host management), just an ordinary installed
+  program, same as `stream-sprout` itself. Edits the same
+  `stream-sprout.yaml` `stream-sprout` reads (local RTMP endpoint,
+  restream destinations with Twitch/YouTube/Trovo presets or a custom
+  entry for self-hosted PeerTube/Owncast), runs/stops it and tails its
+  log for standing-by/streaming/stopped, and links out to YouTube Studio
+  and Twitch's dashboard plus any custom links recorded for self-hosted
   instances.
 
 ## [0.26.1] - 2026-10-16

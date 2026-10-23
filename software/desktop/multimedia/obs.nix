@@ -8,6 +8,7 @@
   # Add system wide packages
   environment.systemPackages = [
     pkgs.stream-sprout # restream the v4l2loopback cam below to Twitch/YouTube/Owncast/PeerTube
+    pkgs.restream # TUI for the above: edit its endpoint/destinations, run it, watch the log
     pkgs.obs-cli # remote-control OBS over obs-websocket — top-level package, not an obs-studio-plugins attr
     (pkgs.wrapOBS {
       plugins = with pkgs.obs-studio-plugins; [

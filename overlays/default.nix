@@ -97,6 +97,11 @@ in
     # Stream Sprout - restream a video source to multiple destinations
     stream-sprout = inputs.stream-sprout.packages.${final.stdenv.hostPlatform.system}.default;
 
+    # restream — our own Textual TUI for stream-sprout above: edit its RTMP
+    # endpoint/destinations, run/stop it, watch the log, jump to the
+    # platforms' management pages. See software/desktop/multimedia/obs.nix.
+    restream = final.callPackage ./pkgs/restream/package.nix { };
+
     # Bubblewrapped AI applications. All generated from the one jail
     # definition in ./pkgs/ai/mk-sandboxed.nix — add new tools there rather
     # than copying a wrapper.
