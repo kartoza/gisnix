@@ -346,11 +346,11 @@ graph LR
 | [`desktop-games`](#desktop-games)  | 3 | `desktop-environments-cosmic` | — |
 | [`desktop-gis`](#desktop-gis)  | 9 | `desktop-environments-cosmic` | `desktop-gis-source-builds`, `desktop-gis-versions-qgis-1-8`, `desktop-gis-versions-qgis-2-10`, `desktop-gis-versions-qgis-2-16`, `desktop-gis-versions-qgis-2-18`, `desktop-gis-versions-qgis-2-4`, `desktop-gis-versions-qgis-2-6`, `desktop-gis-versions-qgis-2-8`, `desktop-gis-versions-qgis-3-10`, `desktop-gis-versions-qgis-3-16`, `desktop-gis-versions-qgis-3-22`, `desktop-gis-versions-qgis-3-24`, `desktop-gis-versions-qgis-3-26`, `desktop-gis-versions-qgis-3-28`, `desktop-gis-versions-qgis-3-32`, `desktop-gis-versions-qgis-3-34`, `desktop-gis-versions-qgis-3-36`, `desktop-gis-versions-qgis-3-38`, `desktop-gis-versions-qgis-3-4`, `desktop-gis-versions-qgis-3-40`, `desktop-gis-versions-qgis-3-42`, `desktop-gis-versions-qgis-3-44`, `desktop-gis-versions-qgis-3-8`, `desktop-gis-versions-qgis-4-0` |
 | [`desktop-kartoza-apps`](#desktop-kartoza-apps)  | 3 | `desktop-environments-cosmic` | `desktop-kartoza-apps-screencaster` |
-| [`desktop-multimedia`](#desktop-multimedia)  | 6 | `desktop-environments-cosmic` | — |
+| [`desktop-multimedia`](#desktop-multimedia)  | 7 | `desktop-environments-cosmic` | — |
 | [`desktop-productivity`](#desktop-productivity)  | 3 | `desktop-environments-cosmic` | — |
 | [`desktop-remote`](#desktop-remote)  | 3 | `desktop-environments-cosmic` | — |
 | [`desktop-environments-cosmic`](#desktop-environments-cosmic)  | 3 | `desktop-essentials` | `desktop-browsers`, `desktop-comms`, `desktop-ebook-readers`, `desktop-environments-cosmic-extensions`, `desktop-games`, `desktop-gis`, `desktop-kartoza-apps`, `desktop-multimedia`, `desktop-productivity`, `desktop-remote` |
-| [`desktop-essentials-extras`](#desktop-essentials-extras)  | 1 | `desktop-essentials` | — |
+| [`desktop-essentials-extras`](#desktop-essentials-extras)  | 2 | `desktop-essentials` | — |
 | [`desktop-gis-source-builds`](#desktop-gis-source-builds)  | 3 | `desktop-gis` | — |
 | [`desktop-kartoza-apps-screencaster`](#desktop-kartoza-apps-screencaster)  | 1 | `desktop-kartoza-apps` | — |
 | [`desktop-environments-cosmic-extensions`](#desktop-environments-cosmic-extensions)  | 1 | `desktop-environments-cosmic` | — |
@@ -589,6 +589,7 @@ Taking this also brings in `desktop-environments-cosmic`.
 | `creative-apps.nix` | Creative applications: audio, image, video and 3D authoring |
 | `find-cursor.nix` | find-cursor — click-to-highlight the mouse pointer, for screencasts and demos (and for finding the cursor across… |
 | `obs.nix` | — |
+| `obs-scenes.nix` | Pre-seeds OBS so `gisnix obs-setup <kartoza\|qgis>` (utils/obs-setup.py) has something to talk to, and so the host's… |
 | `unstable-apps.nix` | — |
 | `wshowkeys.nix` | wshowkeys — on-screen keystroke display for screencasts and demos, pairing with OBS and record-gif |
 
@@ -643,6 +644,7 @@ Taking this also brings in `desktop-essentials`.
 | Module | What it is |
 | --- | --- |
 | `desktop-base-extras.nix` | Desktop applications beyond the minimum a COSMIC session needs |
+| `fuzzel-launchers.nix` | fuzzel-powered launcher panels — one shared, tasteful theme (fuzzel.ini: a dark, rounded, generously-padded look,… |
 
 ### desktop-gis-source-builds
 
@@ -1256,6 +1258,6 @@ Taking this also brings in `services-system`.
 
 ---
 
-61 bundles, 232 modules.
+61 bundles, 234 modules.
 
 Made with love by [Kartoza](https://kartoza.com) | [Donate](https://github.com/sponsors/timlinux) | [GitHub](https://github.com/kartoza/gisnix)

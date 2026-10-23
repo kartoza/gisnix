@@ -19,7 +19,7 @@ Every command this flake provides. One row in `utils/commands.json` mints all of
 
 This page is the sixth, generated from the same row.
 
-**43 implemented**, 5 declared but not yet written. Commands still to be built are listed rather than hidden: the manifest describes the intended lifecycle, not only the part of it that exists.
+**45 implemented**, 5 declared but not yet written. Commands still to be built are listed rather than hidden: the manifest describes the intended lifecycle, not only the part of it that exists.
 
 ## The life of a host
 
@@ -116,6 +116,8 @@ graph LR
 | [`locale`](#locale) | `<leader>pL` | change locale / timezone |
 | [`adduser`](#adduser) | `<leader>pC` | add a user account |
 | [`set-timezone`](#set-timezone) | `<leader>pV` | set the timezone |
+| [`obs-setup`](#obs-setup) | `<leader>po` | build the branded OBS scene collection |
+| [`restream`](#restream) | `<leader>pP` | configure and run stream-sprout |
 
 **🧪 qa** — Checks that run before a change lands.
 
@@ -692,6 +694,45 @@ gisnix set-timezone
 | Implementation | `utils/set-timezone.sh` |
 | Neovim | `<leader>pV` |
 | On PATH | `coreutils`, `findutils`, `gnugrep`, `nettools`, `python3`, `gum`, `systemd` |
+
+### obs-setup
+
+Build gisnix's branded OBS scene collection (Kartoza or QGIS) — Webcam/Screen/ScreenCam/ScreenOverlay/Intro/BRB/Outro — by driving a running OBS over obs-websocket.
+
+```bash
+gisnix obs-setup <kartoza|qgis> [--force]
+```
+
+What it does, in order:
+
+1. connect to OBS's websocket server (must already be running)
+2. create or rebuild the brand's scene collection
+3. add each scene's sources (camera, screen capture, branding) with their transforms
+
+| | |
+| --- | --- |
+| Implementation | `utils/obs-setup.sh` |
+| Neovim | `<leader>po` |
+| On PATH | `gum` |
+
+### restream
+
+Textual TUI for stream-sprout: edit the local RTMP endpoint and restream destinations, run/stop it, watch the log, and jump to YouTube/Twitch/PeerTube management pages.
+
+```bash
+gisnix restream [--config <path>]
+```
+
+What it does, in order:
+
+1. edit the local RTMP endpoint OBS streams into, and the enabled restream destinations
+2. start stream-sprout and watch its log for standing-by/streaming/stopped
+3. jump to YouTube Studio, Twitch's dashboard, or any custom link you've recorded
+
+| | |
+| --- | --- |
+| Implementation | `utils/stream-sprout-tui.sh` |
+| Neovim | `<leader>pP` |
 
 ## Quality checks
 

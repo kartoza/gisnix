@@ -92,8 +92,12 @@ pkgs.mkShell {
         # textual: so `GISNIX_INSTALLER_MOCK=1 python3 -m installer` (or
         # `python3 -m installer --mock`) runs straight from the working
         # tree — no `nix run`/rebuild between edits, the fastest loop for
-        # iterating on the setup wizard's screens.
+        # iterating on the setup wizard's screens. Also what `gisnix
+        # restream` (utils/stream-sprout-tui.py) runs on.
         textual
+        # pyyaml: `python3 utils/stream-sprout-tui.py` reads/writes
+        # stream-sprout.yaml directly from the working tree, same reason.
+        pyyaml
         # pytest: installer/tests/ — `pytest installer/tests` from repo
         # root. No pytest-asyncio: those tests wrap App.run_test() in a
         # plain asyncio.run() inside an ordinary sync test function
