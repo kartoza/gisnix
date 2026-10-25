@@ -14,7 +14,7 @@ for that).
 - **[Keyboard remapping](keyboard.md)** — the home-row modifiers and
   navigation layer the `services-device-input-kanata` bundle gives you
   (on by default), what to do about a second board, and the
-  [voice dictation](keyboard.md#dictation-handy) app that ships
+  [voice dictation](keyboard.md#dictation-super-stt) app that ships
   alongside it.
 - **[Building your fleet](fleet.md)** — living with one host, turning it
   into a real repo, and adding a second (or tenth) machine.

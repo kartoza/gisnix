@@ -114,30 +114,36 @@ right hand becomes arrow keys and paging.
 Release Space or Menu and the layer disappears; every key underneath goes
 back to typing normally.
 
-## Dictation (Handy)
+## Dictation (Super STT)
 
-[Handy](https://github.com/cjpais/Handy) ships too — press a shortcut,
-speak, press again, and it types the transcription at your cursor,
-entirely on-device (Whisper or Parakeet models; nothing you say leaves
-the machine). It replaced [voxtype](https://github.com/peteonrails/voxtype)
-here, which had grown too slow.
+[Super STT](https://github.com/jorge-menjivar/super-stt) ships too —
+press a shortcut, speak, press again, and it types the transcription at
+your cursor. Pick a local model (Whisper, say) rather than one of its
+cloud backends and nothing you say leaves the machine. It replaced
+[Handy](https://github.com/cjpais/Handy), whose Settings window had
+started permanently white-screening, which itself had replaced
+[voxtype](https://github.com/peteonrails/voxtype) (too slow).
 
-Unlike everything else on this page, **Handy is not part of the kanata
-remapping** — it is its own tray application, and configures itself:
+gisnix wires up the daemon as a systemd user service (`systemctl
+--user status super-stt`), so it's running from login — but, same as
+Handy before it, **the keyboard shortcut is not part of the kanata
+remapping**. The daemon's own socket lives under your session's
+`XDG_RUNTIME_DIR`, which kanata's system-level service has no path to —
+the same wall voxtype's push-to-talk key and Handy's shortcuts hit
+earlier. Bind it by hand instead:
 
-- First run, open Handy from its tray icon and pick a model in
-  Settings → Models. Nothing works until this is done; there's no
-  automated download the way voxtype's `setup --download` was.
-- Set your own shortcut and recording mode (toggle / hold-to-talk) in
-  Settings → Shortcuts.
-- Turn on "launch at login" in Handy's own Settings if you want it
-  running without opening it by hand each session — gisnix doesn't wire
-  a systemd unit for this; the app manages its own lifecycle.
+- First run, pick a model via the `stt` CLI or the Super STT app. On a
+  fleet machine, pick a local model (Whisper) — leave any cloud backend
+  it offers (OpenAI, Deepgram, Mistral) switched off, so recordings
+  never leave the machine.
+- Settings → Input devices → Keyboard shortcuts → Custom shortcuts, add
+  one running `stt record --write` (Super+Space is upstream's own
+  convention, if you want to match it).
 
-If something's not transcribing, check whether Handy is even running
-(`pgrep handy`, or look for its tray icon) before suspecting the model or
-shortcut — a fresh install starts it manually once, same as the
-model-pick step above.
+If something's not transcribing, check `systemctl --user status
+super-stt` before suspecting the model or shortcut — the unit restarts
+on crash, but a model that was never picked will not automatically fix
+itself.
 
 ## herdr layer
 

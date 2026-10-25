@@ -346,72 +346,98 @@ in
       }
     ) config.services.kanata.keyboards;
 
-    # Handy (https://github.com/cjpais/Handy) — local, offline speech-to-
-    # text: press a shortcut, speak, press again, and it types the
-    # transcription at your cursor. Whisper/Parakeet runs on-device;
-    # nothing leaves the machine. Replaces voxtype, which this fleet found
-    # too slow.
+    # super-stt (https://github.com/jorge-menjivar/super-stt) — local
+    # speech-to-text daemon + CLI. Replaces Handy, whose Settings window
+    # started permanently white-screening (an upstream Tauri/WebKitGTK
+    # bug, not something to chase here).
     #
-    # Just a package here, deliberately — no systemd unit and no kanata
-    # binding. Both were tried (see the commit that added, then the one
-    # that removed, pkgs.kanata-handy-toggle) and dropped in favour of
-    # Handy's own mechanisms: its tray Settings has its own global-
-    # shortcut config and its own "launch at login" toggle, and leaning on
-    # those means gisnix isn't re-implementing (and re-debugging) features
-    # the app already ships. The cost is two one-time manual steps on a
-    # fresh install — pick a model, and flip "launch at login" on — not
-    # meaningfully different from the model pick already being manual.
-    environment.systemPackages = with pkgs; [
-      kanata
-      handy
+    # No kanata binding, same reasoning this file already arrived at for
+    # Handy (and, earlier, voxtype's push-to-talk key, see
+    # voxtypePtt/voxtypeManagedConfig history above): kanata's own unit
+    # is a SYSTEM service — it has no XDG_RUNTIME_DIR for any user's
+    # session, so a `cmd` action here could not reach super-stt-daemon's
+    # per-user socket ($XDG_RUNTIME_DIR/stt/super-stt-http.sock) any more
+    # than it could reach voxtype's. The shortcut has to be bound inside
+    # the user's own session instead — COSMIC has no NixOS-declarative
+    # custom-shortcut mechanism gisnix can hook into (same gap documented
+    # in fuzzel-launchers.nix and docs/user/post-install.md's "Custom
+    # keyboard shortcuts" section), so bind `stt record --write` by hand:
+    # Settings → Input devices → Keyboard shortcuts → Custom shortcuts.
+    #
+    # The systemd --user unit below is gisnix's own (upstream's installer
+    # writes an equivalent one as a root-owned systemd-user unit; we are
+    # not running that installer, so we supply the same unit declaratively
+    # instead — same shape as voxtype's unit before it). Model selection
+    # is a manual first-run step via the `stt` CLI or app, same as Handy's
+    # "pick a model in Settings" — unconfirmed whether super-stt has an
+    # unattended `setup --download` equivalent worth wiring as a oneshot;
+    # check on a real install before assuming there's nothing to automate
+    # here.
+    systemd.user.services.super-stt = {
+      description = "super-stt speech-to-text daemon";
+      wantedBy = [ "graphical-session.target" ];
+      partOf = [ "graphical-session.target" ];
+      after = [ "graphical-session.target" ];
+      serviceConfig = {
+        ExecStart = "${pkgs.super-stt}/bin/super-stt-daemon";
+        Restart = "on-failure";
+        RestartSec = 3;
+      };
+    };
 
-      (writeShellScriptBin "kanata-toggle" ''
-        #!/usr/bin/env bash
-        mapfile -t SERVICES < <(systemctl list-units --all --plain --no-legend 'kanata-*.service' | awk '{print $1}')
-        [ ''${#SERVICES[@]} -eq 0 ] && { echo "No kanata services found"; exit 1; }
+    environment.systemPackages =
+      with pkgs;
+      [
+        kanata
+        super-stt
 
-        if systemctl is-active --quiet "''${SERVICES[0]}"; then
-          for s in "''${SERVICES[@]}"; do sudo systemctl stop "$s"; done
-          notify-send -u normal -t 2000 "Kanata" "Keyboard remapping DISABLED" -i input-keyboard
-          echo "Kanata disabled (''${SERVICES[*]})"
-        else
-          for s in "''${SERVICES[@]}"; do sudo systemctl start "$s"; done
-          notify-send -u normal -t 2000 "Kanata" "Keyboard remapping ENABLED" -i input-keyboard
-          echo "Kanata enabled (''${SERVICES[*]})"
-        fi
-      '')
+        (writeShellScriptBin "kanata-toggle" ''
+          #!/usr/bin/env bash
+          mapfile -t SERVICES < <(systemctl list-units --all --plain --no-legend 'kanata-*.service' | awk '{print $1}')
+          [ ''${#SERVICES[@]} -eq 0 ] && { echo "No kanata services found"; exit 1; }
 
-      (writeShellScriptBin "kanata-status" ''
-        #!/usr/bin/env bash
-        systemctl list-units --all --plain --no-legend 'kanata-*.service' | awk '{print $1, $3}'
-      '')
+          if systemctl is-active --quiet "''${SERVICES[0]}"; then
+            for s in "''${SERVICES[@]}"; do sudo systemctl stop "$s"; done
+            notify-send -u normal -t 2000 "Kanata" "Keyboard remapping DISABLED" -i input-keyboard
+            echo "Kanata disabled (''${SERVICES[*]})"
+          else
+            for s in "''${SERVICES[@]}"; do sudo systemctl start "$s"; done
+            notify-send -u normal -t 2000 "Kanata" "Keyboard remapping ENABLED" -i input-keyboard
+            echo "Kanata enabled (''${SERVICES[*]})"
+          fi
+        '')
 
-      (writeShellScriptBin "kanata-debug" ''
-        #!/usr/bin/env bash
-        echo "=== Kanata Keyboard Debugging ==="
-        echo "1. Kanata service status:"
-        systemctl status kanata-keyboard --no-pager
+        (writeShellScriptBin "kanata-status" ''
+          #!/usr/bin/env bash
+          systemctl list-units --all --plain --no-legend 'kanata-*.service' | awk '{print $1, $3}'
+        '')
 
-        echo -e "\n2. Available input devices:"
-        ls -la /dev/input/by-path/ | grep -i kbd || echo "No keyboard devices found"
+        (writeShellScriptBin "kanata-debug" ''
+          #!/usr/bin/env bash
+          echo "=== Kanata Keyboard Debugging ==="
+          echo "1. Kanata service status:"
+          systemctl status kanata-keyboard --no-pager
 
-        echo -e "\n3. Kanata logs (last 20 lines):"
-        journalctl -u kanata-keyboard --no-pager -n 20
+          echo -e "\n2. Available input devices:"
+          ls -la /dev/input/by-path/ | grep -i kbd || echo "No keyboard devices found"
 
-        echo -e "\n4. uinput device:"
-        ls -la /dev/uinput 2>/dev/null || echo "/dev/uinput not found"
+          echo -e "\n3. Kanata logs (last 20 lines):"
+          journalctl -u kanata-keyboard --no-pager -n 20
 
-        echo -e "\n5. Groups for current user:"
-        groups
-      '')
+          echo -e "\n4. uinput device:"
+          ls -la /dev/uinput 2>/dev/null || echo "/dev/uinput not found"
 
-      (writeShellScriptBin "kanata-test" ''
-        #!/usr/bin/env bash
-        echo "Testing kanata with verbose output (Ctrl+C to exit)..."
-        sudo kanata --cfg /etc/kanata/keyboard.kbd --debug
-      '')
-    ]
-    ++ lib.optional cfg.layerIndicator kanataLayerIndicator;
+          echo -e "\n5. Groups for current user:"
+          groups
+        '')
+
+        (writeShellScriptBin "kanata-test" ''
+          #!/usr/bin/env bash
+          echo "Testing kanata with verbose output (Ctrl+C to exit)..."
+          sudo kanata --cfg /etc/kanata/keyboard.kbd --debug
+        '')
+      ]
+      ++ lib.optional cfg.layerIndicator kanataLayerIndicator;
 
     # H/A/O tray icon for the herdr/aerc/obs cycle — see
     # kanata-layer-indicator.py's own module docstring. Same

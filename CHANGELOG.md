@@ -3,6 +3,41 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.28.0] - 2026-10-25
+
+### Changed
+
+- **Dictation: Handy → [super-stt](https://github.com/jorge-menjivar/super-stt).**
+  Handy's Settings window started permanently white-screening (an
+  upstream Tauri/WebKitGTK rendering bug), so
+  `software/services/device/input-kanata/kanata-keyboard.nix` now ships
+  `super-stt` instead — a new overlay package
+  (`overlays/pkgs/super-stt/package.nix`, GPL-3.0-only, approved), built
+  from upstream's `v0.2.4` tag, `-p super-stt-daemon -p super-stt-cli`
+  only (the GUI workspace members and their libcosmic/accesskit/etc. git
+  dependency chain are vendored, per how `cargoLock` resolves a
+  workspace lockfile, but never built). Wired as a `systemd.user`
+  service (`super-stt`), same as voxtype's unit before it. The keyboard
+  shortcut is NOT kanata-bound — same root-service-can't-reach-the-
+  user-socket wall voxtype's and Handy's shortcuts both hit — bind `stt
+  record --write` by hand via COSMIC's own Custom shortcuts, documented
+  in `docs/user/keyboard.md`'s "Dictation (Super STT)" section.
+  `docs/references/software.json`/`software.md` and
+  `docs/hosts/example.md` are generated from a real host build and were
+  NOT hand-edited here — regenerate them on a machine that can actually
+  build the example host.
+
+  **Known gaps, flagged rather than guessed:** the `fetchFromGitHub`
+  source hash and all eight git-dependency `outputHashes` in
+  `super-stt/package.nix` are `lib.fakeHash` placeholders — this
+  sandbox has no working `nix build` to compute them. Resolve each on a
+  real machine per the comments in that file before this package can
+  actually build. Whether `super-stt-daemon` has a `--config` flag (to
+  point it at a Nix-managed config, the way voxtype's unit did) and
+  whether it has an unattended model-download command (voxtype's
+  `setup --download` equivalent) are both unconfirmed — model selection
+  is a manual first-run step for now, same as Handy's was.
+
 ## [0.27.0] - 2026-10-23
 
 ### Added

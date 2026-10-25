@@ -125,16 +125,13 @@ in
     # Same story as pcraster: the QGIS variants get their own copies.
     whitebox-workflows = final.python3Packages.callPackage ./pkgs/whitebox-workflows/package.nix { };
 
-    # handy (https://github.com/cjpais/Handy) — GUI speech-to-text app,
-    # replacing voxtype in software/services/device/input-kanata (found too
-    # slow — see that commit). IS in nixpkgs (pkgs/by-name/ha/handy, MIT),
-    # but pinned to nixpkgs-unstable for the newest Whisper/Parakeet model
-    # support, same reasoning as kitty/kanata/satty below.
-    handy =
-      (import inputs.nixpkgs-unstable {
-        system = final.stdenv.hostPlatform.system;
-        config.allowUnfree = false;
-      }).handy;
+    # super-stt (https://github.com/jorge-menjivar/super-stt) — local
+    # speech-to-text daemon + CLI, replacing Handy in
+    # software/services/device/input-kanata (Handy's Settings window
+    # permanently white-screened — an upstream Tauri/WebKitGTK bug).
+    # GPL-3.0-only, approved — see overlays/pkgs/super-stt/package.nix
+    # for the licence note and the git-dependency outputHash caveats.
+    super-stt = final.callPackage ./pkgs/super-stt/package.nix { };
 
     # discourse-tui — TUI Discourse-forum browser, not in nixpkgs.
     discourse-tui = final.callPackage ./pkgs/discourse-tui/package.nix { };
