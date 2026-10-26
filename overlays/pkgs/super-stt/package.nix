@@ -48,6 +48,7 @@
   pkg-config,
   alsa-lib,
   dbus,
+  libxkbcommon,
   runCommand,
   python3,
 }:
@@ -187,13 +188,15 @@ rustPlatform.buildRustPackage rec {
   '';
 
   # cpal (audio I/O, super-stt-daemon's dependency) links ALSA on Linux.
-  # libdbus-sys (keyring/zbus's D-Bus transport) links dbus — found on
-  # the first real build, 2026-10-26: libdbus-sys's build.rs needs
-  # dbus-1.pc via pkg-config, which alsa-lib alone doesn't provide.
+  # libdbus-sys (keyring/zbus's D-Bus transport) links dbus. enigo (the
+  # CLI's --write keyboard-simulation backend) links xkbcommon for
+  # keymap handling. All three found incrementally across real build
+  # attempts on 2026-10-26 — none of this surfaces until the linker runs.
   nativeBuildInputs = [ pkg-config ];
   buildInputs = [
     alsa-lib
     dbus
+    libxkbcommon
   ];
 
   # The CLI's own binary is literally named super-stt-cli — upstream's
