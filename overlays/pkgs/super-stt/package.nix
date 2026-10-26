@@ -87,6 +87,15 @@ rustPlatform.buildRustPackage rec {
   pname = "super-stt";
   inherit version src;
 
+  # Adds `provision-model`: installs/selects/loads this fleet's default
+  # local speech model via the daemon's HTTP API, so dictation works
+  # declaratively with no GUI app and no manual per-host setup. See the
+  # patch file's own header for the full design rationale (why the CLI
+  # auto-approves as a "first-party" client but the GUI app's consent
+  # flow doesn't exist in our headless build, why it needs its own
+  # AppId/scopes, and the exact daemon endpoints it drives).
+  patches = [ ./super-stt-cli-provision.patch ];
+
   cargoBuildFlags = [
     "-p"
     "super-stt-daemon"
@@ -192,6 +201,14 @@ rustPlatform.buildRustPackage rec {
       -e '/"super-stt-consent",/d' \
       -e '/"super-stt-cosmic-applet",/d' \
       Cargo.toml
+
+    # super-stt-cli-provision.patch's new `provision-model` subcommand
+    # needs serde_json directly (it's only available transitively today,
+    # via super-stt-shared, which Rust doesn't let a crate `use` by
+    # path). dedupe-cargo-lock.py already added the matching entry to
+    # Cargo.lock's dependency graph; this is Cargo.toml's side of the
+    # same addition.
+    sed -i '/clap\.workspace = true/a\    serde_json.workspace = true' super-stt-cli/Cargo.toml
   '';
 
   # cpal (audio I/O, super-stt-daemon's dependency) links ALSA on Linux.

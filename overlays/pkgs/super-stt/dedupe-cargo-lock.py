@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""Drop super-stt's Cargo.lock duplicate [[package]] stanzas.
+"""Patch super-stt's Cargo.lock: drop duplicate [[package]] stanzas, and
+add serde_json as a declared dependency of super-stt-cli.
+
+Two unrelated fixes live here together because both are Cargo.lock
+surgery and package.nix can only point cargoLock.lockFile at one
+patched file (see its comment for why this can't be done via
+postPatch instead).
 
 pop-os/libcosmic.git's Cargo.lock lists build_helpers, cosmic-config,
 cosmic-config-derive, iced_core, and iced_futures TWICE each: once sourced
@@ -86,6 +92,26 @@ def main():
         "(git+https://github.com/pop-os/libcosmic.git)",
         f"(git+https://github.com/pop-os/libcosmic.git?rev={rev})",
     )
+
+    # provision-model (super-stt-cli/src/main.rs, added via
+    # super-stt-cli-provision.patch) needs serde_json directly — it's
+    # only available transitively today, via super-stt-shared, which
+    # Rust doesn't let a crate `use` by path. Cargo.toml gets the
+    # matching `serde_json.workspace = true` line via postPatch
+    # (package.nix); this is Cargo.lock's side of the same addition.
+    cli_pattern = (
+        r'(name = "super-stt-cli"\nversion = "[^"]*"\ndependencies = \[\n'
+        r'(?:.*\n)*? "clap",\n)'
+    )
+    out, n = re.subn(cli_pattern, r'\1 "serde_json",\n', out, count=1)
+    if n != 1:
+        print(
+            "dedupe-cargo-lock.py: couldn't find super-stt-cli's dependency "
+            "list to add serde_json to — Cargo.lock has drifted, re-check "
+            "this script against the new lockfile.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
     sys.stdout.write(out)
 

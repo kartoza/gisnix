@@ -1,0 +1,305 @@
+# Adds `provision-model` to super-stt-cli, 2026-10-26.
+#
+# Why this exists: dictation needs a speech model loaded before it does
+# anything, and upstream's ONLY documented way to install one is "Open the
+# app, go to Library -> Browse" — the app being super-stt-app, a libcosmic
+# GUI we deliberately don't build (see package.nix's WORKSPACE SUBSET
+# note). Without this patch, every host needs a human to manually curl the
+# daemon's HTTP API after reading its source to work out the endpoints —
+# not declarative, not something another fleet member could reproduce.
+#
+# Why the CLI, not a plain curl/script: the daemon's `/auth/request` only
+# auto-approves ("first-party") for a request from a binary named exactly
+# super-stt-cli/-app/-cosmic-applet, co-located with the daemon binary
+# (`is_official_client` in super-stt-daemon's consent.rs checks
+# /proc/<pid>/exe). Anything else — curl, a standalone script — hits a
+# real human-consent popup, which doesn't exist to click in a headless
+# systemd unit. Patching the CLI we already build and already trust is the
+# only path that stays inside that allowlist.
+#
+# What it does: `stt provision-model` installs this fleet's default local
+# model's backend, selects it for the transcription stage, loads the
+# model, and is idempotent (checks first, does nothing if already loaded)
+# — safe to wire as a systemd oneshot that runs after the daemon starts on
+# every boot. Uses its own AppId ("super-stt-cli-provision") with the
+# `settings` scope, separate from the AppId ping/status/record/stop share
+# (scoped transcribe+status), so the two don't fight over one cached
+# token's scopes — see the const's doc comment in the diff below.
+#
+# Endpoints driven (all require the `settings` scope; see
+# docs/protocol/endpoints/v1/ in the super-stt repo for the full contract):
+#   POST /registry/backend/install  { "source": "<backend repo id>" }
+#   GET  /backend/list                                 (poll until installed)
+#   POST /pipeline/{stage}                { "source": "<backend repo id>" }
+#   POST /pipeline/{stage}/model           { "model": "<model name>" }
+#   GET  /pipeline/{stage}/model                        (poll until loaded)
+#
+# The default model (github.com/jorge-menjivar/super-stt-whisper,
+# whisper-small.en) is picked for being CPU-capable — no GPU required, so
+# it works on every host in the fleet — and `online: false` in the
+# published catalog, matching this fleet's "nothing leaves the machine"
+# stance for dictation (docs/user/keyboard.md). Not the most accurate
+# option available; the most broadly compatible one.
+--- a/super-stt-cli/src/main.rs	2026-10-26 10:11:45.825000822 +0000
++++ b/super-stt-cli/src/main.rs	2026-10-26 10:11:45.828000821 +0000
+@@ -17,7 +17,9 @@
+ 
+ use anyhow::{Context, Result, anyhow};
+ use clap::{Arg, ArgAction, Command, value_parser};
++use serde_json::{Value, json};
+ use std::path::PathBuf;
++use std::time::Duration;
+ use super_stt_shared::daemon::http_client::{self, TranscribeOptions};
+ use super_stt_shared::daemon::session::{self, AppId};
+ use super_stt_shared::validation::get_http_socket_path;
+@@ -26,6 +28,35 @@
+ const APP_NAME: &str = "Super STT CLI";
+ const SCOPES: &[&str] = &["transcribe", "status"];
+ 
++// `provision-model` deliberately authenticates under its own AppId rather
++// than reusing APP_ID/SCOPES above: `session::with_token` caches one
++// token per AppId, so sharing APP_ID with ping/status/record (scoped
++// transcribe+status) would mean whichever call runs first wins the
++// cached token's scopes, and the other starts getting `403 scope_denied`
++// with no automatic re-auth (that only happens on `401`). A separate
++// AppId gets its own keyring cache entry. The *binary* is still
++// `super-stt-cli` either way, which is what the daemon's first-party
++// allowlist (`is_official_client`) actually checks — so this still
++// auto-approves without a consent popup.
++const PROVISION_APP_ID: AppId = AppId("super-stt-cli-provision");
++const PROVISION_APP_NAME: &str = "Super STT CLI (model provisioning)";
++const PROVISION_SCOPES: &[&str] = &["settings"];
++
++// This fleet's default local speech model, provisioned automatically so
++// dictation works the moment the daemon is up — no GUI app required (the
++// upstream app/-cosmic-applet/-consent builds are excluded entirely; see
++// package.nix's WORKSPACE SUBSET note). `super-stt-whisper` is `online:
++// false` in the published catalog (jorge-menjivar.github.io/super-stt/
++// index.json) — audio never leaves the machine, matching this fleet's
++// "nothing leaves the machine" stance for dictation (docs/user/keyboard.md).
++// `whisper-small.en` over a bigger/multilingual model: CPU-capable (no GPU
++// required, so it works on every host in the fleet) and a reasonable
++// speed/accuracy balance for English dictation. Stage 1 is the
++// transcription role (docs/protocol/endpoints/v1/pipeline.md).
++const PROVISION_STAGE: &str = "1";
++const PROVISION_BACKEND_SOURCE: &str = "github.com/jorge-menjivar/super-stt-whisper";
++const PROVISION_MODEL: &str = "whisper-small.en";
++
+ #[tokio::main]
+ async fn main() -> Result<()> {
+     // The CLI previously had no logging at all; initialize it like the other
+@@ -83,6 +114,11 @@
+             Command::new("logout")
+                 .about("Forget the cached session token (forces re-consent next call)"),
+         )
++        .subcommand(
++            Command::new("provision-model").about(
++                "Idempotently install and select this fleet's default local speech model (no GUI app required)",
++            ),
++        )
+         .get_matches();
+ 
+     let socket_path = matches
+@@ -117,6 +153,9 @@
+                 .context("stop failed")
+         }
+         Some(("logout", _)) => cmd_logout(),
++        Some(("provision-model", _)) => cmd_provision_model(socket_path.clone())
++            .await
++            .context("provision-model failed"),
+         _ => {
+             println!("Run with --help for usage.");
+             Ok(())
+@@ -132,7 +171,25 @@
+     F: Fn(String) -> Fut,
+     Fut: std::future::Future<Output = super_stt_shared::daemon::http_client::HttpResult<T>>,
+ {
+-    session::with_token(socket_path, APP_ID, APP_NAME, SCOPES, op)
++    run_with_token_as(socket_path, APP_ID, APP_NAME, SCOPES, op).await
++}
++
++/// Like [`run_with_token`] but with an explicit app identity/scope set,
++/// so a command that needs different scopes (`provision-model`, which
++/// needs `settings`) doesn't collide with the cached token the other
++/// commands share under `APP_ID`.
++async fn run_with_token_as<F, Fut, T>(
++    socket_path: PathBuf,
++    app_id: AppId,
++    app_name: &str,
++    scopes: &[&str],
++    op: F,
++) -> Result<T>
++where
++    F: Fn(String) -> Fut,
++    Fut: std::future::Future<Output = super_stt_shared::daemon::http_client::HttpResult<T>>,
++{
++    session::with_token(socket_path, app_id, app_name, scopes, op)
+         .await
+         .map_err(|e| anyhow!(e))
+ }
+@@ -248,6 +305,165 @@
+     Ok(())
+ }
+ 
++/// Entry point for `provision-model`: authenticate under the dedicated
++/// provisioning AppId/scopes (see the const's doc comment) and run the
++/// idempotent install-select-load sequence.
++async fn cmd_provision_model(socket_path: PathBuf) -> Result<()> {
++    run_with_token_as(
++        socket_path.clone(),
++        PROVISION_APP_ID,
++        PROVISION_APP_NAME,
++        PROVISION_SCOPES,
++        |t| provision_model_inner(socket_path.clone(), t),
++    )
++    .await
++}
++
++/// Ensure `PROVISION_MODEL` is installed, selected, and loaded on
++/// `PROVISION_STAGE`, doing nothing if it already is. Written as a
++/// straight-line sequence of daemon-visible steps (install -> select
++/// backend -> load model) rather than a single endpoint because the
++/// daemon's own API is shaped that way (see
++/// docs/protocol/endpoints/v1/pipeline/stage.md's "Only the backend"
++/// note and .../pipeline/model.md) — selecting a backend never loads a
++/// model, and installing a backend never selects it anywhere.
++async fn provision_model_inner(
++    socket_path: PathBuf,
++    token: String,
++) -> super_stt_shared::daemon::http_client::HttpResult<()> {
++    use http_client::transport::{get_json, post_json};
++
++    let model_path = format!("/pipeline/{PROVISION_STAGE}/model");
++
++    let current: Value = get_json(socket_path.clone(), &token, &model_path).await?;
++    if is_our_model_loaded(&current) {
++        println!("{PROVISION_MODEL} is already loaded on stage {PROVISION_STAGE}.");
++        return Ok(());
++    }
++
++    println!("Installing backend {PROVISION_BACKEND_SOURCE}...");
++    let install_body = json!({ "source": PROVISION_BACKEND_SOURCE });
++    match post_json::<Value>(
++        socket_path.clone(),
++        &token,
++        "/registry/backend/install",
++        &install_body,
++    )
++    .await
++    {
++        Ok(_) => {}
++        // "source is the identity this is judged on, so re-installing...
++        // the same backend is unaffected" (install.md) — but a second
++        // *concurrent* install for the same source is refused outright
++        // (409 install_in_progress) rather than treated as a duplicate
++        // no-op. Fine either way: just wait for whichever install (ours
++        // or the one already running) to finish below.
++        Err(http_client::HttpError::Other(msg)) if msg.contains("install_in_progress") => {}
++        Err(e) => return Err(e),
++    }
++
++    wait_for_backend_installed(socket_path.clone(), &token).await?;
++
++    println!("Selecting backend for stage {PROVISION_STAGE}...");
++    let select_body = json!({ "source": PROVISION_BACKEND_SOURCE });
++    post_json::<Value>(
++        socket_path.clone(),
++        &token,
++        &format!("/pipeline/{PROVISION_STAGE}"),
++        &select_body,
++    )
++    .await?;
++
++    println!("Loading model {PROVISION_MODEL} (this downloads the model's weights the first time; may take a while)...");
++    let load_body = json!({ "model": PROVISION_MODEL });
++    post_json::<Value>(socket_path.clone(), &token, &model_path, &load_body).await?;
++
++    wait_for_model_loaded(socket_path, &token, &model_path).await?;
++
++    println!("Provisioned {PROVISION_MODEL} on stage {PROVISION_STAGE}.");
++    Ok(())
++}
++
++/// `true` if the `GET /pipeline/{stage}/model` response `resp` already
++/// has `PROVISION_MODEL` selected and running. Nested under `.model`
++/// per docs/protocol/endpoints/v1/pipeline/model.md's response shape —
++/// `{"status":"success","model":{"stage":1,"model":"...","loaded":bool,...}}`.
++fn is_our_model_loaded(resp: &Value) -> bool {
++    resp["model"]["model"].as_str() == Some(PROVISION_MODEL)
++        && resp["model"]["loaded"].as_bool() == Some(true)
++}
++
++/// Poll `GET /backend/list` (installed backends) until
++/// `PROVISION_BACKEND_SOURCE` shows up. The install endpoint itself only
++/// confirms the request was accepted (`202`, see install.md) — the
++/// actual install runs in the background, with no synchronous "done"
++/// signal other than this list gaining the entry. Polling rather than
++/// subscribing to `/events` since this only needs a single boolean, not
++/// live progress, and keeps this a plain request/response client.
++async fn wait_for_backend_installed(
++    socket_path: PathBuf,
++    token: &str,
++) -> super_stt_shared::daemon::http_client::HttpResult<()> {
++    use http_client::transport::get_json;
++    const TIMEOUT: Duration = Duration::from_secs(600);
++    const POLL_EVERY: Duration = Duration::from_secs(3);
++    let deadline = tokio::time::Instant::now() + TIMEOUT;
++    loop {
++        let backends: Value = get_json(socket_path.clone(), token, "/backend/list").await?;
++        let installed = backends["backends"]
++            .as_array()
++            .is_some_and(|list| list.iter().any(|b| b["source"].as_str() == Some(PROVISION_BACKEND_SOURCE)));
++        if installed {
++            return Ok(());
++        }
++        if tokio::time::Instant::now() >= deadline {
++            return Err(http_client::HttpError::Other(format!(
++                "timed out after {}s waiting for backend {PROVISION_BACKEND_SOURCE} to finish installing",
++                TIMEOUT.as_secs()
++            )));
++        }
++        tokio::time::sleep(POLL_EVERY).await;
++    }
++}
++
++/// Poll `GET /pipeline/{stage}/model` until `PROVISION_MODEL` reports
++/// `loaded: true`. Stage 1 answers the load request itself with `202
++/// Accepted` and switches asynchronously (model.md) — same shape as the
++/// backend install above. `switch.phase` turning `"error"` (the `switch`
++/// object's documented vocabulary, pipeline.md's "The switch object")
++/// means the load failed; the object carries no error-message field, so
++/// this can only report that it happened, not why — check the daemon's
++/// own logs/the `/events` stream for detail.
++async fn wait_for_model_loaded(
++    socket_path: PathBuf,
++    token: &str,
++    model_path: &str,
++) -> super_stt_shared::daemon::http_client::HttpResult<()> {
++    use http_client::transport::get_json;
++    const TIMEOUT: Duration = Duration::from_secs(600);
++    const POLL_EVERY: Duration = Duration::from_secs(3);
++    let deadline = tokio::time::Instant::now() + TIMEOUT;
++    loop {
++        let current: Value = get_json(socket_path.clone(), token, model_path).await?;
++        if is_our_model_loaded(&current) {
++            return Ok(());
++        }
++        if current["model"]["switch"]["phase"].as_str() == Some("error") {
++            return Err(http_client::HttpError::Other(
++                "model load failed (switch phase = error; check the daemon's logs/the /events stream for why)"
++                    .to_string(),
++            ));
++        }
++        if tokio::time::Instant::now() >= deadline {
++            return Err(http_client::HttpError::Other(format!(
++                "timed out after {}s waiting for {PROVISION_MODEL} to finish loading",
++                TIMEOUT.as_secs()
++            )));
++        }
++        tokio::time::sleep(POLL_EVERY).await;
++    }
++}
++
+ #[cfg(test)]
+ mod tests {
+     use super::SCOPES;

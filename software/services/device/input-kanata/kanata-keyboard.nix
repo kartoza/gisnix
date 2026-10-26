@@ -367,12 +367,21 @@ in
     # The systemd --user unit below is gisnix's own (upstream's installer
     # writes an equivalent one as a root-owned systemd-user unit; we are
     # not running that installer, so we supply the same unit declaratively
-    # instead — same shape as voxtype's unit before it). Model selection
-    # is a manual first-run step via the `stt` CLI or app, same as Handy's
-    # "pick a model in Settings" — unconfirmed whether super-stt has an
-    # unattended `setup --download` equivalent worth wiring as a oneshot;
-    # check on a real install before assuming there's nothing to automate
-    # here.
+    # instead — same shape as voxtype's unit before it).
+    #
+    # Model selection: upstream's ONLY documented path is the GUI app's
+    # "Library -> Browse" (super-stt-app, which we don't build — see
+    # package.nix's WORKSPACE SUBSET note), and the CLI itself ships no
+    # model/backend subcommand at all. Checked on a real install
+    # (2026-10-26) and confirmed there's genuinely nothing to automate
+    # with upstream as shipped — so gisnix's super-stt package.nix patches
+    # a `provision-model` subcommand into the CLI (see
+    # overlays/pkgs/super-stt/super-stt-cli-provision.patch for the full
+    # design rationale) that drives the daemon's HTTP API directly:
+    # installs this fleet's default local model's backend, selects it,
+    # loads the model, and is idempotent (a no-op once already loaded).
+    # The oneshot below runs it after the daemon starts so a fresh host
+    # gets working dictation with zero manual steps.
     systemd.user.services.super-stt = {
       description = "super-stt speech-to-text daemon";
       wantedBy = [ "graphical-session.target" ];
@@ -382,6 +391,40 @@ in
         ExecStart = "${pkgs.super-stt}/bin/super-stt-daemon";
         Restart = "on-failure";
         RestartSec = 3;
+      };
+    };
+
+    systemd.user.services.super-stt-model-setup = {
+      description = "Provision super-stt's default local speech model";
+      # BindsTo (not just after/requires) would stop this too whenever
+      # the daemon restarts — not wanted, since provisioning only ever
+      # needs to run once (it's idempotent and exits quickly on every
+      # later run, so letting it fire again after a daemon restart costs
+      # one cheap no-op check, not a re-download).
+      after = [ "super-stt.service" ];
+      wants = [ "super-stt.service" ];
+      wantedBy = [ "super-stt.service" ];
+      # `after` only orders unit *starts*, not "the daemon's socket is
+      # actually accepting connections" — a fast-starting provisioner
+      # could race the daemon's own startup and fail with "listener not
+      # running". Retry a handful of times with a short delay rather
+      # than giving up on the first attempt; StartLimit (a [Unit]-section
+      # directive, not [Service] — hence unitConfig, not serviceConfig)
+      # caps it so a genuinely offline host doesn't retry forever.
+      unitConfig = {
+        StartLimitIntervalSec = 300;
+        StartLimitBurst = 5;
+      };
+      serviceConfig = {
+        Type = "oneshot";
+        # The model backend install downloads real files over the
+        # network and the model load downloads real weights — give both
+        # room; provision-model's own internal polling timeout (600s per
+        # phase) is the real bound, this is just systemd's outer guard.
+        TimeoutStartSec = 1800;
+        ExecStart = "${pkgs.super-stt}/bin/stt provision-model";
+        Restart = "on-failure";
+        RestartSec = 5;
       };
     };
 
