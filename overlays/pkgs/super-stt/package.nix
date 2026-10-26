@@ -47,6 +47,7 @@
   fetchFromGitHub,
   pkg-config,
   alsa-lib,
+  dbus,
   runCommand,
   python3,
 }:
@@ -186,8 +187,14 @@ rustPlatform.buildRustPackage rec {
   '';
 
   # cpal (audio I/O, super-stt-daemon's dependency) links ALSA on Linux.
+  # libdbus-sys (keyring/zbus's D-Bus transport) links dbus — found on
+  # the first real build, 2026-10-26: libdbus-sys's build.rs needs
+  # dbus-1.pc via pkg-config, which alsa-lib alone doesn't provide.
   nativeBuildInputs = [ pkg-config ];
-  buildInputs = [ alsa-lib ];
+  buildInputs = [
+    alsa-lib
+    dbus
+  ];
 
   # The CLI's own binary is literally named super-stt-cli — upstream's
   # docs, install.sh, and `stt record --write` convention all assume a
