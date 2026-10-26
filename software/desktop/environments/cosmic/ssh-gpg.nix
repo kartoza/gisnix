@@ -16,34 +16,20 @@
   services.gnome.gcr-ssh-agent.enable = false;
 
   # Seahorse for managing keyring entries
-  #
-  # gcr also matters here for a reason that has nothing to do with seahorse:
-  # COSMIC doesn't implement org.gnome.keyring.SystemPrompter itself (see
-  # https://github.com/pop-os/cosmic-epoch/issues/3453 — upstream is working
-  # on a native one but it hadn't shipped as of epoch 1.10). Whenever
-  # gnome-keyring-daemon needs an interactive unlock — e.g. it restarted
-  # mid-session and relocked, so the PAM auto-unlock below only applies at
-  # login — it calls whoever owns that D-Bus name. With no prompter
-  # registered, the request silently times out: no working dialog ever
-  # appears, which looks exactly like "I typed the right password and it
-  # still didn't unlock." gcr ships GcrSystemPrompter (the dialog gnome-shell
-  # normally provides) and its D-Bus service file, so something answers that
-  # request under COSMIC too.
   environment.systemPackages = [
     pkgs.seahorse
-    pkgs.gcr
   ];
 
-  # `environment.systemPackages` above only puts gcr's binaries on PATH —
-  # it does nothing for its D-Bus service file (GcrSystemPrompter, the
-  # org.gnome.keyring.SystemPrompter implementation the comment above
-  # this exists for). Without this, D-Bus has no service file to
-  # autostart on-demand, so a mid-session unlock request hits no
-  # prompter at all and silently times out — the exact failure mode
-  # described above, confirmed on a real host 2026-10-26 (gnome-keyring
-  # access from a systemd --user service hung indefinitely with zero
-  # error, unrecoverable without a desktop session restart).
-  services.dbus.packages = [ pkgs.gcr ];
+  # gcr (GcrSystemPrompter, the org.gnome.keyring.SystemPrompter dialog
+  # gnome-shell normally provides) was wired in on 2026-10-26 to fix a real
+  # bug: COSMIC has no native SystemPrompter yet (see
+  # https://github.com/pop-os/cosmic-epoch/issues/3453), so a mid-session
+  # keyring unlock (e.g. after gnome-keyring-daemon relocks) silently times
+  # out with no dialog — confirmed hanging a systemd --user service
+  # indefinitely. Killed for now at the user's request; if that hang comes
+  # back, re-add `pkgs.gcr` to the systemPackages list above AND
+  # `services.dbus.packages = [ pkgs.gcr ];` (the D-Bus service file is what
+  # actually lets a prompt request autostart it).
 
   # Session variables for desktop integration
   environment.sessionVariables = {

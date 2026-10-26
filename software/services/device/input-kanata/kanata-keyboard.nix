@@ -216,6 +216,19 @@ in
     '';
   };
 
+  options.kartoza.kanata.stt = lib.mkOption {
+    type = lib.types.bool;
+    default = false;
+    example = true;
+    description = ''
+      Install and run super-stt (speech-to-text daemon + model
+      provisioning). Parked off by default (2026-10-26): killed for now
+      rather than removed outright, since the build/packaging work behind
+      it (overlays/pkgs/super-stt/) stays. A host that wants dictation
+      back sets `kartoza.kanata.stt = true;`.
+    '';
+  };
+
   options.kartoza.kanata.layerIndicator = lib.mkOption {
     type = lib.types.bool;
     default = false;
@@ -382,7 +395,7 @@ in
     # loads the model, and is idempotent (a no-op once already loaded).
     # The oneshot below runs it after the daemon starts so a fresh host
     # gets working dictation with zero manual steps.
-    systemd.user.services.super-stt = {
+    systemd.user.services.super-stt = lib.mkIf cfg.stt {
       description = "super-stt speech-to-text daemon";
       wantedBy = [ "graphical-session.target" ];
       partOf = [ "graphical-session.target" ];
@@ -394,7 +407,7 @@ in
       };
     };
 
-    systemd.user.services.super-stt-model-setup = {
+    systemd.user.services.super-stt-model-setup = lib.mkIf cfg.stt {
       description = "Provision super-stt's default local speech model";
       # BindsTo (not just after/requires) would stop this too whenever
       # the daemon restarts — not wanted, since provisioning only ever
@@ -432,8 +445,9 @@ in
       with pkgs;
       [
         kanata
-        super-stt
-
+      ]
+      ++ lib.optional cfg.stt super-stt
+      ++ [
         (writeShellScriptBin "kanata-toggle" ''
           #!/usr/bin/env bash
           mapfile -t SERVICES < <(systemctl list-units --all --plain --no-legend 'kanata-*.service' | awk '{print $1}')
