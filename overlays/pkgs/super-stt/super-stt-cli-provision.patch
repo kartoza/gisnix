@@ -40,8 +40,22 @@
 # published catalog, matching this fleet's "nothing leaves the machine"
 # stance for dictation (docs/user/keyboard.md). Not the most accurate
 # option available; the most broadly compatible one.
---- a/super-stt-cli/src/main.rs	2026-10-26 10:11:45.825000822 +0000
-+++ b/super-stt-cli/src/main.rs	2026-10-26 10:11:45.828000821 +0000
+#
+# TOKEN_ACQUIRE_TIMEOUT (added after the first real run, same day): the
+# session token mint goes through the system keyring/secret-service over
+# D-Bus, and a stuck/locked keyring hangs that call forever with zero
+# error output — the first attempt on a real host burned a full 30
+# minutes (systemd's own TimeoutStartSec) before being force-killed,
+# having printed nothing at all. Traced to a real gisnix gap: COSMIC has
+# no native keyring unlock prompter, and the gcr package that's supposed
+# to provide one was only on PATH, never registered as a D-Bus service
+# (see software/desktop/environments/cosmic/ssh-gpg.nix's
+# services.dbus.packages fix, same day) — so a mid-session unlock
+# request had nothing to answer it. This timeout doesn't fix that; it
+# just makes the failure fast and loud instead of a silent half-hour
+# stall on every single attempt.
+--- a/super-stt-cli/src/main.rs	2026-10-26 11:37:06.379104437 +0000
++++ b/super-stt-cli/src/main.rs	2026-10-26 11:37:06.380104437 +0000
 @@ -17,7 +17,9 @@
  
  use anyhow::{Context, Result, anyhow};
@@ -52,7 +66,7 @@
  use super_stt_shared::daemon::http_client::{self, TranscribeOptions};
  use super_stt_shared::daemon::session::{self, AppId};
  use super_stt_shared::validation::get_http_socket_path;
-@@ -26,6 +28,35 @@
+@@ -26,6 +28,48 @@
  const APP_NAME: &str = "Super STT CLI";
  const SCOPES: &[&str] = &["transcribe", "status"];
  
@@ -85,10 +99,23 @@
 +const PROVISION_BACKEND_SOURCE: &str = "github.com/jorge-menjivar/super-stt-whisper";
 +const PROVISION_MODEL: &str = "whisper-small.en";
 +
++// Hard bound on acquiring a session token (the daemon-side keyring read
++// at startup, and our own client-side keyring cache, both go through
++// the system secret-service over D-Bus — see the daemon's own log line
++// "if the keyring is locked, the daemon will wait here until it is
++// unlocked"). Found 2026-10-26: a stuck/unreachable secret-service
++// hangs this indefinitely with no error at all, since nothing in
++// `session::with_token` itself times out — the first real run burned a
++// full 30 minutes (systemd's own TimeoutStartSec) with zero output
++// before being killed. Failing fast here means a stuck keyring produces
++// a clear error and a quick systemd retry instead of a silent 30-minute
++// stall every single attempt.
++const TOKEN_ACQUIRE_TIMEOUT: Duration = Duration::from_secs(60);
++
  #[tokio::main]
  async fn main() -> Result<()> {
      // The CLI previously had no logging at all; initialize it like the other
-@@ -83,6 +114,11 @@
+@@ -83,6 +127,11 @@
              Command::new("logout")
                  .about("Forget the cached session token (forces re-consent next call)"),
          )
@@ -100,7 +127,7 @@
          .get_matches();
  
      let socket_path = matches
-@@ -117,6 +153,9 @@
+@@ -117,6 +166,9 @@
                  .context("stop failed")
          }
          Some(("logout", _)) => cmd_logout(),
@@ -110,7 +137,7 @@
          _ => {
              println!("Run with --help for usage.");
              Ok(())
-@@ -132,7 +171,25 @@
+@@ -132,7 +184,25 @@
      F: Fn(String) -> Fut,
      Fut: std::future::Future<Output = super_stt_shared::daemon::http_client::HttpResult<T>>,
  {
@@ -137,22 +164,31 @@
          .await
          .map_err(|e| anyhow!(e))
  }
-@@ -248,6 +305,165 @@
+@@ -248,6 +318,174 @@
      Ok(())
  }
  
 +/// Entry point for `provision-model`: authenticate under the dedicated
 +/// provisioning AppId/scopes (see the const's doc comment) and run the
-+/// idempotent install-select-load sequence.
++/// idempotent install-select-load sequence. Token acquisition is bounded
++/// by `TOKEN_ACQUIRE_TIMEOUT` (see its doc comment for why) — the install
++/// and model-load steps below have their own, separate, longer polling
++/// timeouts for the genuinely slow network operations.
 +async fn cmd_provision_model(socket_path: PathBuf) -> Result<()> {
-+    run_with_token_as(
++    let fut = run_with_token_as(
 +        socket_path.clone(),
 +        PROVISION_APP_ID,
 +        PROVISION_APP_NAME,
 +        PROVISION_SCOPES,
 +        |t| provision_model_inner(socket_path.clone(), t),
-+    )
-+    .await
++    );
++    match tokio::time::timeout(TOKEN_ACQUIRE_TIMEOUT, fut).await {
++        Ok(result) => result,
++        Err(_elapsed) => Err(anyhow!(
++            "timed out after {}s acquiring a session token — the system keyring/secret-service may be locked or unreachable",
++            TOKEN_ACQUIRE_TIMEOUT.as_secs()
++        )),
++    }
 +}
 +
 +/// Ensure `PROVISION_MODEL` is installed, selected, and loaded on

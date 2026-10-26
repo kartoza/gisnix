@@ -34,6 +34,17 @@
     pkgs.gcr
   ];
 
+  # `environment.systemPackages` above only puts gcr's binaries on PATH —
+  # it does nothing for its D-Bus service file (GcrSystemPrompter, the
+  # org.gnome.keyring.SystemPrompter implementation the comment above
+  # this exists for). Without this, D-Bus has no service file to
+  # autostart on-demand, so a mid-session unlock request hits no
+  # prompter at all and silently times out — the exact failure mode
+  # described above, confirmed on a real host 2026-10-26 (gnome-keyring
+  # access from a systemd --user service hung indefinitely with zero
+  # error, unrecoverable without a desktop session restart).
+  services.dbus.packages = [ pkgs.gcr ];
+
   # Session variables for desktop integration
   environment.sessionVariables = {
     # Wayland for Electron apps
