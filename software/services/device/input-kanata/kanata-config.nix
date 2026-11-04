@@ -742,13 +742,13 @@ in
 
     ;; Mouse movement — accelerating: starts slow for precision, ramps to fast.
     ;; movemouse-accel-DIR: interval(ms) accel-time(ms) min-px max-px
-    ;;   every 4 ms, ramp from 3 px to 22 px over 350 ms of holding.
-    ;; The base already moves far quicker than the old 1 px / 6 ms crawl; the
-    ;; speed keys below scale it further at runtime.
-    mouse-up (movemouse-accel-up 4 350 3 22)
-    mouse-down (movemouse-accel-down 4 350 3 22)
-    mouse-left (movemouse-accel-left 4 350 3 22)
-    mouse-right (movemouse-accel-right 4 350 3 22)
+    ;;   every 4 ms, ramp from 1 px to 6 px over 350 ms of holding — the same
+    ;;   top speed the quarter (,) modifier below used to give the old 3/22
+    ;;   base. Requested directly: the unmodified default was too fast.
+    mouse-up (movemouse-accel-up 4 350 1 6)
+    mouse-down (movemouse-accel-down 4 350 1 6)
+    mouse-left (movemouse-accel-left 4 350 1 6)
+    mouse-right (movemouse-accel-right 4 350 1 6)
 
     ;; Dynamic speed modifiers — hold (right hand) while steering (left hand).
     ;; movemouse-speed scales the movemouse min/max distance by a percentage for

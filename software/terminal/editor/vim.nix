@@ -9,6 +9,14 @@
   environment.shellAliases = {
     vim = "nvim";
     vi = "nvim";
+    # Plain upstream Neovim, no timvim config — nvf-built distros like
+    # timvim bake their config into an explicit `-u` the wrapper passes
+    # internally, so they never read ~/.config/nvim; this is nixpkgs'
+    # own unwrapped neovim, entirely separate from that wrapper, so it
+    # starts with zero config/plugins without needing --clean or -u NONE.
+    # Named distinctly (not `nvim`) so both packages can coexist in
+    # environment.systemPackages without a bin/nvim collision.
+    nvim-vanilla = "${pkgs.neovim}/bin/nvim";
   };
 
   # EDITOR belongs with the editor. base/fish.nix used to set this, which
@@ -19,5 +27,6 @@
   programs.fish.interactiveShellInit = ''
     set -gx EDITOR nvim
     alias vim nvim
+    alias nvim-vanilla "${pkgs.neovim}/bin/nvim"
   '';
 }
