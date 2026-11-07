@@ -11,7 +11,6 @@
   kartoza.unfreePackages = [ "google-chrome" ];
 
   environment.systemPackages = with pkgs; [
-    brave
     firefox
     google-chrome
     ungoogled-chromium
