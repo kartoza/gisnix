@@ -41,6 +41,14 @@ let
 
   base = pinnedPkgs.${entry.attr};
 
+  # Same fix qgis-latest.nix/qgis-ltr.nix already apply: bundled-plugin
+  # native libraries (the Mergin plugin's prebuilt libpygeodiff .so is the
+  # recurring one — it dlopens libsqlite3.so.0 and friends, which don't
+  # exist at any FHS path on NixOS) need LD_LIBRARY_PATH set for them to
+  # resolve. A pinned series was never wrapped, so every historical QGIS
+  # bundle hit this while qgis-latest/qgis-ltr did not.
+  wrapQgis = import ./wrap-qgis.nix { inherit pkgs lib; };
+
   # The standard QGIS python companions, taken from the *pinned* package
   # set so ABI and python version always match — filtered to what that
   # era of nixpkgs actually had, and to what still evaluates there: a
@@ -69,7 +77,9 @@ let
       ]
     );
 
-  qgisPinned = if entry.extras then base.override { extraPythonPackages = pythonExtras; } else base;
+  qgisPinned = wrapQgis (
+    if entry.extras then base.override { extraPythonPackages = pythonExtras; } else base
+  );
 
   appName = "QGIS ${entry.version}";
   qgisPinnedApp = pkgs.makeDesktopItem {
