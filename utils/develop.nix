@@ -29,84 +29,85 @@
   ...
 }:
 pkgs.mkShell {
-  packages = pkgs.lib.optional (gisnixDispatcher != null) gisnixDispatcher
-  ++ pkgs.lib.optional (gisnixCompletions != null) gisnixCompletions
-  ++ [
-    # bashInteractive shadows the stdenv's minimal (readline-less) bash on
-    # PATH. Without this, typing `bash` inside `nix develop` gives a shell
-    # with no line editing, which renders starship's \[ \] prompt markers
-    # literally (and drops tab-completion / history).
-    pkgs.bashInteractive
-    inputs.timvim.packages.${pkgs.stdenv.hostPlatform.system}.default # my own neovim package (fork)
-    pkgs.rage # Secrets management
-    # Development
-    pkgs.gum # UX for TUIs
-    pkgs.jq # JSON wrangling
+  packages =
+    pkgs.lib.optional (gisnixDispatcher != null) gisnixDispatcher
+    ++ pkgs.lib.optional (gisnixCompletions != null) gisnixCompletions
+    ++ [
+      # bashInteractive shadows the stdenv's minimal (readline-less) bash on
+      # PATH. Without this, typing `bash` inside `nix develop` gives a shell
+      # with no line editing, which renders starship's \[ \] prompt markers
+      # literally (and drops tab-completion / history).
+      pkgs.bashInteractive
+      inputs.timvim.packages.${pkgs.stdenv.hostPlatform.system}.default # my own neovim package (fork)
+      pkgs.rage # Secrets management
+      # Development
+      pkgs.gum # UX for TUIs
+      pkgs.jq # JSON wrangling
 
-    # Renders the entry banner. This was called by the shellHook but never
-    # declared, so it only worked on machines that happened to have chafa
-    # installed system-wide — and because the call swallowed its own stderr,
-    # a machine without it simply showed no banner and said nothing.
-    pkgs.chafa
+      # Renders the entry banner. This was called by the shellHook but never
+      # declared, so it only worked on machines that happened to have chafa
+      # installed system-wide — and because the call swallowed its own stderr,
+      # a machine without it simply showed no banner and said nothing.
+      pkgs.chafa
 
-    # `tput cols`, used to size the banner when COLUMNS is not exported.
-    # Guarded with a fallback, so its absence was silent rather than broken —
-    # but an 80-column guess on a wide terminal looks like a bug.
-    pkgs.ncurses
+      # `tput cols`, used to size the banner when COLUMNS is not exported.
+      # Guarded with a fallback, so its absence was silent rather than broken —
+      # but an 80-column guess on a wide terminal looks like a bug.
+      pkgs.ncurses
 
-    pkgs.gource # Software version control visualization
-    pkgs.ffmpeg # Convert gource videos to gifs
-    pkgs.pre-commit # for formatting commits
-    pkgs.nixfmt-rfc-style # formatting compliance with nix standards
-    pkgs.bearer
-    pkgs.shfmt
-    pkgs.markdownlint-cli
-    pkgs.actionlint
-    pkgs.shellcheck
-    pkgs.cspell
-    pkgs.gitleaks # secret scanning — the gitleaks pre-commit hook (uses .gitleaks.toml)
-    # Deployment
-    pkgs.hcloud
-    pkgs.catimg # For generating banners for the alpha neovim start banner
-    inputs.term2alpha.packages.${pkgs.stdenv.hostPlatform.system}.default # used with the catimg app to make alpha splash
-    # Hardware detection utilities
-    pkgs.pciutils # provides lspci
-    pkgs.usbutils # provides lsusb
-    pkgs.dmidecode # provides dmidecode
+      pkgs.gource # Software version control visualization
+      pkgs.ffmpeg # Convert gource videos to gifs
+      pkgs.pre-commit # for formatting commits
+      pkgs.nixfmt-rfc-style # formatting compliance with nix standards
+      pkgs.bearer
+      pkgs.shfmt
+      pkgs.markdownlint-cli
+      pkgs.actionlint
+      pkgs.shellcheck
+      pkgs.cspell
+      pkgs.gitleaks # secret scanning — the gitleaks pre-commit hook (uses .gitleaks.toml)
+      # Deployment
+      pkgs.hcloud
+      pkgs.catimg # For generating banners for the alpha neovim start banner
+      inputs.term2alpha.packages.${pkgs.stdenv.hostPlatform.system}.default # used with the catimg app to make alpha splash
+      # Hardware detection utilities
+      pkgs.pciutils # provides lspci
+      pkgs.usbutils # provides lsusb
+      pkgs.dmidecode # provides dmidecode
 
-    # Docs site: mkdocs-material and the python interpreter used by
-    # docs/scripts/generate-host-docs.py. Mirrors flake.nix:docsPython so `nix
-    # develop` and `nix run .#docs-*` agree on versions.
-    # mkdocs + plugins for the docs site. mkdocs-with-pdf is NOT included
-    # here (it's not in nixpkgs on this channel; the flake builds it via
-    # buildPythonPackage for the `nix run .#docs-pdf` app instead). The
-    # dev shell stays small; for PDF work use the flake app directly.
-    (pkgs.python3.withPackages (
-      ps: with ps; [
-        mkdocs
-        mkdocs-material
-        mkdocs-glightbox
-        mkdocs-git-revision-date-localized-plugin
-        pymdown-extensions
-        pygments
-        # textual: so `GISNIX_INSTALLER_MOCK=1 python3 -m installer` (or
-        # `python3 -m installer --mock`) runs straight from the working
-        # tree — no `nix run`/rebuild between edits, the fastest loop for
-        # iterating on the setup wizard's screens. Also what
-        # overlays/pkgs/restream/restream.py (the `restream` system
-        # package, see software/desktop/multimedia/obs.nix) runs on.
-        textual
-        # pyyaml: `python3 overlays/pkgs/restream/restream.py` reads/writes
-        # stream-sprout.yaml directly from the working tree, same reason.
-        pyyaml
-        # pytest: installer/tests/ — `pytest installer/tests` from repo
-        # root. No pytest-asyncio: those tests wrap App.run_test() in a
-        # plain asyncio.run() inside an ordinary sync test function
-        # instead, rather than pulling in a second plugin for it.
-        pytest
-      ]
-    ))
-  ];
+      # Docs site: mkdocs-material and the python interpreter used by
+      # docs/scripts/generate-host-docs.py. Mirrors flake.nix:docsPython so `nix
+      # develop` and `nix run .#docs-*` agree on versions.
+      # mkdocs + plugins for the docs site. mkdocs-with-pdf is NOT included
+      # here (it's not in nixpkgs on this channel; the flake builds it via
+      # buildPythonPackage for the `nix run .#docs-pdf` app instead). The
+      # dev shell stays small; for PDF work use the flake app directly.
+      (pkgs.python3.withPackages (
+        ps: with ps; [
+          mkdocs
+          mkdocs-material
+          mkdocs-glightbox
+          mkdocs-git-revision-date-localized-plugin
+          pymdown-extensions
+          pygments
+          # textual: so `GISNIX_INSTALLER_MOCK=1 python3 -m installer` (or
+          # `python3 -m installer --mock`) runs straight from the working
+          # tree — no `nix run`/rebuild between edits, the fastest loop for
+          # iterating on the setup wizard's screens. Also what
+          # overlays/pkgs/restream/restream.py (the `restream` system
+          # package, see software/desktop/multimedia/obs.nix) runs on.
+          textual
+          # pyyaml: `python3 overlays/pkgs/restream/restream.py` reads/writes
+          # stream-sprout.yaml directly from the working tree, same reason.
+          pyyaml
+          # pytest: installer/tests/ — `pytest installer/tests` from repo
+          # root. No pytest-asyncio: those tests wrap App.run_test() in a
+          # plain asyncio.run() inside an ordinary sync test function
+          # instead, rather than pulling in a second plugin for it.
+          pytest
+        ]
+      ))
+    ];
 
   shellHook = ''
     # $PWD is the TARGET flake (the caller's own config) — what `gisnix`
