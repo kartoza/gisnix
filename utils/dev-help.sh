@@ -32,6 +32,21 @@ MANIFEST="${GISNIX_ROOT:-.}/utils/commands.json"
   exit 0
 }
 
+# A downstream flake's OWN commands.json (e.g. nix-config's private
+# hypr-template-pull/push) declares commands the dispatcher already runs
+# directly (its cwd fallback in the `*` branch) but this cheat-sheet never
+# listed — they existed, but only someone who already knew their name could
+# reach them. Rendered as extra groups below, rooted at the caller's cwd
+# rather than $GISNIX_ROOT, so presence checks look at the right utils/.
+# Guarded on the two manifests actually differing, so running this script
+# inside gisnix's own checkout (cwd manifest == gisnix's own) doesn't render
+# every command twice.
+PRIVATE_MANIFEST=""
+if [ -f ./utils/commands.json ] \
+  && [ "$(realpath ./utils/commands.json 2>/dev/null)" != "$(realpath "$MANIFEST" 2>/dev/null)" ]; then
+  PRIVATE_MANIFEST=./utils/commands.json
+fi
+
 # Brand palette (24-bit truecolor).
 GREEN=$'\033[38;2;88;150;50m'   # env
 YELLOW=$'\033[38;2;240;230;74m' # dns
@@ -208,6 +223,61 @@ if [ -z "$ROWS" ]; then printf ''; else printf '%s\n' "$ROWS"; fi |
     row 3 "docs-generate-bundles" "regenerate docs/references/bundles.md"
     row 4 "docs-generate-commands" "regenerate docs/references/commands.md"
     row 5 "test-install" "build the installer ISO and boot it in QEMU"
+
+    # The downstream manifest detected above, rendered with the exact same
+    # jq query and loop as gisnix's own rows just above — kept as a second
+    # pass rather than merged into the one sorted stream, because the two
+    # files have independent group orderings and an independent root for
+    # presence checks (the caller's cwd, not $GISNIX_ROOT). A group name
+    # reused by both (e.g. "hardware") simply gets a second banner here;
+    # `prev` is cleared first so that always happens, even if gisnix's last
+    # group happened to share the same name.
+    if [ -n "$PRIVATE_MANIFEST" ]; then
+      if PROWS="$(
+        jq -r '
+          (.groups // []) as $order
+          | .commands
+          | map(. as $c | $c + {rank: (($order | index($c.group)) // 99)})
+          | sort_by(.rank, .order)
+          | .[]
+          | [ .group, .name, (.terse // .desc), .file, ((.prelude // []) | join(",")) ]
+          | @tsv' "$PRIVATE_MANIFEST" 2>&1
+      )"; then
+        :
+      else
+        echo "${DIM}could not read ${PRIVATE_MANIFEST} — its commands are missing:${NC}" >&2
+        printf '  %s\n' "$PROWS" >&2
+        PROWS=""
+      fi
+      if [ -n "$PROWS" ] && ! printf '%s' "$PROWS" | head -1 | grep -qP '^([^\t]*\t){4}[^\t]*$'; then
+        echo "${DIM}unexpected row shape from ${PRIVATE_MANIFEST} — expected 5 fields${NC}" >&2
+        PROWS=""
+      fi
+      if [ -n "$PROWS" ]; then
+        prev=''
+        while IFS=$'\t' read -r g name desc file prelude; do
+          present=1
+          [ -f "./utils/${file}" ] || present=0
+          if [ -n "$prelude" ]; then
+            IFS=',' read -ra libs <<< "$prelude"
+            for lib in "${libs[@]}"; do [ -f "./utils/lib/${lib}" ] || present=0; done
+          fi
+          total=$((total + 1))
+          [ "$present" = "1" ] && ready=$((ready + 1))
+
+          if [ "$g" != "$prev" ]; then
+            rule ├ ┴ ┤
+            group_header "$g"
+            rule ├ ┬ ┤
+            prev="$g"
+            n=0
+          fi
+          n=$((n + 1))
+          row "$n" "$name" "$desc" "$present"
+        done <<< "$PROWS"
+      fi
+    fi
+
     rule └ ┴ ┘
 
     echo

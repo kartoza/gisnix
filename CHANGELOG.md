@@ -3,6 +3,22 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.29.0] - 2026-11-19
+
+### Added
+
+- **`gisnix` cheat-sheet now lists a downstream flake's private commands.**
+  The dispatcher's `*` branch already ran a consuming repo's own
+  `utils/commands.json` rows directly (e.g. nix-config's
+  `hypr-template-pull`/`hypr-template-push`) — they just never showed up
+  in the printed table, so you had to already know a command's name to
+  use it. `utils/dev-help.sh` now also reads `./utils/commands.json` (the
+  caller's cwd) when it differs from gisnix's own manifest, and renders
+  its rows as extra groups at the end of the same table, with presence
+  checks rooted at the caller's cwd rather than `$GISNIX_ROOT`. `gisnix
+  --list` (tab completion) is unchanged — this only affects the bare
+  `gisnix` / `gisnix -h` table.
+
 ## [0.28.0] - 2026-10-25
 
 ### Changed
