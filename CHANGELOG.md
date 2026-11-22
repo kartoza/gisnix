@@ -3,6 +3,24 @@
 All notable changes to gisnix are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.28.1] - 2026-11-19
+
+### Fixed
+
+- **Pinned QGIS bundles: the Mergin plugin's bundled geodiff library
+  could not load.** Every historical QGIS version bundle
+  (`qgis-versions.json`, all 23 series) built its QGIS straight from the
+  pinned nixpkgs snapshot with no wrapping, unlike `qgis-latest.nix` and
+  `qgis-ltr.nix`, which already run their QGIS through `wrap-qgis.nix`.
+  The Mergin plugin vendors its own prebuilt `libpygeodiff` `.so`
+  (loaded via `ctypes.CDLL`, not through QGIS's own Python environment),
+  which needs `libsqlite3.so.0` and a handful of other shared libraries
+  at dlopen time -- NixOS has no FHS `/usr/lib` for a generic loader to
+  find them in, and nothing set `LD_LIBRARY_PATH` for these builds.
+  `qgis-pinned.nix` (the shared builder behind every pinned series) now
+  wraps its output through `wrap-qgis.nix` too, the same fix already
+  applied to Latest and LTR.
+
 ## [0.28.0] - 2026-10-25
 
 ### Changed
