@@ -383,7 +383,7 @@ graph LR
 | [`services-sync`](#services-sync)  | 2 | — | — |
 | [`services-system`](#services-system)  | 8 | — | `services-system-console`, `services-system-power`, `services-system-storage` |
 | [`services-virtualisation`](#services-virtualisation)  | 4 | — | — |
-| [`services-device-input`](#services-device-input)  | 4 | `services-device` | — |
+| [`services-device-input`](#services-device-input)  | 5 | `services-device` | — |
 | [`services-device-input-kanata`](#services-device-input-kanata)  | 2 | `services-device` | — |
 | [`services-device-mobile`](#services-device-mobile)  | 2 | `services-device` | — |
 | [`services-device-peripherals`](#services-device-peripherals)  | 4 | `services-device` | — |
@@ -1029,7 +1029,7 @@ Taking this also brings in `desktop-gis`.
 
 ### services-device-input
 
-*Vendor input hardware: Dygma/Bazecor configurator, Razer RGB/DPI, generic mouse configurators. Kanata's own keyboard remapping is the services-device-input-kanata bundle instead — it needs no vendor hardware and ships on by default, unlike the daemons and kernel modules here.*
+*Vendor input hardware: Dygma/Bazecor configurator, Razer RGB/DPI, Logitech HID++ (OpenLogi), generic mouse configurators. Kanata's own keyboard remapping is the services-device-input-kanata bundle instead — it needs no vendor hardware and ships on by default, unlike the daemons and kernel modules here.*
 
 `software/services/device/input/`
 
@@ -1039,6 +1039,7 @@ Taking this also brings in `services-device`.
 | --- | --- |
 | `bazecor.nix` | — |
 | `console-mouse.nix` | — |
+| `openlogi.nix` | OpenLogi — local-first Logitech HID++ device control (button remap, DPI, SmartShift) |
 | `openrazer.nix` | — |
 | `piper.nix` | Gaming-mouse configuration: DPI, polling rate, button mapping, LEDs |
 
@@ -1258,6 +1259,6 @@ Taking this also brings in `services-system`.
 
 ---
 
-61 bundles, 234 modules.
+61 bundles, 235 modules.
 
 Made with love by [Kartoza](https://kartoza.com) | [Donate](https://github.com/sponsors/timlinux) | [GitHub](https://github.com/kartoza/gisnix)

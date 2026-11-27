@@ -102,6 +102,12 @@ in
     # platforms' management pages. See software/desktop/multimedia/obs.nix.
     restream = final.callPackage ./pkgs/restream/package.nix { };
 
+    # OpenLogi (https://openlogi.org) — local-first Logitech HID++ device
+    # control. Not in nixpkgs; repackaged from upstream's .deb release. See
+    # overlays/pkgs/openlogi/package.nix and
+    # software/services/device/input/openlogi.nix.
+    openlogi = final.callPackage ./pkgs/openlogi/package.nix { };
+
     # Bubblewrapped AI applications. All generated from the one jail
     # definition in ./pkgs/ai/mk-sandboxed.nix — add new tools there rather
     # than copying a wrapper.

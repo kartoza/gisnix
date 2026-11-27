@@ -1,13 +1,14 @@
 {
   "name": "services-device-input",
   "path": "services/device/input",
-  "description": "Vendor input hardware: Dygma/Bazecor configurator, Razer RGB/DPI, generic mouse configurators. Kanata's own keyboard remapping is the services-device-input-kanata bundle instead — it needs no vendor hardware and ships on by default, unlike the daemons and kernel modules here.",
+  "description": "Vendor input hardware: Dygma/Bazecor configurator, Razer RGB/DPI, Logitech HID++ (OpenLogi), generic mouse configurators. Kanata's own keyboard remapping is the services-device-input-kanata bundle instead — it needs no vendor hardware and ships on by default, unlike the daemons and kernel modules here.",
   "implies": [
     "services-device"
   ],
   "modules": [
     "bazecor.nix",
     "console-mouse.nix",
+    "openlogi.nix",
     "openrazer.nix",
     "piper.nix"
   ]
